@@ -1,0 +1,228 @@
+/* Root & general */
+#root {
+  width: 95%;
+  margin: 0 auto;
+  padding: 1rem 2rem;
+  background: #121212;           /* dark background */
+  color: #fff;
+  font-family: 'Roboto', sans-serif;
+  text-align: left;              /* align all text left by default */
+  min-height: 100vh;
+}
+
+/* Top bar with search and buttons */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+/* Left side: search bar */
+.left-side {
+  flex: 1;
+  max-width: 600px;
+}
+
+.search-bar {
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 16px;
+  margin-bottom: 10px;
+  border-radius: 9999px;          /* pill shape */
+  border: none;
+  background-color: #282828;
+  color: #fff;
+  outline: none;
+  transition: background-color 0.3s ease;
+}
+
+.search-bar::placeholder {
+  color: #b3b3b3;
+}
+
+.search-bar:focus {
+  background-color: #3e3e3e;
+}
+
+/* Right side: buttons */
+.right-side {
+  display: flex;
+  gap: 24px;
+  flex-shrink: 0;
+}
+
+.right-side button {
+  background: none;
+  border: none;
+  color: #b3b3b3;
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+
+.right-side button:hover {
+  color: #fff;
+}
+
+/* Title below top bar, aligned left and big */
+.Title {
+  font-size: 48px;
+  font-weight: 700;
+  margin: 1.5rem 0;
+  letter-spacing: 0.02em;
+  color: #fff;
+  text-align: left;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+/* Cards container */
+.parent {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: flex-start;
+}
+.my-bills-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: flex-start;
+}
+/* Cards styled like album tiles */
+.box {
+
+  min-width: 220px; /* or whatever minimum width you want */
+  width: fit-content;
+  max-width: 320px;
+  height: auto;
+  min-height: 140px;
+  background-color: transparent;
+  border-radius: 8px;
+  padding: 12px;
+  box-sizing: border-box;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;  /* align text to top so it doesn’t get squished */
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  word-break: break-word;
+  white-space: normal;
+}
+
+.box::before {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 80px;         /* smaller image area */
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #444, #222);
+  border-radius: 6px;
+  flex-shrink: 0;       /* prevent shrinking */
+}
+
+.box:hover {
+  background-color: #282828;
+  transform: scale(1.05);
+}
+
+
+
+.tag {
+  font-size: 12px;
+  font-weight: 700;
+  color: #f0f0f0cc;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  user-select: none;
+}
+
+.box-title {
+  /* You can style this as needed */
+  font-weight: 600;
+}
+
+.section-title {
+  font-size: 24px;
+  color: white;
+  margin: 2rem 0 1rem 0;
+  font-weight: 700;
+  text-align: left;
+}
+
+.subheading{
+  padding-top: 20px;
+}
+
+
+.scroll-container {
+  overflow-x: auto;
+  scrollbar-width: thin; /* Firefox fallback */
+  scrollbar-color: #888 #1e1e1e; /* Firefox fallback */
+}
+
+.scroll-container::-webkit-scrollbar {
+  height: 2px;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 8px;
+}
+
+.scroll-container::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+
+.bill-row {
+  display: flex;
+  gap: 12px;
+  min-width: max-content; /* Prevents wrapping */
+}
+
+.topic-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  padding: 0 10px;
+  margin-bottom: 2rem;
+}
+
+.topic-box {
+  position: relative;
+  height: 40px;              /* smaller height */
+  background-color: #f1f5f9;
+  border-radius: 12px;
+  padding: 0.5rem 1rem 0.5rem 1.5rem; /* reduced padding */
+  font-weight: bold;
+  font-size: 0.85rem;        /* smaller font size */
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  border: 2px solid #cbd5e1;
+  transition: transform 0.2s ease;
+}
+
+.topic-box:hover {
+  transform: scale(1.05);
+  cursor: pointer;
+}
+
+.topic-box::before {
+  content: "";
+  position: absolute;
+  left: 8px;                /* slightly closer to the edge */
+  top: 8px;
+  width: 4px;               /* thinner band */
+  height: calc(100% - 16px);
+  border-radius: 2px;
+  background-color: var(--band-color, #000);
+}

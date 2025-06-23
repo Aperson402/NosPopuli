@@ -1,0 +1,17 @@
+const bills = [
+  { title: "Bill 1", party: "d", tag: "For You" },
+  { title: "Bill 2", party: "r", tag: "Discover" },
+  { title: "Bill 3", party: "m" },
+  { title: "Bill 4", party: "m", tag: "For You" },
+  { title: "Bill 5", party: "m" },
+  { title: "Bill 6", party: "d" },
+  { title: "Bill 7", party: "m", tag: "Discover" },
+  { title: "Bill 8", party: "r" },
+  { title: "Bill 9", party: "d" },
+  { title: "Bill 10", party: "d", tag: "For You" },
+  { title: "Bill 11", party: "d" },
+  { title: "Bill 12", party: "r", tag: "Discover" },
+  { title: "Bill 13", party: "d" },
+  { title: "Bill 14", party: "r" },
+  { title: "Bill 15", party: "m" },
+];

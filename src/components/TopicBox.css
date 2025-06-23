@@ -1,0 +1,39 @@
+.topic-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  padding: 0 10px;
+  margin-bottom: 2rem;
+}
+
+.topic-box {
+  position: relative;
+  height: 100px; /* make box taller to fit content */
+  background-color: #f1f5f9;
+  border-radius: 12px;
+  padding: 1rem 1rem 1rem 1.8rem; /* more left padding for the band */
+  font-weight: bold;
+  font-size: 1rem;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  border: 2px solid #cbd5e1;
+  transition: transform 0.2s ease;
+}
+
+.topic-box:hover {
+  transform: scale(1.05);
+  cursor: pointer;
+}
+
+.topic-box::before {
+  content: "";
+  position: absolute;
+  left: 10px; /* slightly inset */
+  top: 10px;
+  width: 6px;
+  height: calc(100% - 20px); /* full height inset top and bottom */
+  border-radius: 4px;
+  background-color: var(--band-color, #000);
+}
