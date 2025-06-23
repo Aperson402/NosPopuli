@@ -1,72 +1,87 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@import './styles/variables.css';
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-body {
+/* Global styles */
+html, body {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+  font-family: var(--font-family-primary);
+  background-color: var(--background-color);
+  color: var(--text-color-primary);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#root {
+  flex-grow: 1;
+  width: 95%;
+  margin: 0 auto;
+  padding: var(--spacing-md) var(--spacing-lg);
+  text-align: left;
 }
 
 a {
   font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+  color: var(--accent-color-blue);
+  text-decoration: none;
+  transition: color var(--transition-speed) var(--transition-ease);
 }
+
 a:hover {
-  color: #535bf2;
+  color: var(--text-color-primary);
 }
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family-secondary);
+  color: var(--text-color-primary);
+  margin-top: 0;
 }
 
 button {
-  border-radius: 8px;
+  border-radius: var(--border-radius-pill);
   border: 1px solid transparent;
-  padding: 0.6em 1.2em;
+  padding: var(--spacing-sm) var(--spacing-md);
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: var(--surface-color);
+  color: var(--text-color-primary);
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  transition: background-color var(--transition-speed) var(--transition-ease), transform 0.1s ease-out;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+button:hover {
+  background-color: var(--card-hover-color);
+  transform: translateY(-2px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+button:focus,
+button:focus-visible {
+  outline: 2px solid var(--accent-color-blue);
+  outline-offset: 2px;
+}
+
+/* Scrollbar styles for Webkit browsers */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface-color);
+  border-radius: var(--border-radius-pill);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-color-secondary);
+  border-radius: var(--border-radius-pill);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-color-blue);
 }

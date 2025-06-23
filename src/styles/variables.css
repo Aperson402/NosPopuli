@@ -1,0 +1,42 @@
+:root {
+  /* Color Palette (inspired by Spotify/YouTube dark theme) */
+  --background-color: #121212; /* Darkest background */
+  --surface-color: #1a1a1a;    /* Slightly lighter for cards/sections */
+  --card-hover-color: #282828; /* Even lighter for hover states */
+  --text-color-primary: #ffffff; /* Primary text color */
+  --text-color-secondary: #b3b3b3; /* Secondary text, placeholders */
+  --accent-color-blue: #3b82f6; /* Blue for Democrats */
+  --accent-color-red: #ef4444; /* Red for Republicans */
+  --accent-color-purple: #8b5cf6; /* Purple for Mixed/Independent */
+  --accent-color-green: #10b981; /* General accent green */
+  --accent-color-amber: #f59e0b; /* General accent amber */
+  --accent-color-pink: #ec4899; /* General accent pink */
+  --accent-color-teal: #14b8a6; /* General accent teal */
+  --accent-color-orange: #f97316; /* General accent orange */
+  --accent-color-indigo: #6366f1; /* General accent indigo */
+  --accent-color-lime: #22c55e; /* General accent lime */
+  --accent-color-gold: #FFD700; /* Gold for personalized bills */
+  --border-color: #2a2a2a;     /* Subtle borders */
+  --shadow-color: rgba(0, 0, 0, 0.7); /* Deep shadows */
+
+  /* Typography */
+  --font-family-primary: 'Roboto', sans-serif;
+  --font-family-secondary: 'Inter', sans-serif; /* For titles/headings */
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* Border Radius */
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  --border-radius-pill: 9999px;
+
+  /* Transitions */
+  --transition-speed: 0.3s;
+  --transition-ease: ease-in-out;
+}

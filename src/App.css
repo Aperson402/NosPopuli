@@ -1,228 +1,279 @@
-/* Root & general */
-#root {
-  width: 95%;
-  margin: 0 auto;
-  padding: 1rem 2rem;
-  background: #121212;           /* dark background */
-  color: #fff;
-  font-family: 'Roboto', sans-serif;
-  text-align: left;              /* align all text left by default */
-  min-height: 100vh;
-}
+/* App.css */
 
 /* Top bar with search and buttons */
 .top-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #2a2a2a;
+  padding: var(--spacing-md) 0;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: var(--spacing-lg);
 }
 
 /* Left side: search bar */
 .left-side {
   flex: 1;
   max-width: 600px;
+  margin-right: var(--spacing-lg);
 }
 
 .search-bar {
   width: 100%;
-  padding: 10px 16px;
-  font-size: 16px;
-  margin-bottom: 10px;
-  border-radius: 9999px;          /* pill shape */
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: 1em;
+  border-radius: var(--border-radius-pill);
   border: none;
-  background-color: #282828;
-  color: #fff;
+  background-color: var(--surface-color);
+  color: var(--text-color-primary);
   outline: none;
-  transition: background-color 0.3s ease;
+  transition: background-color var(--transition-speed) var(--transition-ease);
 }
 
 .search-bar::placeholder {
-  color: #b3b3b3;
+  color: var(--text-color-secondary);
 }
 
 .search-bar:focus {
-  background-color: #3e3e3e;
+  background-color: var(--card-hover-color);
 }
 
 /* Right side: buttons */
 .right-side {
   display: flex;
-  gap: 24px;
+  gap: var(--spacing-md);
   flex-shrink: 0;
+  align-items: center; /* Align buttons vertically */
 }
 
-.right-side button {
-  background: none;
-  border: none;
-  color: #b3b3b3;
+.right-side .nav-button { /* Specific class for navigation buttons */
+  background-color: var(--surface-color);
+  color: var(--text-color-secondary);
   font-weight: 500;
-  font-size: 16px;
+  font-size: 1em;
   cursor: pointer;
-  transition: color 0.3s ease;
-  padding: 8px 12px;
-  border-radius: 4px;
+  transition: background-color var(--transition-speed) var(--transition-ease), color var(--transition-speed) var(--transition-ease), transform 0.1s ease-out;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius-pill);
+  border: none; /* Ensure no default button border */
 }
 
-.right-side button:hover {
-  color: #fff;
+.right-side .nav-button:hover {
+  color: var(--text-color-primary);
+  background-color: var(--card-hover-color);
+  transform: translateY(-2px);
+}
+
+.right-side .nav-button:active {
+  transform: translateY(0);
 }
 
 /* Title below top bar, aligned left and big */
 .Title {
-  font-size: 48px;
+  font-size: 3em;
   font-weight: 700;
-  margin: 1.5rem 0;
+  margin: var(--spacing-xl) 0 var(--spacing-lg) 0;
   letter-spacing: 0.02em;
-  color: #fff;
+  color: var(--text-color-primary);
   text-align: left;
-  font-family: 'Courier New', Courier, monospace;
+  font-family: var(--font-family-secondary);
+}
+
+.read-the-docs {
+  color: var(--text-color-secondary);
+  margin-bottom: var(--spacing-xl);
 }
 
 /* Cards container */
-.parent {
+.parent, .my-bills-container, .bill-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: var(--spacing-md);
   justify-content: flex-start;
 }
-.my-bills-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  justify-content: flex-start;
-}
+
 /* Cards styled like album tiles */
 .box {
-
-  min-width: 220px; /* or whatever minimum width you want */
-  width: fit-content;
-  max-width: 320px;
-  height: auto;
-  min-height: 140px;
-  background-color: transparent;
-  border-radius: 8px;
-  padding: 12px;
+  min-width: 180px;
+  max-width: 280px;
+  width: 100%;
+  background-color: var(--surface-color);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md);
   box-sizing: border-box;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
-  color: white;
+  box-shadow: 0 4px 12px var(--shadow-color);
+  color: var(--text-color-primary); /* Default text color */
   font-weight: 600;
-  font-size: 14px;
+  font-size: 0.9em;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;  /* align text to top so it doesn’t get squished */
+  justify-content: flex-start;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  transition: background-color var(--transition-speed) var(--transition-ease), transform 0.2s ease-out;
   word-break: break-word;
   white-space: normal;
+  position: relative; /* For potential future overlays/badges */
 }
 
 .box::before {
   content: '';
   display: block;
   width: 100%;
-  height: 80px;         /* smaller image area */
-  margin-bottom: 12px;
-  background: linear-gradient(135deg, #444, #222);
-  border-radius: 6px;
-  flex-shrink: 0;       /* prevent shrinking */
+  padding-bottom: 56.25%; /* 16:9 aspect ratio for image placeholder */
+  margin-bottom: var(--spacing-sm);
+  background: linear-gradient(135deg, #444, #222); /* Placeholder gradient */
+  border-radius: var(--border-radius-sm);
+  flex-shrink: 0;
 }
 
 .box:hover {
-  background-color: #282828;
-  transform: scale(1.05);
+  background-color: var(--card-hover-color);
+  transform: translateY(-5px);
 }
 
-
-
 .tag {
-  font-size: 12px;
+  font-size: 0.75em;
   font-weight: 700;
-  color: #f0f0f0cc;
+  color: var(--text-color-secondary);
   text-transform: uppercase;
-  margin-bottom: 6px;
+  margin-bottom: var(--spacing-xs);
   user-select: none;
 }
 
 .box-title {
-  /* You can style this as needed */
   font-weight: 600;
+  margin-top: var(--spacing-xs);
+  line-height: 1.3;
+  color: var(--party-color); /* Apply party color to the title */
 }
 
 .section-title {
-  font-size: 24px;
-  color: white;
-  margin: 2rem 0 1rem 0;
+  font-size: 1.8em;
+  color: var(--text-color-primary);
+  margin: var(--spacing-xl) 0 var(--spacing-md) 0;
   font-weight: 700;
   text-align: left;
+  font-family: var(--font-family-secondary);
 }
 
-.subheading{
-  padding-top: 20px;
+.subheading {
+  font-size: 1.5em;
+  color: var(--text-color-primary);
+  margin: var(--spacing-lg) 0 var(--spacing-md) 0;
+  font-weight: 600;
+  text-align: left;
+  font-family: var(--font-family-secondary);
 }
-
 
 .scroll-container {
   overflow-x: auto;
-  scrollbar-width: thin; /* Firefox fallback */
-  scrollbar-color: #888 #1e1e1e; /* Firefox fallback */
-}
-
-.scroll-container::-webkit-scrollbar {
-  height: 2px;
-}
-
-.scroll-container::-webkit-scrollbar-thumb {
-  background-color: #888;
-  border-radius: 8px;
-}
-
-.scroll-container::-webkit-scrollbar-track {
-  background: #1e1e1e;
+  padding-bottom: var(--spacing-sm); /* Space for scrollbar */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }
 
 .bill-row {
-  display: flex;
-  gap: 12px;
-  min-width: max-content; /* Prevents wrapping */
+  flex-wrap: nowrap; /* Ensure items stay in a single row */
+  min-width: max-content; /* Prevent wrapping */
+  padding-right: var(--spacing-md); /* Ensure last item isn't cut off */
 }
 
 .topic-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  padding: 0 10px;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* Even smaller min-width */
+  gap: var(--spacing-md);
+  padding: 0; /* Remove horizontal padding */
+  margin-bottom: var(--spacing-xl);
 }
 
 .topic-box {
   position: relative;
-  height: 40px;              /* smaller height */
-  background-color: #f1f5f9;
-  border-radius: 12px;
-  padding: 0.5rem 1rem 0.5rem 1.5rem; /* reduced padding */
+  height: 40px; /* Even smaller height */
+  background-color: var(--surface-color);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-xs) var(--spacing-sm); /* Even more reduced padding */
   font-weight: bold;
-  font-size: 0.85rem;        /* smaller font size */
-  color: #1e293b;
+  font-size: 0.8em; /* Even smaller font size */
+  color: var(--text-color-primary);
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  border: 2px solid #cbd5e1;
-  transition: transform 0.2s ease;
+  border: 1px solid var(--border-color);
+  transition: transform 0.2s ease-out, background-color var(--transition-speed) var(--transition-ease);
+  overflow: hidden; /* Hide overflow for the band */
 }
 
 .topic-box:hover {
-  transform: scale(1.05);
+  transform: translateY(-3px);
+  background-color: var(--card-hover-color);
   cursor: pointer;
 }
 
 .topic-box::before {
   content: "";
   position: absolute;
-  left: 8px;                /* slightly closer to the edge */
-  top: 8px;
-  width: 4px;               /* thinner band */
-  height: calc(100% - 16px);
-  border-radius: 2px;
-  background-color: var(--band-color, #000);
+  left: 0;
+  top: 0;
+  width: 4px; /* Even thinner band */
+  height: 100%;
+  border-radius: var(--border-radius-sm) 0 0 var(--border-radius-sm); /* Rounded only on left */
+  background-color: var(--band-color, var(--accent-color-blue)); /* Default to accent blue */
+  transition: background-color var(--transition-speed) var(--transition-ease);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  #root {
+    width: 100%;
+    padding: var(--spacing-md);
+  }
+
+  .top-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+  }
+
+  .left-side {
+    width: 100%;
+    max-width: none;
+    margin-right: 0;
+  }
+
+  .right-side {
+    width: 100%;
+    justify-content: space-around;
+    flex-wrap: wrap;
+  }
+
+  .Title {
+    font-size: 2.5em;
+  }
+
+  .box {
+    min-width: 160px;
+    max-width: 100%;
+  }
+
+  .topic-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* Even smaller min-width */
+  }
+}
+
+@media (max-width: 480px) {
+  .Title {
+    font-size: 2em;
+  }
+
+  .right-side button {
+    font-size: 0.9em;
+    padding: var(--spacing-sm);
+  }
+
+  .box {
+    min-width: 140px;
+  }
+
+  .topic-box {
+    height: 40px; /* Even smaller height */
+    font-size: 0.8em; /* Even smaller font size */
+  }
 }
