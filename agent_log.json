@@ -1,0 +1,28 @@
+[
+  {
+    "timestamp": "2026-05-08T19:40:33.842666",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 111,
+      "type": "hr",
+      "number": 3590
+    },
+    "output": {
+      "title": "Patient Protection and Affordable Care Act",
+      "status": "Became Public Law No: 111-148."
+    }
+  },
+  {
+    "timestamp": "2026-05-08T19:40:37.437690",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Patient Protection and Affordable Care Act",
+      "sponsor": "Rep. Rangel, Charles B. [D-NY-15]"
+    },
+    "output": {
+      "translation_preview": "# The Affordable Care Act - Plain English\n\n**1. What this bill is in one sentence:**\nThis law requir"
+    }
+  }
+]
