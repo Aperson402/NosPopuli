@@ -24,5 +24,42 @@
     "output": {
       "translation_preview": "# The Affordable Care Act - Plain English\n\n**1. What this bill is in one sentence:**\nThis law requir"
     }
+  },
+  {
+    "timestamp": "2026-05-08T19:49:27.385523",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 111,
+      "type": "hr",
+      "number": 3590
+    },
+    "output": {
+      "action_count": 20
+    }
+  },
+  {
+    "timestamp": "2026-05-08T19:49:28.098398",
+    "agent": "historian",
+    "action": "fetch_related_bills",
+    "input": {
+      "congress": 111,
+      "type": "hr",
+      "number": 3590
+    },
+    "output": {
+      "related_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-08T19:49:30.276305",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "preview": "# How This Bill Became Law\n\n**December 23, 2009:** The Senate votes to end debate on the bill (60-39"
+    }
   }
 ]
