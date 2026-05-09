@@ -148,19 +148,19 @@ def route_query(user_question, client):
     return structured
 
 if __name__ == "__main__":
+    import anthropic
     client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
     
-    test_questions = [
-        "Show me bills about student loans from the last 5 years",
-        "What has Congress done about housing affordability?",
-        "Find everything related to veterans benefits recently"
+    tests = [
+        "What did Ted Kennedy do in Congress?",
+        "Show me the Senate Judiciary Committee",
+        "Find bills about climate change",
+        "Bernie Sanders voting record",
+        "Give me a law that passed",
     ]
     
-    print("ROUTER AGENT TEST")
-    print("-" * 40)
-    
-    for question in test_questions:
-        print(f"Question: {question}")
-        result = route_query(question, client)
-        print(f"Structured: {json.dumps(result, indent=2)}")
+    for q in tests:
+        result = route_query(q, client)
+        print(f"Q: {q}")
+        print(f"   type={result['query_type']} entity={result.get('entity_name')} keywords={result.get('keywords')}")
         print()

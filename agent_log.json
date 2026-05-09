@@ -5329,5 +5329,1402 @@
       "house_votes": 429,
       "senate_votes": 0
     }
+  },
+  {
+    "timestamp": "2026-05-09T00:42:07.194811",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "What did Ted Kennedy do in Congress?"
+    },
+    "output": {
+      "query_type": "member",
+      "entity_name": "Ted Kennedy",
+      "keywords": [],
+      "topic": "",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 5,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:42:08.615276",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Show me the Senate Judiciary Committee"
+    },
+    "output": {
+      "query_type": "committee",
+      "entity_name": "Senate Judiciary Committee",
+      "keywords": [],
+      "topic": "",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 5,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:42:09.529417",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Find bills about climate change"
+    },
+    "output": {
+      "query_type": "legislation",
+      "entity_name": null,
+      "keywords": [
+        "climate",
+        "change"
+      ],
+      "topic": "climate change legislation",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 5,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:42:10.471935",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Bernie Sanders voting record"
+    },
+    "output": {
+      "query_type": "member",
+      "entity_name": "Bernie Sanders",
+      "keywords": [],
+      "topic": "",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 5,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:42:11.476632",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Give me a law that passed"
+    },
+    "output": {
+      "query_type": "legislation",
+      "entity_name": null,
+      "keywords": [],
+      "topic": "",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 1,
+      "specific_bill": null,
+      "status": "enacted",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:43:01.762063",
+    "agent": "member_search",
+    "action": "search_member",
+    "input": {
+      "name": "Ted Kennedy"
+    },
+    "output": {
+      "found": "Smith, Lawrence",
+      "bioguide_id": "S000586"
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:43:02.140372",
+    "agent": "member_search",
+    "action": "fetch_member_profile",
+    "input": {
+      "bioguide_id": "S000586"
+    },
+    "output": {
+      "name": "Lawrence Smith",
+      "years_served": 10
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:46:45.032919",
+    "agent": "member_search",
+    "action": "search_member",
+    "input": {
+      "name": "Ted Kennedy"
+    },
+    "output": {
+      "found": "Kennedy, John",
+      "bioguide_id": "K000393",
+      "score": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:46:45.396231",
+    "agent": "member_search",
+    "action": "fetch_member_profile",
+    "input": {
+      "bioguide_id": "K000393"
+    },
+    "output": {
+      "name": "John Kennedy",
+      "years_served": 9
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:46:47.179690",
+    "agent": "member_search",
+    "action": "fetch_member_legislation",
+    "input": {
+      "bioguide_id": "K000393"
+    },
+    "output": {
+      "sponsored_count": 656,
+      "cosponsored_count": 1128
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:48:06.960588",
+    "agent": "member_search",
+    "action": "search_member",
+    "input": {
+      "name": "Ted Kennedy"
+    },
+    "output": {
+      "found": "Kennedy, Edward M.",
+      "bioguide_id": "K000105",
+      "score": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:48:07.628510",
+    "agent": "member_search",
+    "action": "fetch_member_profile",
+    "input": {
+      "bioguide_id": "K000105"
+    },
+    "output": {
+      "name": "Edward M. Kennedy",
+      "years_served": 48
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:48:09.784501",
+    "agent": "member_search",
+    "action": "fetch_member_legislation",
+    "input": {
+      "bioguide_id": "K000105"
+    },
+    "output": {
+      "sponsored_count": 2552,
+      "cosponsored_count": 6967
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:55:47.930878",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Bernie Sanders voting record"
+    },
+    "output": {
+      "query_type": "member",
+      "entity_name": "Bernie Sanders",
+      "keywords": [],
+      "topic": "",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 5,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:55:48.739740",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "",
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 62223,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:55:48.750214",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Bernie Sanders voting record"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:55:57.651590",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Bernie Sanders"
+    },
+    "output": {
+      "query_type": "member",
+      "entity_name": "Bernie Sanders",
+      "keywords": [],
+      "topic": "",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 5,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:55:58.113522",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "",
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 62223,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:55:58.120586",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Bernie Sanders"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:56:08.526199",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Bernie Sanders"
+    },
+    "output": {
+      "query_type": "member",
+      "entity_name": "Bernie Sanders",
+      "keywords": [],
+      "topic": "",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 5,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:56:09.069606",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "",
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 62223,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:56:09.074541",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Bernie Sanders"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:57:01.005288",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "What did Ted Kennedy do in Congress?"
+    },
+    "output": {
+      "query_type": "member",
+      "entity_name": "Ted Kennedy",
+      "keywords": [],
+      "topic": "",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 5,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:57:03.492246",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Show me the Senate Judiciary Committee"
+    },
+    "output": {
+      "query_type": "committee",
+      "entity_name": "Senate Judiciary Committee",
+      "keywords": [],
+      "topic": "",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 5,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:57:26.172556",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "What did Ted Kennedy do in Congress?"
+    },
+    "output": {
+      "query_type": "member",
+      "entity_name": "Ted Kennedy",
+      "keywords": [],
+      "topic": "",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 5,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:57:27.019169",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Show me the Senate Judiciary Committee"
+    },
+    "output": {
+      "query_type": "committee",
+      "entity_name": "Senate Judiciary Committee",
+      "keywords": [],
+      "topic": "",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 5,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:57:27.887202",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Find bills about climate change"
+    },
+    "output": {
+      "query_type": "legislation",
+      "entity_name": null,
+      "keywords": [
+        "climate",
+        "change"
+      ],
+      "topic": "climate change legislation",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 5,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:57:28.751287",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Bernie Sanders voting record"
+    },
+    "output": {
+      "query_type": "member",
+      "entity_name": "Bernie Sanders",
+      "keywords": [],
+      "topic": "",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 5,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:57:29.721164",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Give me a law that passed"
+    },
+    "output": {
+      "query_type": "legislation",
+      "entity_name": null,
+      "keywords": [],
+      "topic": "",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 1,
+      "specific_bill": null,
+      "status": "enacted",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:59:04.962909",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Ted Kennedy"
+    },
+    "output": {
+      "query_type": "member",
+      "entity_name": "Ted Kennedy",
+      "keywords": [],
+      "topic": "",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 5,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:59:08.522823",
+    "agent": "member_search",
+    "action": "search_member",
+    "input": {
+      "name": "Ted Kennedy"
+    },
+    "output": {
+      "found": "Kennedy, Edward M.",
+      "bioguide_id": "K000105",
+      "score": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:59:08.898506",
+    "agent": "member_search",
+    "action": "fetch_member_profile",
+    "input": {
+      "bioguide_id": "K000105"
+    },
+    "output": {
+      "name": "Edward M. Kennedy",
+      "years_served": 48
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:59:09.622407",
+    "agent": "member_search",
+    "action": "fetch_member_legislation",
+    "input": {
+      "bioguide_id": "K000105"
+    },
+    "output": {
+      "sponsored_count": 2552,
+      "cosponsored_count": 6967
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:01:10.998298",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Ted Kennedy"
+    },
+    "output": {
+      "query_type": "member",
+      "entity_name": "Ted Kennedy",
+      "keywords": [],
+      "topic": "",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 5,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:01:15.003169",
+    "agent": "member_search",
+    "action": "search_member",
+    "input": {
+      "name": "Ted Kennedy"
+    },
+    "output": {
+      "found": "Kennedy, Edward M.",
+      "bioguide_id": "K000105",
+      "score": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:01:15.359991",
+    "agent": "member_search",
+    "action": "fetch_member_profile",
+    "input": {
+      "bioguide_id": "K000105"
+    },
+    "output": {
+      "name": "Edward M. Kennedy",
+      "years_served": 48
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:01:19.805033",
+    "agent": "member_search",
+    "action": "fetch_member_legislation",
+    "input": {
+      "bioguide_id": "K000105"
+    },
+    "output": {
+      "sponsored_count": 2552,
+      "cosponsored_count": 6967
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:01:36.566579",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Ted Kennedy Jr"
+    },
+    "output": {
+      "query_type": "member",
+      "entity_name": "Ted Kennedy Jr",
+      "keywords": [],
+      "topic": "",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 5,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:01:39.982865",
+    "agent": "member_search",
+    "action": "search_member",
+    "input": {
+      "name": "Ted Kennedy Jr"
+    },
+    "output": {
+      "found": "Kennedy, Edward M.",
+      "bioguide_id": "K000105",
+      "score": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:01:40.351523",
+    "agent": "member_search",
+    "action": "fetch_member_profile",
+    "input": {
+      "bioguide_id": "K000105"
+    },
+    "output": {
+      "name": "Edward M. Kennedy",
+      "years_served": 48
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:01:41.088876",
+    "agent": "member_search",
+    "action": "fetch_member_legislation",
+    "input": {
+      "bioguide_id": "K000105"
+    },
+    "output": {
+      "sponsored_count": 2552,
+      "cosponsored_count": 6967
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:01:48.780357",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Edward M. Kennedy Jr"
+    },
+    "output": {
+      "query_type": "member",
+      "entity_name": "Edward M. Kennedy Jr",
+      "keywords": [],
+      "topic": "",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 5,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:01:49.646958",
+    "agent": "member_search",
+    "action": "search_member",
+    "input": {
+      "name": "Edward M. Kennedy Jr"
+    },
+    "output": {
+      "found": "Kennedy, Timothy M.",
+      "bioguide_id": "K000402",
+      "score": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:01:50.008899",
+    "agent": "member_search",
+    "action": "fetch_member_profile",
+    "input": {
+      "bioguide_id": "K000402"
+    },
+    "output": {
+      "name": "Timothy M. Kennedy",
+      "years_served": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:01:52.255797",
+    "agent": "member_search",
+    "action": "fetch_member_legislation",
+    "input": {
+      "bioguide_id": "K000402"
+    },
+    "output": {
+      "sponsored_count": 30,
+      "cosponsored_count": 624
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:02:16.034880",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Bernie Sanders"
+    },
+    "output": {
+      "query_type": "member",
+      "entity_name": "Bernie Sanders",
+      "keywords": [],
+      "topic": "",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 5,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:02:16.492886",
+    "agent": "member_search",
+    "action": "search_member",
+    "input": {
+      "name": "Bernie Sanders"
+    },
+    "output": {
+      "found": "Sanders, Bernard",
+      "bioguide_id": "S000033",
+      "score": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:02:16.866344",
+    "agent": "member_search",
+    "action": "fetch_member_profile",
+    "input": {
+      "bioguide_id": "S000033"
+    },
+    "output": {
+      "name": "Bernard Sanders",
+      "years_served": 35
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:02:19.494775",
+    "agent": "member_search",
+    "action": "fetch_member_legislation",
+    "input": {
+      "bioguide_id": "S000033"
+    },
+    "output": {
+      "sponsored_count": 1169,
+      "cosponsored_count": 7854
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:02:51.633785",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Bernie Sanders"
+    },
+    "output": {
+      "query_type": "member",
+      "entity_name": "Bernie Sanders",
+      "keywords": [],
+      "topic": "",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 5,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:02:52.192434",
+    "agent": "member_search",
+    "action": "search_member",
+    "input": {
+      "name": "Bernie Sanders"
+    },
+    "output": {
+      "found": "Sanders, Bernard",
+      "bioguide_id": "S000033",
+      "score": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:02:52.560613",
+    "agent": "member_search",
+    "action": "fetch_member_profile",
+    "input": {
+      "bioguide_id": "S000033"
+    },
+    "output": {
+      "name": "Bernard Sanders",
+      "years_served": 35
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:02:53.284367",
+    "agent": "member_search",
+    "action": "fetch_member_legislation",
+    "input": {
+      "bioguide_id": "S000033"
+    },
+    "output": {
+      "sponsored_count": 1169,
+      "cosponsored_count": 7854
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:04:06.610647",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Bernie Sanders voting record"
+    },
+    "output": {
+      "query_type": "member",
+      "entity_name": "Bernie Sanders",
+      "keywords": [],
+      "topic": "",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 5,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:04:07.088675",
+    "agent": "member_search",
+    "action": "search_member",
+    "input": {
+      "name": "Bernie Sanders"
+    },
+    "output": {
+      "found": "Sanders, Bernard",
+      "bioguide_id": "S000033",
+      "score": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:04:07.482430",
+    "agent": "member_search",
+    "action": "fetch_member_profile",
+    "input": {
+      "bioguide_id": "S000033"
+    },
+    "output": {
+      "name": "Bernard Sanders",
+      "years_served": 35
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:04:12.574664",
+    "agent": "member_search",
+    "action": "fetch_member_legislation",
+    "input": {
+      "bioguide_id": "S000033"
+    },
+    "output": {
+      "sponsored_count": 1169,
+      "cosponsored_count": 7854
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:06:15.097539",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Bernie Sanders"
+    },
+    "output": {
+      "query_type": "member",
+      "entity_name": "Bernie Sanders",
+      "keywords": [],
+      "topic": "",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 5,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:06:15.726688",
+    "agent": "member_search",
+    "action": "search_member",
+    "input": {
+      "name": "Bernie Sanders"
+    },
+    "output": {
+      "found": "Sanders, Bernard",
+      "bioguide_id": "S000033",
+      "score": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:06:16.094003",
+    "agent": "member_search",
+    "action": "fetch_member_profile",
+    "input": {
+      "bioguide_id": "S000033"
+    },
+    "output": {
+      "name": "Bernard Sanders",
+      "years_served": 35
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:06:16.872063",
+    "agent": "member_search",
+    "action": "fetch_member_legislation",
+    "input": {
+      "bioguide_id": "S000033"
+    },
+    "output": {
+      "sponsored_count": 1169,
+      "cosponsored_count": 7854
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:06:58.862626",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Ted Kennedy"
+    },
+    "output": {
+      "query_type": "member",
+      "entity_name": "Ted Kennedy",
+      "keywords": [],
+      "topic": "",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 5,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:07:02.243139",
+    "agent": "member_search",
+    "action": "search_member",
+    "input": {
+      "name": "Ted Kennedy"
+    },
+    "output": {
+      "found": "Kennedy, Edward M.",
+      "bioguide_id": "K000105",
+      "score": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:07:02.616349",
+    "agent": "member_search",
+    "action": "fetch_member_profile",
+    "input": {
+      "bioguide_id": "K000105"
+    },
+    "output": {
+      "name": "Edward M. Kennedy",
+      "years_served": 48
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:07:09.282861",
+    "agent": "member_search",
+    "action": "fetch_member_legislation",
+    "input": {
+      "bioguide_id": "K000105"
+    },
+    "output": {
+      "sponsored_count": 2552,
+      "cosponsored_count": 6967
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:08:51.713941",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Bernie Sanders voting record"
+    },
+    "output": {
+      "query_type": "member",
+      "entity_name": "Bernie Sanders",
+      "keywords": [],
+      "topic": "",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 5,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:08:52.299700",
+    "agent": "member_search",
+    "action": "search_member",
+    "input": {
+      "name": "Bernie Sanders"
+    },
+    "output": {
+      "found": "Sanders, Bernard",
+      "bioguide_id": "S000033",
+      "score": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:08:52.668585",
+    "agent": "member_search",
+    "action": "fetch_member_profile",
+    "input": {
+      "bioguide_id": "S000033"
+    },
+    "output": {
+      "name": "Bernard Sanders",
+      "years_served": 35
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:08:53.455861",
+    "agent": "member_search",
+    "action": "fetch_member_legislation",
+    "input": {
+      "bioguide_id": "S000033"
+    },
+    "output": {
+      "sponsored_count": 1169,
+      "cosponsored_count": 7854
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:12:08.093196",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Ted Kennedy"
+    },
+    "output": {
+      "query_type": "member",
+      "entity_name": "Ted Kennedy",
+      "keywords": [],
+      "topic": "",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 5,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:12:11.658098",
+    "agent": "member_search",
+    "action": "search_member",
+    "input": {
+      "name": "Ted Kennedy"
+    },
+    "output": {
+      "found": "Kennedy, Edward M.",
+      "bioguide_id": "K000105",
+      "score": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:12:12.037477",
+    "agent": "member_search",
+    "action": "fetch_member_profile",
+    "input": {
+      "bioguide_id": "K000105"
+    },
+    "output": {
+      "name": "Edward M. Kennedy",
+      "years_served": 48
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:12:12.785106",
+    "agent": "member_search",
+    "action": "fetch_member_legislation",
+    "input": {
+      "bioguide_id": "K000105"
+    },
+    "output": {
+      "sponsored_count": 2552,
+      "cosponsored_count": 6967
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:13:11.070603",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Give me a law that has been passed"
+    },
+    "output": {
+      "query_type": "legislation",
+      "entity_name": null,
+      "keywords": [],
+      "topic": "",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 1,
+      "specific_bill": null,
+      "status": "enacted",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:13:12.047193",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "",
+      "result_count": 1,
+      "status": "enacted"
+    },
+    "output": {
+      "total_available": 728,
+      "results_returned": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:13:12.052771",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Give me a law that has been passed"
+    },
+    "output": {
+      "results_count": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:13:22.945384",
+    "agent": "bill_fetcher",
+    "action": "fetch_law",
+    "input": {
+      "congress": 119,
+      "law_number": 73
+    },
+    "output": {
+      "bill_type": "hr",
+      "bill_number": "4323"
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:13:23.763904",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 4323
+    },
+    "output": {
+      "title": "Trafficking Survivors Relief Act",
+      "status": "Became Public Law No: 119-73."
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:13:24.790682",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 4323
+    },
+    "output": {
+      "action_count": 20
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:13:26.238272",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Trafficking Survivors Relief Act",
+      "sponsor": "Rep. Fry, Russell [R-SC-7]"
+    },
+    "output": {
+      "translation_preview": "# Trafficking Survivors Relief Act \u2013 Plain English Summary\n\n**1. What this bill is in one sentence:*"
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:13:26.251621",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:13:28.581015",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "preview": "# How H.R. 4323 Became Law\n\n**September 10, 2025:** The House Judiciary Committee voted to approve t"
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:13:28.592689",
+    "agent": "api",
+    "action": "get_law",
+    "input": {
+      "congress": 119,
+      "law_number": 73
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:14:16.708100",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Show me one republican member of the house"
+    },
+    "output": {
+      "query_type": "member",
+      "entity_name": null,
+      "keywords": [],
+      "topic": "",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 1,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:14:17.180755",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "",
+      "result_count": 1,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 62247,
+      "results_returned": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:14:17.184950",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Show me one republican member of the house"
+    },
+    "output": {
+      "results_count": 1
+    }
   }
 ]

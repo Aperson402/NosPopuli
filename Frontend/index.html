@@ -13,6 +13,7 @@
       --ink:          #0e0e0e;
       --paper:        #f5f0e8;
       --card-bg:      #faf7f2;
+      --aged:         #e8e0cc;
       --accent:       #8b1a1a;
       --accent-light: #c0392b;
       --muted:        #6b6355;
@@ -181,11 +182,7 @@
     }
     .meta-item strong { color: var(--ink); font-weight: 500; }
 
-    /* ── DETAIL PAGE ── */
-    .detail-page {
-      max-width: var(--content-width);
-      margin: 0 auto; padding: 0 1.5rem 4rem;
-    }
+    /* ── SHARED DETAIL STYLES ── */
     .detail-back {
       display: inline-flex; align-items: center; gap: 0.5rem;
       font-family: 'IBM Plex Mono', monospace;
@@ -262,25 +259,14 @@
     .timeline-text li { margin-left: 1.25rem; margin-bottom: 0.2rem; }
 
     /* ── VOTE VISUALIZATION ── */
-    .chambers-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-    }
-
-    .chamber-block {
-      background: var(--card-bg);
-      border: 1px solid var(--rule);
-      padding: 1.25rem;
-    }
-
+    .chambers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .chamber-block { background: var(--card-bg); border: 1px solid var(--rule); padding: 1.25rem; }
     .chamber-title {
       font-family: 'IBM Plex Mono', monospace;
       font-size: 0.62rem; letter-spacing: 0.2em;
       text-transform: uppercase; color: var(--muted);
       margin-bottom: 0.75rem; text-align: center;
     }
-
     .vote-summary {
       display: flex; justify-content: center; gap: 1.25rem;
       margin-bottom: 1rem;
@@ -290,31 +276,137 @@
     .vote-count-yea   { color: var(--vote-yea); }
     .vote-count-nay   { color: var(--vote-nay); }
     .vote-count-other { color: var(--muted); }
-
     .chamber-svg { width: 100%; display: block; }
-
-    /* Tooltip */
     .vote-tooltip {
-      position: fixed;
-      background: var(--ink); color: var(--paper);
+      position: fixed; background: var(--ink); color: var(--paper);
       font-family: 'IBM Plex Mono', monospace;
       font-size: 0.6rem; letter-spacing: 0.05em;
       padding: 0.4rem 0.75rem;
       pointer-events: none; z-index: 100;
-      opacity: 0; transition: opacity 0.1s;
-      white-space: nowrap;
+      opacity: 0; transition: opacity 0.1s; white-space: nowrap;
     }
     .vote-tooltip.visible { opacity: 1; }
-
-    /* Legend */
     .vote-legend {
-      display: flex; justify-content: center; gap: 1rem;
-      margin-top: 0.75rem;
+      display: flex; justify-content: center; gap: 1rem; margin-top: 0.75rem;
       font-family: 'IBM Plex Mono', monospace;
       font-size: 0.55rem; letter-spacing: 0.1em; text-transform: uppercase;
     }
     .legend-item { display: flex; align-items: center; gap: 0.3rem; color: var(--muted); }
     .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── MEMBER PAGE ── */
+    .member-page {
+      max-width: var(--content-width);
+      margin: 0 auto; padding: 0 1.5rem 4rem;
+    }
+    .member-header {
+      border-top: 3px double var(--ink);
+      border-bottom: 1px solid var(--rule);
+      padding: 1.5rem 0; margin-bottom: 2rem;
+      display: flex; gap: 2rem; align-items: flex-start;
+    }
+    .member-photo-wrap {
+      flex-shrink: 0; width: 100px; height: 120px;
+      border: 1px solid var(--rule);
+      overflow: hidden; background: var(--aged);
+    }
+    .member-photo-wrap img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+    .member-header-info { flex: 1; }
+    .member-party-tag {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.58rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 0.4rem;
+    }
+    .member-name {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 700; line-height: 1.2; color: var(--ink); margin-bottom: 0.4rem;
+    }
+    .member-meta-line {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.68rem; color: var(--muted);
+      letter-spacing: 0.05em; margin-bottom: 0.5rem;
+    }
+    .member-status {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.62rem; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--accent);
+    }
+
+    .member-stats-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 1px; background: var(--rule);
+      border: 1px solid var(--rule); margin-bottom: 2.5rem;
+    }
+    .stat-block { background: var(--card-bg); padding: 1.25rem 1rem; text-align: center; }
+    .stat-number {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.75rem; font-weight: 700; color: var(--ink); line-height: 1;
+    }
+    .stat-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.55rem; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--muted); margin-top: 0.3rem;
+    }
+
+    .policy-bar-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.6rem; }
+    .policy-bar-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6rem; color: var(--muted);
+      width: 180px; flex-shrink: 0;
+      white-space: nowrap; overflow: hidden;
+      text-overflow: ellipsis; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .policy-bar-track { flex: 1; height: 8px; background: var(--aged); }
+    .policy-bar-fill { height: 100%; background: var(--ink); transition: width 0.6s ease; }
+    .policy-bar-count {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6rem; color: var(--muted); width: 30px; text-align: right; flex-shrink: 0;
+    }
+
+    .member-bill-row {
+      padding: 0.75rem 0; border-bottom: 1px solid var(--rule);
+      cursor: pointer; transition: all 0.1s;
+    }
+    .member-bill-row:hover { background: var(--aged); margin: 0 -1.5rem; padding: 0.75rem 1.5rem; }
+    .member-bill-id {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6rem; color: var(--accent);
+      letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.2rem;
+    }
+    .member-bill-title {
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 0.9rem; color: var(--ink); line-height: 1.4;
+    }
+    .member-bill-date {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.58rem; color: var(--muted); margin-top: 0.2rem;
+    }
+
+    /* ── BILL DETAIL PAGE ── */
+    .detail-page {
+      max-width: var(--content-width);
+      margin: 0 auto; padding: 0 1.5rem 4rem;
+    }
+    .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .chart-placeholder {
+      background: var(--card-bg); border: 1px solid var(--rule);
+      padding: 2rem 1.5rem; text-align: center;
+    }
+    .chart-placeholder-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6rem; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 0.4rem;
+    }
+    .chart-placeholder-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 0.9rem; color: var(--ink); font-style: italic;
+    }
+    .chart-coming-soon {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.55rem; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--rule); margin-top: 0.5rem;
+    }
 
     /* ── EMPTY / ERROR ── */
     .empty-state { text-align: center; padding: 3rem 0; color: var(--muted); }
@@ -334,7 +426,6 @@
 </head>
 <body>
 
-<!-- Tooltip -->
 <div class="vote-tooltip" id="tooltip"></div>
 
 <header onclick="goHome()">
@@ -345,19 +436,19 @@
 <!-- ── SEARCH PAGE ── -->
 <div class="page active" id="page-search">
   <section class="search-section">
-    <label class="search-label" for="search-input">Ask about any legislation</label>
+    <label class="search-label" for="search-input">Search legislation, members of Congress, or committees</label>
     <div class="search-row">
       <input id="search-input" type="text"
-        placeholder="What has Congress done about student loans?"
+        placeholder="Healthcare bills, Ted Kennedy, Senate Judiciary Committee..."
         autocomplete="off"/>
       <button class="search-btn" id="search-btn" onclick="runSearch()">Search</button>
     </div>
     <div class="example-queries">
       <span>Try:</span>
-      <button class="example-pill" onclick="setQuery('What bills exist on housing affordability?')">Housing affordability</button>
-      <button class="example-pill" onclick="setQuery('Show me legislation about veterans benefits')">Veterans benefits</button>
-      <button class="example-pill" onclick="setQuery('What has Congress done about climate change?')">Climate change</button>
-      <button class="example-pill" onclick="setQuery('Find bills about prescription drug prices')">Drug prices</button>
+      <button class="example-pill" onclick="setQuery('Show me a bill about housing affordability')">Housing affordability</button>
+      <button class="example-pill" onclick="setQuery('Ted Kennedy')">Ted Kennedy</button>
+      <button class="example-pill" onclick="setQuery('Give me a law that has been passed')">A passed law</button>
+      <button class="example-pill" onclick="setQuery('Bernie Sanders voting record')">Bernie Sanders</button>
     </div>
   </section>
 
@@ -368,10 +459,9 @@
   <section class="results-section" id="results-section"></section>
 </div>
 
-<!-- ── DETAIL PAGE ── -->
+<!-- ── BILL DETAIL PAGE ── -->
 <div class="page" id="page-detail">
   <div class="detail-page">
-
     <button class="detail-back" onclick="goBack()">← Back to results</button>
 
     <div class="detail-header">
@@ -390,37 +480,55 @@
     </div>
 
     <div id="detail-content" style="display:none">
-
       <div class="detail-section">
         <div class="section-label">Plain English Explanation</div>
         <div class="detail-explanation" id="detail-explanation"></div>
       </div>
-
       <div class="detail-section">
         <div class="section-label">Legislative Timeline</div>
         <div class="timeline-text" id="detail-timeline"></div>
       </div>
-
-      <!-- Vote visualization — only shown if vote data exists -->
       <div class="detail-section" id="votes-section" style="display:none">
         <div class="section-label">Recorded Votes</div>
         <div class="chambers-grid" id="chambers-grid"></div>
         <div class="vote-legend">
-          <div class="legend-item">
-            <div class="legend-dot" style="background:var(--vote-yea)"></div> Yea
-          </div>
-          <div class="legend-item">
-            <div class="legend-dot" style="background:var(--vote-nay)"></div> Nay
-          </div>
-          <div class="legend-item">
-            <div class="legend-dot" style="background:var(--vote-present)"></div> Present
-          </div>
-          <div class="legend-item">
-            <div class="legend-dot" style="background:var(--vote-absent)"></div> Not Voting
-          </div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--vote-yea)"></div> Yea</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--vote-nay)"></div> Nay</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--vote-present)"></div> Present</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--vote-absent)"></div> Not Voting</div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
 
+<!-- ── MEMBER PAGE ── -->
+<div class="page" id="page-member">
+  <div class="member-page">
+    <button class="detail-back" onclick="goHome()">← Back to search</button>
+
+    <div class="member-header">
+      <div class="member-photo-wrap">
+        <img id="member-photo" alt="" onerror="this.style.display='none'"/>
+      </div>
+      <div class="member-header-info">
+        <div class="member-party-tag" id="member-party-tag"></div>
+        <div class="member-name" id="member-name"></div>
+        <div class="member-meta-line" id="member-meta-line"></div>
+        <div class="member-status" id="member-status"></div>
+      </div>
+    </div>
+
+    <div class="member-stats-grid" id="member-stats-grid"></div>
+
+    <div class="detail-section">
+      <div class="section-label">Legislation by Topic</div>
+      <div id="policy-chart"></div>
+    </div>
+
+    <div class="detail-section">
+      <div class="section-label">Recent Sponsored Bills</div>
+      <div id="member-bills"></div>
     </div>
   </div>
 </div>
@@ -430,7 +538,6 @@
 </footer>
 
 <script>
-  // ── State ──
   let currentResults = [];
   const tooltip = document.getElementById('tooltip');
 
@@ -467,11 +574,11 @@
   }
 
   function billIdFromParts(type, number) {
-    return type.toUpperCase() + ' ' + number;
+    return (type || '').toUpperCase() + ' ' + number;
   }
 
   function renderMarkdown(text) {
-    return text
+    return (text || '')
       .replace(/^### (.+)$/gm, '<h3>$1</h3>')
       .replace(/^## (.+)$/gm, '<h2>$1</h2>')
       .replace(/^# (.+)$/gm, '<h1>$1</h1>')
@@ -492,25 +599,20 @@
     tooltip.style.left = (e.clientX + 12) + 'px';
     tooltip.style.top  = (e.clientY - 28) + 'px';
   }
-  function hideTooltip() {
-    tooltip.classList.remove('visible');
-  }
+  function hideTooltip() { tooltip.classList.remove('visible'); }
 
-  // ── Chamber SVG renderer ──
+  // ── Chamber SVG ──
   function renderChamber(title, data, svgW, svgH) {
     if (!data || !data.seats || !data.seats.length) return null;
-
     const s = data.summary;
     const block = document.createElement('div');
     block.className = 'chamber-block';
 
-    // Title
     const titleEl = document.createElement('div');
     titleEl.className = 'chamber-title';
     titleEl.textContent = title;
     block.appendChild(titleEl);
 
-    // Vote summary counts
     const summary = document.createElement('div');
     summary.className = 'vote-summary';
     summary.innerHTML = `
@@ -521,7 +623,6 @@
     `;
     block.appendChild(summary);
 
-    // SVG
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('viewBox', `0 0 ${svgW} ${svgH}`);
     svg.setAttribute('class', 'chamber-svg');
@@ -534,11 +635,9 @@
       circle.setAttribute('fill', seat.color);
       circle.setAttribute('opacity', '0.9');
       circle.style.cursor = 'pointer';
-
       circle.addEventListener('mouseenter', e => showTooltip(e, seat));
       circle.addEventListener('mousemove',  e => moveTooltip(e));
       circle.addEventListener('mouseleave', hideTooltip);
-
       svg.appendChild(circle);
     });
 
@@ -546,7 +645,6 @@
     return block;
   }
 
-  // ── Render votes section ──
   function renderVotes(votes) {
     const section = document.getElementById('votes-section');
     const grid = document.getElementById('chambers-grid');
@@ -555,90 +653,171 @@
     const hasHouse  = votes && votes.house  && votes.house.seats  && votes.house.seats.length;
     const hasSenate = votes && votes.senate && votes.senate.seats && votes.senate.seats.length;
 
-    if (!hasHouse && !hasSenate) {
-      section.style.display = 'none';
-      return;
-    }
-
+    if (!hasHouse && !hasSenate) { section.style.display = 'none'; return; }
     section.style.display = 'block';
 
-    // House SVG: 500 x 260
     if (hasHouse) {
-      const houseBlock = renderChamber('House of Representatives', votes.house, 500, 260);
-      if (houseBlock) grid.appendChild(houseBlock);
+      const b = renderChamber('House of Representatives', votes.house, 500, 260);
+      if (b) grid.appendChild(b);
     }
-
-    // Senate SVG: 300 x 200
     if (hasSenate) {
-      const senateBlock = renderChamber('Senate', votes.senate, 300, 200);
-      if (senateBlock) grid.appendChild(senateBlock);
+      const b = renderChamber('Senate', votes.senate, 300, 200);
+      if (b) grid.appendChild(b);
     }
-
-    // If only one chamber has data, make it full width
-    if (hasHouse !== hasSenate) {
-      grid.style.gridTemplateColumns = '1fr';
-    } else {
-      grid.style.gridTemplateColumns = '1fr 1fr';
-    }
+    grid.style.gridTemplateColumns = (hasHouse && hasSenate) ? '1fr 1fr' : '1fr';
   }
 
-  // ── Open detail page ──
- async function openDetail(bill) {
+  // ── Bill detail ──
+  async function openDetail(bill) {
     const billId = bill.is_law
-        ? `Public Law ${bill.congress}-${bill.law_number}`
-        : billIdFromParts(bill.type, bill.number);
+      ? `Public Law ${bill.congress}-${bill.law_number}`
+      : billIdFromParts(bill.type, bill.number);
 
     document.getElementById('detail-bill-id').textContent = billId;
     document.getElementById('detail-bill-title').textContent = bill.title || billId;
     document.getElementById('detail-loading').style.display = 'block';
     document.getElementById('detail-content').style.display = 'none';
+    document.getElementById('votes-section').style.display = 'none';
 
     const steps = ['lstep-1', 'lstep-2', 'lstep-3', 'lstep-4'];
     steps.forEach((id, i) => {
-        const el = document.getElementById(id);
-        el.classList.remove('visible', 'done');
-        setTimeout(() => el.classList.add('visible'), i * 700);
+      const el = document.getElementById(id);
+      el.classList.remove('visible', 'done');
+      setTimeout(() => el.classList.add('visible'), i * 700);
     });
 
     showPage('page-detail');
 
     try {
-        // Route to correct endpoint based on result type
-        const endpoint = bill.is_law ? '/law' : '/bill';
-        const body = bill.is_law
-            ? { congress: bill.congress, law_number: bill.law_number }
-            : { congress: bill.congress, bill_type: bill.type, number: bill.number };
+      const endpoint = bill.is_law ? '/law' : '/bill';
+      const body = bill.is_law
+        ? { congress: bill.congress, law_number: bill.law_number }
+        : { congress: bill.congress, bill_type: bill.type, number: bill.number };
 
-        const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body)
-        });
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
 
-        if (!response.ok) throw new Error(`Error: ${response.status}`);
+      if (!response.ok) throw new Error(`Error: ${response.status}`);
+      const data = await response.json();
 
-        const data = await response.json();
+      steps.forEach(id => document.getElementById(id).classList.add('done'));
 
-        steps.forEach(id => document.getElementById(id).classList.add('done'));
-
-        setTimeout(() => {
-            document.getElementById('detail-loading').style.display = 'none';
-            document.getElementById('detail-explanation').innerHTML = renderMarkdown(data.translation);
-            document.getElementById('detail-timeline').innerHTML = renderMarkdown(data.timeline);
-            renderVotes(data.votes);
-            document.getElementById('detail-content').style.display = 'block';
-        }, 400);
+      setTimeout(() => {
+        document.getElementById('detail-loading').style.display = 'none';
+        document.getElementById('detail-explanation').innerHTML = renderMarkdown(data.translation);
+        document.getElementById('detail-timeline').innerHTML = renderMarkdown(data.timeline);
+        renderVotes(data.votes);
+        document.getElementById('detail-content').style.display = 'block';
+      }, 400);
 
     } catch (err) {
-        document.getElementById('detail-loading').innerHTML = `
-            <div class="empty-state">
-                <p>Failed to load details.</p>
-                <p style="margin-top:0.5rem;font-size:0.6rem">${err.message}</p>
-            </div>`;
+      document.getElementById('detail-loading').innerHTML = `
+        <div class="empty-state">
+          <p>Failed to load bill details.</p>
+          <p style="margin-top:0.5rem;font-size:0.6rem">${err.message}</p>
+        </div>`;
     }
-}
+  }
 
-  // ── Render search results ──
+  function openDetailFromBill(bill) {
+    openDetail({
+      congress: bill.congress,
+      type: bill.type,
+      number: parseInt(bill.number),
+      title: bill.title
+    });
+  }
+
+  // ── Member profile ──
+  function renderMemberPage(data) {
+    const m = data.member;
+    const leg = data.legislation;
+
+    document.getElementById('member-party-tag').textContent =
+      [m.party || 'Independent', m.chambers ? m.chambers.join(' & ') : m.chamber || '']
+        .filter(Boolean).join('  ·  ');
+
+    document.getElementById('member-name').textContent = m.name || '';
+
+    document.getElementById('member-meta-line').textContent = [
+      m.state,
+      m.start_year ? `${m.start_year}–${m.end_year || 'present'}` : '',
+      m.birth_year ? `b. ${m.birth_year}` : ''
+    ].filter(Boolean).join('  ·  ');
+
+    document.getElementById('member-status').textContent =
+      m.current ? 'Currently serving' : 'Former member';
+
+    console.log('photo debug:', m.bioguide_id, m.photo_url);
+
+    const photo = document.getElementById('member-photo');
+    if (m.bioguide_id) {
+        photo.style.display = 'block';  // Reset in case onerror hid it
+        photo.src = `/member/photo/${m.bioguide_id.toLowerCase()}`;
+        photo.alt = m.name;
+    }
+
+    // Stats
+    const statsGrid = document.getElementById('member-stats-grid');
+    const stats = [
+      { number: m.years_served || '—', label: 'Years Served' },
+      { number: (leg.sponsored_count || 0).toLocaleString(), label: 'Bills Sponsored' },
+      { number: (leg.cosponsored_count || 0).toLocaleString(), label: 'Cosponsored' },
+      { number: Object.keys(leg.policy_areas || {}).filter(k => k && k !== 'None').length, label: 'Policy Areas' },
+    ];
+    statsGrid.innerHTML = stats.map(s => `
+      <div class="stat-block">
+        <div class="stat-number">${s.number}</div>
+        <div class="stat-label">${s.label}</div>
+      </div>
+    `).join('');
+
+    // Policy chart
+    const policyChart = document.getElementById('policy-chart');
+    const areas = Object.entries(leg.policy_areas || {})
+      .filter(([k]) => k && k !== 'None' && k !== 'Other' && k !== 'null')
+      .sort((a, b) => b[1] - a[1]);
+
+    if (areas.length) {
+      const max = areas[0][1];
+      policyChart.innerHTML = areas.map(([label, count]) => `
+        <div class="policy-bar-row">
+          <div class="policy-bar-label">${label}</div>
+          <div class="policy-bar-track">
+            <div class="policy-bar-fill" style="width:${(count/max*100).toFixed(1)}%"></div>
+          </div>
+          <div class="policy-bar-count">${count}</div>
+        </div>
+      `).join('');
+    } else {
+      policyChart.innerHTML = '<p style="font-family:\'IBM Plex Mono\',monospace;font-size:0.7rem;color:var(--muted)">No policy data available</p>';
+    }
+
+    // Recent bills
+    const billsEl = document.getElementById('member-bills');
+    const validBills = (leg.sponsored || []).filter(b => b.title && b.number);
+    if (validBills.length) {
+      billsEl.innerHTML = validBills.map(b => {
+        const safeB = JSON.stringify(b).replace(/'/g, "\\'");
+        return `
+          <div class="member-bill-row" onclick='openDetailFromBill(${JSON.stringify(b)})'>
+            <div class="member-bill-id">${(b.type || '').toUpperCase()} ${b.number}</div>
+            <div class="member-bill-title">${(b.title || '').slice(0, 100)}${(b.title || '').length > 100 ? '…' : ''}</div>
+            <div class="member-bill-date">${b.date || ''}</div>
+          </div>
+        `;
+      }).join('');
+    } else {
+      billsEl.innerHTML = '<p style="font-family:\'IBM Plex Mono\',monospace;font-size:0.7rem;color:var(--muted)">No recent bills found</p>';
+    }
+
+    showPage('page-member');
+  }
+
+  // ── Search results ──
   function renderResults(data) {
     resultsSection.innerHTML = '';
     currentResults = data.results || [];
@@ -665,7 +844,9 @@
       card.style.animationDelay = (i * 0.05) + 's';
       card.onclick = () => openDetail(bill);
 
-      const billId = billIdFromParts(bill.type || '', bill.number || '');
+      const billId = bill.is_law
+        ? `Public Law ${bill.congress}-${bill.law_number}`
+        : billIdFromParts(bill.type || '', bill.number || '');
       const congress = bill.congress ? `${bill.congress}th Congress` : '';
       const date = bill.date_issued ? bill.date_issued.slice(0, 4) : '';
 
@@ -700,7 +881,7 @@
     setStatus('Understanding your question...');
 
     try {
-      setTimeout(() => setStatus('Searching federal legislation...'), 500);
+      setTimeout(() => setStatus('Searching...'), 500);
 
       const response = await fetch('/search', {
         method: 'POST',
@@ -712,8 +893,21 @@
 
       const data = await response.json();
       clearStatus();
-      renderResults(data);
-      resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      if (data.query_type === 'member') {
+        if (data.found) {
+          renderMemberPage(data);
+        } else {
+          resultsSection.innerHTML = `
+            <div class="empty-state">
+              <p>Member not found.</p>
+              <p style="margin-top:0.5rem">Try using their full name.</p>
+            </div>`;
+        }
+      } else {
+        renderResults(data);
+        resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
 
     } catch (err) {
       clearStatus();

@@ -7,6 +7,8 @@ from vote_parser_agent import parse_vote_references
 from vote_fetcher_agent import fetch_house_votes, fetch_senate_votes
 from vote_mapper_agent import map_house_votes, map_senate_votes
 from bill_fetcher import fetch_bill, fetch_law
+from member_search_agent import search_member, fetch_member_profile, fetch_member_legislation
+import httpx
 import asyncio
 import anthropic
 import os
@@ -47,22 +49,44 @@ class LawRequest(BaseModel):
     congress: int
     law_number: int
 
+class MemberSearchRequest(BaseModel):
+    name: str
+
 @app.post("/search")
 async def search(request: SearchRequest):
     if not request.question.strip():
         raise HTTPException(status_code=400, detail="Question cannot be empty")
 
     structured = route_query(request.question, client)
-    
-    # If router identified a specific bill number, fetch it directly
+
+    # ── Member search ──
+    if structured.get("query_type") == "member" and structured.get("entity_name"):
+        loop = asyncio.get_event_loop()
+        member = await loop.run_in_executor(None, search_member, structured["entity_name"])
+
+        if not member:
+            return {"query_type": "member", "found": False}
+
+        profile, legislation = await asyncio.gather(
+            loop.run_in_executor(None, fetch_member_profile, member["bioguide_id"]),
+            loop.run_in_executor(None, fetch_member_legislation, member["bioguide_id"], 10)
+        )
+
+        return {
+            "query_type": "member",
+            "found": True,
+            "member": {**member, **(profile or {})},
+            "legislation": legislation
+        }
+
+    # ── Specific bill lookup ──
     specific = structured.get("specific_bill")
     if specific and specific.get("number") and specific.get("type"):
         bill_type = specific["type"].lower()
         number = specific["number"]
-        # Try current congress first, then recent ones
         congress = specific.get("congress") or structured["congress_numbers"][0]
-        
         return {
+            "query_type": "legislation",
             "query": structured,
             "results": [{
                 "package_id": f"BILLS-{congress}{bill_type}{number}",
@@ -73,12 +97,12 @@ async def search(request: SearchRequest):
                 "number": number,
             }]
         }
-    
-    # Otherwise do a regular search respecting result_count
+
+    # ── Regular legislation search ──
     raw_results = search_bills(structured)
 
     if not raw_results:
-        return {"query": structured, "results": [], "message": "No bills found."}
+        return {"query_type": "legislation", "query": structured, "results": [], "message": "No bills found."}
 
     log_action(
         agent_name="api",
@@ -87,8 +111,7 @@ async def search(request: SearchRequest):
         output_data={"results_count": len(raw_results)}
     )
 
-    return {"query": structured, "results": raw_results}
-
+    return {"query_type": "legislation", "query": structured, "results": raw_results}
 @app.post("/bill")
 async def get_bill(request: BillRequest):
     loop = asyncio.get_event_loop()
@@ -196,6 +219,48 @@ async def get_law(request: LawRequest):
         "votes": {"house": house_mapped, "senate": senate_mapped}
     }
 
+@app.post("/member/search")
+async def member_search(request: MemberSearchRequest):
+    if not request.name.strip():
+        raise HTTPException(status_code=400, detail="Name required")
+    
+    loop = asyncio.get_event_loop()
+    
+    member = await loop.run_in_executor(None, search_member, request.name)
+    if not member:
+        return {"found": False, "member": None}
+    
+    profile, legislation = await asyncio.gather(
+        loop.run_in_executor(None, fetch_member_profile, member["bioguide_id"]),
+        loop.run_in_executor(None, fetch_member_legislation, member["bioguide_id"], 10)
+    )
+    
+    return {
+        "found": True,
+        "member": {**member, **profile} if profile else member,
+        "legislation": legislation
+    }
+
+@app.get("/member/photo/{bioguide_id}")
+async def member_photo(bioguide_id: str):
+    from fastapi.responses import Response
+    
+    url = f"https://www.congress.gov/img/member/{bioguide_id.lower()}_200.jpg"
+    
+    async with httpx.AsyncClient() as client_http:
+        response = await client_http.get(url, headers={
+            "Referer": "https://www.congress.gov/",
+            "User-Agent": "Mozilla/5.0"
+        })
+    
+    if response.status_code == 200:
+        return Response(
+            content=response.content,
+            media_type="image/jpeg"
+        )
+    else:
+        raise HTTPException(status_code=404, detail="Photo not found")
+    
 @app.get("/")
 async def root():
     return FileResponse("frontend/index.html")
