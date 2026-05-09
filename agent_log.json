@@ -1218,5 +1218,1600 @@
     "output": {
       "status": "complete"
     }
+  },
+  {
+    "timestamp": "2026-05-08T22:48:11.163924",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "What has congress done about student loans"
+    },
+    "output": {
+      "keywords": [
+        "student loans"
+      ],
+      "topic": "Congressional actions and legislation regarding student loans",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:48:12.326065",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "student loans",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ],
+      "full_query": "student loans collection:BILLS (congress:119 OR congress:118 OR congress:117)"
+    },
+    "output": {
+      "total_available": 1259,
+      "results_returned": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:48:12.830595",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 1211
+    },
+    "output": {
+      "title": "Student Loan Accountability Act",
+      "status": "Referred to the Subcommittee on Health."
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:48:12.830704",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 1622
+    },
+    "output": {
+      "title": "Student Loan Accountability Act",
+      "status": "Referred to the Subcommittee on Health."
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:48:12.836489",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 117,
+      "type": "s",
+      "number": 4253
+    },
+    "output": {
+      "title": "Student Loan Accountability Act",
+      "status": "Read twice and referred to the Committee on Health, Education, Labor, and Pensions."
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:48:13.210246",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 1211
+    },
+    "output": {
+      "action_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:48:13.210363",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 1622
+    },
+    "output": {
+      "action_count": 6
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:48:13.212329",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 117,
+      "type": "s",
+      "number": 4253
+    },
+    "output": {
+      "action_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:48:16.166014",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Student Loan Accountability Act",
+      "sponsor": "Rep. Ferguson, A. Drew, IV [R-GA-3]"
+    },
+    "output": {
+      "translation_preview": "# Student Loan Accountability Act - Plain English Summary\n\n## 1. What This Bill Is\nThis bill would r"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:48:16.679116",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Student Loan Accountability Act",
+      "sponsor": "Rep. DesJarlais, Scott [R-TN-4]"
+    },
+    "output": {
+      "translation_preview": "# Student Loan Accountability Act - Plain English Explanation\n\n## 1. What this bill is in one senten"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:48:17.090434",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Student Loan Accountability Act",
+      "sponsor": "Sen. Romney, Mitt [R-UT]"
+    },
+    "output": {
+      "translation_preview": "# Student Loan Accountability Act - Plain English\n\n## 1. What this bill is in one sentence\nThis bill"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:48:18.933449",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 5
+    },
+    "output": {
+      "preview": "# Timeline: How This Bill Moved Through Congress\n\n**February 27, 2023:** The bill was introduced in "
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:48:18.933729",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**May 18, 2022:** A senator introduced this bill in the Senate. On the same day, it"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:48:18.935730",
+    "agent": "orchestrator",
+    "action": "process_bill",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 1211
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:48:18.938958",
+    "agent": "orchestrator",
+    "action": "process_bill",
+    "input": {
+      "congress": 117,
+      "type": "s",
+      "number": 4253
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:48:19.582874",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 6
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**March 17, 2023:** The bill was introduced in the House of Representatives.\n\n**Mar"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:48:19.586635",
+    "agent": "orchestrator",
+    "action": "process_bill",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 1622
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:49:48.419880",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "What bills exist on housing affordability?"
+    },
+    "output": {
+      "keywords": [
+        "housing",
+        "affordability"
+      ],
+      "topic": "Bills related to housing affordability",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:49:49.033259",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "housing affordability",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ],
+      "full_query": "housing affordability collection:BILLS (congress:119 OR congress:118 OR congress:117)"
+    },
+    "output": {
+      "total_available": 549,
+      "results_returned": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:49:49.497975",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 8127
+    },
+    "output": {
+      "title": "Permanent Housing Affordability Act",
+      "status": "Referred to the Committee on Financial Services, and in addition to the Committee on Oversight and Government Reform, for a period to be subsequently determined by the Speaker, in each case for consideration of such provisions as fall within the jurisdiction of the committee concerned."
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:49:49.498088",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 6132
+    },
+    "output": {
+      "title": "Housing Affordability Act",
+      "status": "Referred to the House Committee on Financial Services."
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:49:49.703508",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "s",
+      "number": 1527
+    },
+    "output": {
+      "title": "Housing Affordability Act",
+      "status": "Read twice and referred to the Committee on Banking, Housing, and Urban Affairs."
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:49:50.069214",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 6132
+    },
+    "output": {
+      "action_count": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:49:50.076007",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 8127
+    },
+    "output": {
+      "action_count": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:49:50.238029",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "s",
+      "number": 1527
+    },
+    "output": {
+      "action_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:49:53.122122",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Housing Affordability Act",
+      "sponsor": "Sen. Gallego, Ruben [D-AZ]"
+    },
+    "output": {
+      "translation_preview": "# Housing Affordability Act - Plain English Explanation\n\n## 1. What This Bill Is\nThis bill would cre"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:49:53.493774",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Housing Affordability Act",
+      "sponsor": "Rep. De La Cruz, Monica [R-TX-15]"
+    },
+    "output": {
+      "translation_preview": "# Housing Affordability Act - Plain English Explanation\n\n## 1. What this bill is (in one sentence)\nT"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:49:53.711200",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Permanent Housing Affordability Act",
+      "sponsor": "Rep. Schrier, Kim [D-WA-8]"
+    },
+    "output": {
+      "translation_preview": "# Permanent Housing Affordability Act - Plain English Explanation\n\n## 1. What this bill is in one se"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:49:55.048152",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 3
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**November 19, 2025**\n- The bill was introduced in the House of Representatives\n- I"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:49:55.050200",
+    "agent": "orchestrator",
+    "action": "process_bill",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 6132
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:49:55.341498",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**April 30, 2025: Bill Introduced**\nA senator introduced this bill in the Senate.\n\n"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:49:55.343574",
+    "agent": "orchestrator",
+    "action": "process_bill",
+    "input": {
+      "congress": 119,
+      "type": "s",
+      "number": 1527
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:49:55.417436",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 4
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\nThis bill has not become law. Here's what happened:\n\n**March 26, 2026:** The bill w"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:49:55.419290",
+    "agent": "orchestrator",
+    "action": "process_bill",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 8127
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:50:15.054249",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Pull up 20 bills on health care please"
+    },
+    "output": {
+      "keywords": [
+        "health care"
+      ],
+      "topic": "Bills related to health care",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:50:15.521150",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "health care",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ],
+      "full_query": "health care collection:BILLS (congress:119 OR congress:118 OR congress:117)"
+    },
+    "output": {
+      "total_available": 8994,
+      "results_returned": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:50:15.892101",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 118,
+      "type": "s",
+      "number": 4065
+    },
+    "output": {
+      "title": "Equal Health Care for All Act",
+      "status": "Read twice and referred to the Committee on Health, Education, Labor, and Pensions. (Sponsor introductory remarks on measure: CR S2600)"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:50:16.106766",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 118,
+      "type": "hres",
+      "number": 27
+    },
+    "output": {
+      "title": "Condemning attacks on health care facilities, health care personnel, and patients.",
+      "status": "Referred to the House Committee on the Judiciary."
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:50:16.110817",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 3068
+    },
+    "output": {
+      "title": "Equal Health Care for All Act",
+      "status": "Referred to the Subcommittee on Health."
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:50:16.422868",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 118,
+      "type": "s",
+      "number": 4065
+    },
+    "output": {
+      "action_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:50:16.705664",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 118,
+      "type": "hres",
+      "number": 27
+    },
+    "output": {
+      "action_count": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:50:16.784298",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 3068
+    },
+    "output": {
+      "action_count": 6
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:50:19.438974",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Equal Health Care for All Act",
+      "sponsor": "Sen. Padilla, Alex [D-CA]"
+    },
+    "output": {
+      "translation_preview": "# Equal Health Care for All Act \u2013 Plain English\n\n## 1. What this bill is\nThis bill would create a he"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:50:19.866788",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Equal Health Care for All Act",
+      "sponsor": "Rep. Schiff, Adam B. [D-CA-30]"
+    },
+    "output": {
+      "translation_preview": "# Equal Health Care for All Act - Plain English Explanation\n\n## 1. What This Bill Is\nThis bill would"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:50:20.054380",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Condemning attacks on health care facilities, health care personnel, and patients.",
+      "sponsor": "Rep. DeGette, Diana [D-CO-1]"
+    },
+    "output": {
+      "translation_preview": "# Plain English Explanation\n\n## 1. What the Bill Is\nThis bill officially states that Congress oppose"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:50:21.709079",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**March 22, 2024:** A Senator introduced this bill in the Senate. The Senator made "
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:50:21.711503",
+    "agent": "orchestrator",
+    "action": "process_bill",
+    "input": {
+      "congress": 118,
+      "type": "s",
+      "number": 4065
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:50:21.813312",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 4
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**January 11, 2023**\n- A bill was introduced in the House of Representatives\n- The "
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:50:21.815477",
+    "agent": "orchestrator",
+    "action": "process_bill",
+    "input": {
+      "congress": 118,
+      "type": "hres",
+      "number": 27
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:50:22.009289",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 6
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**May 2, 2023:** The bill was introduced in the House of Representatives.\n\n**May 2,"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:50:22.011521",
+    "agent": "orchestrator",
+    "action": "process_bill",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 3068
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:59:29.245564",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Find bills about prescription drug prices"
+    },
+    "output": {
+      "keywords": [
+        "prescription drug",
+        "prices"
+      ],
+      "topic": "Bills concerning prescription drug prices",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:59:29.902258",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "prescription drug prices",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ],
+      "full_query": "prescription drug prices collection:BILLS (congress:119 OR congress:118 OR congress:117)"
+    },
+    "output": {
+      "total_available": 448,
+      "results_returned": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:59:30.411710",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 117,
+      "type": "s",
+      "number": 3615
+    },
+    "output": {
+      "title": "Cutting Medicare Prescription Drug Prices in Half Act",
+      "status": "Read twice and referred to the Committee on Finance."
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:59:30.626082",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "s",
+      "number": 1587
+    },
+    "output": {
+      "title": "Fair Prescription Drug Prices for Americans Act",
+      "status": "Read twice and referred to the Committee on Health, Education, Labor, and Pensions."
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:59:30.651167",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 118,
+      "type": "s",
+      "number": 1450
+    },
+    "output": {
+      "title": "Cutting Medicare Prescription Drug Prices in Half Act",
+      "status": "Read twice and referred to the Committee on Finance."
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:59:30.951385",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 117,
+      "type": "s",
+      "number": 3615
+    },
+    "output": {
+      "action_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:59:31.175894",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "s",
+      "number": 1587
+    },
+    "output": {
+      "action_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:59:31.220313",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 118,
+      "type": "s",
+      "number": 1450
+    },
+    "output": {
+      "action_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:59:34.156744",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Fair Prescription Drug Prices for Americans Act",
+      "sponsor": "Sen. Hawley, Josh [R-MO]"
+    },
+    "output": {
+      "translation_preview": "# Fair Prescription Drug Prices for Americans Act\n\n## 1. What this bill is in one sentence\nThis bill"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:59:34.670827",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Cutting Medicare Prescription Drug Prices in Half Act",
+      "sponsor": "Sen. Sanders, Bernard [I-VT]"
+    },
+    "output": {
+      "translation_preview": "# Cutting Medicare Prescription Drug Prices in Half Act\n\n## 1. What This Bill Is\nThis bill would req"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:59:36.001526",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**May 5, 2025:** A senator introduced this bill in the Senate. It was read aloud tw"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:59:36.004203",
+    "agent": "orchestrator",
+    "action": "process_bill",
+    "input": {
+      "congress": 119,
+      "type": "s",
+      "number": 1587
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:59:36.563509",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Cutting Medicare Prescription Drug Prices in Half Act",
+      "sponsor": "Sen. Sanders, Bernard [I-VT]"
+    },
+    "output": {
+      "translation_preview": "# Plain English Explanation\n\n## 1. What This Bill Is\nThis bill would allow the government to negotia"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:59:36.852693",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**May 4, 2023: Bill Introduced**\nA senator introduced this bill in the Senate.\n\n**M"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:59:36.855507",
+    "agent": "orchestrator",
+    "action": "process_bill",
+    "input": {
+      "congress": 118,
+      "type": "s",
+      "number": 1450
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:59:38.301560",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**February 9, 2022**\nA senator introduced this bill in the Senate. On the same day,"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:59:38.304384",
+    "agent": "orchestrator",
+    "action": "process_bill",
+    "input": {
+      "congress": 117,
+      "type": "s",
+      "number": 3615
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:06:30.953249",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "What bills exist on housing affordability?"
+    },
+    "output": {
+      "keywords": [
+        "housing",
+        "affordability"
+      ],
+      "topic": "Bills related to housing affordability",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:06:31.692830",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "housing affordability",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ],
+      "full_query": "housing affordability collection:BILLS (congress:119 OR congress:118 OR congress:117)"
+    },
+    "output": {
+      "total_available": 549,
+      "results_returned": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:06:32.602201",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "s",
+      "number": 1527
+    },
+    "output": {
+      "title": "Housing Affordability Act",
+      "status": "Read twice and referred to the Committee on Banking, Housing, and Urban Affairs."
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:06:32.607841",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 8127
+    },
+    "output": {
+      "title": "Permanent Housing Affordability Act",
+      "status": "Referred to the Committee on Financial Services, and in addition to the Committee on Oversight and Government Reform, for a period to be subsequently determined by the Speaker, in each case for consideration of such provisions as fall within the jurisdiction of the committee concerned."
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:06:32.820050",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 6132
+    },
+    "output": {
+      "title": "Housing Affordability Act",
+      "status": "Referred to the House Committee on Financial Services."
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:06:32.970694",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 8127
+    },
+    "output": {
+      "action_count": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:06:32.971391",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "s",
+      "number": 1527
+    },
+    "output": {
+      "action_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:06:33.180599",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 6132
+    },
+    "output": {
+      "action_count": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:06:35.899809",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Permanent Housing Affordability Act",
+      "sponsor": "Rep. Schrier, Kim [D-WA-8]"
+    },
+    "output": {
+      "translation_preview": "# Permanent Housing Affordability Act - Plain English Explanation\n\n## 1. What this bill is in one se"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:06:36.038652",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Housing Affordability Act",
+      "sponsor": "Sen. Gallego, Ruben [D-AZ]"
+    },
+    "output": {
+      "translation_preview": "# Housing Affordability Act - Plain English Explanation\n\n## 1. What This Bill Is\nThis bill aims to m"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:06:36.303915",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Housing Affordability Act",
+      "sponsor": "Rep. De La Cruz, Monica [R-TX-15]"
+    },
+    "output": {
+      "translation_preview": "# Housing Affordability Act \u2014 Plain English Explanation\n\n## 1. What This Bill Does (One Sentence)\nTh"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:06:37.895474",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**April 30, 2025:** A senator introduced this bill in the Senate. It was read aloud"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:06:37.895815",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 4
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**March 26, 2026:** The bill was introduced in the House of Representatives.\n\n**Mar"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:06:37.899538",
+    "agent": "orchestrator",
+    "action": "process_bill",
+    "input": {
+      "congress": 119,
+      "type": "s",
+      "number": 1527
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:06:37.905992",
+    "agent": "orchestrator",
+    "action": "process_bill",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 8127
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:06:38.405390",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 3
+    },
+    "output": {
+      "preview": "# Timeline: Bill Status\n\n**November 19, 2025**\n- A representative introduced this bill in the House "
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:06:38.408365",
+    "agent": "orchestrator",
+    "action": "process_bill",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 6132
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:06.483504",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Hello"
+    },
+    "output": {
+      "keywords": [],
+      "topic": "General greeting with no specific legislative search query",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:07.081739",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ],
+      "full_query": " collection:BILLS (congress:119 OR congress:118 OR congress:117)"
+    },
+    "output": {
+      "total_available": 62223,
+      "results_returned": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:07.564011",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1260
+    },
+    "output": {
+      "title": "Supporting the designation of May 10, 2026, as \"National Asian American, Native Hawaiian, and Pacific Islander Mental Health Day\".",
+      "status": "Referred to the House Committee on Energy and Commerce."
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:07.564114",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 8678
+    },
+    "output": {
+      "title": "Zero Tolerance for Political Violence Act of 2026",
+      "status": "Referred to the House Committee on the Judiciary."
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:07.564177",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "hjres",
+      "number": 178
+    },
+    "output": {
+      "title": "Providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Consumer Financial Protection relating to the withdrawal of the rule relating to \"Examinations for Risks to Active-Duty Servicemembers and Their Covered Dependents\".",
+      "status": "Referred to the House Committee on Financial Services."
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:07.926238",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1260
+    },
+    "output": {
+      "action_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:07.934696",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 8678
+    },
+    "output": {
+      "action_count": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:07.940739",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "hjres",
+      "number": 178
+    },
+    "output": {
+      "action_count": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:11.186926",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Supporting the designation of May 10, 2026, as \"National Asian American, Native Hawaiian, and Pacific Islander Mental Health Day\".",
+      "sponsor": "Rep. Chu, Judy [D-CA-28]"
+    },
+    "output": {
+      "translation_preview": "# Plain English Explanation\n\n## 1. What this bill is in one sentence\nThis bill officially recognizes"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:11.263707",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Consumer Financial Protection relating to the withdrawal of the rule relating to \"Examinations for Risks to Active-Duty Servicemembers and Their Covered Dependents\".",
+      "sponsor": "Rep. Gonzalez, Vicente [D-TX-34]"
+    },
+    "output": {
+      "translation_preview": "# Plain English Explanation\n\n## 1. What This Bill Is\n\nCongress is voting to block a decision by the "
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:11.901987",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Zero Tolerance for Political Violence Act of 2026",
+      "sponsor": "Rep. Carter, Earl L. \"Buddy\" [R-GA-1]"
+    },
+    "output": {
+      "translation_preview": "# Zero Tolerance for Political Violence Act of 2026\n\n## 1. What This Bill Is\nThis bill would create "
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:13.040908",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**May 7, 2026:** The bill was submitted in the House of Representatives. That same "
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:13.046336",
+    "agent": "orchestrator",
+    "action": "process_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1260
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:13.353650",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 3
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**May 7, 2026:** The bill was introduced in the House of Representatives and sent t"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:13.359172",
+    "agent": "orchestrator",
+    "action": "process_bill",
+    "input": {
+      "congress": 119,
+      "type": "hjres",
+      "number": 178
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:14.025647",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 3
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**May 7, 2026**\nThe bill was introduced in the House of Representatives and immedia"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:14.031196",
+    "agent": "orchestrator",
+    "action": "process_bill",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 8678
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:41.288801",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Give me one bill from the 111th congress"
+    },
+    "output": {
+      "keywords": [],
+      "topic": "A bill from the 111th Congress",
+      "time_range": "111th Congress",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:41.736506",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ],
+      "full_query": " collection:BILLS (congress:119 OR congress:118 OR congress:117)"
+    },
+    "output": {
+      "total_available": 62223,
+      "results_returned": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:42.112392",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1260
+    },
+    "output": {
+      "title": "Supporting the designation of May 10, 2026, as \"National Asian American, Native Hawaiian, and Pacific Islander Mental Health Day\".",
+      "status": "Referred to the House Committee on Energy and Commerce."
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:42.112538",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 8678
+    },
+    "output": {
+      "title": "Zero Tolerance for Political Violence Act of 2026",
+      "status": "Referred to the House Committee on the Judiciary."
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:42.112620",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "hjres",
+      "number": 178
+    },
+    "output": {
+      "title": "Providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Consumer Financial Protection relating to the withdrawal of the rule relating to \"Examinations for Risks to Active-Duty Servicemembers and Their Covered Dependents\".",
+      "status": "Referred to the House Committee on Financial Services."
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:42.491376",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 8678
+    },
+    "output": {
+      "action_count": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:42.491477",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1260
+    },
+    "output": {
+      "action_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:42.491554",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "hjres",
+      "number": 178
+    },
+    "output": {
+      "action_count": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:45.797633",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Supporting the designation of May 10, 2026, as \"National Asian American, Native Hawaiian, and Pacific Islander Mental Health Day\".",
+      "sponsor": "Rep. Chu, Judy [D-CA-28]"
+    },
+    "output": {
+      "translation_preview": "# Plain English Summary\n\n## 1. What This Bill Does\nThis bill asks the government to officially recog"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:45.917043",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Consumer Financial Protection relating to the withdrawal of the rule relating to \"Examinations for Risks to Active-Duty Servicemembers and Their Covered Dependents\".",
+      "sponsor": "Rep. Gonzalez, Vicente [D-TX-34]"
+    },
+    "output": {
+      "translation_preview": "# Plain English Explanation\n\n## 1. What This Bill Is\nCongress is trying to block a decision by the C"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:46.149893",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Zero Tolerance for Political Violence Act of 2026",
+      "sponsor": "Rep. Carter, Earl L. \"Buddy\" [R-GA-1]"
+    },
+    "output": {
+      "translation_preview": "# Zero Tolerance for Political Violence Act of 2026 \u2014 Plain English Explanation\n\n## 1. What this bil"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:47.108270",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**May 7, 2026:** The bill was introduced in the House of Representatives and immedi"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:47.113558",
+    "agent": "orchestrator",
+    "action": "process_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1260
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:47.558365",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 3
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**May 7, 2026:** The bill was introduced in the House of Representatives and immedi"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:47.561609",
+    "agent": "orchestrator",
+    "action": "process_bill",
+    "input": {
+      "congress": 119,
+      "type": "hjres",
+      "number": 178
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:47.700656",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 3
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**May 7, 2026**\nThe bill was introduced in the House of Representatives and immedia"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:09:47.704121",
+    "agent": "orchestrator",
+    "action": "process_bill",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 8678
+    },
+    "output": {
+      "status": "complete"
+    }
   }
 ]

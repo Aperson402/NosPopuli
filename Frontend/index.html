@@ -10,14 +10,14 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --ink: #0e0e0e;
-      --paper: #f5f0e8;
-      --aged: #e8e0cc;
-      --accent: #8b1a1a;
+      --ink:          #0e0e0e;
+      --paper:        #f5f0e8;
+      --card-bg:      #faf7f2;
+      --accent:       #8b1a1a;
       --accent-light: #c0392b;
-      --muted: #6b6355;
-      --rule: #c8bfaa;
-      --card-bg: #faf7f2;
+      --muted:        #6b6355;
+      --rule:         #c8bfaa;
+      --content-width: 760px;
     }
 
     html { font-size: 16px; scroll-behavior: smooth; }
@@ -28,377 +28,303 @@
       font-family: 'Source Serif 4', Georgia, serif;
       font-weight: 300;
       min-height: 100vh;
-      background-image: 
-        repeating-linear-gradient(
-          0deg,
-          transparent,
-          transparent 27px,
-          rgba(0,0,0,0.03) 27px,
-          rgba(0,0,0,0.03) 28px
-        );
+      background-image: repeating-linear-gradient(
+        0deg, transparent, transparent 27px,
+        rgba(0,0,0,0.03) 27px, rgba(0,0,0,0.03) 28px
+      );
     }
 
-    /* ── Header ── */
+    /* ── HEADER ── */
     header {
       border-bottom: 3px double var(--ink);
       padding: 2rem 0 1.5rem;
       text-align: center;
-      position: relative;
+      cursor: pointer;
     }
-
     header::before {
-      content: '';
-      display: block;
-      height: 3px;
-      background: var(--ink);
-      margin-bottom: 0.75rem;
+      content: ''; display: block;
+      height: 3px; background: var(--ink); margin-bottom: 0.75rem;
     }
-
     .masthead {
       font-family: 'Playfair Display', Georgia, serif;
       font-size: clamp(2.5rem, 6vw, 4.5rem);
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      line-height: 1;
-      color: var(--ink);
+      font-weight: 700; letter-spacing: -0.02em; line-height: 1;
     }
-
-    .masthead span {
-      color: var(--accent);
-      font-style: italic;
-    }
-
+    .masthead span { color: var(--accent); font-style: italic; }
     .tagline {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.7rem;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-top: 0.5rem;
+      font-size: 0.7rem; letter-spacing: 0.25em;
+      text-transform: uppercase; color: var(--muted); margin-top: 0.5rem;
     }
 
-    /* ── Search section ── */
+    /* ── PAGES ── */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ── SEARCH PAGE ── */
     .search-section {
-      max-width: 760px;
-      margin: 3rem auto 0;
-      padding: 0 1.5rem;
+      max-width: var(--content-width);
+      margin: 3rem auto 0; padding: 0 1.5rem;
     }
-
     .search-label {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.65rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--muted);
-      display: block;
-      margin-bottom: 0.5rem;
+      font-size: 0.65rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--muted);
+      display: block; margin-bottom: 0.5rem;
     }
-
     .search-row {
-      display: flex;
-      gap: 0;
-      border: 1.5px solid var(--ink);
-      background: white;
+      display: flex; border: 1.5px solid var(--ink); background: white;
     }
-
     .search-row input {
-      flex: 1;
-      padding: 1rem 1.25rem;
+      flex: 1; padding: 1rem 1.25rem;
       font-family: 'Source Serif 4', Georgia, serif;
-      font-size: 1.05rem;
-      font-weight: 300;
-      border: none;
-      outline: none;
-      background: transparent;
-      color: var(--ink);
+      font-size: 1.05rem; font-weight: 300;
+      border: none; outline: none; background: transparent; color: var(--ink);
     }
-
-    .search-row input::placeholder {
-      color: var(--muted);
-      font-style: italic;
-    }
-
+    .search-row input::placeholder { color: var(--muted); font-style: italic; }
     .search-btn {
-      padding: 1rem 1.75rem;
-      background: var(--ink);
-      color: var(--paper);
-      border: none;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.75rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: background 0.15s;
-      white-space: nowrap;
+      padding: 1rem 1.75rem; background: var(--ink); color: var(--paper);
+      border: none; font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase;
+      cursor: pointer; transition: background 0.15s; white-space: nowrap;
     }
-
     .search-btn:hover { background: var(--accent); }
     .search-btn:disabled { background: var(--muted); cursor: not-allowed; }
 
     .example-queries {
-      margin-top: 0.75rem;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
+      margin-top: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;
     }
-
     .example-queries span {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.65rem;
-      color: var(--muted);
-      letter-spacing: 0.05em;
+      font-size: 0.65rem; color: var(--muted); letter-spacing: 0.05em;
     }
-
     .example-pill {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.65rem;
-      color: var(--accent);
-      background: none;
-      border: 1px solid var(--rule);
-      padding: 0.2rem 0.6rem;
-      cursor: pointer;
-      transition: all 0.15s;
-      letter-spacing: 0.03em;
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem;
+      color: var(--accent); background: none;
+      border: 1px solid var(--rule); padding: 0.2rem 0.6rem;
+      cursor: pointer; transition: all 0.15s; letter-spacing: 0.03em;
     }
+    .example-pill:hover { border-color: var(--accent); background: var(--accent); color: white; }
 
-    .example-pill:hover {
-      border-color: var(--accent);
-      background: var(--accent);
-      color: white;
-    }
-
-    /* ── Status / Loading ── */
+    /* ── STATUS BAR ── */
     .status-bar {
-      max-width: 760px;
-      margin: 1.5rem auto 0;
-      padding: 0 1.5rem;
-      display: none;
+      max-width: var(--content-width); margin: 1.5rem auto 0;
+      padding: 0 1.5rem; display: none;
     }
-
     .status-bar.visible { display: block; }
-
     .status-inner {
-      border-left: 2px solid var(--accent);
-      padding: 0.5rem 1rem;
+      border-left: 2px solid var(--accent); padding: 0.5rem 1rem;
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.75rem;
-      color: var(--accent);
-      letter-spacing: 0.05em;
+      font-size: 0.75rem; color: var(--accent); letter-spacing: 0.05em;
     }
+    .status-step { opacity: 0; transform: translateY(4px); transition: all 0.3s; }
+    .status-step.visible { opacity: 1; transform: translateY(0); }
 
-    .status-step {
-      opacity: 0;
-      transform: translateY(4px);
-      transition: all 0.3s;
-    }
-
-    .status-step.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* ── Results ── */
+    /* ── RESULTS ── */
     .results-section {
-      max-width: 760px;
-      margin: 2.5rem auto 4rem;
-      padding: 0 1.5rem;
+      max-width: var(--content-width);
+      margin: 2.5rem auto 4rem; padding: 0 1.5rem;
     }
-
     .results-header {
-      border-top: 1px solid var(--rule);
-      border-bottom: 1px solid var(--rule);
-      padding: 0.5rem 0;
-      margin-bottom: 2rem;
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
+      border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+      padding: 0.5rem 0; margin-bottom: 2rem;
+      display: flex; align-items: baseline; justify-content: space-between;
     }
-
     .results-header h2 {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.7rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--muted);
-      font-weight: 400;
+      font-size: 0.7rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--muted); font-weight: 400;
     }
-
     .results-count {
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--muted);
+    }
+
+    /* ── RESULT CARD ── */
+    .result-card {
+      background: var(--card-bg); border: 1px solid var(--rule);
+      margin-bottom: 1rem; cursor: pointer;
+      opacity: 0; transform: translateY(10px);
+      animation: cardIn 0.35s forwards;
+      transition: border-color 0.15s;
+    }
+    .result-card:hover { border-color: var(--accent); }
+
+    @keyframes cardIn { to { opacity: 1; transform: translateY(0); } }
+
+    .result-card-inner {
+      padding: 1.1rem 1.5rem;
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 1.5rem;
+    }
+    .result-card-left { flex: 1; min-width: 0; }
+    .result-bill-id {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.65rem;
-      color: var(--muted);
+      font-size: 0.62rem; letter-spacing: 0.15em;
+      color: var(--accent); text-transform: uppercase; margin-bottom: 0.3rem;
     }
-
-    /* ── Bill card ── */
-    .bill-card {
-      background: var(--card-bg);
-      border: 1px solid var(--rule);
-      margin-bottom: 2rem;
-      opacity: 0;
-      transform: translateY(12px);
-      animation: cardIn 0.4s forwards;
-    }
-
-    @keyframes cardIn {
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .bill-card:nth-child(2) { animation-delay: 0.1s; }
-    .bill-card:nth-child(3) { animation-delay: 0.2s; }
-
-    .bill-card-header {
-      padding: 1.25rem 1.5rem;
-      border-bottom: 1px solid var(--rule);
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 1rem;
-    }
-
-    .bill-id {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.7rem;
-      letter-spacing: 0.12em;
-      color: var(--accent);
-      text-transform: uppercase;
-      flex-shrink: 0;
-    }
-
-    .bill-title {
+    .result-bill-title {
       font-family: 'Playfair Display', Georgia, serif;
-      font-size: 1.15rem;
-      font-weight: 700;
-      line-height: 1.3;
-      color: var(--ink);
+      font-size: 1rem; font-weight: 700; line-height: 1.3; color: var(--ink);
     }
-
-    .bill-body {
-      padding: 1.5rem;
-    }
-
-    .section-label {
+    .result-card-arrow {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.6rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 0.75rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .section-label::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--rule);
-    }
-
-    .bill-explanation {
-      font-size: 0.95rem;
-      line-height: 1.75;
-      color: var(--ink);
-      white-space: pre-wrap;
-    }
-
-    .bill-explanation h1, .bill-explanation h2, .bill-explanation h3 {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: 1rem;
-      font-weight: 700;
-      margin: 1rem 0 0.4rem;
-      color: var(--ink);
-    }
-
-    .bill-explanation strong { font-weight: 600; }
-
-    .timeline-toggle {
-      margin-top: 1.25rem;
-      background: none;
-      border: none;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.65rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--accent);
-      cursor: pointer;
-      padding: 0.4rem 0;
-      border-bottom: 1px solid var(--rule);
-      width: 100%;
-      text-align: left;
+      font-size: 0.7rem; color: var(--muted); flex-shrink: 0;
       transition: color 0.15s;
     }
+    .result-card:hover .result-card-arrow { color: var(--accent); }
 
-    .timeline-toggle:hover { color: var(--accent-light); }
-    .timeline-toggle::before { content: '▶  '; font-size: 0.5rem; }
-    .timeline-toggle.open::before { content: '▼  '; }
-
-    .timeline-content {
-      display: none;
-      margin-top: 1rem;
-      padding-top: 1rem;
+    .result-meta {
+      padding: 0.4rem 1.5rem 0.6rem;
       border-top: 1px solid var(--rule);
+      display: flex; gap: 1.5rem;
     }
-
-    .timeline-content.open { display: block; }
-
-    .timeline-text {
-      font-size: 0.9rem;
-      line-height: 1.8;
-      color: var(--ink);
-      white-space: pre-wrap;
+    .meta-item {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.58rem; letter-spacing: 0.1em;
+      color: var(--muted); text-transform: uppercase;
     }
+    .meta-item strong { color: var(--ink); font-weight: 500; }
 
-    .timeline-text h1, .timeline-text h2, .timeline-text h3 {
+    /* ── DETAIL PAGE ── */
+    .detail-page {
+      max-width: var(--content-width);
+      margin: 0 auto; padding: 0 1.5rem 4rem;
+    }
+    .detail-back {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--muted); background: none; border: none;
+      cursor: pointer; padding: 1.5rem 0; transition: color 0.15s;
+    }
+    .detail-back:hover { color: var(--accent); }
+
+    .detail-header {
+      border-top: 3px double var(--ink);
+      border-bottom: 1px solid var(--rule);
+      padding: 1.5rem 0; margin-bottom: 2rem;
+    }
+    .detail-bill-id {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem; letter-spacing: 0.2em;
+      color: var(--accent); text-transform: uppercase; margin-bottom: 0.5rem;
+    }
+    .detail-bill-title {
       font-family: 'Playfair Display', Georgia, serif;
-      font-size: 0.95rem;
-      font-weight: 700;
-      margin: 0.75rem 0 0.3rem;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 700; line-height: 1.25; color: var(--ink);
     }
 
-    /* ── Empty / Error states ── */
-    .empty-state {
-      text-align: center;
-      padding: 3rem 0;
-      color: var(--muted);
+    /* ── LOADING STATE ── */
+    .detail-loading {
+      padding: 4rem 0; text-align: center;
+    }
+    .loading-spinner {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--muted);
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+    .loading-steps {
+      margin-top: 1.5rem;
+      border-left: 2px solid var(--rule);
+      padding: 0.5rem 1rem;
+      text-align: left;
+      display: inline-block;
+    }
+    .loading-step {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem; color: var(--muted);
+      letter-spacing: 0.05em; margin-bottom: 0.25rem;
+      opacity: 0; transition: opacity 0.4s;
+    }
+    .loading-step.visible { opacity: 1; }
+    .loading-step.done { color: var(--accent); }
+
+    /* ── DETAIL CONTENT ── */
+    .detail-section { margin-bottom: 2.5rem; }
+    .section-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--muted);
+      display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+
+    .detail-explanation { font-size: 0.95rem; line-height: 1.8; color: var(--ink); }
+    .detail-explanation h1,
+    .detail-explanation h2,
+    .detail-explanation h3 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1rem; font-weight: 700; margin: 1.25rem 0 0.4rem;
+    }
+    .detail-explanation strong { font-weight: 600; }
+    .detail-explanation li { margin-left: 1.25rem; margin-bottom: 0.25rem; }
+
+    .timeline-text { font-size: 0.92rem; line-height: 1.85; color: var(--ink); }
+    .timeline-text h1,
+    .timeline-text h2,
+    .timeline-text h3 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 0.95rem; font-weight: 700; margin: 1rem 0 0.3rem;
+    }
+    .timeline-text strong { font-weight: 600; }
+    .timeline-text li { margin-left: 1.25rem; margin-bottom: 0.2rem; }
+
+    /* ── CHART PLACEHOLDERS ── */
+    .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .chart-placeholder {
+      background: var(--card-bg); border: 1px solid var(--rule);
+      padding: 2rem 1.5rem; text-align: center;
+    }
+    .chart-placeholder-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6rem; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 0.4rem;
+    }
+    .chart-placeholder-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 0.9rem; color: var(--ink); font-style: italic;
+    }
+    .chart-coming-soon {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.55rem; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--rule); margin-top: 0.5rem;
     }
 
+    /* ── EMPTY / ERROR ── */
+    .empty-state { text-align: center; padding: 3rem 0; color: var(--muted); }
     .empty-state p {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.75rem;
-      letter-spacing: 0.1em;
+      font-size: 0.75rem; letter-spacing: 0.1em;
     }
 
-    /* ── Footer ── */
+    /* ── FOOTER ── */
     footer {
-      border-top: 3px double var(--ink);
-      text-align: center;
-      padding: 1.5rem;
+      border-top: 3px double var(--ink); text-align: center; padding: 1.5rem;
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.6rem;
-      letter-spacing: 0.15em;
-      color: var(--muted);
-      text-transform: uppercase;
+      font-size: 0.6rem; letter-spacing: 0.15em;
+      color: var(--muted); text-transform: uppercase;
     }
   </style>
 </head>
 <body>
 
-<header>
+<header onclick="goHome()">
   <div class="masthead">Nos<span>Populi</span></div>
   <div class="tagline">Law for the People &nbsp;·&nbsp; Federal Legislation in Plain English</div>
 </header>
 
-<main>
+<!-- ── SEARCH PAGE ── -->
+<div class="page active" id="page-search">
   <section class="search-section">
     <label class="search-label" for="search-input">Ask about any legislation</label>
     <div class="search-row">
-      <input
-        id="search-input"
-        type="text"
+      <input id="search-input" type="text"
         placeholder="What has Congress done about student loans?"
-        autocomplete="off"
-      />
+        autocomplete="off"/>
       <button class="search-btn" id="search-btn" onclick="runSearch()">Search</button>
     </div>
     <div class="example-queries">
@@ -415,27 +341,98 @@
   </div>
 
   <section class="results-section" id="results-section"></section>
-</main>
+</div>
+
+<!-- ── DETAIL PAGE ── -->
+<div class="page" id="page-detail">
+  <div class="detail-page">
+
+    <button class="detail-back" onclick="goBack()">← Back to results</button>
+
+    <div class="detail-header">
+      <div class="detail-bill-id" id="detail-bill-id"></div>
+      <div class="detail-bill-title" id="detail-bill-title"></div>
+    </div>
+
+    <!-- Loading state -->
+    <div class="detail-loading" id="detail-loading">
+      <div class="loading-spinner">Analyzing legislation...</div>
+      <div class="loading-steps">
+        <div class="loading-step" id="lstep-1">› Fetching bill data</div>
+        <div class="loading-step" id="lstep-2">› Translating to plain English</div>
+        <div class="loading-step" id="lstep-3">› Building legislative timeline</div>
+      </div>
+    </div>
+
+    <!-- Content (hidden until loaded) -->
+    <div id="detail-content" style="display:none">
+      <div class="detail-section">
+        <div class="section-label">Plain English Explanation</div>
+        <div class="detail-explanation" id="detail-explanation"></div>
+      </div>
+
+      <div class="detail-section">
+        <div class="section-label">Legislative Timeline</div>
+        <div class="timeline-text" id="detail-timeline"></div>
+      </div>
+
+      <div class="detail-section">
+        <div class="section-label">Data &amp; Analysis</div>
+        <div class="charts-grid">
+          <div class="chart-placeholder">
+            <div class="chart-placeholder-label">Vote Breakdown</div>
+            <div class="chart-placeholder-title">Yes / No / Abstain by Party</div>
+            <div class="chart-coming-soon">Coming soon</div>
+          </div>
+          <div class="chart-placeholder">
+            <div class="chart-placeholder-label">Sponsor Map</div>
+            <div class="chart-placeholder-title">Which States Cosponsored</div>
+            <div class="chart-coming-soon">Coming soon</div>
+          </div>
+          <div class="chart-placeholder">
+            <div class="chart-placeholder-label">Bill Progress</div>
+            <div class="chart-placeholder-title">How Far It Got</div>
+            <div class="chart-coming-soon">Coming soon</div>
+          </div>
+          <div class="chart-placeholder">
+            <div class="chart-placeholder-label">Amendment History</div>
+            <div class="chart-placeholder-title">How Much It Changed</div>
+            <div class="chart-coming-soon">Coming soon</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
 
 <footer>
   NosPopuli &nbsp;·&nbsp; Data via Congress.gov &amp; GovInfo &nbsp;·&nbsp; Not legal advice
 </footer>
 
 <script>
+  let currentResults = [];
+  let currentBillMeta = null;
+
+  // ── Page navigation ──
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function goHome() { showPage('page-search'); }
+  function goBack() { showPage('page-search'); }
+
+  // ── Search ──
   const input = document.getElementById('search-input');
   const btn = document.getElementById('search-btn');
   const statusBar = document.getElementById('status-bar');
   const statusInner = document.getElementById('status-inner');
   const resultsSection = document.getElementById('results-section');
 
-  input.addEventListener('keydown', e => {
-    if (e.key === 'Enter') runSearch();
-  });
-
-  function setQuery(q) {
-    input.value = q;
-    input.focus();
-  }
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') runSearch(); });
+  function setQuery(q) { input.value = q; input.focus(); }
 
   function setStatus(msg) {
     statusBar.classList.add('visible');
@@ -444,12 +441,16 @@
     line.textContent = '› ' + msg;
     statusInner.appendChild(line);
     requestAnimationFrame(() => line.classList.add('visible'));
-    statusBar.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
   function clearStatus() {
     statusInner.innerHTML = '';
     statusBar.classList.remove('visible');
+  }
+
+  // ── Helpers ──
+  function billIdFromParts(type, number) {
+    return type.toUpperCase() + ' ' + number;
   }
 
   function renderMarkdown(text) {
@@ -459,20 +460,77 @@
       .replace(/^# (.+)$/gm, '<h1>$1</h1>')
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.+?)\*/g, '<em>$1</em>')
-      .replace(/^---$/gm, '<hr style="border:none;border-top:1px solid var(--rule);margin:0.75rem 0">')
-      .replace(/^- (.+)$/gm, '<li style="margin-left:1.25rem;margin-bottom:0.2rem">$1</li>');
+      .replace(/^- (.+)$/gm, '<li>$1</li>')
+      .replace(/^---$/gm, '<hr style="border:none;border-top:1px solid var(--rule);margin:0.75rem 0">');
   }
 
-  function billIdFromKey(billKey) {
-    const match = billKey.match(/([a-z]+)(\d+)/i);
-    if (match) return match[1].toUpperCase() + ' ' + match[2];
-    return billKey.toUpperCase();
+  // ── Stage 2: Load full bill on click ──
+  async function openDetail(bill) {
+    currentBillMeta = bill;
+
+    const billId = billIdFromParts(bill.type, bill.number);
+
+    // Set header immediately from search result data
+    document.getElementById('detail-bill-id').textContent = billId;
+    document.getElementById('detail-bill-title').textContent = bill.title || billId;
+
+    // Show loading state
+    document.getElementById('detail-loading').style.display = 'block';
+    document.getElementById('detail-content').style.display = 'none';
+
+    // Animate loading steps
+    const steps = ['lstep-1', 'lstep-2', 'lstep-3'];
+    steps.forEach((id, i) => {
+      const el = document.getElementById(id);
+      el.classList.remove('visible', 'done');
+      setTimeout(() => el.classList.add('visible'), i * 800);
+    });
+
+    showPage('page-detail');
+
+    try {
+      const response = await fetch('/bill', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          congress: bill.congress,
+          bill_type: bill.type,
+          number: bill.number
+        })
+      });
+
+      if (!response.ok) throw new Error(`Error: ${response.status}`);
+
+      const data = await response.json();
+
+      // Mark steps done
+      steps.forEach(id => {
+        document.getElementById(id).classList.add('done');
+      });
+
+      // Small pause then reveal content
+      setTimeout(() => {
+        document.getElementById('detail-loading').style.display = 'none';
+        document.getElementById('detail-explanation').innerHTML = renderMarkdown(data.translation);
+        document.getElementById('detail-timeline').innerHTML = renderMarkdown(data.timeline);
+        document.getElementById('detail-content').style.display = 'block';
+      }, 400);
+
+    } catch (err) {
+      document.getElementById('detail-loading').innerHTML = `
+        <div class="empty-state">
+          <p>Failed to load bill details.</p>
+          <p style="margin-top:0.5rem;font-size:0.6rem">${err.message}</p>
+        </div>`;
+    }
   }
 
+  // ── Stage 1: Render search results (fast, no AI) ──
   function renderResults(data) {
     resultsSection.innerHTML = '';
+    currentResults = data.results || [];
 
-    if (!data.results || data.results.length === 0) {
+    if (!currentResults.length) {
       resultsSection.innerHTML = `
         <div class="empty-state">
           <p>No bills found for that query.</p>
@@ -485,41 +543,38 @@
     header.className = 'results-header';
     header.innerHTML = `
       <h2>Results</h2>
-      <span class="results-count">${data.results.length} bill${data.results.length !== 1 ? 's' : ''} found</span>`;
+      <span class="results-count">${currentResults.length} bill${currentResults.length !== 1 ? 's' : ''} found</span>`;
     resultsSection.appendChild(header);
 
-    data.results.forEach((result, i) => {
+    currentResults.forEach((bill, i) => {
       const card = document.createElement('div');
-      card.className = 'bill-card';
-      card.style.animationDelay = (i * 0.12) + 's';
+      card.className = 'result-card';
+      card.style.animationDelay = (i * 0.05) + 's';
+      card.onclick = () => openDetail(bill);
 
-      const billId = billIdFromKey(result.bill);
+      const billId = billIdFromParts(bill.type || '', bill.number || '');
+      const congress = bill.congress ? `${bill.congress}th Congress` : '';
+      const date = bill.date_issued ? bill.date_issued.slice(0, 4) : '';
 
       card.innerHTML = `
-        <div class="bill-card-header">
-          <span class="bill-id">${billId}</span>
-        </div>
-        <div class="bill-body">
-          <div class="section-label">Plain English Explanation</div>
-          <div class="bill-explanation">${renderMarkdown(result.translation)}</div>
-          <button class="timeline-toggle" onclick="toggleTimeline(this)">
-            Legislative Timeline
-          </button>
-          <div class="timeline-content">
-            <div class="section-label">How It Moved Through Congress</div>
-            <div class="timeline-text">${renderMarkdown(result.timeline)}</div>
+        <div class="result-card-inner">
+          <div class="result-card-left">
+            <div class="result-bill-id">${billId}</div>
+            <div class="result-bill-title">${bill.title || billId}</div>
           </div>
+          <div class="result-card-arrow">Read more →</div>
+        </div>
+        <div class="result-meta">
+          <div class="meta-item"><strong>${congress}</strong></div>
+          <div class="meta-item"><strong>${date}</strong></div>
+          <div class="meta-item">Click for full analysis</div>
         </div>`;
 
       resultsSection.appendChild(card);
     });
   }
 
-  function toggleTimeline(btn) {
-    btn.classList.toggle('open');
-    btn.nextElementSibling.classList.toggle('open');
-  }
-
+  // ── Main search (Stage 1 only) ──
   async function runSearch() {
     const question = input.value.trim();
     if (!question) return;
@@ -527,25 +582,22 @@
     btn.disabled = true;
     resultsSection.innerHTML = '';
     clearStatus();
+    showPage('page-search');
 
     setStatus('Understanding your question...');
 
     try {
-      setTimeout(() => setStatus('Searching federal legislation...'), 600);
-      setTimeout(() => setStatus('Processing bills in parallel...'), 1800);
+      setTimeout(() => setStatus('Searching federal legislation...'), 500);
 
       const response = await fetch('/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question, max_results: 3 })
+        body: JSON.stringify({ question, max_results: 10 })
       });
 
-      if (!response.ok) {
-        throw new Error(`Server error: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`Server error: ${response.status}`);
 
       const data = await response.json();
-
       clearStatus();
       renderResults(data);
       resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
