@@ -596,5 +596,399 @@
         118
       ]
     }
+  },
+  {
+    "timestamp": "2026-05-08T21:19:40.895723",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "student loans",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    },
+    "output": {
+      "results_found": 5,
+      "titles": [
+        "Protecting our Communities from Sexual Predators A",
+        "High Rise Fire Sprinkler Incentive Act of 2025",
+        "Inaction Has Consequences Act",
+        "Proposing an amendment to the Constitution of the ",
+        "Tennessee Valley Authority Salary Transparency Act"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:21:30.289097",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "student loans",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    },
+    "output": {
+      "results_found": 5,
+      "titles": [
+        "Notification and Federal Employee Antidiscriminati",
+        "Expressing the sense of Congress that the Presiden",
+        "A bill to designate the Salt Pond Visitor Center a",
+        "A Bill To amend the act entitled ''An act to incor",
+        "Expressing the sense of the Congress that a postag"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:22:28.593274",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "student loans",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    },
+    "output": {
+      "results_found": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:24:13.798112",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "student loans",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    },
+    "output": {
+      "results_found": 0
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:25:22.677144",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "student loans",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    },
+    "output": {
+      "results_found": 0
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:31:34.052609",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "student loans",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ],
+      "full_query": "student loans collection:BILLS (congress:119 OR congress:118 OR congress:117)"
+    },
+    "output": {
+      "total_available": 1259,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:32:51.559480",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "student loans",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ],
+      "full_query": "student loans collection:BILLS (congress:119 OR congress:118 OR congress:117)"
+    },
+    "output": {
+      "total_available": 1259,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:34:26.601151",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "student loans",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ],
+      "full_query": "student loans collection:BILLS (congress:119 OR congress:118 OR congress:117)"
+    },
+    "output": {
+      "total_available": 1259,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:35:48.349440",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "student loans",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ],
+      "full_query": "student loans collection:BILLS (congress:119 OR congress:118 OR congress:117)"
+    },
+    "output": {
+      "total_available": 1259,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:38:22.303520",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "What are some bills on health care"
+    },
+    "output": {
+      "keywords": [
+        "health care"
+      ],
+      "topic": "Bills related to health care policy and reform",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:38:23.358468",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "health care",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ],
+      "full_query": "health care collection:BILLS (congress:119 OR congress:118 OR congress:117)"
+    },
+    "output": {
+      "total_available": 8994,
+      "results_returned": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:38:24.089997",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 3068
+    },
+    "output": {
+      "title": "Equal Health Care for All Act",
+      "status": "Referred to the Subcommittee on Health."
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:38:24.092813",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 118,
+      "type": "hres",
+      "number": 27
+    },
+    "output": {
+      "title": "Condemning attacks on health care facilities, health care personnel, and patients.",
+      "status": "Referred to the House Committee on the Judiciary."
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:38:24.110051",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 118,
+      "type": "s",
+      "number": 4065
+    },
+    "output": {
+      "title": "Equal Health Care for All Act",
+      "status": "Read twice and referred to the Committee on Health, Education, Labor, and Pensions. (Sponsor introductory remarks on measure: CR S2600)"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:38:24.676144",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 118,
+      "type": "s",
+      "number": 4065
+    },
+    "output": {
+      "action_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:38:24.679783",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 118,
+      "type": "hres",
+      "number": 27
+    },
+    "output": {
+      "action_count": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:38:24.758390",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 3068
+    },
+    "output": {
+      "action_count": 6
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:38:27.442701",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Equal Health Care for All Act",
+      "sponsor": "Sen. Padilla, Alex [D-CA]"
+    },
+    "output": {
+      "translation_preview": "# Equal Health Care for All Act - Plain English Explanation\n\n## 1. What this bill is in one sentence"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:38:28.124406",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Condemning attacks on health care facilities, health care personnel, and patients.",
+      "sponsor": "Rep. DeGette, Diana [D-CO-1]"
+    },
+    "output": {
+      "translation_preview": "# Plain English Explanation\n\n## 1. What This Bill Is\nThis bill says that attacking doctors, nurses, "
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:38:28.167083",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Equal Health Care for All Act",
+      "sponsor": "Rep. Schiff, Adam B. [D-CA-30]"
+    },
+    "output": {
+      "translation_preview": "# Equal Health Care for All Act \u2013 Plain English Explanation\n\n## 1. What This Bill Is\nThis bill would"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:38:29.353058",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**March 22, 2024:** A senator introduced this bill in the Senate. The senator made "
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:38:29.356368",
+    "agent": "orchestrator",
+    "action": "process_bill",
+    "input": {
+      "congress": 118,
+      "type": "s",
+      "number": 4065
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:38:30.046005",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 4
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**January 11, 2023:** A representative introduced this bill in the House of Represe"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:38:30.048885",
+    "agent": "orchestrator",
+    "action": "process_bill",
+    "input": {
+      "congress": 118,
+      "type": "hres",
+      "number": 27
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:38:30.583264",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 6
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**May 2, 2023:** The bill was introduced in the House of Representatives.\n\n**May 2,"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:38:30.586389",
+    "agent": "orchestrator",
+    "action": "process_bill",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 3068
+    },
+    "output": {
+      "status": "complete"
+    }
   }
 ]
