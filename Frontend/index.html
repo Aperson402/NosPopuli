@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NosPopuli — Law for the People</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink: #0e0e0e;
+      --paper: #f5f0e8;
+      --aged: #e8e0cc;
+      --accent: #8b1a1a;
+      --accent-light: #c0392b;
+      --muted: #6b6355;
+      --rule: #c8bfaa;
+      --card-bg: #faf7f2;
+    }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-weight: 300;
+      min-height: 100vh;
+      background-image: 
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 27px,
+          rgba(0,0,0,0.03) 27px,
+          rgba(0,0,0,0.03) 28px
+        );
+    }
+
+    /* ── Header ── */
+    header {
+      border-bottom: 3px double var(--ink);
+      padding: 2rem 0 1.5rem;
+      text-align: center;
+      position: relative;
+    }
+
+    header::before {
+      content: '';
+      display: block;
+      height: 3px;
+      background: var(--ink);
+      margin-bottom: 0.75rem;
+    }
+
+    .masthead {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      color: var(--ink);
+    }
+
+    .masthead span {
+      color: var(--accent);
+      font-style: italic;
+    }
+
+    .tagline {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 0.5rem;
+    }
+
+    /* ── Search section ── */
+    .search-section {
+      max-width: 760px;
+      margin: 3rem auto 0;
+      padding: 0 1.5rem;
+    }
+
+    .search-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .search-row {
+      display: flex;
+      gap: 0;
+      border: 1.5px solid var(--ink);
+      background: white;
+    }
+
+    .search-row input {
+      flex: 1;
+      padding: 1rem 1.25rem;
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 1.05rem;
+      font-weight: 300;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: var(--ink);
+    }
+
+    .search-row input::placeholder {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .search-btn {
+      padding: 1rem 1.75rem;
+      background: var(--ink);
+      color: var(--paper);
+      border: none;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+
+    .search-btn:hover { background: var(--accent); }
+    .search-btn:disabled { background: var(--muted); cursor: not-allowed; }
+
+    .example-queries {
+      margin-top: 0.75rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .example-queries span {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    .example-pill {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--accent);
+      background: none;
+      border: 1px solid var(--rule);
+      padding: 0.2rem 0.6rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 0.03em;
+    }
+
+    .example-pill:hover {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: white;
+    }
+
+    /* ── Status / Loading ── */
+    .status-bar {
+      max-width: 760px;
+      margin: 1.5rem auto 0;
+      padding: 0 1.5rem;
+      display: none;
+    }
+
+    .status-bar.visible { display: block; }
+
+    .status-inner {
+      border-left: 2px solid var(--accent);
+      padding: 0.5rem 1rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+    }
+
+    .status-step {
+      opacity: 0;
+      transform: translateY(4px);
+      transition: all 0.3s;
+    }
+
+    .status-step.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Results ── */
+    .results-section {
+      max-width: 760px;
+      margin: 2.5rem auto 4rem;
+      padding: 0 1.5rem;
+    }
+
+    .results-header {
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+      padding: 0.5rem 0;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+
+    .results-header h2 {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .results-count {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+    }
+
+    /* ── Bill card ── */
+    .bill-card {
+      background: var(--card-bg);
+      border: 1px solid var(--rule);
+      margin-bottom: 2rem;
+      opacity: 0;
+      transform: translateY(12px);
+      animation: cardIn 0.4s forwards;
+    }
+
+    @keyframes cardIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .bill-card:nth-child(2) { animation-delay: 0.1s; }
+    .bill-card:nth-child(3) { animation-delay: 0.2s; }
+
+    .bill-card-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--rule);
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .bill-id {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .bill-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      line-height: 1.3;
+      color: var(--ink);
+    }
+
+    .bill-body {
+      padding: 1.5rem;
+    }
+
+    .section-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--rule);
+    }
+
+    .bill-explanation {
+      font-size: 0.95rem;
+      line-height: 1.75;
+      color: var(--ink);
+      white-space: pre-wrap;
+    }
+
+    .bill-explanation h1, .bill-explanation h2, .bill-explanation h3 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1rem;
+      font-weight: 700;
+      margin: 1rem 0 0.4rem;
+      color: var(--ink);
+    }
+
+    .bill-explanation strong { font-weight: 600; }
+
+    .timeline-toggle {
+      margin-top: 1.25rem;
+      background: none;
+      border: none;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      cursor: pointer;
+      padding: 0.4rem 0;
+      border-bottom: 1px solid var(--rule);
+      width: 100%;
+      text-align: left;
+      transition: color 0.15s;
+    }
+
+    .timeline-toggle:hover { color: var(--accent-light); }
+    .timeline-toggle::before { content: '▶  '; font-size: 0.5rem; }
+    .timeline-toggle.open::before { content: '▼  '; }
+
+    .timeline-content {
+      display: none;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--rule);
+    }
+
+    .timeline-content.open { display: block; }
+
+    .timeline-text {
+      font-size: 0.9rem;
+      line-height: 1.8;
+      color: var(--ink);
+      white-space: pre-wrap;
+    }
+
+    .timeline-text h1, .timeline-text h2, .timeline-text h3 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin: 0.75rem 0 0.3rem;
+    }
+
+    /* ── Empty / Error states ── */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 0;
+      color: var(--muted);
+    }
+
+    .empty-state p {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+    }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 3px double var(--ink);
+      text-align: center;
+      padding: 1.5rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="masthead">Nos<span>Populi</span></div>
+  <div class="tagline">Law for the People &nbsp;·&nbsp; Federal Legislation in Plain English</div>
+</header>
+
+<main>
+  <section class="search-section">
+    <label class="search-label" for="search-input">Ask about any legislation</label>
+    <div class="search-row">
+      <input
+        id="search-input"
+        type="text"
+        placeholder="What has Congress done about student loans?"
+        autocomplete="off"
+      />
+      <button class="search-btn" id="search-btn" onclick="runSearch()">Search</button>
+    </div>
+    <div class="example-queries">
+      <span>Try:</span>
+      <button class="example-pill" onclick="setQuery('What bills exist on housing affordability?')">Housing affordability</button>
+      <button class="example-pill" onclick="setQuery('Show me legislation about veterans benefits')">Veterans benefits</button>
+      <button class="example-pill" onclick="setQuery('What has Congress done about climate change?')">Climate change</button>
+      <button class="example-pill" onclick="setQuery('Find bills about prescription drug prices')">Drug prices</button>
+    </div>
+  </section>
+
+  <div class="status-bar" id="status-bar">
+    <div class="status-inner" id="status-inner"></div>
+  </div>
+
+  <section class="results-section" id="results-section"></section>
+</main>
+
+<footer>
+  NosPopuli &nbsp;·&nbsp; Data via Congress.gov &amp; GovInfo &nbsp;·&nbsp; Not legal advice
+</footer>
+
+<script>
+  const input = document.getElementById('search-input');
+  const btn = document.getElementById('search-btn');
+  const statusBar = document.getElementById('status-bar');
+  const statusInner = document.getElementById('status-inner');
+  const resultsSection = document.getElementById('results-section');
+
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') runSearch();
+  });
+
+  function setQuery(q) {
+    input.value = q;
+    input.focus();
+  }
+
+  function setStatus(msg) {
+    statusBar.classList.add('visible');
+    const line = document.createElement('div');
+    line.className = 'status-step';
+    line.textContent = '› ' + msg;
+    statusInner.appendChild(line);
+    requestAnimationFrame(() => line.classList.add('visible'));
+    statusBar.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function clearStatus() {
+    statusInner.innerHTML = '';
+    statusBar.classList.remove('visible');
+  }
+
+  function renderMarkdown(text) {
+    return text
+      .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+      .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+      .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      .replace(/^---$/gm, '<hr style="border:none;border-top:1px solid var(--rule);margin:0.75rem 0">')
+      .replace(/^- (.+)$/gm, '<li style="margin-left:1.25rem;margin-bottom:0.2rem">$1</li>');
+  }
+
+  function billIdFromKey(billKey) {
+    const match = billKey.match(/([a-z]+)(\d+)/i);
+    if (match) return match[1].toUpperCase() + ' ' + match[2];
+    return billKey.toUpperCase();
+  }
+
+  function renderResults(data) {
+    resultsSection.innerHTML = '';
+
+    if (!data.results || data.results.length === 0) {
+      resultsSection.innerHTML = `
+        <div class="empty-state">
+          <p>No bills found for that query.</p>
+          <p style="margin-top:0.5rem">Try different keywords or a broader question.</p>
+        </div>`;
+      return;
+    }
+
+    const header = document.createElement('div');
+    header.className = 'results-header';
+    header.innerHTML = `
+      <h2>Results</h2>
+      <span class="results-count">${data.results.length} bill${data.results.length !== 1 ? 's' : ''} found</span>`;
+    resultsSection.appendChild(header);
+
+    data.results.forEach((result, i) => {
+      const card = document.createElement('div');
+      card.className = 'bill-card';
+      card.style.animationDelay = (i * 0.12) + 's';
+
+      const billId = billIdFromKey(result.bill);
+
+      card.innerHTML = `
+        <div class="bill-card-header">
+          <span class="bill-id">${billId}</span>
+        </div>
+        <div class="bill-body">
+          <div class="section-label">Plain English Explanation</div>
+          <div class="bill-explanation">${renderMarkdown(result.translation)}</div>
+          <button class="timeline-toggle" onclick="toggleTimeline(this)">
+            Legislative Timeline
+          </button>
+          <div class="timeline-content">
+            <div class="section-label">How It Moved Through Congress</div>
+            <div class="timeline-text">${renderMarkdown(result.timeline)}</div>
+          </div>
+        </div>`;
+
+      resultsSection.appendChild(card);
+    });
+  }
+
+  function toggleTimeline(btn) {
+    btn.classList.toggle('open');
+    btn.nextElementSibling.classList.toggle('open');
+  }
+
+  async function runSearch() {
+    const question = input.value.trim();
+    if (!question) return;
+
+    btn.disabled = true;
+    resultsSection.innerHTML = '';
+    clearStatus();
+
+    setStatus('Understanding your question...');
+
+    try {
+      setTimeout(() => setStatus('Searching federal legislation...'), 600);
+      setTimeout(() => setStatus('Processing bills in parallel...'), 1800);
+
+      const response = await fetch('/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question, max_results: 3 })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      clearStatus();
+      renderResults(data);
+      resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    } catch (err) {
+      clearStatus();
+      resultsSection.innerHTML = `
+        <div class="empty-state">
+          <p>Something went wrong. Is the server running?</p>
+          <p style="margin-top:0.5rem;font-size:0.6rem">${err.message}</p>
+        </div>`;
+    } finally {
+      btn.disabled = false;
+    }
+  }
+</script>
+</body>
+</html>

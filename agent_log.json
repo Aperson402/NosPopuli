@@ -990,5 +990,233 @@
     "output": {
       "status": "complete"
     }
+  },
+  {
+    "timestamp": "2026-05-08T22:20:57.160561",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Pull up 20 bills on student loans"
+    },
+    "output": {
+      "keywords": [
+        "student loans"
+      ],
+      "topic": "Bills related to student loans",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:20:57.951834",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "student loans",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ],
+      "full_query": "student loans collection:BILLS (congress:119 OR congress:118 OR congress:117)"
+    },
+    "output": {
+      "total_available": 1259,
+      "results_returned": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:20:58.511556",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 117,
+      "type": "s",
+      "number": 4253
+    },
+    "output": {
+      "title": "Student Loan Accountability Act",
+      "status": "Read twice and referred to the Committee on Health, Education, Labor, and Pensions."
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:20:58.714100",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 1622
+    },
+    "output": {
+      "title": "Student Loan Accountability Act",
+      "status": "Referred to the Subcommittee on Health."
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:20:58.715950",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 1211
+    },
+    "output": {
+      "title": "Student Loan Accountability Act",
+      "status": "Referred to the Subcommittee on Health."
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:20:59.073898",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 117,
+      "type": "s",
+      "number": 4253
+    },
+    "output": {
+      "action_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:20:59.322086",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 1211
+    },
+    "output": {
+      "action_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:20:59.377314",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 1622
+    },
+    "output": {
+      "action_count": 6
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:21:02.392684",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Student Loan Accountability Act",
+      "sponsor": "Sen. Romney, Mitt [R-UT]"
+    },
+    "output": {
+      "translation_preview": "# Student Loan Accountability Act - Plain English Explanation\n\n## 1. What This Bill Is\nThis bill wou"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:21:02.673161",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Student Loan Accountability Act",
+      "sponsor": "Rep. DesJarlais, Scott [R-TN-4]"
+    },
+    "output": {
+      "translation_preview": "# Student Loan Accountability Act - Plain English Explanation\n\n## 1. What This Bill Is (One Sentence"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:21:03.088097",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Student Loan Accountability Act",
+      "sponsor": "Rep. Ferguson, A. Drew, IV [R-GA-3]"
+    },
+    "output": {
+      "translation_preview": "# Student Loan Accountability Act \u2013 Plain English Explanation\n\n## 1. What This Bill Is\nThis bill wou"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:21:04.213528",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**May 18, 2022:** A bill was introduced in the Senate. It was read aloud twice (a s"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:21:04.216640",
+    "agent": "orchestrator",
+    "action": "process_bill",
+    "input": {
+      "congress": 117,
+      "type": "s",
+      "number": 4253
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:21:04.879346",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 5
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**February 27, 2023:** The bill was introduced in the House of Representatives.\n\n**"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:21:04.882057",
+    "agent": "orchestrator",
+    "action": "process_bill",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 1211
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:21:05.050048",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 6
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**March 17, 2023:** The bill was introduced in the House of Representatives.\n\n**Mar"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T22:21:05.053558",
+    "agent": "orchestrator",
+    "action": "process_bill",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 1622
+    },
+    "output": {
+      "status": "complete"
+    }
   }
 ]
