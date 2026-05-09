@@ -1,6 +1,34 @@
 [
   {
-    "timestamp": "2026-05-08T19:40:33.842666",
+    "timestamp": "2026-05-08T20:54:57.541342",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 116,
+      "type": "hr",
+      "number": 133
+    },
+    "output": {
+      "title": "Consolidated Appropriations Act, 2021",
+      "status": "Became Public Law No: 116-260."
+    }
+  },
+  {
+    "timestamp": "2026-05-08T20:54:57.546049",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 3162
+    },
+    "output": {
+      "title": "Uniting and Strengthening America by Providing Appropriate Tools Required to Intercept and Obstruct Terrorism (USA PATRIOT ACT) Act of 2001",
+      "status": "Became Public Law No: 107-56."
+    }
+  },
+  {
+    "timestamp": "2026-05-08T20:54:57.558366",
     "agent": "bill_fetcher",
     "action": "fetch_bill",
     "input": {
@@ -14,19 +42,33 @@
     }
   },
   {
-    "timestamp": "2026-05-08T19:40:37.437690",
-    "agent": "translator",
-    "action": "translate_bill",
+    "timestamp": "2026-05-08T20:54:57.934676",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
     "input": {
-      "title": "Patient Protection and Affordable Care Act",
-      "sponsor": "Rep. Rangel, Charles B. [D-NY-15]"
+      "congress": 107,
+      "type": "hr",
+      "number": 3162
     },
     "output": {
-      "translation_preview": "# The Affordable Care Act - Plain English\n\n**1. What this bill is in one sentence:**\nThis law requir"
+      "action_count": 20
     }
   },
   {
-    "timestamp": "2026-05-08T19:49:27.385523",
+    "timestamp": "2026-05-08T20:54:57.934907",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 116,
+      "type": "hr",
+      "number": 133
+    },
+    "output": {
+      "action_count": 20
+    }
+  },
+  {
+    "timestamp": "2026-05-08T20:54:58.454048",
     "agent": "historian",
     "action": "fetch_bill_actions",
     "input": {
@@ -39,27 +81,111 @@
     }
   },
   {
-    "timestamp": "2026-05-08T19:49:28.098398",
-    "agent": "historian",
-    "action": "fetch_related_bills",
+    "timestamp": "2026-05-08T20:55:01.522990",
+    "agent": "translator",
+    "action": "translate_bill",
     "input": {
-      "congress": 111,
-      "type": "hr",
-      "number": 3590
+      "title": "Consolidated Appropriations Act, 2021",
+      "sponsor": "Rep. Cuellar, Henry [D-TX-28]"
     },
     "output": {
-      "related_count": 5
+      "translation_preview": "# Consolidated Appropriations Act, 2021 - Plain English Explanation\n\n## 1. What this bill is in one "
     }
   },
   {
-    "timestamp": "2026-05-08T19:49:30.276305",
+    "timestamp": "2026-05-08T20:55:01.542607",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Patient Protection and Affordable Care Act",
+      "sponsor": "Rep. Rangel, Charles B. [D-NY-15]"
+    },
+    "output": {
+      "translation_preview": "# Patient Protection and Affordable Care Act - Plain English Explanation\n\n## 1. What This Bill Is\nTh"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T20:55:01.660171",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Uniting and Strengthening America by Providing Appropriate Tools Required to Intercept and Obstruct Terrorism (USA PATRIOT ACT) Act of 2001",
+      "sponsor": "Rep. Sensenbrenner, F. James, Jr. [R-WI-9]"
+    },
+    "output": {
+      "translation_preview": "# USA PATRIOT ACT - Plain English Explanation\n\n## 1. What This Bill Is (One Sentence)\nThis law gives"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T20:55:04.045108",
     "agent": "historian",
     "action": "summarize_history",
     "input": {
       "action_count": 20
     },
     "output": {
-      "preview": "# How This Bill Became Law\n\n**December 23, 2009:** The Senate votes to end debate on the bill (60-39"
+      "preview": "# How H.R. 133 Became Law\n\n**December 21, 2020 \u2014 House votes**\nThe House faced a complex bill with m"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T20:55:04.046507",
+    "agent": "orchestrator",
+    "action": "process_bill",
+    "input": {
+      "congress": 116,
+      "type": "hr",
+      "number": 133
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T20:55:04.164536",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "preview": "# How This Bill Became Law\n\n**December 23, 2009:** The Senate votes to end debate (called \"cloture\")"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T20:55:04.166318",
+    "agent": "orchestrator",
+    "action": "process_bill",
+    "input": {
+      "congress": 111,
+      "type": "hr",
+      "number": 3590
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T20:55:04.792450",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "preview": "# How H.R. 3162 Became Law\n\n**October 23, 2001:** The bill was referred to eight House committees, i"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T20:55:04.793274",
+    "agent": "orchestrator",
+    "action": "process_bill",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 3162
+    },
+    "output": {
+      "status": "complete"
     }
   }
 ]
