@@ -6787,5 +6787,433 @@
       "sponsored_count": 2552,
       "cosponsored_count": 6967
     }
+  },
+  {
+    "timestamp": "2026-05-09T01:48:46.513462",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Opioid Epidemic"
+    },
+    "output": {
+      "query_type": "legislation",
+      "entity_name": null,
+      "keywords": [
+        "opioid",
+        "epidemic"
+      ],
+      "topic": "opioid epidemic legislation",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 5,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:48:47.411051",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "opioid epidemic",
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 142,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:48:47.416456",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Opioid Epidemic"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:49:33.498980",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 118,
+      "type": "s",
+      "number": 5453
+    },
+    "output": {
+      "title": "PROTECT Act of 2024",
+      "status": "Read twice and referred to the Committee on Indian Affairs."
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:49:34.056862",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 118,
+      "type": "s",
+      "number": 5453
+    },
+    "output": {
+      "action_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:49:38.241243",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "PROTECT Act of 2024",
+      "sponsor": "Sen. Daines, Steve [R-MT]"
+    },
+    "output": {
+      "translation_preview": "# PROTECT Act of 2024 \u2014 Plain English Explanation\n\n## 1. What This Bill Is\nThis bill aims to strengt"
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:49:38.246929",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:49:39.982880",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**December 9, 2024:** A bill was introduced in the Senate. The same day, it was rea"
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:49:39.999993",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 118,
+      "type": "s",
+      "number": 5453
+    },
+    "output": {
+      "status": "complete",
+      "house_votes": 0,
+      "senate_votes": 0
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:50:47.900718",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Hi"
+    },
+    "output": {
+      "query_type": "legislation",
+      "entity_name": null,
+      "keywords": [],
+      "topic": "",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 5,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:50:48.510693",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "",
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 62252,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:50:48.518968",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Hi"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-09T08:54:34.492687",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "opioid",
+        "epidemic"
+      ],
+      "topic": "opioid epidemic legislation"
+    },
+    "output": {
+      "expanded_terms": [
+        "opioid",
+        "fentanyl",
+        "naloxone",
+        "substance use disorder",
+        "overdose",
+        "CARA",
+        "addiction treatment",
+        "prescription drug abuse"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T08:54:36.008138",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "climate",
+        "change"
+      ],
+      "topic": "climate change bills"
+    },
+    "output": {
+      "expanded_terms": [
+        "greenhouse gas",
+        "carbon emissions",
+        "clean energy",
+        "renewable energy",
+        "climate resilience",
+        "net zero",
+        "decarbonization"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T08:54:36.822893",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "gun",
+        "control"
+      ],
+      "topic": "gun control legislation"
+    },
+    "output": {
+      "expanded_terms": [
+        "firearm",
+        "background check",
+        "assault weapon",
+        "gun violence",
+        "Second Amendment",
+        "ATF",
+        "concealed carry"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T08:54:42.359000",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "opioid",
+        "epidemic"
+      ],
+      "topic": "opioid epidemic legislation"
+    },
+    "output": {
+      "expanded_terms": [
+        "opioid",
+        "fentanyl",
+        "substance use disorder",
+        "overdose",
+        "naloxone",
+        "CARA",
+        "addiction treatment",
+        "medication-assisted treatment"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T08:54:49.909376",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "climate",
+        "change"
+      ],
+      "topic": "climate change bills"
+    },
+    "output": {
+      "expanded_terms": [
+        "greenhouse gas",
+        "carbon emissions",
+        "clean energy",
+        "renewable energy",
+        "climate resilience",
+        "decarbonization",
+        "Paris Agreement"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T08:54:53.618171",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "gun",
+        "control"
+      ],
+      "topic": "gun control legislation"
+    },
+    "output": {
+      "expanded_terms": [
+        "firearm",
+        "background check",
+        "assault weapon",
+        "gun violence",
+        "Second Amendment",
+        "ATF",
+        "concealed carry"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T08:54:54.412035",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "student",
+        "loans"
+      ],
+      "topic": "student loan bills"
+    },
+    "output": {
+      "expanded_terms": [
+        "student loan",
+        "loan forgiveness",
+        "FAFSA",
+        "Pell Grant",
+        "higher education",
+        "tuition assistance",
+        "college debt"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T09:03:40.611575",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Opiod Epidemic"
+    },
+    "output": {
+      "query_type": "legislation",
+      "entity_name": null,
+      "keywords": [
+        "opioid",
+        "epidemic"
+      ],
+      "topic": "opioid epidemic legislation",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 5,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T09:03:41.460800",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "opioid",
+        "epidemic"
+      ],
+      "topic": "opioid epidemic legislation"
+    },
+    "output": {
+      "expanded_terms": [
+        "opioid",
+        "fentanyl",
+        "naloxone",
+        "substance use disorder",
+        "overdose",
+        "CARA",
+        "addiction treatment",
+        "prescribing controls"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T09:03:42.446938",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [
+        "opioid",
+        "fentanyl",
+        "naloxone",
+        "substance use disorder",
+        "overdose",
+        "CARA",
+        "addiction treatment",
+        "prescribing controls"
+      ],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 1948,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-09T09:03:42.454762",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Opiod Epidemic"
+    },
+    "output": {
+      "results_count": 5
+    }
   }
 ]

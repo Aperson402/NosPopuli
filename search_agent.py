@@ -12,19 +12,22 @@ def search_bills(structured_query, max_results=None):
         max_results = structured_query.get("result_count", 5)
     max_results = min(max_results, 20)
 
-    keywords = " ".join(structured_query["keywords"])
     congress_numbers = structured_query["congress_numbers"]
     status = structured_query.get("status", "any")
 
+    # Use expanded terms if available, fall back to original keywords
+    terms = structured_query.get("expanded_terms") or structured_query.get("keywords", [])
+
+    # Build OR query — quote multi-word terms, leave single words bare
+    terms_query = " OR ".join(f'"{t}"' if " " in t else t for t in terms)
     congress_filter = " OR ".join([f"congress:{c}" for c in congress_numbers])
 
-    # If user wants enacted laws, search PLAW collection instead of BILLS
     if status == "enacted":
         collection = "PLAW"
-        full_query = f"{keywords} collection:PLAW ({congress_filter})"
+        full_query = f"({terms_query}) collection:PLAW ({congress_filter})"
     else:
         collection = "BILLS"
-        full_query = f"{keywords} collection:BILLS ({congress_filter})"
+        full_query = f"({terms_query}) collection:BILLS ({congress_filter})"
 
     payload = {
         "query": full_query,
@@ -71,7 +74,7 @@ def search_bills(structured_query, max_results=None):
     log_action(
         agent_name="search",
         action="search_bills",
-        input_data={"keywords": keywords, "result_count": max_results, "status": status},
+        input_data={"keywords": terms, "result_count": max_results, "status": status},
         output_data={"total_available": data.get("count", 0), "results_returned": len(results)}
     )
 

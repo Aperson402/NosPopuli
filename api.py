@@ -11,6 +11,7 @@ from vote_fetcher_agent import fetch_house_votes, fetch_senate_votes
 from vote_mapper_agent import map_house_votes, map_senate_votes
 from bill_fetcher import fetch_bill, fetch_law
 from member_search_agent import search_member, fetch_member_profile, fetch_member_legislation
+from query_expander_agent import expand_query
 import httpx
 import asyncio
 import anthropic
@@ -100,8 +101,14 @@ async def search(request: SearchRequest):
                 "number": number,
             }]
         }
+    if structured.get("query_type") == "legislation":
+        expanded = expand_query(
+            structured.get("keywords", []),
+            structured.get("topic", ""),
+            client
+    )
+    structured["expanded_terms"] = expanded
 
-    # ── Regular legislation search ──
     raw_results = search_bills(structured)
 
     if not raw_results:
