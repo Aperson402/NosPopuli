@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NosPopuli · Agent Monitor</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0a0a0f;
+      --surface:  #12121a;
+      --border:   #1e1e2e;
+      --text:     #cdd6f4;
+      --muted:    #6c7086;
+      --green:    #a6e3a1;
+      --blue:     #89b4fa;
+      --cyan:     #89dceb;
+      --yellow:   #f9e2af;
+      --magenta:  #cba6f7;
+      --red:      #f38ba8;
+      --white:    #ffffff;
+      --peach:    #fab387;
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+
+    .topbar-left {
+      display: flex; align-items: center; gap: 1rem;
+    }
+
+    .logo {
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-weight: 600; font-size: 0.9rem;
+      color: var(--white); letter-spacing: 0.05em;
+    }
+    .logo span { color: var(--blue); }
+
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--green);
+      animation: blink 2s ease-in-out infinite;
+    }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    .status-label {
+      font-size: 0.65rem; color: var(--muted);
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+
+    .topbar-right { display: flex; gap: 0.75rem; align-items: center; }
+
+    .btn {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem; letter-spacing: 0.1em;
+      text-transform: uppercase; padding: 0.35rem 0.75rem;
+      border: 1px solid var(--border); background: none;
+      color: var(--muted); cursor: pointer; transition: all 0.15s;
+    }
+    .btn:hover { border-color: var(--blue); color: var(--blue); }
+    .btn.active { border-color: var(--green); color: var(--green); }
+
+    .count-badge {
+      font-size: 0.6rem; color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    /* ── MAIN LAYOUT ── */
+    .main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ── PIPELINE SIDEBAR ── */
+    .sidebar {
+      width: 200px;
+      border-right: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+      overflow-y: auto;
+      padding: 1rem 0;
+    }
+
+    .sidebar-title {
+      font-size: 0.6rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--muted);
+      padding: 0 1rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 0.75rem;
+    }
+
+    .agent-pill {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.5rem 1rem; cursor: pointer;
+      transition: background 0.1s;
+      border-left: 2px solid transparent;
+    }
+    .agent-pill:hover { background: rgba(255,255,255,0.03); }
+    .agent-pill.active {
+      background: rgba(137,180,250,0.08);
+      border-left-color: var(--blue);
+    }
+    .agent-pill.firing {
+      background: rgba(166,227,161,0.08);
+      border-left-color: var(--green);
+      animation: flash 0.4s ease;
+    }
+    @keyframes flash {
+      0% { background: rgba(166,227,161,0.25); }
+      100% { background: rgba(166,227,161,0.08); }
+    }
+
+    .agent-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      flex-shrink: 0; background: var(--muted);
+      transition: background 0.2s;
+    }
+    .agent-pill.firing .agent-dot { background: var(--green); }
+    .agent-pill.active  .agent-dot { background: var(--blue); }
+
+    .agent-name {
+      font-size: 0.7rem; color: var(--muted);
+      transition: color 0.2s;
+    }
+    .agent-pill.firing .agent-name { color: var(--green); }
+    .agent-pill.active  .agent-name { color: var(--text); }
+
+    .agent-count {
+      margin-left: auto;
+      font-size: 0.6rem; color: var(--border);
+    }
+    .agent-pill.active .agent-count { color: var(--muted); }
+
+    /* ── LOG FEED ── */
+    .feed {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .feed::-webkit-scrollbar { width: 4px; }
+    .feed::-webkit-scrollbar-track { background: transparent; }
+    .feed::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .entry {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      padding: 0.75rem 1rem;
+      opacity: 0;
+      transform: translateY(6px);
+      animation: entryIn 0.25s forwards;
+    }
+    @keyframes entryIn { to { opacity: 1; transform: translateY(0); } }
+
+    .entry-header {
+      display: flex; align-items: center; gap: 0.75rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .entry-agent {
+      font-size: 0.65rem; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 0.15rem 0.5rem;
+    }
+
+    .entry-action {
+      font-size: 0.7rem; color: var(--text);
+    }
+
+    .entry-time {
+      margin-left: auto;
+      font-size: 0.6rem; color: var(--muted);
+    }
+
+    .entry-data {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .data-block {
+      background: rgba(0,0,0,0.3);
+      padding: 0.4rem 0.6rem;
+    }
+
+    .data-label {
+      font-size: 0.55rem; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--muted);
+      margin-bottom: 0.2rem;
+    }
+
+    .data-value {
+      font-size: 0.68rem; color: var(--text);
+      word-break: break-all;
+      line-height: 1.4;
+    }
+
+    /* Agent colors */
+    .c-router       { color: var(--blue);    background: rgba(137,180,250,0.1); border-color: rgba(137,180,250,0.2); }
+    .c-search       { color: var(--cyan);    background: rgba(137,220,235,0.1); border-color: rgba(137,220,235,0.2); }
+    .c-bill_fetcher { color: var(--yellow);  background: rgba(249,226,175,0.1); border-color: rgba(249,226,175,0.2); }
+    .c-translator   { color: var(--green);   background: rgba(166,227,161,0.1); border-color: rgba(166,227,161,0.2); }
+    .c-historian    { color: var(--magenta); background: rgba(203,166,247,0.1); border-color: rgba(203,166,247,0.2); }
+    .c-vote_parser  { color: var(--red);     background: rgba(243,139,168,0.1); border-color: rgba(243,139,168,0.2); }
+    .c-vote_fetcher { color: var(--red);     background: rgba(243,139,168,0.1); border-color: rgba(243,139,168,0.2); }
+    .c-vote_mapper  { color: var(--red);     background: rgba(243,139,168,0.1); border-color: rgba(243,139,168,0.2); }
+    .c-orchestrator { color: var(--white);   background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
+    .c-member_search{ color: var(--peach);   background: rgba(250,179,135,0.1); border-color: rgba(250,179,135,0.2); }
+    .c-api          { color: var(--white);   background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.08); }
+
+    /* ── EMPTY STATE ── */
+    .empty {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      color: var(--muted); gap: 0.5rem;
+    }
+    .empty-icon { font-size: 2rem; opacity: 0.3; }
+    .empty-text { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; }
+    .empty-sub  { font-size: 0.6rem; color: var(--border); }
+
+    /* ── PIPELINE FLOW ── */
+    .flow-section {
+      width: 280px;
+      border-left: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+      padding: 1rem;
+      overflow-y: auto;
+    }
+
+    .flow-title {
+      font-size: 0.6rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--muted);
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .flow-node {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.6rem 0.75rem;
+      border: 1px solid var(--border);
+      margin-bottom: 0.25rem;
+      transition: all 0.2s;
+      background: rgba(0,0,0,0.2);
+    }
+    .flow-node.lit {
+      border-color: var(--green);
+      background: rgba(166,227,161,0.06);
+    }
+    .flow-node-icon { font-size: 0.8rem; width: 20px; text-align: center; }
+    .flow-node-name { font-size: 0.68rem; color: var(--muted); }
+    .flow-node.lit .flow-node-name { color: var(--green); }
+    .flow-node-time {
+      margin-left: auto; font-size: 0.58rem; color: var(--border);
+    }
+    .flow-node.lit .flow-node-time { color: var(--muted); }
+
+    .flow-arrow {
+      text-align: center; color: var(--border);
+      font-size: 0.7rem; margin: 0.1rem 0;
+      padding-left: 1.5rem;
+    }
+    .flow-arrow.lit { color: var(--green); }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo">Nos<span>Populi</span></div>
+    <div style="display:flex;align-items:center;gap:0.4rem">
+      <div class="status-dot" id="status-dot"></div>
+      <div class="status-label" id="status-label">Monitoring</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span class="count-badge" id="count-badge">0 events</span>
+    <button class="btn" id="pause-btn" onclick="togglePause()">Pause</button>
+    <button class="btn" onclick="clearLog()">Clear</button>
+    <button class="btn" onclick="scrollToBottom()">↓ Latest</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-title">Agents</div>
+    <div id="agent-list"></div>
+  </div>
+
+  <!-- Feed -->
+  <div class="feed" id="feed">
+    <div class="empty" id="empty-state">
+      <div class="empty-icon">⬡</div>
+      <div class="empty-text">Waiting for activity</div>
+      <div class="empty-sub">Make a search in NosPopuli to see agents fire</div>
+    </div>
+  </div>
+
+  <!-- Pipeline flow -->
+  <div class="flow-section">
+    <div class="flow-title">Pipeline Flow</div>
+    <div id="flow-nodes"></div>
+  </div>
+
+</div>
+
+<script>
+  const AGENTS = [
+    { id: 'router',        label: 'Router',        icon: '⇄' },
+    { id: 'search',        label: 'Search',        icon: '⌕' },
+    { id: 'orchestrator',  label: 'Orchestrator',  icon: '◈' },
+    { id: 'bill_fetcher',  label: 'Bill Fetcher',  icon: '↓' },
+    { id: 'translator',    label: 'Translator',    icon: '✦' },
+    { id: 'historian',     label: 'Historian',     icon: '◷' },
+    { id: 'vote_parser',   label: 'Vote Parser',   icon: '⊙' },
+    { id: 'vote_fetcher',  label: 'Vote Fetcher',  icon: '⊕' },
+    { id: 'vote_mapper',   label: 'Vote Mapper',   icon: '⊞' },
+    { id: 'member_search', label: 'Member Search', icon: '◉' },
+    { id: 'api',           label: 'API',           icon: '⊳' },
+  ];
+
+  let seenCount = 0;
+  let paused = false;
+  let activeFilter = null;
+  let agentCounts = {};
+  let lastActivity = {};
+
+  // Build sidebar
+  const agentList = document.getElementById('agent-list');
+  AGENTS.forEach(agent => {
+    const pill = document.createElement('div');
+    pill.className = 'agent-pill';
+    pill.id = `pill-${agent.id}`;
+    pill.innerHTML = `
+      <div class="agent-dot"></div>
+      <div class="agent-name">${agent.label}</div>
+      <div class="agent-count" id="cnt-${agent.id}">0</div>
+    `;
+    pill.onclick = () => filterAgent(agent.id);
+    agentList.appendChild(pill);
+  });
+
+  // Build flow nodes
+  const flowNodes = document.getElementById('flow-nodes');
+  AGENTS.forEach((agent, i) => {
+    const node = document.createElement('div');
+    node.className = 'flow-node';
+    node.id = `flow-${agent.id}`;
+    node.innerHTML = `
+      <div class="flow-node-icon">${agent.icon}</div>
+      <div class="flow-node-name">${agent.label}</div>
+      <div class="flow-node-time" id="ftime-${agent.id}"></div>
+    `;
+    flowNodes.appendChild(node);
+
+    if (i < AGENTS.length - 1) {
+      const arrow = document.createElement('div');
+      arrow.className = 'flow-arrow';
+      arrow.id = `farrow-${agent.id}`;
+      arrow.textContent = '↓';
+      flowNodes.appendChild(arrow);
+    }
+  });
+
+  function filterAgent(agentId) {
+    if (activeFilter === agentId) {
+      activeFilter = null;
+      document.querySelectorAll('.agent-pill').forEach(p => p.classList.remove('active'));
+    } else {
+      activeFilter = agentId;
+      document.querySelectorAll('.agent-pill').forEach(p => p.classList.remove('active'));
+      document.getElementById(`pill-${agentId}`)?.classList.add('active');
+    }
+    rebuildFeed();
+  }
+
+  let allEntries = [];
+
+  function rebuildFeed() {
+    const feed = document.getElementById('feed');
+    const empty = document.getElementById('empty-state');
+
+    const filtered = activeFilter
+      ? allEntries.filter(e => e.agent === activeFilter)
+      : allEntries;
+
+    feed.innerHTML = '';
+
+    if (filtered.length === 0) {
+      feed.appendChild(empty || createEmpty());
+      return;
+    }
+
+    filtered.forEach(entry => {
+      feed.appendChild(createEntryEl(entry));
+    });
+  }
+
+  function createEntryEl(entry) {
+    const agent = entry.agent || 'unknown';
+    const colorClass = `c-${agent}`;
+    const time = (entry.timestamp || '').slice(11, 19);
+
+    const el = document.createElement('div');
+    el.className = 'entry';
+
+    const inputKeys = Object.entries(entry.input || {}).filter(([k,v]) => v !== null && v !== '' && JSON.stringify(v) !== '{}');
+    const outputKeys = Object.entries(entry.output || {}).filter(([k,v]) => v !== null && v !== '' && JSON.stringify(v) !== '{}');
+
+    el.innerHTML = `
+      <div class="entry-header">
+        <span class="entry-agent ${colorClass}">${agent}</span>
+        <span class="entry-action">${entry.action || ''}</span>
+        <span class="entry-time">${time}</span>
+      </div>
+      ${inputKeys.length || outputKeys.length ? `
+        <div class="entry-data">
+          ${inputKeys.slice(0,2).map(([k,v]) => `
+            <div class="data-block">
+              <div class="data-label">IN · ${k}</div>
+              <div class="data-value">${String(v).slice(0,120)}</div>
+            </div>
+          `).join('')}
+          ${outputKeys.slice(0,2).map(([k,v]) => `
+            <div class="data-block">
+              <div class="data-label">OUT · ${k}</div>
+              <div class="data-value">${String(v).slice(0,120)}</div>
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
+    `;
+
+    return el;
+  }
+
+  function flashAgent(agentId) {
+    const pill = document.getElementById(`pill-${agentId}`);
+    const flowNode = document.getElementById(`flow-${agentId}`);
+    const arrow = document.getElementById(`farrow-${agentId}`);
+
+    if (pill) {
+      pill.classList.add('firing');
+      setTimeout(() => pill.classList.remove('firing'), 800);
+    }
+    if (flowNode) {
+      flowNode.classList.add('lit');
+      if (arrow) arrow.classList.add('lit');
+      setTimeout(() => {
+        flowNode.classList.remove('lit');
+        if (arrow) arrow.classList.remove('lit');
+      }, 1500);
+    }
+  }
+
+  let autoScroll = true;
+
+  async function poll() {
+    if (paused) return;
+
+    try {
+      const res = await fetch('/monitor/stream');
+      const log = await res.json();
+
+      if (log.length > seenCount) {
+        const newEntries = log.slice(seenCount);
+        const empty = document.getElementById('empty-state');
+        if (empty) empty.remove();
+
+        newEntries.forEach(entry => {
+          allEntries.push(entry);
+          const agent = entry.agent || 'unknown';
+
+          // Update count
+          agentCounts[agent] = (agentCounts[agent] || 0) + 1;
+          const cntEl = document.getElementById(`cnt-${agent}`);
+          if (cntEl) cntEl.textContent = agentCounts[agent];
+
+          // Flash
+          flashAgent(agent);
+
+          // Add to feed if not filtered
+          if (!activeFilter || activeFilter === agent) {
+            const feed = document.getElementById('feed');
+            const el = createEntryEl(entry);
+            feed.appendChild(el);
+            if (autoScroll) feed.scrollTop = feed.scrollHeight;
+          }
+
+          // Update flow time
+          const ftimeEl = document.getElementById(`ftime-${agent}`);
+          if (ftimeEl) ftimeEl.textContent = (entry.timestamp || '').slice(11, 19);
+        });
+
+        seenCount = log.length;
+        document.getElementById('count-badge').textContent = `${seenCount} events`;
+      }
+    } catch(e) {
+      document.getElementById('status-label').textContent = 'Disconnected';
+      document.getElementById('status-dot').style.background = 'var(--red)';
+    }
+  }
+
+  function togglePause() {
+    paused = !paused;
+    const btn = document.getElementById('pause-btn');
+    btn.textContent = paused ? 'Resume' : 'Pause';
+    btn.classList.toggle('active', paused);
+    document.getElementById('status-label').textContent = paused ? 'Paused' : 'Monitoring';
+    document.getElementById('status-dot').style.animation = paused ? 'none' : '';
+    document.getElementById('status-dot').style.opacity = paused ? '0.3' : '';
+  }
+
+  function clearLog() {
+    allEntries = [];
+    seenCount = 0;
+    agentCounts = {};
+    document.getElementById('feed').innerHTML = `
+      <div class="empty" id="empty-state">
+        <div class="empty-icon">⬡</div>
+        <div class="empty-text">Waiting for activity</div>
+        <div class="empty-sub">Make a search in NosPopuli to see agents fire</div>
+      </div>`;
+    AGENTS.forEach(a => {
+      const el = document.getElementById(`cnt-${a.id}`);
+      if (el) el.textContent = '0';
+    });
+    document.getElementById('count-badge').textContent = '0 events';
+  }
+
+  function scrollToBottom() {
+    const feed = document.getElementById('feed');
+    feed.scrollTop = feed.scrollHeight;
+  }
+
+  // Detect manual scroll to disable auto-scroll
+  document.getElementById('feed').addEventListener('scroll', function() {
+    const feed = this;
+    autoScroll = feed.scrollTop + feed.clientHeight >= feed.scrollHeight - 50;
+  });
+
+  // Poll every 500ms
+  setInterval(poll, 500);
+  poll();
+</script>
+</body>
+</html>

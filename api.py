@@ -1,5 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
+from fastapi import Response
+import json
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
@@ -268,3 +271,17 @@ async def root():
 @app.get("/health")
 async def health():
     return {"status": "ok", "service": "NosPopuli"}
+
+@app.get("/monitor", response_class=HTMLResponse)
+async def monitor():
+    return FileResponse("frontend/monitor.html")
+
+@app.get("/monitor/stream")
+async def monitor_stream():
+    """Returns current log as JSON"""
+    try:
+        with open("agent_log.json", "r") as f:
+            log = json.load(f)
+        return log
+    except:
+        return []

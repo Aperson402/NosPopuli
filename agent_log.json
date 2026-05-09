@@ -6726,5 +6726,66 @@
     "output": {
       "results_count": 1
     }
+  },
+  {
+    "timestamp": "2026-05-09T01:22:55.283879",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Ted Kennedy"
+    },
+    "output": {
+      "query_type": "member",
+      "entity_name": "Ted Kennedy",
+      "keywords": [],
+      "topic": "",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 5,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:22:58.873885",
+    "agent": "member_search",
+    "action": "search_member",
+    "input": {
+      "name": "Ted Kennedy"
+    },
+    "output": {
+      "found": "Kennedy, Edward M.",
+      "bioguide_id": "K000105",
+      "score": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:22:59.239002",
+    "agent": "member_search",
+    "action": "fetch_member_profile",
+    "input": {
+      "bioguide_id": "K000105"
+    },
+    "output": {
+      "name": "Edward M. Kennedy",
+      "years_served": 48
+    }
+  },
+  {
+    "timestamp": "2026-05-09T01:22:59.967676",
+    "agent": "member_search",
+    "action": "fetch_member_legislation",
+    "input": {
+      "bioguide_id": "K000105"
+    },
+    "output": {
+      "sponsored_count": 2552,
+      "cosponsored_count": 6967
+    }
   }
 ]
