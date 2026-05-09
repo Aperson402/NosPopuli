@@ -6,7 +6,27 @@ from documentor_agent import log_action
 
 load_dotenv()
 
+KNOWN_ACRONYMS = {
+    "genius act": "Guiding and Establishing National Innovation for US Stablecoins",
+    "cara": "Comprehensive Addiction and Recovery Act",
+    "aca": "Affordable Care Act",
+    "chips act": "Creating Helpful Incentives to Produce Semiconductors",
+    "fisa": "Foreign Intelligence Surveillance Act",
+    "ndaa": "National Defense Authorization Act",
+    "vawa": "Violence Against Women Act",
+    "essa": "Every Student Succeeds Act",
+    "snap": "Supplemental Nutrition Assistance Program",
+    "tanf": "Temporary Assistance for Needy Families",
+}
+
 def expand_query(keywords, topic, client):
+    # Check for known acronyms first
+    topic_lower = topic.lower()
+    for acronym, full_name in KNOWN_ACRONYMS.items():
+        if acronym in topic_lower:
+            # Add the full name to keywords before AI expansion
+            keywords = keywords + [full_name]
+            break
     """
     Takes router keywords and expands them into legislative vocabulary.
     Returns 5-7 specific terms that GovInfo will find relevant bills for.

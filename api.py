@@ -12,6 +12,8 @@ from vote_mapper_agent import map_house_votes, map_senate_votes
 from bill_fetcher import fetch_bill, fetch_law
 from member_search_agent import search_member, fetch_member_profile, fetch_member_legislation
 from query_expander_agent import expand_query
+from search_logger import log_search, log_bill_opened, log_member_opened
+from analyst_agent import analyze
 import httpx
 import asyncio
 import anthropic
@@ -69,6 +71,13 @@ async def search(request: SearchRequest):
         member = await loop.run_in_executor(None, search_member, structured["entity_name"])
 
         if not member:
+            log_search(
+                query=request.question,
+                query_type="member",
+                expanded_terms=[],
+                results_count=0,
+                result_ids=[]
+            )
             return {"query_type": "member", "found": False}
 
         profile, legislation = await asyncio.gather(
@@ -76,6 +85,13 @@ async def search(request: SearchRequest):
             loop.run_in_executor(None, fetch_member_legislation, member["bioguide_id"], 10)
         )
 
+        log_search(
+            query=request.question,
+            query_type="member",
+            expanded_terms=[],
+            results_count=1,
+            result_ids=[member.get("bioguide_id", "")]
+        )
         return {
             "query_type": "member",
             "found": True,
@@ -121,6 +137,13 @@ async def search(request: SearchRequest):
         output_data={"results_count": len(raw_results)}
     )
 
+    log_search(
+        query=request.question,
+        query_type="legislation",
+        expanded_terms=structured.get("expanded_terms", []),
+        results_count=len(raw_results),
+        result_ids=[f"{r.get('type','')}{r.get('number','')}" for r in raw_results]
+    )
     return {"query_type": "legislation", "query": structured, "results": raw_results}
 @app.post("/bill")
 async def get_bill(request: BillRequest):
@@ -165,6 +188,12 @@ async def get_bill(request: BillRequest):
             "house_votes": len(house_raw) if house_raw else 0,
             "senate_votes": len(senate_raw) if senate_raw else 0,
         }
+    )
+
+    log_bill_opened(
+        bill_id=f"{request.bill_type}{request.number}",
+        title=bill_data.get("bill", {}).get("title", ""),
+        from_query=""
     )
 
     return {
@@ -292,3 +321,9 @@ async def monitor_stream():
         return log
     except:
         return []
+
+@app.get("/monitor/analysis")
+async def get_analysis():
+    loop = asyncio.get_event_loop()
+    result = await loop.run_in_executor(None, analyze, client)
+    return result

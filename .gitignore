@@ -3,3 +3,4 @@ agent_log.json
 __pycache__/
 *.pyc
 .DS_Store
+search_log.json

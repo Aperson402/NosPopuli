@@ -71,14 +71,23 @@ def search_bills(structured_query, max_results=None):
             "law_number": parsed.get("law_number") if status == "enacted" else None,
         })
 
+    # Deduplicate by congress + type + number
+    seen = set()
+    deduplicated = []
+    for r in results:
+        key = f"{r.get('congress')}{r.get('type')}{r.get('number')}"
+        if key not in seen and r.get('number'):
+            seen.add(key)
+            deduplicated.append(r)
+
     log_action(
         agent_name="search",
         action="search_bills",
         input_data={"keywords": terms, "result_count": max_results, "status": status},
-        output_data={"total_available": data.get("count", 0), "results_returned": len(results)}
+        output_data={"total_available": data.get("count", 0), "results_returned": len(deduplicated)}
     )
 
-    return results
+    return deduplicated[:max_results]
 
 def parse_package_id(package_id):
     """

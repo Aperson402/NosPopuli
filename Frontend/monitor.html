@@ -288,13 +288,85 @@
       padding-left: 1.5rem;
     }
     .flow-arrow.lit { color: var(--green); }
+
+    /* ── TABS ── */
+    .tabs {
+        display: flex; gap: 0; border-bottom: 1px solid var(--border);
+        background: var(--surface); flex-shrink: 0; padding: 0 1.5rem;
+    }
+    .tab {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase;
+        padding: 0.75rem 1.25rem; cursor: pointer; color: var(--muted);
+        border-bottom: 2px solid transparent; transition: all 0.15s;
+        background: none; border-left: none; border-right: none; border-top: none;
+    }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+    /* ── ANALYTICS PANEL ── */
+    .analytics-panel {
+        flex: 1; overflow-y: auto; padding: 1.5rem;
+        display: none;
+    }
+    .analytics-panel.active { display: block; }
+
+    .stat-cards {
+        display: grid; grid-template-columns: repeat(3, 1fr);
+        gap: 1rem; margin-bottom: 2rem;
+    }
+    .stat-card {
+        background: var(--surface); border: 1px solid var(--border);
+        padding: 1rem;
+    }
+    .stat-card-number {
+        font-size: 1.75rem; font-weight: 600; color: var(--text); line-height: 1;
+    }
+    .stat-card-label {
+        font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase;
+        color: var(--muted); margin-top: 0.3rem;
+    }
+
+    .analysis-section { margin-bottom: 2rem; }
+    .analysis-title {
+        font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
+        color: var(--muted); margin-bottom: 0.75rem;
+        padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);
+    }
+    .analysis-report {
+        font-size: 0.75rem; line-height: 1.8; color: var(--text);
+        white-space: pre-wrap;
+    }
+
+    .query-row {
+        display: flex; align-items: center; gap: 1rem;
+        padding: 0.4rem 0; border-bottom: 1px solid var(--border);
+        font-size: 0.68rem;
+    }
+    .query-text { color: var(--text); flex: 1; }
+    .query-count {
+        font-size: 0.6rem; color: var(--muted);
+        font-family: 'IBM Plex Mono', monospace;
+    }
+    .zero-result { color: var(--red); }
+
+    .refresh-btn {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase;
+        padding: 0.4rem 0.75rem; border: 1px solid var(--border);
+        background: none; color: var(--muted); cursor: pointer;
+        transition: all 0.15s; margin-bottom: 1.5rem;
+    }
+    .refresh-btn:hover { border-color: var(--blue); color: var(--blue); }
   </style>
 </head>
 <body>
 
+<div class="vote-tooltip" id="tooltip"></div>
+
 <div class="topbar">
   <div class="topbar-left">
-    <div class="logo">Nos<span>Populi</span></div>
+    <div class="logo">Nos<span>Populi</span> · <span style="font-size:0.7rem;color:var(--muted)">Agent Monitor</span></div>
     <div style="display:flex;align-items:center;gap:0.4rem">
       <div class="status-dot" id="status-dot"></div>
       <div class="status-label" id="status-label">Monitoring</div>
@@ -308,15 +380,17 @@
   </div>
 </div>
 
-<div class="main">
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('agents')">Agent Feed</button>
+  <button class="tab" onclick="switchTab('analytics')">Analytics</button>
+</div>
 
-  <!-- Sidebar -->
+<div class="main" id="tab-agents">
   <div class="sidebar">
     <div class="sidebar-title">Agents</div>
     <div id="agent-list"></div>
   </div>
-
-  <!-- Feed -->
   <div class="feed" id="feed">
     <div class="empty" id="empty-state">
       <div class="empty-icon">⬡</div>
@@ -324,13 +398,52 @@
       <div class="empty-sub">Make a search in NosPopuli to see agents fire</div>
     </div>
   </div>
-
-  <!-- Pipeline flow -->
   <div class="flow-section">
     <div class="flow-title">Pipeline Flow</div>
     <div id="flow-nodes"></div>
   </div>
+</div>
 
+<!-- Analytics panel -->
+<div class="analytics-panel" id="tab-analytics">
+  <button class="refresh-btn" onclick="loadAnalytics()">↻ Refresh Analysis</button>
+
+  <div class="stat-cards" id="stat-cards">
+    <div class="stat-card">
+      <div class="stat-card-number" id="stat-searches">—</div>
+      <div class="stat-card-label">Total Searches</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-number" id="stat-bills">—</div>
+      <div class="stat-card-label">Bills Opened</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-number" id="stat-members">—</div>
+      <div class="stat-card-label">Profiles Opened</div>
+    </div>
+  </div>
+
+  <div class="analysis-section">
+    <div class="analysis-title">AI Analysis Report</div>
+    <div class="analysis-report" id="analysis-report">
+      Click Refresh to generate analysis...
+    </div>
+  </div>
+
+  <div class="analysis-section">
+    <div class="analysis-title">Top Searches</div>
+    <div id="top-queries"></div>
+  </div>
+
+  <div class="analysis-section">
+    <div class="analysis-title">Zero Result Searches — Needs Fixing</div>
+    <div id="zero-results"></div>
+  </div>
+
+  <div class="analysis-section">
+    <div class="analysis-title">Most Opened Bills</div>
+    <div id="top-bills"></div>
+  </div>
 </div>
 
 <script>
@@ -571,6 +684,78 @@
   // Poll every 500ms
   setInterval(poll, 500);
   poll();
+
+  // ── Tab switching ──
+  function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.main, .analytics-panel').forEach(p => {
+      p.style.display = 'none';
+    });
+
+    if (tab === 'agents') {
+      document.getElementById('tab-agents').style.display = 'flex';
+      document.querySelectorAll('.tab')[0].classList.add('active');
+    } else {
+      document.getElementById('tab-analytics').style.display = 'block';
+      document.querySelectorAll('.tab')[1].classList.add('active');
+      loadAnalytics();
+    }
+  }
+
+  // ── Analytics loading ──
+  async function loadAnalytics() {
+    document.getElementById('analysis-report').textContent = 'Analyzing...';
+
+    try {
+      const res = await fetch('/monitor/analysis');
+      const data = await res.json();
+      const stats = data.stats || {};
+
+      // Update stat cards
+      document.getElementById('stat-searches').textContent = stats.total_searches || 0;
+      document.getElementById('stat-bills').textContent = stats.total_bill_opens || 0;
+      document.getElementById('stat-members').textContent = stats.total_member_opens || 0;
+
+      // Report
+      document.getElementById('analysis-report').textContent = data.report || 'No report generated.';
+
+      // Top queries
+      const topQ = document.getElementById('top-queries');
+      topQ.innerHTML = (stats.top_queries || []).map(([q, count]) => `
+        <div class="query-row">
+          <div class="query-text">${q}</div>
+          <div class="query-count">${count}x</div>
+        </div>
+      `).join('') || '<div style="color:var(--muted);font-size:0.7rem">No searches yet</div>';
+
+      // Zero results
+      const zeroEl = document.getElementById('zero-results');
+      const zeros = stats.zero_result_searches || [];
+      zeroEl.innerHTML = zeros.length
+        ? zeros.map(q => `
+            <div class="query-row">
+              <div class="query-text zero-result">${q}</div>
+              <div class="query-count" style="color:var(--red)">0 results</div>
+            </div>
+          `).join('')
+        : '<div style="color:var(--muted);font-size:0.7rem">No zero-result searches</div>';
+
+      // Top bills
+      const topB = document.getElementById('top-bills');
+      topB.innerHTML = (stats.top_bills || []).map(([bill, count]) => `
+        <div class="query-row">
+          <div class="query-text">${bill}</div>
+          <div class="query-count">${count}x</div>
+        </div>
+      `).join('') || '<div style="color:var(--muted);font-size:0.7rem">No bills opened yet</div>';
+
+    } catch(e) {
+      document.getElementById('analysis-report').textContent = 'Failed to load analysis. Is the server running?';
+    }
+  }
+
+  // Initialize — show agent feed by default
+  document.getElementById('tab-analytics').style.display = 'none';
 </script>
 </body>
 </html>
