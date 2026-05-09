@@ -38,12 +38,54 @@ def fetch_bill(congress_number, bill_type, bill_number):
     else:
         print(f"Error: {response.status_code}")
         return None
-
-if __name__ == "__main__":
-    bill = fetch_bill(111, "hr", 3590)
+def fetch_law(congress, law_number):
+    """
+    Fetches bill data by public law number.
+    """
+    url = f"https://api.congress.gov/v3/law/{congress}/pub/{law_number}"
     
-    if bill:
-        print("SUCCESS - Raw data received:")
-        print(f"Title: {bill['bill']['title']}")
-        print(f"Sponsor: {bill['bill']['sponsors'][0]['fullName']}")
-        print(f"Status: {bill['bill']['latestAction']['text']}")
+    params = {
+        "api_key": CONGRESS_API_KEY,
+        "format": "json"
+    }
+    
+    response = requests.get(url, params=params, timeout=10)
+    
+    if response.status_code != 200:
+        print(f"[BILL FETCHER] Law not found: {congress} pub {law_number}")
+        return None
+    
+    data = response.json()
+    bill = data.get("bill")
+    
+    if not bill:
+        return None
+    
+    # Extract bill identifiers directly from the bill object
+    bill_congress = bill.get("congress", congress)
+    bill_type = bill.get("type", "").lower()
+    bill_number = bill.get("number")
+    
+    if not bill_type or not bill_number:
+        return None
+    
+    log_action(
+        agent_name="bill_fetcher",
+        action="fetch_law",
+        input_data={"congress": congress, "law_number": law_number},
+        output_data={"bill_type": bill_type, "bill_number": bill_number}
+    )
+    
+    # Fetch full bill data using existing fetch_bill
+    return fetch_bill(bill_congress, bill_type, int(bill_number))
+if __name__ == "__main__":
+    import json
+    
+    url = f"https://api.congress.gov/v3/law/119/pub/87"
+    params = {"api_key": CONGRESS_API_KEY, "format": "json"}
+    response = requests.get(url, params=params, timeout=10)
+    
+    print(f"Status: {response.status_code}")
+    print(json.dumps(response.json(), indent=2)[:2000])
+    
+    

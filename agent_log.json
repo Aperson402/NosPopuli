@@ -2813,5 +2813,2521 @@
     "output": {
       "status": "complete"
     }
+  },
+  {
+    "timestamp": "2026-05-08T23:18:26.413629",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "What has Congress done about climate change?"
+    },
+    "output": {
+      "keywords": [
+        "climate change"
+      ],
+      "topic": "Congressional actions and legislation on climate change",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:18:27.064549",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "climate change",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ],
+      "full_query": "climate change collection:BILLS (congress:119 OR congress:118 OR congress:117)"
+    },
+    "output": {
+      "total_available": 1633,
+      "results_returned": 10
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:18:27.068180",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "What has Congress done about climate change?"
+    },
+    "output": {
+      "results_count": 10
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:18:35.245301",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 3027
+    },
+    "output": {
+      "title": "Reclamation Climate Change and Water Program Reauthorization Act of 2023",
+      "status": "Subcommittee Hearings Held"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:18:35.829087",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 3027
+    },
+    "output": {
+      "action_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:18:39.267412",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Reclamation Climate Change and Water Program Reauthorization Act of 2023",
+      "sponsor": "Rep. Porter, Katie [D-CA-47]"
+    },
+    "output": {
+      "translation_preview": "# Reclamation Climate Change and Water Program Reauthorization Act of 2023\n\n## 1. What This Bill Is "
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:18:41.758567",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 5
+    },
+    "output": {
+      "preview": "# How This Bill Moved Through Congress\n\n**April 28, 2023** \u2014 The bill was introduced in the House of"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:18:41.762103",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 3027
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:24:56.136298",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "What has congress done about livestock"
+    },
+    "output": {
+      "keywords": [
+        "livestock"
+      ],
+      "topic": "Congressional actions and legislation regarding livestock",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:24:57.272154",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "livestock",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ],
+      "full_query": "livestock collection:BILLS (congress:119 OR congress:118 OR congress:117)"
+    },
+    "output": {
+      "total_available": 821,
+      "results_returned": 10
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:24:57.275906",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "What has congress done about livestock"
+    },
+    "output": {
+      "results_count": 10
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:25:07.111739",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 117,
+      "type": "s",
+      "number": 2707
+    },
+    "output": {
+      "title": "Livestock Disaster Relief Act",
+      "status": "Read twice and referred to the Committee on Agriculture, Nutrition, and Forestry."
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:25:07.702522",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 117,
+      "type": "s",
+      "number": 2707
+    },
+    "output": {
+      "action_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:25:10.881596",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Livestock Disaster Relief Act",
+      "sponsor": "Sen. Hoeven, John [R-ND]"
+    },
+    "output": {
+      "translation_preview": "# Livestock Disaster Relief Act - Plain English Explanation\n\n## 1. What this bill is in one sentence"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:25:12.933107",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**August 10, 2021:** The bill was introduced in the Senate. It was then read aloud "
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:25:12.936592",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 117,
+      "type": "s",
+      "number": 2707
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:32:40.548169",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 111,
+      "type": "hr",
+      "number": 3590
+    },
+    "output": {
+      "action_count": 20
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:32:40.555850",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "house_found": true,
+      "senate_found": true,
+      "house_roll": 165,
+      "senate_roll": 396
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:32:41.460849",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 117,
+      "type": "hr",
+      "number": 3076
+    },
+    "output": {
+      "action_count": 20
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:32:41.464728",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": true,
+      "house_roll": null,
+      "senate_roll": 71
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:33:37.435189",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 111,
+      "type": "hr",
+      "number": 3590
+    },
+    "output": {
+      "action_count": 20
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:33:37.443962",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "house_found": true,
+      "senate_found": true,
+      "house_roll": 165,
+      "senate_roll": 396
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:33:38.698358",
+    "agent": "vote_fetcher",
+    "action": "fetch_senate_votes",
+    "input": {
+      "congress": 111,
+      "roll": 396
+    },
+    "output": {
+      "members_found": 100
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:34:24.955843",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 111,
+      "type": "hr",
+      "number": 3590
+    },
+    "output": {
+      "action_count": 20
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:34:24.960803",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "house_found": true,
+      "senate_found": true,
+      "house_roll": 165,
+      "senate_roll": 396
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:34:25.423997",
+    "agent": "vote_fetcher",
+    "action": "fetch_house_votes",
+    "input": {
+      "congress": 111,
+      "roll": 165
+    },
+    "output": {
+      "members_found": 431
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:34:25.969622",
+    "agent": "vote_fetcher",
+    "action": "fetch_senate_votes",
+    "input": {
+      "congress": 111,
+      "roll": 396
+    },
+    "output": {
+      "members_found": 100
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:35:46.950615",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 111,
+      "type": "hr",
+      "number": 3590
+    },
+    "output": {
+      "action_count": 20
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:35:46.956244",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "house_found": true,
+      "senate_found": true,
+      "house_roll": 165,
+      "senate_roll": 396
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:35:47.441259",
+    "agent": "vote_fetcher",
+    "action": "fetch_house_votes",
+    "input": {
+      "congress": 111,
+      "roll": 165
+    },
+    "output": {
+      "members_found": 431
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:35:47.989160",
+    "agent": "vote_fetcher",
+    "action": "fetch_senate_votes",
+    "input": {
+      "congress": 111,
+      "roll": 396
+    },
+    "output": {
+      "members_found": 100
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:35:47.994169",
+    "agent": "vote_mapper",
+    "action": "map_house_votes",
+    "input": {
+      "member_count": 431
+    },
+    "output": {
+      "yea": 219,
+      "nay": 212,
+      "present": 0,
+      "not_voting": 0
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:35:47.997751",
+    "agent": "vote_mapper",
+    "action": "map_senate_votes",
+    "input": {
+      "member_count": 100
+    },
+    "output": {
+      "yea": 60,
+      "nay": 39,
+      "present": 0,
+      "not_voting": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:41:29.538593",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Show me legislation about veterans benefits"
+    },
+    "output": {
+      "keywords": [
+        "veterans",
+        "benefits"
+      ],
+      "topic": "Legislation regarding veterans benefits and support programs",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:41:30.700403",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "veterans benefits",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ],
+      "full_query": "veterans benefits collection:BILLS (congress:119 OR congress:118 OR congress:117)"
+    },
+    "output": {
+      "total_available": 2655,
+      "results_returned": 10
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:41:30.707570",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Show me legislation about veterans benefits"
+    },
+    "output": {
+      "results_count": 10
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:41:34.022648",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 2932
+    },
+    "output": {
+      "title": "To direct the Secretary of Veterans Affairs to report on the Warrior Training Advancement Course of the Veterans Benefits Administration.",
+      "status": "Referred to the Subcommittee on Economic Opportunity."
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:41:34.628664",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 2932
+    },
+    "output": {
+      "action_count": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:41:36.994130",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "To direct the Secretary of Veterans Affairs to report on the Warrior Training Advancement Course of the Veterans Benefits Administration.",
+      "sponsor": "Rep. Carter, Troy [D-LA-2]"
+    },
+    "output": {
+      "translation_preview": "# Plain English Summary\n\n## 1. What this bill does\nCongress is asking the Secretary of Veterans Affa"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:41:37.002710",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 4
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:41:38.807819",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 4
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\nThis bill **did not become law**. Here's what happened:\n\n**April 27, 2023** \u2013 A rep"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:41:38.811770",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 2932
+    },
+    "output": {
+      "status": "complete",
+      "house_votes": 0,
+      "senate_votes": 0
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:42:43.365707",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "What bills exist on housing affordability?"
+    },
+    "output": {
+      "keywords": [
+        "housing",
+        "affordability"
+      ],
+      "topic": "Bills related to housing affordability",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:42:43.841711",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "housing affordability",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ],
+      "full_query": "housing affordability collection:BILLS (congress:119 OR congress:118 OR congress:117)"
+    },
+    "output": {
+      "total_available": 549,
+      "results_returned": 10
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:42:43.848092",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "What bills exist on housing affordability?"
+    },
+    "output": {
+      "results_count": 10
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:42:47.423754",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 10171
+    },
+    "output": {
+      "title": "To encourage local government reform of zoning and permitting to enhance housing affordability and economic growth, and for other purposes.",
+      "status": "Referred to the Committee on Financial Services, and in addition to the Committees on Ways and Means, and Science, Space, and Technology, for a period to be subsequently determined by the Speaker, in each case for consideration of such provisions as fall within the jurisdiction of the committee concerned."
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:42:48.057249",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 10171
+    },
+    "output": {
+      "action_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:42:50.828368",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "To encourage local government reform of zoning and permitting to enhance housing affordability and economic growth, and for other purposes.",
+      "sponsor": "Rep. Smith, Adam [D-WA-9]"
+    },
+    "output": {
+      "translation_preview": "# Plain English Summary\n\n## 1. What this bill is in one sentence\nThis bill gives money and incentive"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:42:50.837234",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 5
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:42:52.666720",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 5
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**November 19, 2024:** The bill was introduced in the House of Representatives.\n\n**"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:42:52.670857",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 10171
+    },
+    "output": {
+      "status": "complete",
+      "house_votes": 0,
+      "senate_votes": 0
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:43:18.612284",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "ACA or Postal Service Reform Act"
+    },
+    "output": {
+      "keywords": [
+        "ACA",
+        "Postal Service Reform Act"
+      ],
+      "topic": "Legislation related to the Affordable Care Act and Postal Service Reform",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:43:19.652313",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "ACA Postal Service Reform Act",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ],
+      "full_query": "ACA Postal Service Reform Act collection:BILLS (congress:119 OR congress:118 OR congress:117)"
+    },
+    "output": {
+      "total_available": 35,
+      "results_returned": 10
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:43:19.656648",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "ACA or Postal Service Reform Act"
+    },
+    "output": {
+      "results_count": 10
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:43:27.587813",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Postal Service Reform Act"
+    },
+    "output": {
+      "keywords": [
+        "Postal Service",
+        "Reform"
+      ],
+      "topic": "Legislation related to reforms of the Postal Service",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:43:28.091405",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "Postal Service Reform",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ],
+      "full_query": "Postal Service Reform collection:BILLS (congress:119 OR congress:118 OR congress:117)"
+    },
+    "output": {
+      "total_available": 710,
+      "results_returned": 10
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:43:28.098071",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Postal Service Reform Act"
+    },
+    "output": {
+      "results_count": 10
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:43:30.318023",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 117,
+      "type": "s",
+      "number": 1720
+    },
+    "output": {
+      "title": "Postal Service Reform Act of 2021",
+      "status": "Read twice and referred to the Committee on Homeland Security and Governmental Affairs."
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:43:30.849446",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 117,
+      "type": "s",
+      "number": 1720
+    },
+    "output": {
+      "action_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:43:34.453374",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Postal Service Reform Act of 2021",
+      "sponsor": "Sen. Peters, Gary C. [D-MI]"
+    },
+    "output": {
+      "translation_preview": "# Postal Service Reform Act of 2021 - Plain English Explanation\n\n## 1. What This Bill Is\nThis bill w"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:43:34.458089",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:43:36.233748",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**May 19, 2021: Bill Introduced**\nA senator introduced this bill in the Senate.\n\n**"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:43:36.238271",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 117,
+      "type": "s",
+      "number": 1720
+    },
+    "output": {
+      "status": "complete",
+      "house_votes": 0,
+      "senate_votes": 0
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:43:51.430400",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Affordable Care act"
+    },
+    "output": {
+      "keywords": [
+        "Affordable Care Act",
+        "healthcare"
+      ],
+      "topic": "Legislation and policy related to the Affordable Care Act and healthcare",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:43:51.929409",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "Affordable Care Act healthcare",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ],
+      "full_query": "Affordable Care Act healthcare collection:BILLS (congress:119 OR congress:118 OR congress:117)"
+    },
+    "output": {
+      "total_available": 300,
+      "results_returned": 10
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:43:51.934292",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Affordable Care act"
+    },
+    "output": {
+      "results_count": 10
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:44:02.362230",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 117,
+      "type": "hr",
+      "number": 7258
+    },
+    "output": {
+      "title": "Health Care Equality and Modernization Act of 2022",
+      "status": "Referred to the Subcommittee on Health."
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:44:02.984023",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 117,
+      "type": "hr",
+      "number": 7258
+    },
+    "output": {
+      "action_count": 6
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:44:06.157095",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Health Care Equality and Modernization Act of 2022",
+      "sponsor": "Rep. Sessions, Pete [R-TX-17]"
+    },
+    "output": {
+      "translation_preview": "# Health Care Equality and Modernization Act of 2022 - Plain English Explanation\n\n## 1. What this bi"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:44:06.162726",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 6
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:44:08.237625",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 6
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**March 28, 2022:** The bill was introduced in the House of Representatives.\n\n**Mar"
+    }
+  },
+  {
+    "timestamp": "2026-05-08T23:44:08.242084",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 117,
+      "type": "hr",
+      "number": 7258
+    },
+    "output": {
+      "status": "complete",
+      "house_votes": 0,
+      "senate_votes": 0
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:08:40.781899",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Show me bills about student loans from the last 5 years"
+    },
+    "output": {
+      "keywords": [
+        "student loans"
+      ],
+      "topic": "Legislation concerning student loans",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:08:41.608585",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "What has Congress done about housing affordability?"
+    },
+    "output": {
+      "keywords": [
+        "housing",
+        "affordability"
+      ],
+      "topic": "Congressional actions and legislation regarding housing affordability",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:08:42.657929",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Find everything related to veterans benefits recently"
+    },
+    "output": {
+      "keywords": [
+        "veterans",
+        "benefits"
+      ],
+      "topic": "Legislative actions and policies related to veterans benefits",
+      "time_range": "last 2 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:09:32.507509",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Housing Act"
+    },
+    "output": {
+      "keywords": [
+        "Housing Act"
+      ],
+      "topic": "Legislation related to housing policy and regulations",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:09:33.657700",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "Housing Act",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ],
+      "full_query": "Housing Act collection:BILLS (congress:119 OR congress:118 OR congress:117)"
+    },
+    "output": {
+      "total_available": 6367,
+      "results_returned": 10
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:09:33.666366",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Housing Act"
+    },
+    "output": {
+      "results_count": 10
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:09:43.322178",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "1 bill about housing"
+    },
+    "output": {
+      "keywords": [
+        "housing"
+      ],
+      "topic": "Bills related to housing",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 1,
+      "specific_bill": {
+        "type": null,
+        "number": null,
+        "congress": null
+      },
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:09:43.772096",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "housing",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ],
+      "full_query": "housing collection:BILLS (congress:119 OR congress:118 OR congress:117)"
+    },
+    "output": {
+      "total_available": 6669,
+      "results_returned": 10
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:09:43.777931",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "1 bill about housing"
+    },
+    "output": {
+      "results_count": 10
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:12:34.248099",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Tell me about HR 3590"
+    },
+    "output": {
+      "keywords": [],
+      "topic": "specific bill HR 3590",
+      "time_range": "last 5 years",
+      "bill_type": "hr",
+      "result_count": 1,
+      "specific_bill": {
+        "type": "hr",
+        "number": 3590,
+        "congress": null
+      },
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:12:36.787047",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 3590
+    },
+    "output": {
+      "title": "SCHOOL Professionals Act of 2025",
+      "status": "Referred to the House Committee on Ways and Means."
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:12:37.399439",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 3590
+    },
+    "output": {
+      "action_count": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:12:47.436166",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "SCHOOL Professionals Act of 2025",
+      "sponsor": "Rep. Horsford, Steven [D-NV-4]"
+    },
+    "output": {
+      "translation_preview": "# SCHOOL Professionals Act of 2025 - Plain English Explanation\n\n## 1. What This Bill Is\nThis bill pr"
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:12:47.440622",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 3
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:12:48.973737",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 3
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**May 23, 2025**\nThe bill was introduced in the House of Representatives. That same"
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:12:48.976293",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 3590
+    },
+    "output": {
+      "status": "complete",
+      "house_votes": 0,
+      "senate_votes": 0
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:13:18.366793",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Give me a law that has been passed"
+    },
+    "output": {
+      "keywords": [
+        "law",
+        "passed"
+      ],
+      "topic": "passed legislation",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 1,
+      "specific_bill": null,
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:13:19.439871",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "law passed",
+      "result_count": 1,
+      "full_query": "law passed collection:BILLS (congress:119 OR congress:118 OR congress:117)"
+    },
+    "output": {
+      "total_available": 4476,
+      "results_returned": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:13:19.442954",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Give me a law that has been passed"
+    },
+    "output": {
+      "results_count": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:13:22.139483",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 2096
+    },
+    "output": {
+      "title": "Protecting Our Nation\u2019s Capital Emergency Act",
+      "status": "Received in the Senate and Read twice and referred to the Committee on Homeland Security and Governmental Affairs."
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:13:23.110034",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 2096
+    },
+    "output": {
+      "action_count": 19
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:13:25.542243",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Protecting Our Nation\u2019s Capital Emergency Act",
+      "sponsor": "Rep. Garbarino, Andrew R. [R-NY-2]"
+    },
+    "output": {
+      "translation_preview": "# Protecting Our Nation's Capital Emergency Act \u2014 Plain English\n\n## What This Bill Is\nThis bill woul"
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:13:25.547423",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 19
+    },
+    "output": {
+      "house_found": true,
+      "senate_found": false,
+      "house_roll": 162,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:13:28.165429",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 19
+    },
+    "output": {
+      "preview": "# Timeline: H.R. 2096\n\n**March 14, 2025** - The bill is introduced in the House and sent to the Over"
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:13:39.356533",
+    "agent": "vote_fetcher",
+    "action": "fetch_house_votes",
+    "input": {
+      "congress": 119,
+      "roll": 162
+    },
+    "output": {
+      "members_found": 432
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:13:39.362555",
+    "agent": "vote_mapper",
+    "action": "map_house_votes",
+    "input": {
+      "member_count": 432
+    },
+    "output": {
+      "yea": 235,
+      "nay": 178,
+      "present": 1,
+      "not_voting": 18
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:13:39.366827",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 2096
+    },
+    "output": {
+      "status": "complete",
+      "house_votes": 432,
+      "senate_votes": 0
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:18:13.953422",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Show me bills about student loans from the last 5 years"
+    },
+    "output": {
+      "keywords": [
+        "student",
+        "loans"
+      ],
+      "topic": "student loan legislation",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 5,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:18:14.970005",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "What has Congress done about housing affordability?"
+    },
+    "output": {
+      "keywords": [
+        "housing",
+        "affordability"
+      ],
+      "topic": "housing affordability legislation",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 5,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:18:16.141357",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Find everything related to veterans benefits recently"
+    },
+    "output": {
+      "keywords": [
+        "veterans",
+        "benefits"
+      ],
+      "topic": "veterans benefits legislation",
+      "time_range": "last 2 years",
+      "bill_type": "all",
+      "result_count": 5,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:18:55.014149",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Give me a law that has been passed"
+    },
+    "output": {
+      "keywords": [
+        "law"
+      ],
+      "topic": "enacted legislation",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 1,
+      "specific_bill": null,
+      "status": "enacted",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:18:55.630581",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "law",
+      "result_count": 1,
+      "full_query": "law collection:BILLS (congress:119 OR congress:118 OR congress:117)"
+    },
+    "output": {
+      "total_available": 28701,
+      "results_returned": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:18:55.639018",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Give me a law that has been passed"
+    },
+    "output": {
+      "results_count": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:18:58.271217",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 3436
+    },
+    "output": {
+      "title": "Law Enforcement Education Grant Program Act of 2025",
+      "status": "Referred to the House Committee on Education and Workforce."
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:18:58.821156",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 3436
+    },
+    "output": {
+      "action_count": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:19:01.299193",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Law Enforcement Education Grant Program Act of 2025",
+      "sponsor": "Rep. Fischbach, Michelle [R-MN-7]"
+    },
+    "output": {
+      "translation_preview": "# Law Enforcement Education Grant Program Act of 2025\n\n## 1. What this bill does\nThis bill would cre"
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:19:01.303535",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 3
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:19:03.146543",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 3
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**May 15, 2025:** The bill was introduced in the House of Representatives.\n\n**May 1"
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:19:03.155226",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 3436
+    },
+    "output": {
+      "status": "complete",
+      "house_votes": 0,
+      "senate_votes": 0
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:22:12.505720",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Give me a law that has been passed"
+    },
+    "output": {
+      "keywords": [
+        "law"
+      ],
+      "topic": "enacted legislation",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 1,
+      "specific_bill": null,
+      "status": "enacted",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:22:13.148608",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "law",
+      "result_count": 1,
+      "full_query": "law collection:BILLS (congress:119 OR congress:118 OR congress:117) \"Public Law\""
+    },
+    "output": {
+      "total_available": 8558,
+      "results_returned": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:22:13.157041",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Give me a law that has been passed"
+    },
+    "output": {
+      "results_count": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:22:15.395130",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 9492
+    },
+    "output": {
+      "title": "To amend Public Law 99-338 with respect to Kaweah Project permits.",
+      "status": "Subcommittee Hearings Held"
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:22:16.064477",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 9492
+    },
+    "output": {
+      "action_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:22:19.271962",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "To amend Public Law 99-338 with respect to Kaweah Project permits.",
+      "sponsor": "Rep. Valadao, David G. [R-CA-22]"
+    },
+    "output": {
+      "translation_preview": "# Plain English Explanation\n\n## 1. What This Bill Is (In One Sentence)\nThis bill changes the rules f"
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:22:19.281784",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 5
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:22:21.030247",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 5
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**September 6, 2024:** The bill was introduced in the House of Representatives.\n\n**"
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:22:21.033509",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 9492
+    },
+    "output": {
+      "status": "complete",
+      "house_votes": 0,
+      "senate_votes": 0
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:25:13.756217",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Give me a law that has been passed"
+    },
+    "output": {
+      "keywords": [
+        "law"
+      ],
+      "topic": "passed legislation",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 1,
+      "specific_bill": null,
+      "status": "enacted",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:25:14.890403",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "law",
+      "result_count": 1,
+      "status": "enacted"
+    },
+    "output": {
+      "total_available": 728,
+      "results_returned": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:25:14.894626",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Give me a law that has been passed"
+    },
+    "output": {
+      "results_count": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:25:26.946158",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Give me a law that has been passed"
+    },
+    "output": {
+      "keywords": [
+        "law"
+      ],
+      "topic": "enacted legislation",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 1,
+      "specific_bill": null,
+      "status": "enacted",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:25:27.393641",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "law",
+      "result_count": 1,
+      "status": "enacted"
+    },
+    "output": {
+      "total_available": 728,
+      "results_returned": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:25:27.397402",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Give me a law that has been passed"
+    },
+    "output": {
+      "results_count": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:28:32.438278",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Give me a law that has been passed"
+    },
+    "output": {
+      "keywords": [
+        "law"
+      ],
+      "topic": "enacted legislation",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 1,
+      "specific_bill": null,
+      "status": "enacted",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:28:33.017853",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "law",
+      "result_count": 1,
+      "status": "enacted"
+    },
+    "output": {
+      "total_available": 728,
+      "results_returned": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:28:33.027385",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Give me a law that has been passed"
+    },
+    "output": {
+      "results_count": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:29:13.033449",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "give me a law that has passed"
+    },
+    "output": {
+      "keywords": [
+        "law"
+      ],
+      "topic": "enacted legislation",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 1,
+      "specific_bill": null,
+      "status": "enacted",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:29:13.497729",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "law",
+      "result_count": 1,
+      "status": "enacted"
+    },
+    "output": {
+      "total_available": 728,
+      "results_returned": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:29:13.500983",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "give me a law that has passed"
+    },
+    "output": {
+      "results_count": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:30:08.073195",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 111,
+      "type": "hr",
+      "number": 3590
+    },
+    "output": {
+      "title": "Patient Protection and Affordable Care Act",
+      "status": "Became Public Law No: 111-148."
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:31:59.143351",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Name a law that has been passed"
+    },
+    "output": {
+      "keywords": [
+        "law"
+      ],
+      "topic": "passed legislation",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 1,
+      "specific_bill": null,
+      "status": "enacted",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:31:59.775569",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "law",
+      "result_count": 1,
+      "status": "enacted"
+    },
+    "output": {
+      "total_available": 728,
+      "results_returned": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:31:59.780487",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Name a law that has been passed"
+    },
+    "output": {
+      "results_count": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:32:01.320474",
+    "agent": "bill_fetcher",
+    "action": "fetch_law",
+    "input": {
+      "congress": 119,
+      "law_number": 87
+    },
+    "output": {
+      "bill_type": "s",
+      "bill_number": "4465"
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:32:01.677489",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "s",
+      "number": 4465
+    },
+    "output": {
+      "title": "A bill to amend the FISA Amendments Act of 2008 to extend the authorities of title VII of the Foreign Intelligence Surveillance Act of 1978, and for other purposes.",
+      "status": "Became Public Law No: 119-87."
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:32:02.416432",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "s",
+      "number": 4465
+    },
+    "output": {
+      "action_count": 18
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:32:05.586792",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "A bill to amend the FISA Amendments Act of 2008 to extend the authorities of title VII of the Foreign Intelligence Surveillance Act of 1978, and for other purposes.",
+      "sponsor": "Sen. Cotton, Tom [R-AR]"
+    },
+    "output": {
+      "translation_preview": "# Plain English Explanation\n\n## 1. What This Bill Is\nThis bill extends the government's legal author"
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:32:05.594242",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 18
+    },
+    "output": {
+      "house_found": true,
+      "senate_found": false,
+      "house_roll": 155,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:32:08.876751",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 18
+    },
+    "output": {
+      "preview": "# How S. 4465 Became Law\n\n**April 30, 2026**\n\nThe bill was introduced in the Senate and immediately "
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:32:17.316112",
+    "agent": "vote_fetcher",
+    "action": "fetch_house_votes",
+    "input": {
+      "congress": 119,
+      "roll": 155
+    },
+    "output": {
+      "members_found": 430
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:32:17.320531",
+    "agent": "vote_mapper",
+    "action": "map_house_votes",
+    "input": {
+      "member_count": 430
+    },
+    "output": {
+      "yea": 261,
+      "nay": 111,
+      "present": 0,
+      "not_voting": 58
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:32:17.323975",
+    "agent": "api",
+    "action": "get_law",
+    "input": {
+      "congress": 119,
+      "law_number": 87
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:33:28.523705",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Find me 8 bills about Climate change"
+    },
+    "output": {
+      "keywords": [
+        "climate",
+        "change"
+      ],
+      "topic": "climate change legislation",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 8,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:33:29.119150",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "climate change",
+      "result_count": 8,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 1633,
+      "results_returned": 8
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:33:29.122664",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Find me 8 bills about Climate change"
+    },
+    "output": {
+      "results_count": 8
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:33:33.438020",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "sres",
+      "number": 553
+    },
+    "output": {
+      "title": "A resolution recognizing that climate change is real.",
+      "status": "Referred to the Committee on Environment and Public Works."
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:33:33.979543",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "sres",
+      "number": 553
+    },
+    "output": {
+      "action_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:33:36.923841",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "A resolution recognizing that climate change is real.",
+      "sponsor": "Sen. Whitehouse, Sheldon [D-RI]"
+    },
+    "output": {
+      "translation_preview": "# Plain English Summary\n\n**1. What this bill is in one sentence:**\nThis is a statement where the Sen"
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:33:36.927400",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:33:38.560611",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**December 17, 2025:** A senator introduced this bill in the Senate.\n\n**December 17"
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:33:38.564537",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "sres",
+      "number": 553
+    },
+    "output": {
+      "status": "complete",
+      "house_votes": 0,
+      "senate_votes": 0
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:34:23.510545",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "s",
+      "number": 4356
+    },
+    "output": {
+      "title": "Protecting Moms and Babies Against Climate Change Act",
+      "status": "Read twice and referred to the Committee on Health, Education, Labor, and Pensions."
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:34:24.230001",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "s",
+      "number": 4356
+    },
+    "output": {
+      "action_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:34:26.909438",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Protecting Moms and Babies Against Climate Change Act",
+      "sponsor": "Sen. Markey, Edward J. [D-MA]"
+    },
+    "output": {
+      "translation_preview": "# Protecting Moms and Babies Against Climate Change Act\n\n## 1. What This Bill Is\nThis bill would req"
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:34:26.920395",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:34:28.684081",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**April 21, 2026:** A senator introduced a new bill in the Senate. The same day, it"
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:34:28.687390",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "s",
+      "number": 4356
+    },
+    "output": {
+      "status": "complete",
+      "house_votes": 0,
+      "senate_votes": 0
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:36:27.715077",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Give me 100 bills on congress's actions against the opiod crisis"
+    },
+    "output": {
+      "keywords": [
+        "congress",
+        "opioid",
+        "crisis"
+      ],
+      "topic": "congressional actions against opioid crisis",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "result_count": 20,
+      "specific_bill": null,
+      "status": "any",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:36:28.362422",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": "congress opioid crisis",
+      "result_count": 20,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 287,
+      "results_returned": 20
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:36:28.367463",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Give me 100 bills on congress's actions against the opiod crisis"
+    },
+    "output": {
+      "results_count": 20
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:36:36.678368",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 118,
+      "type": "s",
+      "number": 141
+    },
+    "output": {
+      "title": "Senator Elizabeth Dole 21st Century Veterans Healthcare and Benefits Improvement Act",
+      "status": "Became Public Law No: 118-210."
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:36:37.660901",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 118,
+      "type": "s",
+      "number": 141
+    },
+    "output": {
+      "action_count": 20
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:36:40.119857",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Senator Elizabeth Dole 21st Century Veterans Healthcare and Benefits Improvement Act",
+      "sponsor": "Sen. Moran, Jerry [R-KS]"
+    },
+    "output": {
+      "translation_preview": "# Senator Elizabeth Dole 21st Century Veterans Healthcare and Benefits Improvement Act\n\n## 1. What T"
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:36:40.131281",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "house_found": true,
+      "senate_found": false,
+      "house_roll": 504,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:36:42.267353",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "preview": "# How S. 141 Became Law\n\n**December 12, 2024:** The Senate passed the bill with amendments. All sena"
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:36:51.067435",
+    "agent": "vote_fetcher",
+    "action": "fetch_house_votes",
+    "input": {
+      "congress": 118,
+      "roll": 504
+    },
+    "output": {
+      "members_found": 429
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:36:51.078123",
+    "agent": "vote_mapper",
+    "action": "map_house_votes",
+    "input": {
+      "member_count": 429
+    },
+    "output": {
+      "yea": 382,
+      "nay": 12,
+      "present": 0,
+      "not_voting": 35
+    }
+  },
+  {
+    "timestamp": "2026-05-09T00:36:51.085649",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 118,
+      "type": "s",
+      "number": 141
+    },
+    "output": {
+      "status": "complete",
+      "house_votes": 429,
+      "senate_votes": 0
+    }
   }
 ]

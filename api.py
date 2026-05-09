@@ -3,6 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
+from vote_parser_agent import parse_vote_references
+from vote_fetcher_agent import fetch_house_votes, fetch_senate_votes
+from vote_mapper_agent import map_house_votes, map_senate_votes
+from bill_fetcher import fetch_bill, fetch_law
 import asyncio
 import anthropic
 import os
@@ -39,13 +43,39 @@ class BillRequest(BaseModel):
     bill_type: str
     number: int
 
+class LawRequest(BaseModel):
+    congress: int
+    law_number: int
+
 @app.post("/search")
 async def search(request: SearchRequest):
     if not request.question.strip():
         raise HTTPException(status_code=400, detail="Question cannot be empty")
 
     structured = route_query(request.question, client)
-    raw_results = search_bills(structured, max_results=request.max_results)
+    
+    # If router identified a specific bill number, fetch it directly
+    specific = structured.get("specific_bill")
+    if specific and specific.get("number") and specific.get("type"):
+        bill_type = specific["type"].lower()
+        number = specific["number"]
+        # Try current congress first, then recent ones
+        congress = specific.get("congress") or structured["congress_numbers"][0]
+        
+        return {
+            "query": structured,
+            "results": [{
+                "package_id": f"BILLS-{congress}{bill_type}{number}",
+                "title": f"{bill_type.upper()} {number}",
+                "date_issued": "",
+                "congress": congress,
+                "type": bill_type,
+                "number": number,
+            }]
+        }
+    
+    # Otherwise do a regular search respecting result_count
+    raw_results = search_bills(structured)
 
     if not raw_results:
         return {"query": structured, "results": [], "message": "No bills found."}
@@ -63,6 +93,7 @@ async def search(request: SearchRequest):
 async def get_bill(request: BillRequest):
     loop = asyncio.get_event_loop()
 
+    # Fetch bill data
     bill_data = await loop.run_in_executor(
         None, fetch_bill, request.congress, request.bill_type, request.number
     )
@@ -70,20 +101,37 @@ async def get_bill(request: BillRequest):
     if not bill_data:
         raise HTTPException(status_code=404, detail="Bill not found")
 
+    # Run translation and actions in parallel
     translation, actions = await asyncio.gather(
         loop.run_in_executor(None, translate_bill, bill_data, client),
         loop.run_in_executor(None, fetch_bill_actions, request.congress, request.bill_type, request.number)
     )
 
-    timeline = await loop.run_in_executor(
-        None, summarize_history, actions, client
+    # Timeline and vote parsing both need actions — run in parallel
+    timeline, vote_refs = await asyncio.gather(
+        loop.run_in_executor(None, summarize_history, actions, client),
+        loop.run_in_executor(None, parse_vote_references, actions)
     )
+
+    # Fetch both chamber votes in parallel
+    house_raw, senate_raw = await asyncio.gather(
+        loop.run_in_executor(None, fetch_house_votes, vote_refs.get("house")),
+        loop.run_in_executor(None, fetch_senate_votes, vote_refs.get("senate"))
+    )
+
+    # Map to seat positions
+    house_mapped = map_house_votes(house_raw)
+    senate_mapped = map_senate_votes(senate_raw)
 
     log_action(
         agent_name="api",
         action="get_bill",
         input_data={"congress": request.congress, "type": request.bill_type, "number": request.number},
-        output_data={"status": "complete"}
+        output_data={
+            "status": "complete",
+            "house_votes": len(house_raw) if house_raw else 0,
+            "senate_votes": len(senate_raw) if senate_raw else 0,
+        }
     )
 
     return {
@@ -91,7 +139,61 @@ async def get_bill(request: BillRequest):
         "type": request.bill_type,
         "number": request.number,
         "translation": translation,
-        "timeline": timeline
+        "timeline": timeline,
+        "votes": {
+            "house": house_mapped,
+            "senate": senate_mapped
+        }
+    }
+
+@app.post("/law")
+async def get_law(request: LawRequest):
+    loop = asyncio.get_event_loop()
+
+    bill_data = await loop.run_in_executor(
+        None, fetch_law, request.congress, request.law_number
+    )
+
+    if not bill_data:
+        raise HTTPException(status_code=404, detail="Law not found")
+
+    # Extract bill identifiers from the fetched data
+    bill = bill_data.get("bill", {})
+    bill_congress = bill.get("congress", request.congress)
+    bill_type = bill.get("type", "").lower()
+    bill_number = int(bill.get("number", 0))
+
+    translation, actions = await asyncio.gather(
+        loop.run_in_executor(None, translate_bill, bill_data, client),
+        loop.run_in_executor(None, fetch_bill_actions, bill_congress, bill_type, bill_number)
+    )
+
+    timeline, vote_refs = await asyncio.gather(
+        loop.run_in_executor(None, summarize_history, actions, client),
+        loop.run_in_executor(None, parse_vote_references, actions)
+    )
+
+    house_raw, senate_raw = await asyncio.gather(
+        loop.run_in_executor(None, fetch_house_votes, vote_refs.get("house")),
+        loop.run_in_executor(None, fetch_senate_votes, vote_refs.get("senate"))
+    )
+
+    house_mapped = map_house_votes(house_raw)
+    senate_mapped = map_senate_votes(senate_raw)
+
+    log_action(
+        agent_name="api",
+        action="get_law",
+        input_data={"congress": request.congress, "law_number": request.law_number},
+        output_data={"status": "complete"}
+    )
+
+    return {
+        "congress": request.congress,
+        "law_number": request.law_number,
+        "translation": translation,
+        "timeline": timeline,
+        "votes": {"house": house_mapped, "senate": senate_mapped}
     }
 
 @app.get("/")

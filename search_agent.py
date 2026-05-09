@@ -7,77 +7,74 @@ load_dotenv()
 
 GOVINFO_API_KEY = os.getenv("GovInfo_API_KEY")
 
-def search_bills(structured_query, max_results=5):
-    """
-    Uses GovInfo search API - real full text search across all congressional bills.
-    This is a POST request unlike the Congress.gov API.
-    """
-    
+def search_bills(structured_query, max_results=None):
+    if max_results is None:
+        max_results = structured_query.get("result_count", 5)
+    max_results = min(max_results, 20)
+
     keywords = " ".join(structured_query["keywords"])
     congress_numbers = structured_query["congress_numbers"]
-    
-    # Build congress filter - search across all relevant congresses
+    status = structured_query.get("status", "any")
+
     congress_filter = " OR ".join([f"congress:{c}" for c in congress_numbers])
-    
-    # Full query: keywords + collection filter + congress filter
-    full_query = f"{keywords} collection:BILLS ({congress_filter})"
-    
+
+    # If user wants enacted laws, search PLAW collection instead of BILLS
+    if status == "enacted":
+        collection = "PLAW"
+        full_query = f"{keywords} collection:PLAW ({congress_filter})"
+    else:
+        collection = "BILLS"
+        full_query = f"{keywords} collection:BILLS ({congress_filter})"
+
     payload = {
         "query": full_query,
         "pageSize": max_results,
         "offsetMark": "*",
-        "sorts": [
-            {
-                "field": "score",
-                "sortOrder": "DESC"
-            }
-        ]
+        "sorts": [{"field": "score", "sortOrder": "DESC"}]
     }
-    
+
     response = requests.post(
         "https://api.govinfo.gov/search",
         json=payload,
         params={"api_key": GOVINFO_API_KEY}
     )
-    
+
     if response.status_code != 200:
-        print(f"[SEARCH] Error: {response.status_code} - {response.text[:200]}")
+        print(f"[SEARCH] Error: {response.status_code}")
         return []
-    
+
     data = response.json()
     raw_results = data.get("results", [])
-    
+
     results = []
     for item in raw_results:
         package_id = item.get("packageId", "")
-        
-        # Extract bill type and number from packageId
-        # Format is BILLS-119hr1234ih → congress=119, type=hr, number=1234
-        parts = package_id.replace("BILLS-", "")
-        parsed = parse_package_id(package_id)
+
+        # PLAW package IDs look like PLAW-118publ234
+        # BILLS package IDs look like BILLS-118hr1234ih
+        if status == "enacted":
+            parsed = parse_plaw_package_id(package_id)
+        else:
+            parsed = parse_package_id(package_id)
+
         results.append({
             "package_id": package_id,
             "title": item.get("title", "No title"),
             "date_issued": item.get("dateIssued", "Unknown"),
             "congress": parsed["congress"] if parsed else None,
-            "type": parsed["type"] if parsed else None,
-            "number": parsed["number"] if parsed else None,
+            "type": parsed.get("type"),
+            "number": parsed.get("number"),
+            "is_law": status == "enacted",
+            "law_number": parsed.get("law_number") if status == "enacted" else None,
         })
-    
+
     log_action(
         agent_name="search",
         action="search_bills",
-        input_data={
-            "keywords": keywords,
-            "congress_numbers": congress_numbers,
-            "full_query": full_query
-        },
-        output_data={
-            "total_available": data.get("count", 0),
-            "results_returned": len(results)
-        }
+        input_data={"keywords": keywords, "result_count": max_results, "status": status},
+        output_data={"total_available": data.get("count", 0), "results_returned": len(results)}
     )
-    
+
     return results
 
 def parse_package_id(package_id):
@@ -99,6 +96,21 @@ def parse_package_id(package_id):
             "number": int(match.group(3))
         }
     
+    return None
+def parse_plaw_package_id(package_id):
+    """
+    Converts PLAW-118publ234 → {congress: 118, law_number: 234, type: "hr", number: None}
+    We won't have bill type/number from this — just the law number.
+    """
+    import re
+    match = re.match(r"PLAW-(\d+)publ(\d+)", package_id)
+    if match:
+        return {
+            "congress": int(match.group(1)),
+            "law_number": int(match.group(2)),
+            "type": None,
+            "number": None,
+        }
     return None
 if __name__ == "__main__":
     test_query = {

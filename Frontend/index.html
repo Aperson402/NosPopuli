@@ -18,6 +18,10 @@
       --muted:        #6b6355;
       --rule:         #c8bfaa;
       --content-width: 760px;
+      --vote-yea:     #2a6e2a;
+      --vote-nay:     #8b1a1a;
+      --vote-present: #8b7a1a;
+      --vote-absent:  #c8bfaa;
     }
 
     html { font-size: 16px; scroll-behavior: smooth; }
@@ -38,8 +42,7 @@
     header {
       border-bottom: 3px double var(--ink);
       padding: 2rem 0 1.5rem;
-      text-align: center;
-      cursor: pointer;
+      text-align: center; cursor: pointer;
     }
     header::before {
       content: ''; display: block;
@@ -72,9 +75,7 @@
       text-transform: uppercase; color: var(--muted);
       display: block; margin-bottom: 0.5rem;
     }
-    .search-row {
-      display: flex; border: 1.5px solid var(--ink); background: white;
-    }
+    .search-row { display: flex; border: 1.5px solid var(--ink); background: white; }
     .search-row input {
       flex: 1; padding: 1rem 1.25rem;
       font-family: 'Source Serif 4', Georgia, serif;
@@ -135,11 +136,8 @@
       font-size: 0.7rem; letter-spacing: 0.2em;
       text-transform: uppercase; color: var(--muted); font-weight: 400;
     }
-    .results-count {
-      font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--muted);
-    }
+    .results-count { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--muted); }
 
-    /* ── RESULT CARD ── */
     .result-card {
       background: var(--card-bg); border: 1px solid var(--rule);
       margin-bottom: 1rem; cursor: pointer;
@@ -148,7 +146,6 @@
       transition: border-color 0.15s;
     }
     .result-card:hover { border-color: var(--accent); }
-
     @keyframes cardIn { to { opacity: 1; transform: translateY(0); } }
 
     .result-card-inner {
@@ -172,7 +169,6 @@
       transition: color 0.15s;
     }
     .result-card:hover .result-card-arrow { color: var(--accent); }
-
     .result-meta {
       padding: 0.4rem 1.5rem 0.6rem;
       border-top: 1px solid var(--rule);
@@ -215,10 +211,7 @@
       font-weight: 700; line-height: 1.25; color: var(--ink);
     }
 
-    /* ── LOADING STATE ── */
-    .detail-loading {
-      padding: 4rem 0; text-align: center;
-    }
+    .detail-loading { padding: 4rem 0; text-align: center; }
     .loading-spinner {
       font-family: 'IBM Plex Mono', monospace;
       font-size: 0.65rem; letter-spacing: 0.2em;
@@ -226,13 +219,9 @@
       animation: pulse 1.4s ease-in-out infinite;
     }
     @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
-
     .loading-steps {
-      margin-top: 1.5rem;
-      border-left: 2px solid var(--rule);
-      padding: 0.5rem 1rem;
-      text-align: left;
-      display: inline-block;
+      margin-top: 1.5rem; border-left: 2px solid var(--rule);
+      padding: 0.5rem 1rem; text-align: left; display: inline-block;
     }
     .loading-step {
       font-family: 'IBM Plex Mono', monospace;
@@ -243,7 +232,6 @@
     .loading-step.visible { opacity: 1; }
     .loading-step.done { color: var(--accent); }
 
-    /* ── DETAIL CONTENT ── */
     .detail-section { margin-bottom: 2.5rem; }
     .section-label {
       font-family: 'IBM Plex Mono', monospace;
@@ -273,26 +261,60 @@
     .timeline-text strong { font-weight: 600; }
     .timeline-text li { margin-left: 1.25rem; margin-bottom: 0.2rem; }
 
-    /* ── CHART PLACEHOLDERS ── */
-    .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    .chart-placeholder {
-      background: var(--card-bg); border: 1px solid var(--rule);
-      padding: 2rem 1.5rem; text-align: center;
+    /* ── VOTE VISUALIZATION ── */
+    .chambers-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
     }
-    .chart-placeholder-label {
+
+    .chamber-block {
+      background: var(--card-bg);
+      border: 1px solid var(--rule);
+      padding: 1.25rem;
+    }
+
+    .chamber-title {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.6rem; letter-spacing: 0.15em;
-      text-transform: uppercase; color: var(--muted); margin-bottom: 0.4rem;
+      font-size: 0.62rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--muted);
+      margin-bottom: 0.75rem; text-align: center;
     }
-    .chart-placeholder-title {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: 0.9rem; color: var(--ink); font-style: italic;
-    }
-    .chart-coming-soon {
+
+    .vote-summary {
+      display: flex; justify-content: center; gap: 1.25rem;
+      margin-bottom: 1rem;
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.55rem; letter-spacing: 0.1em;
-      text-transform: uppercase; color: var(--rule); margin-top: 0.5rem;
+      font-size: 0.65rem; letter-spacing: 0.08em;
     }
+    .vote-count-yea   { color: var(--vote-yea); }
+    .vote-count-nay   { color: var(--vote-nay); }
+    .vote-count-other { color: var(--muted); }
+
+    .chamber-svg { width: 100%; display: block; }
+
+    /* Tooltip */
+    .vote-tooltip {
+      position: fixed;
+      background: var(--ink); color: var(--paper);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6rem; letter-spacing: 0.05em;
+      padding: 0.4rem 0.75rem;
+      pointer-events: none; z-index: 100;
+      opacity: 0; transition: opacity 0.1s;
+      white-space: nowrap;
+    }
+    .vote-tooltip.visible { opacity: 1; }
+
+    /* Legend */
+    .vote-legend {
+      display: flex; justify-content: center; gap: 1rem;
+      margin-top: 0.75rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.55rem; letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .legend-item { display: flex; align-items: center; gap: 0.3rem; color: var(--muted); }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
     /* ── EMPTY / ERROR ── */
     .empty-state { text-align: center; padding: 3rem 0; color: var(--muted); }
@@ -311,6 +333,9 @@
   </style>
 </head>
 <body>
+
+<!-- Tooltip -->
+<div class="vote-tooltip" id="tooltip"></div>
 
 <header onclick="goHome()">
   <div class="masthead">Nos<span>Populi</span></div>
@@ -354,18 +379,18 @@
       <div class="detail-bill-title" id="detail-bill-title"></div>
     </div>
 
-    <!-- Loading state -->
     <div class="detail-loading" id="detail-loading">
       <div class="loading-spinner">Analyzing legislation...</div>
       <div class="loading-steps">
         <div class="loading-step" id="lstep-1">› Fetching bill data</div>
         <div class="loading-step" id="lstep-2">› Translating to plain English</div>
         <div class="loading-step" id="lstep-3">› Building legislative timeline</div>
+        <div class="loading-step" id="lstep-4">› Retrieving vote records</div>
       </div>
     </div>
 
-    <!-- Content (hidden until loaded) -->
     <div id="detail-content" style="display:none">
+
       <div class="detail-section">
         <div class="section-label">Plain English Explanation</div>
         <div class="detail-explanation" id="detail-explanation"></div>
@@ -376,51 +401,45 @@
         <div class="timeline-text" id="detail-timeline"></div>
       </div>
 
-      <div class="detail-section">
-        <div class="section-label">Data &amp; Analysis</div>
-        <div class="charts-grid">
-          <div class="chart-placeholder">
-            <div class="chart-placeholder-label">Vote Breakdown</div>
-            <div class="chart-placeholder-title">Yes / No / Abstain by Party</div>
-            <div class="chart-coming-soon">Coming soon</div>
+      <!-- Vote visualization — only shown if vote data exists -->
+      <div class="detail-section" id="votes-section" style="display:none">
+        <div class="section-label">Recorded Votes</div>
+        <div class="chambers-grid" id="chambers-grid"></div>
+        <div class="vote-legend">
+          <div class="legend-item">
+            <div class="legend-dot" style="background:var(--vote-yea)"></div> Yea
           </div>
-          <div class="chart-placeholder">
-            <div class="chart-placeholder-label">Sponsor Map</div>
-            <div class="chart-placeholder-title">Which States Cosponsored</div>
-            <div class="chart-coming-soon">Coming soon</div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:var(--vote-nay)"></div> Nay
           </div>
-          <div class="chart-placeholder">
-            <div class="chart-placeholder-label">Bill Progress</div>
-            <div class="chart-placeholder-title">How Far It Got</div>
-            <div class="chart-coming-soon">Coming soon</div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:var(--vote-present)"></div> Present
           </div>
-          <div class="chart-placeholder">
-            <div class="chart-placeholder-label">Amendment History</div>
-            <div class="chart-placeholder-title">How Much It Changed</div>
-            <div class="chart-coming-soon">Coming soon</div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:var(--vote-absent)"></div> Not Voting
           </div>
         </div>
       </div>
-    </div>
 
+    </div>
   </div>
 </div>
 
 <footer>
-  NosPopuli &nbsp;·&nbsp; Data via Congress.gov &amp; GovInfo &nbsp;·&nbsp; Not legal advice
+  NosPopuli &nbsp;·&nbsp; Data via Congress.gov &amp; GovInfo &amp; Senate.gov &nbsp;·&nbsp; Not legal advice
 </footer>
 
 <script>
+  // ── State ──
   let currentResults = [];
-  let currentBillMeta = null;
+  const tooltip = document.getElementById('tooltip');
 
-  // ── Page navigation ──
+  // ── Pages ──
   function showPage(id) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById(id).classList.add('active');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
-
   function goHome() { showPage('page-search'); }
   function goBack() { showPage('page-search'); }
 
@@ -442,13 +461,11 @@
     statusInner.appendChild(line);
     requestAnimationFrame(() => line.classList.add('visible'));
   }
-
   function clearStatus() {
     statusInner.innerHTML = '';
     statusBar.classList.remove('visible');
   }
 
-  // ── Helpers ──
   function billIdFromParts(type, number) {
     return type.toUpperCase() + ' ' + number;
   }
@@ -464,68 +481,164 @@
       .replace(/^---$/gm, '<hr style="border:none;border-top:1px solid var(--rule);margin:0.75rem 0">');
   }
 
-  // ── Stage 2: Load full bill on click ──
-  async function openDetail(bill) {
-    currentBillMeta = bill;
+  // ── Tooltip ──
+  function showTooltip(e, seat) {
+    const partyLabel = seat.party === 'D' ? 'Democrat' : seat.party === 'R' ? 'Republican' : 'Independent';
+    tooltip.textContent = `${seat.name} · ${seat.state} · ${partyLabel} · ${seat.vote}`;
+    tooltip.classList.add('visible');
+    moveTooltip(e);
+  }
+  function moveTooltip(e) {
+    tooltip.style.left = (e.clientX + 12) + 'px';
+    tooltip.style.top  = (e.clientY - 28) + 'px';
+  }
+  function hideTooltip() {
+    tooltip.classList.remove('visible');
+  }
 
-    const billId = billIdFromParts(bill.type, bill.number);
+  // ── Chamber SVG renderer ──
+  function renderChamber(title, data, svgW, svgH) {
+    if (!data || !data.seats || !data.seats.length) return null;
 
-    // Set header immediately from search result data
+    const s = data.summary;
+    const block = document.createElement('div');
+    block.className = 'chamber-block';
+
+    // Title
+    const titleEl = document.createElement('div');
+    titleEl.className = 'chamber-title';
+    titleEl.textContent = title;
+    block.appendChild(titleEl);
+
+    // Vote summary counts
+    const summary = document.createElement('div');
+    summary.className = 'vote-summary';
+    summary.innerHTML = `
+      <span class="vote-count-yea">YEA ${s.yea}</span>
+      <span class="vote-count-nay">NAY ${s.nay}</span>
+      ${s.present > 0 ? `<span class="vote-count-other">PRESENT ${s.present}</span>` : ''}
+      ${s.not_voting > 0 ? `<span class="vote-count-other">NOT VOTING ${s.not_voting}</span>` : ''}
+    `;
+    block.appendChild(summary);
+
+    // SVG
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', `0 0 ${svgW} ${svgH}`);
+    svg.setAttribute('class', 'chamber-svg');
+
+    data.seats.forEach(seat => {
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle.setAttribute('cx', seat.x);
+      circle.setAttribute('cy', seat.y);
+      circle.setAttribute('r', title.includes('House') ? 4.5 : 6);
+      circle.setAttribute('fill', seat.color);
+      circle.setAttribute('opacity', '0.9');
+      circle.style.cursor = 'pointer';
+
+      circle.addEventListener('mouseenter', e => showTooltip(e, seat));
+      circle.addEventListener('mousemove',  e => moveTooltip(e));
+      circle.addEventListener('mouseleave', hideTooltip);
+
+      svg.appendChild(circle);
+    });
+
+    block.appendChild(svg);
+    return block;
+  }
+
+  // ── Render votes section ──
+  function renderVotes(votes) {
+    const section = document.getElementById('votes-section');
+    const grid = document.getElementById('chambers-grid');
+    grid.innerHTML = '';
+
+    const hasHouse  = votes && votes.house  && votes.house.seats  && votes.house.seats.length;
+    const hasSenate = votes && votes.senate && votes.senate.seats && votes.senate.seats.length;
+
+    if (!hasHouse && !hasSenate) {
+      section.style.display = 'none';
+      return;
+    }
+
+    section.style.display = 'block';
+
+    // House SVG: 500 x 260
+    if (hasHouse) {
+      const houseBlock = renderChamber('House of Representatives', votes.house, 500, 260);
+      if (houseBlock) grid.appendChild(houseBlock);
+    }
+
+    // Senate SVG: 300 x 200
+    if (hasSenate) {
+      const senateBlock = renderChamber('Senate', votes.senate, 300, 200);
+      if (senateBlock) grid.appendChild(senateBlock);
+    }
+
+    // If only one chamber has data, make it full width
+    if (hasHouse !== hasSenate) {
+      grid.style.gridTemplateColumns = '1fr';
+    } else {
+      grid.style.gridTemplateColumns = '1fr 1fr';
+    }
+  }
+
+  // ── Open detail page ──
+ async function openDetail(bill) {
+    const billId = bill.is_law
+        ? `Public Law ${bill.congress}-${bill.law_number}`
+        : billIdFromParts(bill.type, bill.number);
+
     document.getElementById('detail-bill-id').textContent = billId;
     document.getElementById('detail-bill-title').textContent = bill.title || billId;
-
-    // Show loading state
     document.getElementById('detail-loading').style.display = 'block';
     document.getElementById('detail-content').style.display = 'none';
 
-    // Animate loading steps
-    const steps = ['lstep-1', 'lstep-2', 'lstep-3'];
+    const steps = ['lstep-1', 'lstep-2', 'lstep-3', 'lstep-4'];
     steps.forEach((id, i) => {
-      const el = document.getElementById(id);
-      el.classList.remove('visible', 'done');
-      setTimeout(() => el.classList.add('visible'), i * 800);
+        const el = document.getElementById(id);
+        el.classList.remove('visible', 'done');
+        setTimeout(() => el.classList.add('visible'), i * 700);
     });
 
     showPage('page-detail');
 
     try {
-      const response = await fetch('/bill', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          congress: bill.congress,
-          bill_type: bill.type,
-          number: bill.number
-        })
-      });
+        // Route to correct endpoint based on result type
+        const endpoint = bill.is_law ? '/law' : '/bill';
+        const body = bill.is_law
+            ? { congress: bill.congress, law_number: bill.law_number }
+            : { congress: bill.congress, bill_type: bill.type, number: bill.number };
 
-      if (!response.ok) throw new Error(`Error: ${response.status}`);
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
 
-      const data = await response.json();
+        if (!response.ok) throw new Error(`Error: ${response.status}`);
 
-      // Mark steps done
-      steps.forEach(id => {
-        document.getElementById(id).classList.add('done');
-      });
+        const data = await response.json();
 
-      // Small pause then reveal content
-      setTimeout(() => {
-        document.getElementById('detail-loading').style.display = 'none';
-        document.getElementById('detail-explanation').innerHTML = renderMarkdown(data.translation);
-        document.getElementById('detail-timeline').innerHTML = renderMarkdown(data.timeline);
-        document.getElementById('detail-content').style.display = 'block';
-      }, 400);
+        steps.forEach(id => document.getElementById(id).classList.add('done'));
+
+        setTimeout(() => {
+            document.getElementById('detail-loading').style.display = 'none';
+            document.getElementById('detail-explanation').innerHTML = renderMarkdown(data.translation);
+            document.getElementById('detail-timeline').innerHTML = renderMarkdown(data.timeline);
+            renderVotes(data.votes);
+            document.getElementById('detail-content').style.display = 'block';
+        }, 400);
 
     } catch (err) {
-      document.getElementById('detail-loading').innerHTML = `
-        <div class="empty-state">
-          <p>Failed to load bill details.</p>
-          <p style="margin-top:0.5rem;font-size:0.6rem">${err.message}</p>
-        </div>`;
+        document.getElementById('detail-loading').innerHTML = `
+            <div class="empty-state">
+                <p>Failed to load details.</p>
+                <p style="margin-top:0.5rem;font-size:0.6rem">${err.message}</p>
+            </div>`;
     }
-  }
+}
 
-  // ── Stage 1: Render search results (fast, no AI) ──
+  // ── Render search results ──
   function renderResults(data) {
     resultsSection.innerHTML = '';
     currentResults = data.results || [];
@@ -574,7 +687,7 @@
     });
   }
 
-  // ── Main search (Stage 1 only) ──
+  // ── Main search ──
   async function runSearch() {
     const question = input.value.trim();
     if (!question) return;

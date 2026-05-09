@@ -48,42 +48,73 @@ def route_query(user_question, client):
     """
     
     prompt = f"""
-    Extract search keywords from this question: "{user_question}"
-    
-    Return ONLY this JSON, nothing else:
-    {{
-        "keywords": ["KEYWORD1", "KEYWORD2"],
-        "topic": "one sentence description",
-        "time_range": "last 5 years",
-        "bill_type": "all"
-    }}
-    
-    RULES FOR KEYWORDS:
-    - Extract ONLY the subject matter nouns
-    - "Show me bills about student loans" → ["student loans"]
-    - "What has Congress done about housing affordability" → ["housing", "affordability"]
-    - "Find everything related to veterans benefits" → ["veterans", "benefits"]
-    - NEVER include: show, me, bills, find, everything, what, has, congress, done, about, related, to, from, the
-    
-    TIME RANGE RULES:
-    - Mentions "last 2 years" or "recent" or "recently" → "last 2 years"
-    - Mentions "last 5 years" → "last 5 years"  
-    - Mentions "last 10 years" → "last 10 years"
-    - No time mentioned → "last 5 years"
-    
+    You are a query router for a legislative search system.
+    Extract search intent from a plain English question.
+    Return ONLY valid JSON, no markdown, no explanation.
+
     User question: {user_question}
-    
-    Respond with ONLY this JSON structure:
+
+    Rules for query_type:
+    - A person's name, "Senator X", "Representative X", "what did X do", "X's record", "X's votes", "who is X" → "member"
+    - "X Committee", "committee on X", "House/Senate committee" → "committee"
+    - Everything else → "legislation"
+
+    Rules for entity_name:
+    - For member queries: extract the person's name only. "What did Ted Kennedy do" → "Ted Kennedy"
+    - For committee queries: extract the committee name. "Senate Judiciary Committee" → "Senate Judiciary Committee"
+    - For legislation queries: null
+
+    Rules for result_count:
+    - "a bill", "one bill", "a law", "an example" → 1
+    - "a few", "some" → 3
+    - No quantity mentioned → 5
+    - "many", "lots", explicit number → that number
+    - Maximum: 20
+
+    Rules for specific_bill:
+    - If user mentions a bill number like "HR 3590", "S 1234" → extract it
+    - Otherwise → null
+
+    Rules for status:
+    - "passed", "became law", "signed", "enacted", "a law" → "enacted"
+    - "failed", "rejected" → "failed"
+    - No status mentioned → "any"
+
+    Rules for keywords (legislation only):
+    - Extract ONLY subject matter nouns
+    - NEVER include: show, me, bills, find, a, one, some, what, has, done, about, related, to, from, the, give, senator, representative
+
+    Rules for time_range:
+    - "recent", "recently" → "last 2 years"
+    - "last 5 years" or nothing → "last 5 years"
+    - "last 10 years" → "last 10 years"
+
+    Examples:
+    "What did Ted Kennedy do in Congress?" →
+    {{"query_type": "member", "entity_name": "Ted Kennedy", "keywords": [], "topic": "", "time_range": "last 5 years", "bill_type": "all", "result_count": 5, "specific_bill": null, "status": "any"}}
+
+    "Show me the Senate Judiciary Committee" →
+    {{"query_type": "committee", "entity_name": "Senate Judiciary Committee", "keywords": [], "topic": "", "time_range": "last 5 years", "bill_type": "all", "result_count": 5, "specific_bill": null, "status": "any"}}
+
+    "Find bills about climate change" →
+    {{"query_type": "legislation", "entity_name": null, "keywords": ["climate", "change"], "topic": "climate change legislation", "time_range": "last 5 years", "bill_type": "all", "result_count": 5, "specific_bill": null, "status": "any"}}
+
+    Return ONLY this JSON structure:
     {{
-        "keywords": ["keyword1", "keyword2"],
+        "query_type": "legislation",
+        "entity_name": null,
+        "keywords": ["keyword1"],
         "topic": "description",
         "time_range": "last 5 years",
-        "bill_type": "all"
+        "bill_type": "all",
+        "result_count": 5,
+        "specific_bill": null,
+        "status": "any"
     }}
     """
     
     message = client.messages.create(
-        model="claude-haiku-4-5",
+        model="claude-haiku-4-5-20251001",
         max_tokens=256,
         messages=[
             {"role": "user", "content": prompt}
