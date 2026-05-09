@@ -8,7 +8,7 @@ load_dotenv()
 
 client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
-def translate_bill(bill_data):
+def translate_bill(bill_data, client):
     bill = bill_data["bill"]
     
     title = bill["title"]
