@@ -187,5 +187,414 @@
     "output": {
       "status": "complete"
     }
+  },
+  {
+    "timestamp": "2026-05-08T21:08:53.537454",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Show me bills about student loans from the last 5 years"
+    },
+    "output": {
+      "keywords": [
+        "Show",
+        "me",
+        "bills"
+      ],
+      "topic": "Show me bills about student loans from the last 5 years",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:08:54.591565",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "What has Congress done about housing affordability?"
+    },
+    "output": {
+      "keywords": [
+        "What",
+        "has",
+        "Congress"
+      ],
+      "topic": "What has Congress done about housing affordability?",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:08:55.805889",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Find everything related to veterans benefits recently"
+    },
+    "output": {
+      "keywords": [
+        "Find",
+        "everything",
+        "related"
+      ],
+      "topic": "Find everything related to veterans benefits recently",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:11:27.453455",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Show me bills about student loans from the last 5 years"
+    },
+    "output": {
+      "keywords": [
+        "Show",
+        "me",
+        "bills"
+      ],
+      "topic": "Show me bills about student loans from the last 5 years",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:11:28.352460",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "What has Congress done about housing affordability?"
+    },
+    "output": {
+      "keywords": [
+        "What",
+        "has",
+        "Congress"
+      ],
+      "topic": "What has Congress done about housing affordability?",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:11:29.341127",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Find everything related to veterans benefits recently"
+    },
+    "output": {
+      "keywords": [
+        "Find",
+        "everything",
+        "related"
+      ],
+      "topic": "Find everything related to veterans benefits recently",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:13:43.373233",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Show me bills about student loans from the last 5 years"
+    },
+    "output": {
+      "keywords": [
+        "Show",
+        "me",
+        "bills"
+      ],
+      "topic": "Show me bills about student loans from the last 5 years",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:13:44.153778",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "What has Congress done about housing affordability?"
+    },
+    "output": {
+      "keywords": [
+        "What",
+        "has",
+        "Congress"
+      ],
+      "topic": "What has Congress done about housing affordability?",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:13:44.993324",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Find everything related to veterans benefits recently"
+    },
+    "output": {
+      "keywords": [
+        "Find",
+        "everything",
+        "related"
+      ],
+      "topic": "Find everything related to veterans benefits recently",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:14:07.024371",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Show me bills about student loans from the last 5 years"
+    },
+    "output": {
+      "keywords": [
+        "Show",
+        "me",
+        "bills"
+      ],
+      "topic": "Show me bills about student loans from the last 5 years",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:14:07.895736",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "What has Congress done about housing affordability?"
+    },
+    "output": {
+      "keywords": [
+        "What",
+        "has",
+        "Congress"
+      ],
+      "topic": "What has Congress done about housing affordability?",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:14:08.917925",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Find everything related to veterans benefits recently"
+    },
+    "output": {
+      "keywords": [
+        "Find",
+        "everything",
+        "related"
+      ],
+      "topic": "Find everything related to veterans benefits recently",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:15:32.576066",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Show me bills about student loans from the last 5 years"
+    },
+    "output": {
+      "keywords": [
+        "Show",
+        "me",
+        "bills"
+      ],
+      "topic": "Show me bills about student loans from the last 5 years",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:15:33.601659",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "What has Congress done about housing affordability?"
+    },
+    "output": {
+      "keywords": [
+        "What",
+        "has",
+        "Congress"
+      ],
+      "topic": "What has Congress done about housing affordability?",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:15:34.796931",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Find everything related to veterans benefits recently"
+    },
+    "output": {
+      "keywords": [
+        "Find",
+        "everything",
+        "related"
+      ],
+      "topic": "Find everything related to veterans benefits recently",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:16:49.762672",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Show me bills about student loans from the last 5 years"
+    },
+    "output": {
+      "keywords": [
+        "student loans"
+      ],
+      "topic": "Bills related to student loans",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:16:50.567246",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "What has Congress done about housing affordability?"
+    },
+    "output": {
+      "keywords": [
+        "housing",
+        "affordability"
+      ],
+      "topic": "Congressional actions on housing affordability",
+      "time_range": "last 5 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118,
+        117
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-08T21:16:51.482439",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Find everything related to veterans benefits recently"
+    },
+    "output": {
+      "keywords": [
+        "veterans",
+        "benefits"
+      ],
+      "topic": "Legislation and policies related to veterans benefits",
+      "time_range": "last 2 years",
+      "bill_type": "all",
+      "congress_numbers": [
+        119,
+        118
+      ]
+    }
   }
 ]
