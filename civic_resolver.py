@@ -3,9 +3,14 @@ import os
 import pgeocode
 from documentor_agent import log_action
 
-# Load legislators once at module level
-with open("data/legislators-current.json") as f:
-    LEGISLATORS = json.load(f)
+_DATA_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "legislators-current.json")
+
+try:
+    with open(_DATA_PATH) as f:
+        LEGISLATORS = json.load(f)
+except FileNotFoundError:
+    print(f"[CIVIC] WARNING: legislators file not found at {_DATA_PATH}")
+    LEGISLATORS = []
 
 def resolve_zip(zip_code):
     """
