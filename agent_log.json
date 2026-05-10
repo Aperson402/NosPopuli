@@ -3109,5 +3109,805 @@
       "keywords": [],
       "entity_name": null
     }
+  },
+  {
+    "timestamp": "2026-05-10T19:09:47.814214",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.2,
+      "ambiguity_reason": "Query 'test' is too vague and could refer to anything; no legislative intent detected",
+      "keywords": [],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:09:48.827020",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 62252,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:09:48.832235",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:09:50.162724",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.2,
+      "ambiguity_reason": "Query is too vague and does not contain sufficient information to determine legislative intent.",
+      "keywords": [],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:09:50.569124",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 62252,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:09:50.572308",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:09:51.921879",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.2,
+      "ambiguity_reason": "Query 'test' is completely unclear and could mean anything - no legislative intent is discernible",
+      "keywords": [],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:09:52.338074",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 62252,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:09:52.340962",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:09:54.050144",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.2,
+      "ambiguity_reason": "Query 'test' has no legislative, member, or committee context and could mean anything",
+      "keywords": [],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:09:54.475322",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 62252,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:09:54.485675",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:09:55.886818",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.2,
+      "ambiguity_reason": "Query term 'test' is not a meaningful legislative search and could refer to anything from testing procedures to education policy to medical testing.",
+      "keywords": [],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:09:56.309402",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 62252,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:09:56.316207",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:09:57.590780",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.2,
+      "ambiguity_reason": "Query 'test' is too vague and could refer to anything or nothing related to legislative search",
+      "keywords": [],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:09:58.010916",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 62252,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:09:58.013592",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:01.516973",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.2,
+      "ambiguity_reason": "Query is too vague and could refer to any legislative search or test scenario",
+      "keywords": [],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:01.959515",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 62252,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:01.962300",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:03.371114",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.2,
+      "ambiguity_reason": "Query 'test' is completely ambiguous and provides no legislative search intent, context, or identifiable information.",
+      "keywords": [],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:03.797852",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 62252,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:03.800634",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:05.107475",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.2,
+      "ambiguity_reason": "Query is too vague and non-specific to determine clear search intent",
+      "keywords": [],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:05.554514",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 62252,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:05.557270",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:07.157289",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.2,
+      "ambiguity_reason": "Query is too vague and could refer to any type of legislative search, member information, or committee details",
+      "keywords": [],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:07.568800",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 62252,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:07.578070",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:08.999032",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.2,
+      "ambiguity_reason": "The word 'test' provides no clear legislative search intent and could refer to legislation about testing, a test query, or be a placeholder.",
+      "keywords": [],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:09.434380",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 62252,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:09.438591",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:11.255141",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.2,
+      "ambiguity_reason": "Query 'test' is too generic and does not contain any clear legislative, member, or committee reference.",
+      "keywords": [],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:11.693140",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 62252,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:11.696016",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:12.992643",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.2,
+      "ambiguity_reason": "Query is too generic and non-specific to determine legislative search intent.",
+      "keywords": [],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:13.408013",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 62252,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:13.417018",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:14.647701",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.2,
+      "ambiguity_reason": "Query is too vague and does not contain any legislative, member, or committee reference",
+      "keywords": [],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:15.078380",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 62252,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:15.081228",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:16.374395",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.2,
+      "ambiguity_reason": "Query 'test' is too generic and does not indicate clear legislative search intent",
+      "keywords": [],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:16.855799",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 62252,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:16.864316",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:18.223904",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.2,
+      "ambiguity_reason": "Query is too vague and does not contain any meaningful search terms, bill numbers, member names, or committee references.",
+      "keywords": [],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:18.697347",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 62252,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:18.702272",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:20.038495",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.2,
+      "ambiguity_reason": "Query is too vague to determine search intent; could refer to system testing, member information, committee details, or legislation search.",
+      "keywords": [],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:20.482509",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 62252,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:20.485841",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:22.004008",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.2,
+      "ambiguity_reason": "Query 'test' is too generic and does not contain any discernible legislative search intent, entity name, or subject matter.",
+      "keywords": [],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:22.455805",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 62252,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:22.466601",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:23.766618",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.2,
+      "ambiguity_reason": "Query is too vague and could refer to anything - no clear legislative intent, member name, or committee identified",
+      "keywords": [],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:24.214143",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 62252,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:24.217444",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:25.573930",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.2,
+      "ambiguity_reason": "Query is too vague to determine search intent; could refer to testing the system, a specific bill, committee, or member.",
+      "keywords": [],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:25.969875",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 62252,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:10:25.977747",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "test"
+    },
+    "output": {
+      "results_count": 5
+    }
   }
 ]

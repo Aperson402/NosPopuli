@@ -2,6 +2,9 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi import Response
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 import json
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -32,6 +35,10 @@ from historian_agent import fetch_bill_actions, fetch_related_bills, summarize_h
 from documentor_agent import log_action
 
 app = FastAPI(title="NosPopuli API")
+
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
@@ -68,6 +75,7 @@ class BillRequest(BaseModel):
 class LawRequest(BaseModel):
     congress: int
     law_number: int
+    user_context: dict = None
 
 class MemberSearchRequest(BaseModel):
     name: str
@@ -262,27 +270,29 @@ async def handle_legislation_search(structured, question, loop):
     }
 
 @app.post("/resolve-zip")
-async def resolve_zip_endpoint(request: ZipRequest):
+@limiter.limit("10/minute")
+async def resolve_zip_endpoint(request: Request, body: ZipRequest):
     """Takes a zip code, returns state and representatives."""
     loop = asyncio.get_event_loop()
-    result = await loop.run_in_executor(None, resolve_zip, request.zip_code)
-    
+    result = await loop.run_in_executor(None, resolve_zip, body.zip_code)
+
     if not result:
         raise HTTPException(status_code=404, detail="Could not resolve zip code")
-    
+
     return result
 
 @app.post("/feed")
-async def get_feed(request: FeedRequest):
+@limiter.limit("10/minute")
+async def get_feed(request: Request, body: FeedRequest):
     """Returns personalized feed based on interests and representatives."""
     try:
         loop = asyncio.get_event_loop()
         items = await loop.run_in_executor(
             None,
             fetch_feed,
-            request.interests,
-            request.senator_bioguides,
-            request.rep_bioguide,
+            body.interests,
+            body.senator_bioguides,
+            body.rep_bioguide,
             30,
             3
         )
@@ -294,14 +304,15 @@ async def get_feed(request: FeedRequest):
         raise HTTPException(status_code=500, detail="Failed to generate feed. Please try again.")
 
 @app.post("/search")
-async def search(request: SearchRequest):
-    if not request.question.strip():
+@limiter.limit("20/minute")
+async def search(request: Request, body: SearchRequest):
+    if not body.question.strip():
         raise HTTPException(status_code=400, detail="Question cannot be empty")
 
     try:
-        structured = route_query(request.question, client)
+        structured = route_query(body.question, client)
         loop = asyncio.get_event_loop()
-        question = request.question
+        question = body.question
 
         # ── Presidential override ──
         president_congresses = extract_president_congress(question)
@@ -349,23 +360,24 @@ async def search(request: SearchRequest):
     except HTTPException:
         raise
     except Exception as e:
-        print(f"[API] Error processing search '{request.question}': {e}")
+        print(f"[API] Error processing search '{body.question}': {e}")
         raise HTTPException(status_code=500, detail="Search failed. Please try again.")
 @app.post("/bill")
-async def get_bill(request: BillRequest):
+@limiter.limit("30/minute")
+async def get_bill(request: Request, body: BillRequest):
     try:
         loop = asyncio.get_event_loop()
 
         bill_data = await loop.run_in_executor(
-            None, fetch_bill, request.congress, request.bill_type, request.number
+            None, fetch_bill, body.congress, body.bill_type, body.number
         )
 
         if not bill_data:
             raise HTTPException(status_code=404, detail="Bill not found or unavailable.")
 
         translation, actions = await asyncio.gather(
-            loop.run_in_executor(None, translate_bill, bill_data, client, request.user_context),
-            loop.run_in_executor(None, fetch_bill_actions, request.congress, request.bill_type, request.number)
+            loop.run_in_executor(None, translate_bill, bill_data, client, body.user_context),
+            loop.run_in_executor(None, fetch_bill_actions, body.congress, body.bill_type, body.number)
         )
 
         translation = translation or "Translation unavailable for this bill."
@@ -390,20 +402,20 @@ async def get_bill(request: BillRequest):
         log_action(
             agent_name="api",
             action="get_bill",
-            input_data={"congress": request.congress, "type": request.bill_type, "number": request.number},
+            input_data={"congress": body.congress, "type": body.bill_type, "number": body.number},
             output_data={"status": "complete"}
         )
 
         log_bill_opened(
-            bill_id=f"{request.bill_type}{request.number}",
+            bill_id=f"{body.bill_type}{body.number}",
             title=bill_data.get("bill", {}).get("title", ""),
             from_query=""
         )
 
         return {
-            "congress": request.congress,
-            "type": request.bill_type,
-            "number": request.number,
+            "congress": body.congress,
+            "type": body.bill_type,
+            "number": body.number,
             "translation": translation,
             "timeline": timeline,
             "votes": {"house": house_mapped, "senate": senate_mapped}
@@ -412,28 +424,29 @@ async def get_bill(request: BillRequest):
     except HTTPException:
         raise
     except Exception as e:
-        print(f"[API] Error processing bill {request.bill_type}{request.number}: {e}")
+        print(f"[API] Error processing bill {body.bill_type}{body.number}: {e}")
         raise HTTPException(status_code=500, detail="Failed to process bill. Please try again.")
 
 @app.post("/law")
-async def get_law(request: LawRequest):
+@limiter.limit("30/minute")
+async def get_law(request: Request, body: LawRequest):
     try:
         loop = asyncio.get_event_loop()
 
         bill_data = await loop.run_in_executor(
-            None, fetch_law, request.congress, request.law_number
+            None, fetch_law, body.congress, body.law_number
         )
 
         if not bill_data:
             raise HTTPException(status_code=404, detail="Law not found")
 
         bill = bill_data.get("bill", {})
-        bill_congress = bill.get("congress", request.congress)
+        bill_congress = bill.get("congress", body.congress)
         bill_type = bill.get("type", "").lower()
         bill_number = int(bill.get("number", 0))
 
         translation, actions = await asyncio.gather(
-            loop.run_in_executor(None, translate_bill, bill_data, client, request.user_context),
+            loop.run_in_executor(None, translate_bill, bill_data, client, body.user_context),
             loop.run_in_executor(None, fetch_bill_actions, bill_congress, bill_type, bill_number)
         )
 
@@ -459,13 +472,13 @@ async def get_law(request: LawRequest):
         log_action(
             agent_name="api",
             action="get_law",
-            input_data={"congress": request.congress, "law_number": request.law_number},
+            input_data={"congress": body.congress, "law_number": body.law_number},
             output_data={"status": "complete"}
         )
 
         return {
-            "congress": request.congress,
-            "law_number": request.law_number,
+            "congress": body.congress,
+            "law_number": body.law_number,
             "translation": translation,
             "timeline": timeline,
             "votes": {"house": house_mapped, "senate": senate_mapped}
@@ -474,7 +487,7 @@ async def get_law(request: LawRequest):
     except HTTPException:
         raise
     except Exception as e:
-        print(f"[API] Error processing law {request.congress} pub {request.law_number}: {e}")
+        print(f"[API] Error processing law {body.congress} pub {body.law_number}: {e}")
         raise HTTPException(status_code=500, detail="Failed to process law. Please try again.")
 
 @app.post("/member/search")
