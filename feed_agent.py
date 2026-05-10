@@ -10,24 +10,90 @@ load_dotenv()
 GOVINFO_API_KEY = os.getenv("GovInfo_API_KEY")
 CONGRESS_API_KEY = os.getenv("CONGRESS_API_KEY")
 
-# Map user interest labels to legislative search terms
 INTEREST_TERMS = {
-   "healthcare": [
-    "Medicaid", "Medicare", "health insurance", 
-    "ACA", "prescription drug", "public health",
-    "hospital", "patient", "healthcare coverage"
+    "healthcare": [
+        "Medicaid", "Medicare", "health insurance coverage",
+        "Affordable Care Act", "prescription drug pricing",
+        "hospital reimbursement", "healthcare access",
+        "public health emergency", "mental health parity",
+        "health savings account"
     ],
-    "climate": ["climate", "greenhouse gas", "clean energy", "renewable", "carbon emissions", "EPA", "environment"],
-    "housing": ["housing", "affordable housing", "rent", "mortgage", "homelessness", "HUD", "eviction"],
-    "education": ["education", "student loan", "school", "university", "Pell Grant", "FAFSA", "teacher"],
-    "veterans": ["veteran", "VA", "military service", "armed forces", "disability benefits", "PTSD", "GI Bill"],
-    "economy": ["economy", "inflation", "jobs", "unemployment", "minimum wage", "tax", "small business"],
-    "immigration": ["immigration", "border", "asylum", "DACA", "visa", "citizenship", "ICE"],
-    "gun_policy": ["firearm", "gun violence", "background check", "Second Amendment", "ATF", "assault weapon"],
-    "foreign_policy": ["foreign policy", "NATO", "sanctions", "diplomacy", "foreign aid", "defense"],
-    "criminal_justice": ["criminal justice", "police", "incarceration", "sentencing", "prison reform", "law enforcement"],
-    "small_business": ["small business", "SBA", "entrepreneur", "startup", "loan guarantee", "commerce"],
-    "agriculture": ["agriculture", "farm", "rural", "USDA", "crop", "food security", "livestock"],
+    "climate": [
+        "greenhouse gas emissions", "carbon emissions",
+        "clean energy", "renewable energy", "decarbonization",
+        "Paris Agreement", "carbon tax", "net zero",
+        "climate resilience", "clean electricity"
+    ],
+    "housing": [
+        "affordable housing", "housing assistance",
+        "rent stabilization", "homelessness prevention",
+        "HUD funding", "eviction moratorium",
+        "first-time homebuyer", "housing voucher",
+        "public housing", "mortgage relief"
+    ],
+    "education": [
+        "student loan forgiveness", "Pell Grant",
+        "higher education funding", "FAFSA",
+        "K-12 education", "teacher shortage",
+        "school funding", "early childhood education",
+        "vocational training", "college affordability"
+    ],
+    "veterans": [
+        "veteran benefits", "VA healthcare",
+        "GI Bill", "veteran disability",
+        "military service member", "PTSD treatment",
+        "veteran homelessness", "veteran employment",
+        "veteran mental health", "Medal of Honor"
+    ],
+    "economy": [
+        "minimum wage", "unemployment insurance",
+        "inflation reduction", "job creation",
+        "small business loan", "economic growth",
+        "Federal Reserve", "deficit reduction",
+        "worker protections", "wage theft"
+    ],
+    "immigration": [
+        "DACA", "asylum seeker", "border security",
+        "immigration enforcement", "visa reform",
+        "pathway to citizenship", "refugee resettlement",
+        "immigration detention", "H-1B visa",
+        "undocumented immigrant"
+    ],
+    "gun_policy": [
+        "firearm background check", "assault weapon ban",
+        "gun violence prevention", "Second Amendment",
+        "concealed carry", "red flag law",
+        "ghost gun", "bump stock",
+        "school shooting", "ATF regulation"
+    ],
+    "foreign_policy": [
+        "NATO alliance", "foreign military aid",
+        "economic sanctions", "diplomatic relations",
+        "foreign assistance", "defense authorization",
+        "China competition", "Ukraine support",
+        "arms control", "nuclear nonproliferation"
+    ],
+    "criminal_justice": [
+        "criminal sentencing reform", "prison reform",
+        "police accountability", "qualified immunity",
+        "mass incarceration", "drug decriminalization",
+        "juvenile justice", "reentry program",
+        "mandatory minimum", "bail reform"
+    ],
+    "small_business": [
+        "small business administration", "SBA loan",
+        "small business tax", "entrepreneur support",
+        "Main Street lending", "minority business",
+        "small business relief", "startup funding",
+        "small business regulation", "franchise"
+    ],
+    "agriculture": [
+        "farm bill", "crop insurance", "USDA program",
+        "agricultural subsidy", "rural development",
+        "food security", "livestock regulation",
+        "organic farming", "agricultural trade",
+        "family farm"
+    ],
 }
 
 def fetch_feed(interests, senator_bioguides, rep_bioguide, days_back=30, max_per_interest=3):
@@ -45,7 +111,7 @@ def fetch_feed(interests, senator_bioguides, rep_bioguide, days_back=30, max_per
     # ── Section 1: Bills from their representatives ──
     rep_bills = _fetch_rep_bills(
         senator_bioguides + ([rep_bioguide] if rep_bioguide else []),
-        days_back
+        days_back=90
     )
     
     for bill in rep_bills:
@@ -80,11 +146,10 @@ def fetch_feed(interests, senator_bioguides, rep_bioguide, days_back=30, max_per
     
     return feed_items
 
-def _fetch_rep_bills(bioguide_ids, days_back):
-    """Fetch recently sponsored bills from the user's representatives."""
+def _fetch_rep_bills(bioguide_ids, days_back=180):
     bills = []
     cutoff = (datetime.now() - timedelta(days=days_back)).strftime("%Y-%m-%d")
-    
+
     for bioguide_id in bioguide_ids:
         url = f"https://api.congress.gov/v3/member/{bioguide_id}/sponsored-legislation"
         params = {
@@ -92,32 +157,33 @@ def _fetch_rep_bills(bioguide_ids, days_back):
             "format": "json",
             "limit": 5,
         }
-        
+
         try:
             r = requests.get(url, params=params, timeout=10)
             if r.status_code != 200:
                 continue
-            
+
             data = r.json()
             for bill in data.get("sponsoredLegislation", []):
-                date = (bill.get("latestAction") or {}).get("actionDate", "")
-                if (date >= cutoff
-                    and bill.get("title")
-                    and bill.get("number")
-                    and bill.get("type")):
-                    bills.append({
-                        "congress": bill.get("congress"),
-                        "type": (bill.get("type") or "").lower(),
-                        "number": bill.get("number"),
-                        "title": bill.get("title", ""),
-                        "date": date,
-                        "sponsor_bioguide": bioguide_id,
-                        "latest_action": (bill.get("latestAction") or {}).get("text", ""),
-                    })
+                if (bill.get("title")
+                        and bill.get("number")
+                        and bill.get("type")):
+                    date = (bill.get("latestAction") or {}).get("actionDate", "")
+                    if date >= cutoff:
+                        bills.append({
+                            "congress": bill.get("congress"),
+                            "type": (bill.get("type") or "").lower(),
+                            "number": bill.get("number"),
+                            "title": bill.get("title", ""),
+                            "date": date,
+                            "sponsor_bioguide": bioguide_id,
+                            "latest_action": (bill.get("latestAction") or {}).get("text", ""),
+                        })
         except Exception as e:
             print(f"[FEED] Error fetching rep bills for {bioguide_id}: {e}")
-    
-    return bills
+
+    bills.sort(key=lambda b: b.get("date", ""), reverse=True)
+    return bills[:3]
 
 def _search_interest_bills(terms, max_results):
     """Search GovInfo for recent bills matching interest terms."""
@@ -163,8 +229,16 @@ def _search_interest_bills(terms, max_results):
                         "latest_action": "",
                     })
         
+        SKIP_PATTERNS = [
+            "celebrating the", "expressing support for the designation",
+            "recognizing the", "honoring the", "congratulating",
+            "acknowledging the", "commemorating", "proclaiming"
+        ]
+        results = [r for r in results
+                   if not any(p in r.get("title", "").lower() for p in SKIP_PATTERNS)]
+
         return results
-    
+
     except Exception as e:
         print(f"[FEED] Search error: {e}")
         return []
@@ -183,7 +257,7 @@ if __name__ == "__main__":
     
     print(f"Feed items: {len(result)}")
     print()
-    for item in result[:5]:
+    for item in result:
         print(f"  [{item['feed_reason']}] {item.get('type','').upper()}{item.get('number','')} — {item.get('title','')[:60]}")
         print(f"  Date: {item.get('date','')}")
         print()

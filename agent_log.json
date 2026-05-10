@@ -1870,5 +1870,881 @@
     "output": {
       "results_count": 1
     }
+  },
+  {
+    "timestamp": "2026-05-10T18:30:19.782275",
+    "agent": "feed",
+    "action": "fetch_feed",
+    "input": {
+      "interests": [
+        "healthcare",
+        "climate"
+      ],
+      "reps": [
+        "S000033",
+        "W000800",
+        "B001311"
+      ]
+    },
+    "output": {
+      "total_items": 7
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:31:21.486308",
+    "agent": "feed",
+    "action": "fetch_feed",
+    "input": {
+      "interests": [
+        "education"
+      ],
+      "reps": [
+        "W000805",
+        "K000384",
+        "G000568"
+      ]
+    },
+    "output": {
+      "total_items": 13
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:32:13.600586",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Laws passed under biden"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.95,
+      "ambiguity_reason": null,
+      "keywords": [],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:32:14.284219",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 44364,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:32:14.292579",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Laws passed under biden"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:32:23.295378",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "climate Laws passed under biden"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.95,
+      "ambiguity_reason": null,
+      "keywords": [
+        "climate"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:32:24.421512",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "climate"
+      ],
+      "topic": "climate legislation passed under Biden"
+    },
+    "output": {
+      "expanded_terms": [
+        "greenhouse gas",
+        "clean energy",
+        "renewable energy",
+        "carbon emissions",
+        "Inflation Reduction Act",
+        "net-zero",
+        "decarbonization"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:32:24.918321",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [
+        "greenhouse gas",
+        "clean energy",
+        "renewable energy",
+        "carbon emissions",
+        "Inflation Reduction Act",
+        "net-zero",
+        "decarbonization"
+      ],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 1699,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:32:24.925763",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "climate Laws passed under biden"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:32:35.687073",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 117,
+      "type": "hr",
+      "number": 9586
+    },
+    "output": {
+      "title": "CLEANER Buildings Act",
+      "status": "Referred to the Subcommittee on Economic Development, Public Buildings, and Emergency Management."
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:32:36.257287",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 117,
+      "type": "hr",
+      "number": 9586
+    },
+    "output": {
+      "action_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:32:39.669066",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "CLEANER Buildings Act",
+      "sponsor": "Rep. Levin, Andy [D-MI-9]"
+    },
+    "output": {
+      "translation_preview": "# CLEANER Buildings Act \u2013 Plain English Explanation\n\n## 1. What This Bill Does\nThis bill would requi"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:32:39.673794",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 5
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:32:41.522595",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 5
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**December 15, 2022:** The bill was introduced in the House of Representatives.\n\n**"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:32:41.527430",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 117,
+      "type": "hr",
+      "number": 9586
+    },
+    "output": {
+      "status": "complete",
+      "house_votes": 0,
+      "senate_votes": 0
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:33:16.705679",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "climate bills proposed under biden most recent"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.9,
+      "ambiguity_reason": null,
+      "keywords": [
+        "climate"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:33:17.588119",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "climate"
+      ],
+      "topic": "climate bills proposed under Biden"
+    },
+    "output": {
+      "expanded_terms": [
+        "greenhouse gas emissions",
+        "clean energy",
+        "renewable energy",
+        "carbon pricing",
+        "net zero",
+        "climate resilience",
+        "environmental protection"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:33:18.084598",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [
+        "greenhouse gas emissions",
+        "clean energy",
+        "renewable energy",
+        "carbon pricing",
+        "net zero",
+        "climate resilience",
+        "environmental protection"
+      ],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 2477,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:33:18.090997",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "climate bills proposed under biden most recent"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:33:25.920786",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 118,
+      "type": "hjres",
+      "number": 177
+    },
+    "output": {
+      "title": "Providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Environmental Protection Agency relating to \"New Source Performance Standards for Greenhouse Gas Emissions From New, Modified, and Reconstructed Fossil Fuel-Fired Electric Generating Units; Emission Guidelines for Greenhouse Gas Emissions From Existing Fossil Fuel-Fired Electric Generating Units; and Repeal of the Affordable Clean Energy Rule\".",
+      "status": "Referred to the House Committee on Energy and Commerce."
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:33:26.486852",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 118,
+      "type": "hjres",
+      "number": 177
+    },
+    "output": {
+      "action_count": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:33:30.126790",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Environmental Protection Agency relating to \"New Source Performance Standards for Greenhouse Gas Emissions From New, Modified, and Reconstructed Fossil Fuel-Fired Electric Generating Units; Emission Guidelines for Greenhouse Gas Emissions From Existing Fossil Fuel-Fired Electric Generating Units; and Repeal of the Affordable Clean Energy Rule\".",
+      "sponsor": "Rep. Palmer, Gary J. [R-AL-6]"
+    },
+    "output": {
+      "translation_preview": "# Plain English Explanation\n\n## 1. What This Bill Is (One Sentence)\nThis bill would reject a new EPA"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:33:30.132408",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 3
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:33:32.246091",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 3
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**July 2, 2024:** A bill was introduced in the House of Representatives. On the sam"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:33:32.247955",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 118,
+      "type": "hjres",
+      "number": 177
+    },
+    "output": {
+      "status": "complete",
+      "house_votes": 0,
+      "senate_votes": 0
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:33:55.769163",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 5496
+    },
+    "output": {
+      "title": "Climate Solutions Act of 2023",
+      "status": "Referred to the Subcommittee on Environment, Manufacturing, and Critical Materials."
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:33:56.375942",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 5496
+    },
+    "output": {
+      "action_count": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:34:01.703267",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Climate Solutions Act of 2023",
+      "sponsor": "Rep. Lieu, Ted [D-CA-36]"
+    },
+    "output": {
+      "translation_preview": "# Climate Solutions Act of 2023 - Plain English Explanation\n\n## 1. What This Bill Is\nThis bill would"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:34:01.705555",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 4
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:34:03.953996",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 4
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**September 14, 2023:** The bill was introduced in the House of Representatives.\n\n*"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:34:03.955981",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 5496
+    },
+    "output": {
+      "status": "complete",
+      "house_votes": 0,
+      "senate_votes": 0
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:35:58.122340",
+    "agent": "feed",
+    "action": "fetch_feed",
+    "input": {
+      "interests": [
+        "healthcare",
+        "climate"
+      ],
+      "reps": [
+        "S000033",
+        "W000800",
+        "B001311"
+      ]
+    },
+    "output": {
+      "total_items": 7
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:36:07.612741",
+    "agent": "feed",
+    "action": "fetch_feed",
+    "input": {
+      "interests": [
+        "education"
+      ],
+      "reps": [
+        "W000805",
+        "K000384",
+        "G000568"
+      ]
+    },
+    "output": {
+      "total_items": 13
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:36:14.297332",
+    "agent": "civic_resolver",
+    "action": "resolve_zip",
+    "input": {
+      "zip_code": "20151"
+    },
+    "output": {
+      "state": "VA",
+      "senators": [
+        "Mark Warner",
+        "Timothy Kaine"
+      ],
+      "representative": "H. Griffith"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:36:14.424128",
+    "agent": "civic_resolver",
+    "action": "resolve_zip",
+    "input": {
+      "zip_code": "20151"
+    },
+    "output": {
+      "state": "VA",
+      "senators": [
+        "Mark Warner",
+        "Timothy Kaine"
+      ],
+      "representative": "H. Griffith"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:36:18.450039",
+    "agent": "feed",
+    "action": "fetch_feed",
+    "input": {
+      "interests": [
+        "education"
+      ],
+      "reps": [
+        "W000805",
+        "K000384",
+        "G000568"
+      ]
+    },
+    "output": {
+      "total_items": 13
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:37:09.487898",
+    "agent": "feed",
+    "action": "fetch_feed",
+    "input": {
+      "interests": [
+        "healthcare",
+        "climate"
+      ],
+      "reps": [
+        "S000033",
+        "W000800",
+        "B001311"
+      ]
+    },
+    "output": {
+      "total_items": 7
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:38:08.663405",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "s",
+      "number": 4467
+    },
+    "output": {
+      "title": "A bill to amend titles XVIII and XIX of the Social Security Act with respect to nursing facility requirements, and for other purposes.",
+      "status": "Read twice and referred to the Committee on Finance."
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:38:09.162185",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "s",
+      "number": 4467
+    },
+    "output": {
+      "action_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:38:12.199113",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "A bill to amend titles XVIII and XIX of the Social Security Act with respect to nursing facility requirements, and for other purposes.",
+      "sponsor": "Sen. Warner, Mark R. [D-VA]"
+    },
+    "output": {
+      "translation_preview": "# Plain English Explanation\n\n## 1. What this bill is in one sentence\nThis bill would change the rule"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:38:12.201739",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:38:14.284851",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**April 30, 2026:** The bill was introduced in the Senate.\n\n**April 30, 2026:** The"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:38:14.287704",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "s",
+      "number": 4467
+    },
+    "output": {
+      "status": "complete",
+      "house_votes": 0,
+      "senate_votes": 0
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:38:39.167081",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1262
+    },
+    "output": {
+      "title": "Recognizing and congratulating the Martinsville Missile's land speed record for a stock car.",
+      "status": "Referred to the House Committee on Oversight and Government Reform."
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:38:39.684030",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1262
+    },
+    "output": {
+      "action_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:38:42.277718",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Recognizing and congratulating the Martinsville Missile's land speed record for a stock car.",
+      "sponsor": "Rep. Griffith, H. Morgan [R-VA-9]"
+    },
+    "output": {
+      "translation_preview": "# What This Bill Does\n\n**In one sentence:** This bill officially recognizes and congratulates a stoc"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:38:42.279739",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:38:43.814664",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**May 7, 2026:** A bill was introduced in the House of Representatives and immediat"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:38:43.816623",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1262
+    },
+    "output": {
+      "status": "complete",
+      "house_votes": 0,
+      "senate_votes": 0
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:39:40.590577",
+    "agent": "feed",
+    "action": "fetch_feed",
+    "input": {
+      "interests": [
+        "healthcare",
+        "climate"
+      ],
+      "reps": [
+        "S000033",
+        "W000800",
+        "B001311"
+      ]
+    },
+    "output": {
+      "total_items": 7
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:41:42.660222",
+    "agent": "feed",
+    "action": "fetch_feed",
+    "input": {
+      "interests": [
+        "healthcare",
+        "climate"
+      ],
+      "reps": [
+        "S000033",
+        "W000800",
+        "B001311"
+      ]
+    },
+    "output": {
+      "total_items": 11
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:43:25.740084",
+    "agent": "feed",
+    "action": "fetch_feed",
+    "input": {
+      "interests": [
+        "education"
+      ],
+      "reps": [
+        "W000805",
+        "K000384",
+        "G000568"
+      ]
+    },
+    "output": {
+      "total_items": 6
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:43:45.051964",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1262
+    },
+    "output": {
+      "title": "Recognizing and congratulating the Martinsville Missile's land speed record for a stock car.",
+      "status": "Referred to the House Committee on Oversight and Government Reform."
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:43:45.401271",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1262
+    },
+    "output": {
+      "action_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:43:47.971101",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Recognizing and congratulating the Martinsville Missile's land speed record for a stock car.",
+      "sponsor": "Rep. Griffith, H. Morgan [R-VA-9]"
+    },
+    "output": {
+      "translation_preview": "# What This Bill Does\n\n**1. What it is in one sentence:**\nThis is a congratulatory resolution that o"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:43:47.975669",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:43:49.480392",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**May 7, 2026:** A bill was introduced in the House of Representatives and immediat"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:43:49.485380",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1262
+    },
+    "output": {
+      "status": "complete",
+      "house_votes": 0,
+      "senate_votes": 0
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:44:11.148877",
+    "agent": "feed",
+    "action": "fetch_feed",
+    "input": {
+      "interests": [
+        "healthcare",
+        "climate"
+      ],
+      "reps": [
+        "S000033",
+        "W000800",
+        "B001311"
+      ]
+    },
+    "output": {
+      "total_items": 6
+    }
   }
 ]
