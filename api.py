@@ -60,7 +60,13 @@ app.add_middleware(
 
 app.mount("/static", StaticFiles(directory="frontend"), name="static")
 
-client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+client = None
+
+def get_client():
+    global client
+    if client is None:
+        client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+    return client
 
 class SearchRequest(BaseModel):
     question: str
@@ -238,7 +244,7 @@ async def handle_legislation_search(structured, question, loop):
         None, expand_query,
         structured.get("keywords", []),
         structured.get("topic", ""),
-        client
+        get_client()
     )
     structured["expanded_terms"] = expanded
     structured["original_question"] = question
@@ -310,7 +316,7 @@ async def search(request: Request, body: SearchRequest):
         raise HTTPException(status_code=400, detail="Question cannot be empty")
 
     try:
-        structured = route_query(body.question, client)
+        structured = route_query(body.question, get_client())
         loop = asyncio.get_event_loop()
         question = body.question
 
@@ -376,7 +382,7 @@ async def get_bill(request: Request, body: BillRequest):
             raise HTTPException(status_code=404, detail="Bill not found or unavailable.")
 
         translation, actions = await asyncio.gather(
-            loop.run_in_executor(None, translate_bill, bill_data, client, body.user_context),
+            loop.run_in_executor(None, translate_bill, bill_data, get_client(), body.user_context),
             loop.run_in_executor(None, fetch_bill_actions, body.congress, body.bill_type, body.number)
         )
 
@@ -384,7 +390,7 @@ async def get_bill(request: Request, body: BillRequest):
         actions = actions or []
 
         timeline, vote_refs = await asyncio.gather(
-            loop.run_in_executor(None, summarize_history, actions, client),
+            loop.run_in_executor(None, summarize_history, actions, get_client()),
             loop.run_in_executor(None, parse_vote_references, actions)
         )
 
@@ -446,7 +452,7 @@ async def get_law(request: Request, body: LawRequest):
         bill_number = int(bill.get("number", 0))
 
         translation, actions = await asyncio.gather(
-            loop.run_in_executor(None, translate_bill, bill_data, client, body.user_context),
+            loop.run_in_executor(None, translate_bill, bill_data, get_client(), body.user_context),
             loop.run_in_executor(None, fetch_bill_actions, bill_congress, bill_type, bill_number)
         )
 
@@ -454,7 +460,7 @@ async def get_law(request: Request, body: LawRequest):
         actions = actions or []
 
         timeline, vote_refs = await asyncio.gather(
-            loop.run_in_executor(None, summarize_history, actions, client),
+            loop.run_in_executor(None, summarize_history, actions, get_client()),
             loop.run_in_executor(None, parse_vote_references, actions)
         )
 
@@ -563,6 +569,6 @@ async def clear_search_log():
 @app.get("/monitor/analysis")
 async def get_analysis():
     loop = asyncio.get_event_loop()
-    result = await loop.run_in_executor(None, analyze, client)
+    result = await loop.run_in_executor(None, analyze, get_client())
     return result
 
