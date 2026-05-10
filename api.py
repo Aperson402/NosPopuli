@@ -14,6 +14,8 @@ from member_search_agent import search_member, fetch_member_profile, fetch_membe
 from query_expander_agent import expand_query
 from search_logger import log_search, log_bill_opened, log_member_opened
 from analyst_agent import analyze
+from feed_agent import fetch_feed
+from civic_resolver import resolve_zip
 import httpx
 import asyncio
 import anthropic
@@ -22,7 +24,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from router_agent import route_query
+from router_agent import route_query, extract_president_congress
 from search_agent import search_bills
 from bill_fetcher import fetch_bill
 from translator_agent import translate_bill
@@ -58,93 +60,274 @@ class LawRequest(BaseModel):
 class MemberSearchRequest(BaseModel):
     name: str
 
+class FeedRequest(BaseModel):
+    interests: list
+    senator_bioguides: list
+    rep_bioguide: str = None
+
+class ZipRequest(BaseModel):
+    zip_code: str
+
+# ── Search handlers ──
+
+async def handle_member_search(structured, question, loop):
+    member = await loop.run_in_executor(None, search_member, structured["entity_name"])
+
+    if not member:
+        log_search(query=question, query_type="member", expanded_terms=[],
+                   results_count=0, result_ids=[], confidence=structured.get("confidence", 1.0))
+        return {"query_type": "member", "found": False,
+                "confidence": structured.get("confidence"),
+                "ambiguity_reason": structured.get("ambiguity_reason")}
+
+    profile, legislation = await asyncio.gather(
+        loop.run_in_executor(None, fetch_member_profile, member["bioguide_id"]),
+        loop.run_in_executor(None, fetch_member_legislation, member["bioguide_id"], 10)
+    )
+
+    log_search(query=question, query_type="member", expanded_terms=[],
+               results_count=1, result_ids=[member.get("bioguide_id", "")],
+               confidence=structured.get("confidence", 1.0))
+
+    return {
+        "query_type": "member",
+        "found": True,
+        "confidence": structured.get("confidence"),
+        "ambiguity_reason": structured.get("ambiguity_reason"),
+        "member": {**member, **(profile or {})},
+        "legislation": legislation
+    }
+
+
+async def handle_committee_search(structured, question, loop):
+    entity = structured.get("entity_name", "")
+
+    def fetch():
+        import requests
+        all_committees = []
+
+        for chamber in ["senate", "house"]:
+            url = "https://api.congress.gov/v3/committee"
+            params = {
+                "api_key": os.getenv("CONGRESS_API_KEY"),
+                "format": "json",
+                "limit": 250,
+                "chamber": chamber
+            }
+            r = requests.get(url, params=params, timeout=10)
+            if r.status_code == 200:
+                all_committees.extend(r.json().get("committees", []))
+
+        name_lower = entity.lower()
+        distinctive_words = [w for w in name_lower.split() if len(w) > 4
+                             and w not in {"committee", "senate", "house", "joint", "select", "special", "standing"}]
+
+        best = None
+        best_score = 0
+
+        for c in all_committees:
+            cname = (c.get("name") or "").lower()
+            score = sum(len(w) for w in distinctive_words if w in cname)
+            if score > best_score:
+                best_score = score
+                best = c
+
+        if not best:
+            return None, []
+
+        committee_name = best.get("name", "")
+        search_payload = {
+            "query": f'"{committee_name}" collection:BILLS congress:119 OR congress:118',
+            "pageSize": 10,
+            "offsetMark": "*",
+            "sorts": [{"field": "publishdate", "sortOrder": "DESC"}]
+        }
+
+        import re
+        search_r = requests.post(
+            "https://api.govinfo.gov/search",
+            json=search_payload,
+            params={"api_key": os.getenv("GovInfo_API_KEY")},
+            timeout=10
+        )
+
+        bills = []
+        if search_r.status_code == 200:
+            for item in search_r.json().get("results", []):
+                package_id = item.get("packageId", "")
+                raw = package_id.replace("BILLS-", "")
+                m = re.match(r"(\d+)([a-z]+)(\d+)", raw)
+                if m:
+                    bills.append({
+                        "congress": int(m.group(1)),
+                        "type": m.group(2),
+                        "number": int(m.group(3)),
+                        "title": item.get("title", ""),
+                        "latest_action": "",
+                        "date": item.get("dateIssued", "")[:10],
+                    })
+
+        return best, bills
+
+    committee, bills = await loop.run_in_executor(None, fetch)
+
+    if not committee:
+        return {"query_type": "committee", "found": False,
+                "confidence": structured.get("confidence"),
+                "ambiguity_reason": structured.get("ambiguity_reason")}
+
+    return {
+        "query_type": "committee",
+        "found": True,
+        "confidence": structured.get("confidence"),
+        "ambiguity_reason": structured.get("ambiguity_reason"),
+        "committee": {
+            "name": committee.get("name"),
+            "chamber": committee.get("chamber"),
+            "system_code": committee.get("systemCode"),
+            "url": committee.get("url"),
+        },
+        "bills": [b for b in bills if b.get("number")]
+    }
+
+
+async def handle_specific_bill(structured, question):
+    specific = structured["specific_bill"]
+    bill_type = specific["type"].lower()
+    number = specific["number"]
+    congress = specific.get("congress") or structured["congress_numbers"][0]
+
+    return {
+        "query_type": "legislation",
+        "confidence": structured.get("confidence", 1.0),
+        "ambiguity_reason": None,
+        "query": structured,
+        "results": [{
+            "package_id": f"BILLS-{congress}{bill_type}{number}",
+            "title": f"{bill_type.upper()} {number}",
+            "date_issued": "",
+            "congress": congress,
+            "type": bill_type,
+            "number": number,
+        }]
+    }
+
+
+async def handle_legislation_search(structured, question, loop):
+    expanded = await loop.run_in_executor(
+        None, expand_query,
+        structured.get("keywords", []),
+        structured.get("topic", ""),
+        client
+    )
+    structured["expanded_terms"] = expanded
+    structured["original_question"] = question
+
+    raw_results = await loop.run_in_executor(None, search_bills, structured)
+
+    log_search(
+        query=question,
+        query_type="legislation",
+        expanded_terms=expanded,
+        results_count=len(raw_results),
+        result_ids=[f"{r.get('type','')}{r.get('number','')}" for r in raw_results],
+        confidence=structured.get("confidence", 1.0)
+    )
+
+    log_action(
+        agent_name="api",
+        action="search",
+        input_data={"question": question},
+        output_data={"results_count": len(raw_results)}
+    )
+
+    return {
+        "query_type": "legislation",
+        "confidence": structured.get("confidence", 1.0),
+        "ambiguity_reason": structured.get("ambiguity_reason"),
+        "query": structured,
+        "results": raw_results
+    }
+
+@app.post("/resolve-zip")
+async def resolve_zip_endpoint(request: ZipRequest):
+    """Takes a zip code, returns state and representatives."""
+    loop = asyncio.get_event_loop()
+    result = await loop.run_in_executor(None, resolve_zip, request.zip_code)
+    
+    if not result:
+        raise HTTPException(status_code=404, detail="Could not resolve zip code")
+    
+    return result
+
+@app.post("/feed")
+async def get_feed(request: FeedRequest):
+    """Returns personalized feed based on interests and representatives."""
+    loop = asyncio.get_event_loop()
+    
+    items = await loop.run_in_executor(
+        None,
+        fetch_feed,
+        request.interests,
+        request.senator_bioguides,
+        request.rep_bioguide,
+        30,
+        3
+    )
+    
+    return {"items": items, "count": len(items)}
+
 @app.post("/search")
 async def search(request: SearchRequest):
     if not request.question.strip():
         raise HTTPException(status_code=400, detail="Question cannot be empty")
 
     structured = route_query(request.question, client)
+    loop = asyncio.get_event_loop()
+    question = request.question
 
-    # ── Member search ──
-    if structured.get("query_type") == "member" and structured.get("entity_name"):
-        loop = asyncio.get_event_loop()
-        member = await loop.run_in_executor(None, search_member, structured["entity_name"])
+    # ── Presidential override ──
+    president_congresses = extract_president_congress(question)
+    if president_congresses:
+        structured["congress_numbers"] = president_congresses
+        structured["time_range"] = "presidential term"
+        if structured.get("status") == "enacted":
+            structured["status"] = "any"
 
-        if not member:
-            log_search(
-                query=request.question,
-                query_type="member",
-                expanded_terms=[],
-                results_count=0,
-                result_ids=[]
-            )
-            return {"query_type": "member", "found": False}
+    # ── Dispatcher ──
+    query_type = structured.get("query_type", "legislation")
 
-        profile, legislation = await asyncio.gather(
-            loop.run_in_executor(None, fetch_member_profile, member["bioguide_id"]),
-            loop.run_in_executor(None, fetch_member_legislation, member["bioguide_id"], 10)
-        )
+    PRESIDENTS = ["trump", "biden", "obama", "bush", "clinton", "reagan"]
+    entity = (structured.get("entity_name") or "").lower()
+    question_lower = question.lower()
 
-        log_search(
-            query=request.question,
-            query_type="member",
-            expanded_terms=[],
-            results_count=1,
-            result_ids=[member.get("bioguide_id", "")]
-        )
-        return {
-            "query_type": "member",
-            "found": True,
-            "member": {**member, **(profile or {})},
-            "legislation": legislation
-        }
+    presidential_signals = ["signed", "passed", "under", "era", "administration", "presidency", "white house"]
+    congressional_signals = ["voted", "sponsored", "senator", "representative", "voting record", "cosponsored"]
 
-    # ── Specific bill lookup ──
+    if query_type == "member" and any(p in entity for p in PRESIDENTS):
+        has_presidential = any(s in question_lower for s in presidential_signals)
+        has_congressional = any(s in question_lower for s in congressional_signals)
+        if has_presidential and not has_congressional:
+            query_type = "legislation"
+            structured["query_type"] = "legislation"
+            structured["entity_name"] = None
+        elif not has_congressional and "trump" in entity:
+            query_type = "legislation"
+            structured["query_type"] = "legislation"
+            structured["entity_name"] = None
+
+    # ── Route ──
+    if query_type == "member" and structured.get("entity_name"):
+        return await handle_member_search(structured, question, loop)
+
+    if query_type == "committee" and structured.get("entity_name"):
+        return await handle_committee_search(structured, question, loop)
+
     specific = structured.get("specific_bill")
     if specific and specific.get("number") and specific.get("type"):
-        bill_type = specific["type"].lower()
-        number = specific["number"]
-        congress = specific.get("congress") or structured["congress_numbers"][0]
-        return {
-            "query_type": "legislation",
-            "query": structured,
-            "results": [{
-                "package_id": f"BILLS-{congress}{bill_type}{number}",
-                "title": f"{bill_type.upper()} {number}",
-                "date_issued": "",
-                "congress": congress,
-                "type": bill_type,
-                "number": number,
-            }]
-        }
-    if structured.get("query_type") == "legislation":
-        expanded = expand_query(
-            structured.get("keywords", []),
-            structured.get("topic", ""),
-            client
-    )
-    structured["expanded_terms"] = expanded
+        return await handle_specific_bill(structured, question)
 
-    raw_results = search_bills(structured)
-
-    if not raw_results:
-        return {"query_type": "legislation", "query": structured, "results": [], "message": "No bills found."}
-
-    log_action(
-        agent_name="api",
-        action="search",
-        input_data={"question": request.question},
-        output_data={"results_count": len(raw_results)}
-    )
-
-    log_search(
-        query=request.question,
-        query_type="legislation",
-        expanded_terms=structured.get("expanded_terms", []),
-        results_count=len(raw_results),
-        result_ids=[f"{r.get('type','')}{r.get('number','')}" for r in raw_results]
-    )
-    return {"query_type": "legislation", "query": structured, "results": raw_results}
+    return await handle_legislation_search(structured, question, loop)
 @app.post("/bill")
 async def get_bill(request: BillRequest):
     loop = asyncio.get_event_loop()
@@ -322,8 +505,15 @@ async def monitor_stream():
     except:
         return []
 
+@app.post("/monitor/clear-search-log")
+async def clear_search_log():
+    with open("search_log.json", "w") as f:
+        json.dump([], f)
+    return {"status": "cleared"}
+
 @app.get("/monitor/analysis")
 async def get_analysis():
     loop = asyncio.get_event_loop()
     result = await loop.run_in_executor(None, analyze, client)
     return result
+

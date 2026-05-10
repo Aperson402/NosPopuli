@@ -1,6 +1,7 @@
 import json
 import os
 import pgeocode
+from documentor_agent import log_action
 
 # Load legislators once at module level
 with open("data/legislators-current.json") as f:

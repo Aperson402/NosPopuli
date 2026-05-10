@@ -24,10 +24,16 @@ def search_bills(structured_query, max_results=None):
 
     if status == "enacted":
         collection = "PLAW"
-        full_query = f"({terms_query}) collection:PLAW ({congress_filter})"
+        if terms_query:
+            full_query = f"({terms_query}) collection:PLAW ({congress_filter})"
+        else:
+            full_query = f"collection:PLAW ({congress_filter})"
     else:
         collection = "BILLS"
-        full_query = f"({terms_query}) collection:BILLS ({congress_filter})"
+        if terms_query:
+            full_query = f"({terms_query}) collection:BILLS ({congress_filter})"
+        else:
+            full_query = f"collection:BILLS ({congress_filter})"
 
     payload = {
         "query": full_query,

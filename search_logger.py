@@ -6,13 +6,13 @@ from datetime import datetime
 SEARCH_LOG_FILE = "search_log.json"
 _lock = threading.Lock()
 
-def log_search(query, query_type, expanded_terms, results_count, result_ids):
-    """Log a user search event."""
+def log_search(query, query_type, expanded_terms, results_count, result_ids, confidence=1.0):
     entry = {
         "timestamp": datetime.now().isoformat(),
         "event": "search",
         "query": query,
         "query_type": query_type,
+        "confidence": confidence,
         "expanded_terms": expanded_terms or [],
         "results_count": results_count,
         "result_ids": result_ids[:5] if result_ids else []

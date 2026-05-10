@@ -1,745 +1,113 @@
 [
   {
-    "timestamp": "2026-05-09T09:36:47.425857",
+    "timestamp": "2026-05-10T17:28:00.159612",
+    "agent": "analyst",
+    "action": "analyze",
+    "input": {
+      "days": 7,
+      "searches_analyzed": 44
+    },
+    "output": {
+      "report_length": 1979
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:28:04.649873",
+    "agent": "analyst",
+    "action": "analyze",
+    "input": {
+      "days": 7,
+      "searches_analyzed": 44
+    },
+    "output": {
+      "report_length": 1792
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:28:14.992077",
     "agent": "router",
     "action": "route_query",
     "input": {
-      "question": "what is the latest bills passed by trump admin"
+      "question": "Bills Biden passed"
     },
     "output": {
       "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "bills",
-        "Trump"
-      ],
-      "topic": "bills passed during Trump administration",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "enacted",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:36:48.442475",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "bills",
-        "Trump"
-      ],
-      "topic": "bills passed during Trump administration"
-    },
-    "output": {
-      "expanded_terms": [
-        "enacted legislation",
-        "signed into law",
-        "115th Congress",
-        "116th Congress",
-        "presidential signature",
-        "public law",
-        "joint resolution"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:36:49.839033",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "enacted legislation",
-        "signed into law",
-        "115th Congress",
-        "116th Congress",
-        "presidential signature",
-        "public law",
-        "joint resolution"
-      ],
-      "result_count": 5,
-      "status": "enacted"
-    },
-    "output": {
-      "total_available": 482,
-      "results_returned": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:36:49.840111",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "what is the latest bills passed by trump admin"
-    },
-    "output": {
-      "results_count": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:37:32.910686",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Ted Cruz"
-    },
-    "output": {
-      "query_type": "member",
-      "entity_name": "Ted Cruz",
+      "confidence": 0.85,
+      "ambiguity_reason": "Could be asking for bills Biden authored/sponsored as a member or bills Biden signed as President",
       "keywords": [],
-      "topic": "",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
+      "entity_name": null
     }
   },
   {
-    "timestamp": "2026-05-09T09:37:33.525396",
-    "agent": "member_search",
-    "action": "search_member",
-    "input": {
-      "name": "Ted Cruz"
-    },
-    "output": {
-      "found": "Cruz, Ted",
-      "bioguide_id": "C001098",
-      "score": 4
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:37:33.908140",
-    "agent": "member_search",
-    "action": "fetch_member_profile",
-    "input": {
-      "bioguide_id": "C001098"
-    },
-    "output": {
-      "name": "Ted Cruz",
-      "years_served": 13
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:37:39.165496",
-    "agent": "member_search",
-    "action": "fetch_member_legislation",
-    "input": {
-      "bioguide_id": "C001098"
-    },
-    "output": {
-      "sponsored_count": 1108,
-      "cosponsored_count": 2059
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:45:03.227385",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "genius act"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "genius"
-      ],
-      "topic": "genius act legislation",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:45:04.270393",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "genius"
-      ],
-      "topic": "genius act legislation"
-    },
-    "output": {
-      "expanded_terms": [
-        "GENIUS Act",
-        "genetic information",
-        "nondiscrimination",
-        "health insurance",
-        "employment discrimination",
-        "genetic testing",
-        "hereditary conditions"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:45:05.217690",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "GENIUS Act",
-        "genetic information",
-        "nondiscrimination",
-        "health insurance",
-        "employment discrimination",
-        "genetic testing",
-        "hereditary conditions"
-      ],
-      "result_count": 5,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 2414,
-      "results_returned": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:45:05.219175",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "genius act"
-    },
-    "output": {
-      "results_count": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:45:26.387374",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "what is genius act"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "genius"
-      ],
-      "topic": "genius act",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:45:27.924418",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "genius"
-      ],
-      "topic": "genius act"
-    },
-    "output": {
-      "expanded_terms": [
-        "GENIUS Act",
-        "gifted and talented",
-        "advanced learner",
-        "gifted education",
-        "STEM education",
-        "educational equity",
-        "student acceleration"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:45:28.466072",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "GENIUS Act",
-        "gifted and talented",
-        "advanced learner",
-        "gifted education",
-        "STEM education",
-        "educational equity",
-        "student acceleration"
-      ],
-      "result_count": 5,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 297,
-      "results_returned": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:45:28.467602",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "what is genius act"
-    },
-    "output": {
-      "results_count": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:45:41.850043",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "genius act"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "genius"
-      ],
-      "topic": "genius act",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:45:42.892689",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "genius"
-      ],
-      "topic": "genius act"
-    },
-    "output": {
-      "expanded_terms": [
-        "GENIUS Act",
-        "gifted education",
-        "advanced learner",
-        "talented student programs",
-        "STEM education",
-        "educational acceleration",
-        "enrichment programs"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:45:43.857600",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "GENIUS Act",
-        "gifted education",
-        "advanced learner",
-        "talented student programs",
-        "STEM education",
-        "educational acceleration",
-        "enrichment programs"
-      ],
-      "result_count": 5,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 240,
-      "results_returned": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:45:43.859298",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "genius act"
-    },
-    "output": {
-      "results_count": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:46:09.599814",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "relationship between genius act and stem act"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "genius",
-        "stem"
-      ],
-      "topic": "relationship between genius act and stem act",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:46:10.591962",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "genius",
-        "stem"
-      ],
-      "topic": "relationship between genius act and stem act"
-    },
-    "output": {
-      "expanded_terms": [
-        "GENIUS Act",
-        "STEM education",
-        "science and technology workforce",
-        "competitive advantage",
-        "research and development",
-        "National Science Foundation",
-        "innovation incentives"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:46:11.279579",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "GENIUS Act",
-        "STEM education",
-        "science and technology workforce",
-        "competitive advantage",
-        "research and development",
-        "National Science Foundation",
-        "innovation incentives"
-      ],
-      "result_count": 5,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 2524,
-      "results_returned": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:46:11.282668",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "relationship between genius act and stem act"
-    },
-    "output": {
-      "results_count": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:47:03.975173",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Genius Act"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "genius"
-      ],
-      "topic": "Genius Act",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:47:05.058164",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "genius"
-      ],
-      "topic": "Genius Act"
-    },
-    "output": {
-      "expanded_terms": [
-        "gifted and talented",
-        "STEM education",
-        "advanced learners",
-        "educational acceleration",
-        "talent identification",
-        "intellectual giftedness",
-        "enrichment programs"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:47:05.919829",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "gifted and talented",
-        "STEM education",
-        "advanced learners",
-        "educational acceleration",
-        "talent identification",
-        "intellectual giftedness",
-        "enrichment programs"
-      ],
-      "result_count": 5,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 261,
-      "results_returned": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:47:05.921654",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "Genius Act"
-    },
-    "output": {
-      "results_count": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:47:20.664289",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Genius Act"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "Genius",
-        "Act"
-      ],
-      "topic": "Genius Act legislation",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:47:21.794912",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "Genius",
-        "Act"
-      ],
-      "topic": "Genius Act legislation"
-    },
-    "output": {
-      "expanded_terms": [
-        "gifted and talented",
-        "STEM education",
-        "advanced learner",
-        "educational acceleration",
-        "Genius Act",
-        "intellectual ability",
-        "student identification"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:47:22.389920",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "gifted and talented",
-        "STEM education",
-        "advanced learner",
-        "educational acceleration",
-        "Genius Act",
-        "intellectual ability",
-        "student identification"
-      ],
-      "result_count": 5,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 285,
-      "results_returned": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:47:22.391750",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "Genius Act"
-    },
-    "output": {
-      "results_count": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:47:55.277770",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Give me a law that has been passed"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [],
-      "topic": "",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 1,
-      "specific_bill": null,
-      "status": "enacted",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:47:55.741218",
+    "timestamp": "2026-05-10T17:28:16.026427",
     "agent": "search",
     "action": "search_bills",
     "input": {
       "keywords": [],
-      "result_count": 1,
-      "status": "enacted"
+      "result_count": 5,
+      "status": "any"
     },
     "output": {
-      "total_available": 728,
-      "results_returned": 1
+      "total_available": 44364,
+      "results_returned": 5
     }
   },
   {
-    "timestamp": "2026-05-09T09:47:55.743453",
+    "timestamp": "2026-05-10T17:28:16.028134",
     "agent": "api",
     "action": "search",
     "input": {
-      "question": "Give me a law that has been passed"
+      "question": "Bills Biden passed"
     },
     "output": {
-      "results_count": 1
+      "results_count": 5
     }
   },
   {
-    "timestamp": "2026-05-09T09:47:58.404151",
-    "agent": "bill_fetcher",
-    "action": "fetch_law",
-    "input": {
-      "congress": 119,
-      "law_number": 73
-    },
-    "output": {
-      "bill_type": "hr",
-      "bill_number": "4323"
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:47:58.770503",
+    "timestamp": "2026-05-10T17:28:19.909914",
     "agent": "bill_fetcher",
     "action": "fetch_bill",
     "input": {
-      "congress": 119,
-      "type": "hr",
-      "number": 4323
+      "congress": 118,
+      "type": "hres",
+      "number": 1627
     },
     "output": {
-      "title": "Trafficking Survivors Relief Act",
-      "status": "Became Public Law No: 119-73."
+      "title": "Honoring the life, achievements, legacy, and public service of former President James Earl \"Jimmy\" Carter, Jr.",
+      "status": "Referred to the House Committee on Oversight and Accountability."
     }
   },
   {
-    "timestamp": "2026-05-09T09:47:59.657836",
+    "timestamp": "2026-05-10T17:28:20.520839",
     "agent": "historian",
     "action": "fetch_bill_actions",
     "input": {
-      "congress": 119,
-      "type": "hr",
-      "number": 4323
+      "congress": 118,
+      "type": "hres",
+      "number": 1627
     },
     "output": {
-      "action_count": 20
+      "action_count": 3
     }
   },
   {
-    "timestamp": "2026-05-09T09:48:02.343339",
+    "timestamp": "2026-05-10T17:28:22.792055",
     "agent": "translator",
     "action": "translate_bill",
     "input": {
-      "title": "Trafficking Survivors Relief Act",
-      "sponsor": "Rep. Fry, Russell [R-SC-7]"
+      "title": "Honoring the life, achievements, legacy, and public service of former President James Earl \"Jimmy\" Carter, Jr.",
+      "sponsor": "Rep. Williams, Nikema [D-GA-5]"
     },
     "output": {
-      "translation_preview": "# Trafficking Survivors Relief Act \u2013 Plain English Summary\n\n## 1. What This Bill Is\nThis law helps p"
+      "translation_preview": "# What This Bill Does\n\n**One sentence:** This bill honors former President Jimmy Carter by recognizi"
     }
   },
   {
-    "timestamp": "2026-05-09T09:48:02.345559",
+    "timestamp": "2026-05-10T17:28:22.794538",
     "agent": "vote_parser",
     "action": "parse_vote_references",
     "input": {
-      "action_count": 20
+      "action_count": 3
     },
     "output": {
       "house_found": false,
@@ -749,165 +117,151 @@
     }
   },
   {
-    "timestamp": "2026-05-09T09:48:04.986832",
+    "timestamp": "2026-05-10T17:28:24.623041",
     "agent": "historian",
     "action": "summarize_history",
     "input": {
-      "action_count": 20
+      "action_count": 3
     },
     "output": {
-      "preview": "# How H.R. 4323 Became Law\n\n**September 10, 2025:** The House Judiciary Committee voted to send the "
+      "preview": "# Bill Timeline\n\nI need to let you know that **this bill has not become law yet**. Here's what has h"
     }
   },
   {
-    "timestamp": "2026-05-09T09:48:04.989654",
+    "timestamp": "2026-05-10T17:28:24.623910",
     "agent": "api",
-    "action": "get_law",
+    "action": "get_bill",
     "input": {
-      "congress": 119,
-      "law_number": 73
+      "congress": 118,
+      "type": "hres",
+      "number": 1627
     },
     "output": {
-      "status": "complete"
+      "status": "complete",
+      "house_votes": 0,
+      "senate_votes": 0
     }
   },
   {
-    "timestamp": "2026-05-09T09:48:22.722473",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Give me a law that has been passed about gun control"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "gun",
-        "control"
-      ],
-      "topic": "gun control legislation",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 1,
-      "specific_bill": null,
-      "status": "enacted",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:48:23.703912",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "gun",
-        "control"
-      ],
-      "topic": "gun control legislation"
-    },
-    "output": {
-      "expanded_terms": [
-        "firearm",
-        "background check",
-        "assault weapon",
-        "gun violence",
-        "concealed carry",
-        "ATF",
-        "Second Amendment"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:48:24.319336",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "firearm",
-        "background check",
-        "assault weapon",
-        "gun violence",
-        "concealed carry",
-        "ATF",
-        "Second Amendment"
-      ],
-      "result_count": 1,
-      "status": "enacted"
-    },
-    "output": {
-      "total_available": 23,
-      "results_returned": 1
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:48:24.321105",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "Give me a law that has been passed about gun control"
-    },
-    "output": {
-      "results_count": 1
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:48:27.515311",
-    "agent": "bill_fetcher",
-    "action": "fetch_law",
-    "input": {
-      "congress": 117,
-      "law_number": 159
-    },
-    "output": {
-      "bill_type": "s",
-      "bill_number": "2938"
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:48:28.080655",
+    "timestamp": "2026-05-10T17:28:55.530733",
     "agent": "bill_fetcher",
     "action": "fetch_bill",
     "input": {
-      "congress": 117,
-      "type": "s",
-      "number": 2938
+      "congress": 118,
+      "type": "hres",
+      "number": 1626
     },
     "output": {
-      "title": "Bipartisan Safer Communities Act",
-      "status": "Became Public Law No: 117-159."
+      "title": "Expressing the profound regret and sorrow of the House of Representatives on the death of James Earl Carter, Jr., thirty-ninth President of the United States of America.",
+      "status": "Motion to reconsider laid on the table Agreed to without objection."
     }
   },
   {
-    "timestamp": "2026-05-09T09:48:29.070231",
+    "timestamp": "2026-05-10T17:28:56.259420",
     "agent": "historian",
     "action": "fetch_bill_actions",
     "input": {
-      "congress": 117,
-      "type": "s",
-      "number": 2938
+      "congress": 118,
+      "type": "hres",
+      "number": 1626
+    },
+    "output": {
+      "action_count": 8
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:28:58.198629",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Expressing the profound regret and sorrow of the House of Representatives on the death of James Earl Carter, Jr., thirty-ninth President of the United States of America.",
+      "sponsor": "Rep. McHenry, Patrick T. [R-NC-10]"
+    },
+    "output": {
+      "translation_preview": "# Plain English Summary\n\n## 1. What this bill is in one sentence\nThis is a formal statement from the"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:28:58.200676",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 8
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:29:00.570071",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 8
+    },
+    "output": {
+      "preview": "# How H.Res. 1626 Passed Congress\n\n**December 31, 2024**\n\n1. The resolution was submitted to the Hou"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:29:00.570694",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 118,
+      "type": "hres",
+      "number": 1626
+    },
+    "output": {
+      "status": "complete",
+      "house_votes": 0,
+      "senate_votes": 0
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:29:34.965188",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 10545
+    },
+    "output": {
+      "title": "American Relief Act, 2025",
+      "status": "Became Public Law No: 118-158."
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:29:35.786811",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 118,
+      "type": "hr",
+      "number": 10545
     },
     "output": {
       "action_count": 20
     }
   },
   {
-    "timestamp": "2026-05-09T09:48:31.880296",
+    "timestamp": "2026-05-10T17:29:38.360440",
     "agent": "translator",
     "action": "translate_bill",
     "input": {
-      "title": "Bipartisan Safer Communities Act",
-      "sponsor": "Sen. Rubio, Marco [R-FL]"
+      "title": "American Relief Act, 2025",
+      "sponsor": "Rep. Cole, Tom [R-OK-4]"
     },
     "output": {
-      "translation_preview": "# Bipartisan Safer Communities Act - Plain English\n\n## 1. What this bill is in one sentence\nThis law"
+      "translation_preview": "# American Relief Act, 2025 - Plain English Explanation\n\n## 1. What This Bill Is\nThis bill provides "
     }
   },
   {
-    "timestamp": "2026-05-09T09:48:31.883567",
+    "timestamp": "2026-05-10T17:29:38.362540",
     "agent": "vote_parser",
     "action": "parse_vote_references",
     "input": {
@@ -916,3875 +270,148 @@
     "output": {
       "house_found": true,
       "senate_found": true,
-      "house_roll": 299,
-      "senate_roll": 242
+      "house_roll": 517,
+      "senate_roll": 339
     }
   },
   {
-    "timestamp": "2026-05-09T09:48:34.599117",
+    "timestamp": "2026-05-10T17:29:41.315198",
     "agent": "historian",
     "action": "summarize_history",
     "input": {
       "action_count": 20
     },
     "output": {
-      "preview": "# How This Bill Became Law\n\n**June 22-23: Senate Debate**\nThe Senate received the bill from the Hous"
+      "preview": "# How H.R. 10545 Became Law\n\n**December 20, 2024 \u2014 Introduced in the House**\nThe bill was introduced"
     }
   },
   {
-    "timestamp": "2026-05-09T09:48:35.192689",
+    "timestamp": "2026-05-10T17:29:41.471912",
+    "agent": "vote_fetcher",
+    "action": "fetch_senate_votes",
+    "input": {
+      "congress": 118,
+      "roll": 339
+    },
+    "output": {
+      "members_found": 100
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:29:48.696344",
     "agent": "vote_fetcher",
     "action": "fetch_house_votes",
     "input": {
-      "congress": 117,
-      "roll": 299
+      "congress": 118,
+      "roll": 517
     },
     "output": {
       "members_found": 430
     }
   },
   {
-    "timestamp": "2026-05-09T09:48:35.278060",
-    "agent": "vote_fetcher",
-    "action": "fetch_senate_votes",
-    "input": {
-      "congress": 117,
-      "roll": 242
-    },
-    "output": {
-      "members_found": 100
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:48:35.281175",
+    "timestamp": "2026-05-10T17:29:48.698005",
     "agent": "vote_mapper",
     "action": "map_house_votes",
     "input": {
       "member_count": 430
     },
     "output": {
-      "yea": 234,
-      "nay": 193,
-      "present": 0,
-      "not_voting": 3
+      "yea": 366,
+      "nay": 34,
+      "present": 1,
+      "not_voting": 29
     }
   },
   {
-    "timestamp": "2026-05-09T09:48:35.282577",
+    "timestamp": "2026-05-10T17:29:48.698798",
     "agent": "vote_mapper",
     "action": "map_senate_votes",
     "input": {
       "member_count": 100
     },
     "output": {
-      "yea": 65,
-      "nay": 33,
+      "yea": 85,
+      "nay": 11,
       "present": 0,
-      "not_voting": 2
+      "not_voting": 4
     }
   },
   {
-    "timestamp": "2026-05-09T09:48:35.283689",
-    "agent": "api",
-    "action": "get_law",
-    "input": {
-      "congress": 117,
-      "law_number": 159
-    },
-    "output": {
-      "status": "complete"
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:50:59.497865",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Give me 5 laws that has been passed about gun control"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "gun",
-        "control"
-      ],
-      "topic": "gun control legislation",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "enacted",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:51:01.237625",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "gun",
-        "control"
-      ],
-      "topic": "gun control legislation"
-    },
-    "output": {
-      "expanded_terms": [
-        "firearm",
-        "background check",
-        "assault weapon",
-        "gun violence",
-        "Second Amendment",
-        "ATF",
-        "concealed carry"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:51:01.956570",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "firearm",
-        "background check",
-        "assault weapon",
-        "gun violence",
-        "Second Amendment",
-        "ATF",
-        "concealed carry"
-      ],
-      "result_count": 5,
-      "status": "enacted"
-    },
-    "output": {
-      "total_available": 23,
-      "results_returned": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:51:01.960768",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "Give me 5 laws that has been passed about gun control"
-    },
-    "output": {
-      "results_count": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:51:05.947289",
-    "agent": "bill_fetcher",
-    "action": "fetch_law",
-    "input": {
-      "congress": 119,
-      "law_number": 74
-    },
-    "output": {
-      "bill_type": "hr",
-      "bill_number": "6938"
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:51:06.317126",
-    "agent": "bill_fetcher",
-    "action": "fetch_bill",
-    "input": {
-      "congress": 119,
-      "type": "hr",
-      "number": 6938
-    },
-    "output": {
-      "title": "Commerce, Justice, Science; Energy and Water Development; and Interior and Environment Appropriations Act, 2026",
-      "status": "Became Public Law No: 119-74."
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:51:07.280657",
-    "agent": "historian",
-    "action": "fetch_bill_actions",
-    "input": {
-      "congress": 119,
-      "type": "hr",
-      "number": 6938
-    },
-    "output": {
-      "action_count": 20
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:51:09.548781",
-    "agent": "translator",
-    "action": "translate_bill",
-    "input": {
-      "title": "Commerce, Justice, Science; Energy and Water Development; and Interior and Environment Appropriations Act, 2026",
-      "sponsor": "Rep. Cole, Tom [R-OK-4]"
-    },
-    "output": {
-      "translation_preview": "# Plain English Explanation\n\n## 1. What this bill is in one sentence\nThis bill sets aside federal mo"
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:51:09.550887",
-    "agent": "vote_parser",
-    "action": "parse_vote_references",
-    "input": {
-      "action_count": 20
-    },
-    "output": {
-      "house_found": false,
-      "senate_found": true,
-      "house_roll": null,
-      "senate_roll": 11
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:51:11.690801",
-    "agent": "historian",
-    "action": "summarize_history",
-    "input": {
-      "action_count": 20
-    },
-    "output": {
-      "preview": "# How This Bill Became Law\n\n**January 12, 2026:** The Senate voted to move forward with considering "
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:51:12.301246",
-    "agent": "vote_fetcher",
-    "action": "fetch_senate_votes",
-    "input": {
-      "congress": 119,
-      "roll": 11
-    },
-    "output": {
-      "members_found": 100
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:51:12.303985",
-    "agent": "vote_mapper",
-    "action": "map_senate_votes",
-    "input": {
-      "member_count": 100
-    },
-    "output": {
-      "yea": 82,
-      "nay": 15,
-      "present": 0,
-      "not_voting": 3
-    }
-  },
-  {
-    "timestamp": "2026-05-09T09:51:12.305496",
-    "agent": "api",
-    "action": "get_law",
-    "input": {
-      "congress": 119,
-      "law_number": 74
-    },
-    "output": {
-      "status": "complete"
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:03:28.196804",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Genius Act"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "Genius"
-      ],
-      "topic": "Genius Act legislation",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:03:30.684463",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "Genius"
-      ],
-      "topic": "Genius Act legislation"
-    },
-    "output": {
-      "expanded_terms": [
-        "GENIUS Act",
-        "gifted education",
-        "advanced learner",
-        "talent identification",
-        "STEM education",
-        "educational acceleration",
-        "student identification"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:03:31.537398",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "GENIUS Act",
-        "gifted education",
-        "advanced learner",
-        "talent identification",
-        "STEM education",
-        "educational acceleration",
-        "student identification"
-      ],
-      "result_count": 5,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 250,
-      "results_returned": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:03:31.541208",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "Genius Act"
-    },
-    "output": {
-      "results_count": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:07:38.695444",
-    "agent": "bill_fetcher",
-    "action": "fetch_bill",
-    "input": {
-      "congress": 117,
-      "type": "hr",
-      "number": 210
-    },
-    "output": {
-      "title": "Rural STEM Education Research Act",
-      "status": "Received in the Senate and Read twice and referred to the Committee on Health, Education, Labor, and Pensions."
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:07:39.412773",
-    "agent": "historian",
-    "action": "fetch_bill_actions",
-    "input": {
-      "congress": 117,
-      "type": "hr",
-      "number": 210
-    },
-    "output": {
-      "action_count": 11
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:07:42.708251",
-    "agent": "translator",
-    "action": "translate_bill",
-    "input": {
-      "title": "Rural STEM Education Research Act",
-      "sponsor": "Rep. Lucas, Frank D. [R-OK-3]"
-    },
-    "output": {
-      "translation_preview": "# Rural STEM Education Research Act - Plain English Explanation\n\n## 1. What This Bill Is\nThis bill d"
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:07:42.712719",
-    "agent": "vote_parser",
-    "action": "parse_vote_references",
-    "input": {
-      "action_count": 11
-    },
-    "output": {
-      "house_found": false,
-      "senate_found": false,
-      "house_roll": null,
-      "senate_roll": null
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:07:45.112196",
-    "agent": "historian",
-    "action": "summarize_history",
-    "input": {
-      "action_count": 11
-    },
-    "output": {
-      "preview": "# Timeline for H.R. 210\n\n**January 5, 2021:** The bill was introduced in the House and sent to the C"
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:07:45.114467",
-    "agent": "api",
-    "action": "get_bill",
-    "input": {
-      "congress": 117,
-      "type": "hr",
-      "number": 210
-    },
-    "output": {
-      "status": "complete",
-      "house_votes": 0,
-      "senate_votes": 0
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:13:46.731985",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Ted Kennedy"
-    },
-    "output": {
-      "query_type": "member",
-      "entity_name": "Ted Kennedy",
-      "keywords": [],
-      "topic": "",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:13:54.902106",
-    "agent": "member_search",
-    "action": "search_member",
-    "input": {
-      "name": "Ted Kennedy"
-    },
-    "output": {
-      "found": "Kennedy, Edward M.",
-      "bioguide_id": "K000105",
-      "score": 4
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:13:55.270008",
-    "agent": "member_search",
-    "action": "fetch_member_profile",
-    "input": {
-      "bioguide_id": "K000105"
-    },
-    "output": {
-      "name": "Edward M. Kennedy",
-      "years_served": 48
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:14:02.091076",
-    "agent": "member_search",
-    "action": "fetch_member_legislation",
-    "input": {
-      "bioguide_id": "K000105"
-    },
-    "output": {
-      "sponsored_count": 2552,
-      "cosponsored_count": 6967
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:14:18.042115",
-    "agent": "analyst",
-    "action": "analyze",
-    "input": {
-      "days": 7,
-      "searches_analyzed": 1
-    },
-    "output": {
-      "report_length": 1307
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:14:18.986922",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Ted Kennedy"
-    },
-    "output": {
-      "query_type": "member",
-      "entity_name": "Ted Kennedy",
-      "keywords": [],
-      "topic": "",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:14:22.562514",
-    "agent": "member_search",
-    "action": "search_member",
-    "input": {
-      "name": "Ted Kennedy"
-    },
-    "output": {
-      "found": "Kennedy, Edward M.",
-      "bioguide_id": "K000105",
-      "score": 4
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:14:22.951684",
-    "agent": "member_search",
-    "action": "fetch_member_profile",
-    "input": {
-      "bioguide_id": "K000105"
-    },
-    "output": {
-      "name": "Edward M. Kennedy",
-      "years_served": 48
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:14:23.707340",
-    "agent": "member_search",
-    "action": "fetch_member_legislation",
-    "input": {
-      "bioguide_id": "K000105"
-    },
-    "output": {
-      "sponsored_count": 2552,
-      "cosponsored_count": 6967
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:14:23.745939",
-    "agent": "analyst",
-    "action": "analyze",
-    "input": {
-      "days": 7,
-      "searches_analyzed": 1
-    },
-    "output": {
-      "report_length": 1533
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:14:36.993758",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Genius Act"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "Genius"
-      ],
-      "topic": "Genius Act legislation",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:14:37.908754",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "Genius"
-      ],
-      "topic": "Genius Act legislation"
-    },
-    "output": {
-      "expanded_terms": [
-        "Genius Act",
-        "gifted education",
-        "advanced learner",
-        "STEM education",
-        "talent development",
-        "educational acceleration",
-        "enrichment program"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:14:38.632662",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "Genius Act",
-        "gifted education",
-        "advanced learner",
-        "STEM education",
-        "talent development",
-        "educational acceleration",
-        "enrichment program"
-      ],
-      "result_count": 5,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 231,
-      "results_returned": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:14:38.635586",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "Genius Act"
-    },
-    "output": {
-      "results_count": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:14:47.028139",
-    "agent": "analyst",
-    "action": "analyze",
-    "input": {
-      "days": 7,
-      "searches_analyzed": 3
-    },
-    "output": {
-      "report_length": 1452
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:15:29.460288",
-    "agent": "bill_fetcher",
-    "action": "fetch_bill",
-    "input": {
-      "congress": 117,
-      "type": "hr",
-      "number": 210
-    },
-    "output": {
-      "title": "Rural STEM Education Research Act",
-      "status": "Received in the Senate and Read twice and referred to the Committee on Health, Education, Labor, and Pensions."
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:15:29.835950",
-    "agent": "historian",
-    "action": "fetch_bill_actions",
-    "input": {
-      "congress": 117,
-      "type": "hr",
-      "number": 210
-    },
-    "output": {
-      "action_count": 11
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:15:32.753595",
-    "agent": "translator",
-    "action": "translate_bill",
-    "input": {
-      "title": "Rural STEM Education Research Act",
-      "sponsor": "Rep. Lucas, Frank D. [R-OK-3]"
-    },
-    "output": {
-      "translation_preview": "# Rural STEM Education Research Act \u2013 Plain English Explanation\n\n## 1. What This Bill Is\nThis bill d"
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:15:32.756763",
-    "agent": "vote_parser",
-    "action": "parse_vote_references",
-    "input": {
-      "action_count": 11
-    },
-    "output": {
-      "house_found": false,
-      "senate_found": false,
-      "house_roll": null,
-      "senate_roll": null
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:15:35.363294",
-    "agent": "historian",
-    "action": "summarize_history",
-    "input": {
-      "action_count": 11
-    },
-    "output": {
-      "preview": "# Timeline: H.R. 210\n\n**January 5, 2021:** The bill is introduced in the House and sent to the Commi"
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:15:35.366672",
-    "agent": "api",
-    "action": "get_bill",
-    "input": {
-      "congress": 117,
-      "type": "hr",
-      "number": 210
-    },
-    "output": {
-      "status": "complete",
-      "house_votes": 0,
-      "senate_votes": 0
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:16:09.667172",
-    "agent": "analyst",
-    "action": "analyze",
-    "input": {
-      "days": 7,
-      "searches_analyzed": 3
-    },
-    "output": {
-      "report_length": 1376
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:16:29.357753",
-    "agent": "analyst",
-    "action": "analyze",
-    "input": {
-      "days": 7,
-      "searches_analyzed": 3
-    },
-    "output": {
-      "report_length": 1437
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:18:55.777646",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Genius Act"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "Genius",
-        "Act"
-      ],
-      "topic": "Genius Act legislation",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:18:56.783457",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "Genius",
-        "Act",
-        "Guiding and Establishing National Innovation for US Stablecoins"
-      ],
-      "topic": "Genius Act legislation"
-    },
-    "output": {
-      "expanded_terms": [
-        "stablecoin",
-        "digital currency",
-        "cryptocurrency regulation",
-        "monetary policy",
-        "financial innovation",
-        "GENIUS Act",
-        "central bank digital currency"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:18:57.491826",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "stablecoin",
-        "digital currency",
-        "cryptocurrency regulation",
-        "monetary policy",
-        "financial innovation",
-        "GENIUS Act",
-        "central bank digital currency"
-      ],
-      "result_count": 5,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 227,
-      "results_returned": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:18:57.494574",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "Genius Act"
-    },
-    "output": {
-      "results_count": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:20:10.982797",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Genius Act"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "Genius"
-      ],
-      "topic": "Genius Act legislation",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:20:12.024890",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "Genius",
-        "Guiding and Establishing National Innovation for US Stablecoins"
-      ],
-      "topic": "Genius Act legislation"
-    },
-    "output": {
-      "expanded_terms": [
-        "stablecoin",
-        "digital currency",
-        "cryptocurrency regulation",
-        "central bank digital currency",
-        "payment stablecoin",
-        "reserve requirements",
-        "consumer protection"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:20:12.636536",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "stablecoin",
-        "digital currency",
-        "cryptocurrency regulation",
-        "central bank digital currency",
-        "payment stablecoin",
-        "reserve requirements",
-        "consumer protection"
-      ],
-      "result_count": 5,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 874,
-      "results_returned": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:20:12.639435",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "Genius Act"
-    },
-    "output": {
-      "results_count": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:22:31.121234",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Genius Act"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "Genius"
-      ],
-      "topic": "Genius Act legislation",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:22:32.225108",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "Genius",
-        "Guiding and Establishing National Innovation for US Stablecoins"
-      ],
-      "topic": "Genius Act legislation"
-    },
-    "output": {
-      "expanded_terms": [
-        "stablecoin",
-        "digital currency",
-        "cryptocurrency regulation",
-        "central bank digital currency",
-        "payment stablecoin",
-        "CBDC",
-        "blockchain"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:22:32.898155",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "stablecoin",
-        "digital currency",
-        "cryptocurrency regulation",
-        "central bank digital currency",
-        "payment stablecoin",
-        "CBDC",
-        "blockchain"
-      ],
-      "result_count": 5,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 289,
-      "results_returned": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:22:32.901100",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "Genius Act"
-    },
-    "output": {
-      "results_count": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:22:48.464421",
-    "agent": "bill_fetcher",
-    "action": "fetch_bill",
-    "input": {
-      "congress": 117,
-      "type": "s",
-      "number": 4831
-    },
-    "output": {
-      "title": "No CBDC Act",
-      "status": "Read twice and referred to the Committee on Banking, Housing, and Urban Affairs."
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:22:49.015659",
-    "agent": "historian",
-    "action": "fetch_bill_actions",
-    "input": {
-      "congress": 117,
-      "type": "s",
-      "number": 4831
-    },
-    "output": {
-      "action_count": 2
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:22:52.601459",
-    "agent": "translator",
-    "action": "translate_bill",
-    "input": {
-      "title": "No CBDC Act",
-      "sponsor": "Sen. Lee, Mike [R-UT]"
-    },
-    "output": {
-      "translation_preview": "# No CBDC Act - Plain English Explanation\n\n## 1. What This Bill Is\nThis bill would prevent the U.S. "
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:22:52.605269",
-    "agent": "vote_parser",
-    "action": "parse_vote_references",
-    "input": {
-      "action_count": 2
-    },
-    "output": {
-      "house_found": false,
-      "senate_found": false,
-      "house_roll": null,
-      "senate_roll": null
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:22:54.555445",
-    "agent": "historian",
-    "action": "summarize_history",
-    "input": {
-      "action_count": 2
-    },
-    "output": {
-      "preview": "# Bill Timeline\n\n**September 13, 2022: Bill Introduced**\nA senator introduced this bill in the Senat"
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:22:54.558144",
-    "agent": "api",
-    "action": "get_bill",
-    "input": {
-      "congress": 117,
-      "type": "s",
-      "number": 4831
-    },
-    "output": {
-      "status": "complete",
-      "house_votes": 0,
-      "senate_votes": 0
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:23:42.776484",
-    "agent": "bill_fetcher",
-    "action": "fetch_bill",
-    "input": {
-      "congress": 119,
-      "type": "hr",
-      "number": 1430
-    },
-    "output": {
-      "title": "No CBDC Act",
-      "status": "Referred to the House Committee on Financial Services."
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:23:43.339001",
-    "agent": "historian",
-    "action": "fetch_bill_actions",
-    "input": {
-      "congress": 119,
-      "type": "hr",
-      "number": 1430
-    },
-    "output": {
-      "action_count": 3
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:23:46.473043",
-    "agent": "translator",
-    "action": "translate_bill",
-    "input": {
-      "title": "No CBDC Act",
-      "sponsor": "Rep. Ogles, Andrew [R-TN-5]"
-    },
-    "output": {
-      "translation_preview": "# No CBDC Act - Plain English Explanation\n\n## 1. What this bill is in one sentence\nThis bill would p"
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:23:46.475866",
-    "agent": "vote_parser",
-    "action": "parse_vote_references",
-    "input": {
-      "action_count": 3
-    },
-    "output": {
-      "house_found": false,
-      "senate_found": false,
-      "house_roll": null,
-      "senate_roll": null
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:23:48.521996",
-    "agent": "historian",
-    "action": "summarize_history",
-    "input": {
-      "action_count": 3
-    },
-    "output": {
-      "preview": "# Bill Timeline\n\n**February 18, 2025:** The bill was introduced in the House of Representatives.\n\n**"
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:23:48.527605",
-    "agent": "api",
-    "action": "get_bill",
-    "input": {
-      "congress": 119,
-      "type": "hr",
-      "number": 1430
-    },
-    "output": {
-      "status": "complete",
-      "house_votes": 0,
-      "senate_votes": 0
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:26:09.732946",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Stem act"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "stem"
-      ],
-      "topic": "stem legislation",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:26:10.754132",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "stem"
-      ],
-      "topic": "stem legislation"
-    },
-    "output": {
-      "expanded_terms": [
-        "STEM education",
-        "science technology engineering mathematics",
-        "STEM workforce",
-        "STEM grant",
-        "STEM pipeline",
-        "science education funding",
-        "career and technical education"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:26:11.489864",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "STEM education",
-        "science technology engineering mathematics",
-        "STEM workforce",
-        "STEM grant",
-        "STEM pipeline",
-        "science education funding",
-        "career and technical education"
-      ],
-      "result_count": 5,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 823,
-      "results_returned": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:26:11.493178",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "Stem act"
-    },
-    "output": {
-      "results_count": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:26:23.554577",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "STEM"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "STEM"
-      ],
-      "topic": "STEM legislation",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:26:24.680520",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "STEM"
-      ],
-      "topic": "STEM legislation"
-    },
-    "output": {
-      "expanded_terms": [
-        "STEM education",
-        "science and engineering",
-        "computer science",
-        "mathematics education",
-        "workforce development",
-        "STEM pipeline",
-        "NSF education programs"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:26:25.211236",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "STEM education",
-        "science and engineering",
-        "computer science",
-        "mathematics education",
-        "workforce development",
-        "STEM pipeline",
-        "NSF education programs"
-      ],
-      "result_count": 5,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 1638,
-      "results_returned": 3
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:26:25.219413",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "STEM"
-    },
-    "output": {
-      "results_count": 3
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:26:49.786964",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Gun control bills under trump"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "gun",
-        "control"
-      ],
-      "topic": "gun control legislation",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:26:50.792824",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "gun",
-        "control"
-      ],
-      "topic": "gun control legislation"
-    },
-    "output": {
-      "expanded_terms": [
-        "firearm",
-        "background check",
-        "assault weapon",
-        "gun violence",
-        "Second Amendment",
-        "ATF",
-        "concealed carry"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:26:51.301527",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "firearm",
-        "background check",
-        "assault weapon",
-        "gun violence",
-        "Second Amendment",
-        "ATF",
-        "concealed carry"
-      ],
-      "result_count": 5,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 1827,
-      "results_returned": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:26:51.305069",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "Gun control bills under trump"
-    },
-    "output": {
-      "results_count": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:27:04.994998",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "10 Gun control bills under trump"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "gun",
-        "control"
-      ],
-      "topic": "gun control legislation",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 10,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:27:05.812612",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "gun",
-        "control"
-      ],
-      "topic": "gun control legislation"
-    },
-    "output": {
-      "expanded_terms": [
-        "firearm",
-        "background check",
-        "assault weapon",
-        "gun violence",
-        "Second Amendment",
-        "ATF",
-        "concealed carry"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:27:06.335499",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "firearm",
-        "background check",
-        "assault weapon",
-        "gun violence",
-        "Second Amendment",
-        "ATF",
-        "concealed carry"
-      ],
-      "result_count": 10,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 1827,
-      "results_returned": 10
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:27:06.340775",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "10 Gun control bills under trump"
-    },
-    "output": {
-      "results_count": 10
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:28:05.444782",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "3 gun rights bills"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "gun",
-        "rights"
-      ],
-      "topic": "gun rights legislation",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 3,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:28:06.467172",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "gun",
-        "rights"
-      ],
-      "topic": "gun rights legislation"
-    },
-    "output": {
-      "expanded_terms": [
-        "Second Amendment",
-        "firearm",
-        "constitutional carry",
-        "right to bear arms",
-        "gun ownership",
-        "ATF",
-        "weapons regulation"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:28:07.120939",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "Second Amendment",
-        "firearm",
-        "constitutional carry",
-        "right to bear arms",
-        "gun ownership",
-        "ATF",
-        "weapons regulation"
-      ],
-      "result_count": 3,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 1534,
-      "results_returned": 3
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:28:07.128114",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "3 gun rights bills"
-    },
-    "output": {
-      "results_count": 3
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:28:18.653051",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "3 gun rights bills under biden"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "gun",
-        "rights"
-      ],
-      "topic": "gun rights legislation",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 3,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:28:19.881883",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "gun",
-        "rights"
-      ],
-      "topic": "gun rights legislation"
-    },
-    "output": {
-      "expanded_terms": [
-        "Second Amendment",
-        "firearm",
-        "concealed carry",
-        "right to bear arms",
-        "gun ownership",
-        "constitutional rights",
-        "ATF"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:28:20.402708",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "Second Amendment",
-        "firearm",
-        "concealed carry",
-        "right to bear arms",
-        "gun ownership",
-        "constitutional rights",
-        "ATF"
-      ],
-      "result_count": 3,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 1680,
-      "results_returned": 3
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:28:20.408948",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "3 gun rights bills under biden"
-    },
-    "output": {
-      "results_count": 3
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:31:41.580920",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "What did Ted Kennedy do in Congress?"
-    },
-    "output": {
-      "query_type": "member",
-      "entity_name": "Ted Kennedy",
-      "keywords": [],
-      "topic": "",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:31:42.425157",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Show me the Senate Judiciary Committee"
-    },
-    "output": {
-      "query_type": "committee",
-      "entity_name": "Senate Judiciary Committee",
-      "keywords": [],
-      "topic": "",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:31:43.347243",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Find bills about climate change"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "climate",
-        "change"
-      ],
-      "topic": "climate change legislation",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:31:49.822456",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "What did Ted Kennedy do in Congress?"
-    },
-    "output": {
-      "query_type": "member",
-      "entity_name": "Ted Kennedy",
-      "keywords": [],
-      "topic": "",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:31:50.822278",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Show me the Senate Judiciary Committee"
-    },
-    "output": {
-      "query_type": "committee",
-      "entity_name": "Senate Judiciary Committee",
-      "keywords": [],
-      "topic": "",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:31:51.736395",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Find bills about climate change"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "climate",
-        "change"
-      ],
-      "topic": "climate change legislation",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:31:52.768504",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Bernie Sanders voting record"
-    },
-    "output": {
-      "query_type": "member",
-      "entity_name": "Bernie Sanders",
-      "keywords": [],
-      "topic": "",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:31:54.304150",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Give me a law that passed"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [],
-      "topic": "",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 1,
-      "specific_bill": null,
-      "status": "enacted",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:32:25.747985",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "3 gun rights bills under biden"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "gun",
-        "rights"
-      ],
-      "topic": "gun rights legislation",
-      "time_range": "presidential term",
-      "bill_type": "all",
-      "result_count": 3,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        117,
-        118
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:32:27.583742",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "gun",
-        "rights"
-      ],
-      "topic": "gun rights legislation"
-    },
-    "output": {
-      "expanded_terms": [
-        "Second Amendment",
-        "firearm",
-        "concealed carry",
-        "right to bear arms",
-        "gun ownership",
-        "constitutional carry",
-        "ATF"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:32:28.296772",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "Second Amendment",
-        "firearm",
-        "concealed carry",
-        "right to bear arms",
-        "gun ownership",
-        "constitutional carry",
-        "ATF"
-      ],
-      "result_count": 3,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 1104,
-      "results_returned": 3
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:32:28.303249",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "3 gun rights bills under biden"
-    },
-    "output": {
-      "results_count": 3
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:33:43.667587",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "What are the latest bills that trump has passed"
-    },
-    "output": {
-      "query_type": "member",
-      "entity_name": "Trump",
-      "keywords": [],
-      "topic": "",
-      "time_range": "presidential term",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "enacted",
-      "congress_numbers": [
-        119,
-        116,
-        115
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:33:59.192280",
-    "agent": "analyst",
-    "action": "analyze",
-    "input": {
-      "days": 7,
-      "searches_analyzed": 14
-    },
-    "output": {
-      "report_length": 1715
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:35:37.652421",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "What are the latest bills that trump has passed"
-    },
-    "output": {
-      "query_type": "member",
-      "entity_name": "Trump",
-      "keywords": [],
-      "topic": "",
-      "time_range": "presidential term",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        115,
-        116
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:36:00.180932",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "What are the latest bills that trump has passed"
-    },
-    "output": {
-      "query_type": "member",
-      "entity_name": "Trump",
-      "keywords": [],
-      "topic": "",
-      "time_range": "presidential term",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        115,
-        116
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:36:29.761129",
-    "agent": "analyst",
-    "action": "analyze",
-    "input": {
-      "days": 7,
-      "searches_analyzed": 16
-    },
-    "output": {
-      "report_length": 1662
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:37:15.044479",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "What are the latest bills that trump has passed"
-    },
-    "output": {
-      "query_type": "member",
-      "entity_name": "Trump",
-      "keywords": [],
-      "topic": "",
-      "time_range": "presidential term",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        115,
-        116
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:39:45.163803",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "What are the latest bills that trump has passed"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "legislation"
-      ],
-      "topic": "",
-      "time_range": "presidential term",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        115,
-        116
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:41:01.246732",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "What are the latest bills that trump has passed"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "enacted",
-        "signed"
-      ],
-      "topic": "",
-      "time_range": "presidential term",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        115,
-        116
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:41:02.142859",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "enacted",
-        "signed"
-      ],
-      "topic": ""
-    },
-    "output": {
-      "expanded_terms": [
-        "enactment",
-        "signature",
-        "bill passage",
-        "presidential approval",
-        "effective date",
-        "ratification",
-        "statute"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:41:03.161176",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "enactment",
-        "signature",
-        "bill passage",
-        "presidential approval",
-        "effective date",
-        "ratification",
-        "statute"
-      ],
-      "result_count": 5,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 31193,
-      "results_returned": 4
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:41:03.165241",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "What are the latest bills that trump has passed"
-    },
-    "output": {
-      "results_count": 4
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:41:51.398735",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Genius Act"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "Genius"
-      ],
-      "topic": "Genius Act",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:41:52.391706",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "Genius",
-        "Guiding and Establishing National Innovation for US Stablecoins"
-      ],
-      "topic": "Genius Act"
-    },
-    "output": {
-      "expanded_terms": [
-        "stablecoin",
-        "digital asset",
-        "cryptocurrency regulation",
-        "central bank digital currency",
-        "payment stablecoin",
-        "reserve requirements",
-        "financial innovation"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:41:53.002301",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "stablecoin",
-        "digital asset",
-        "cryptocurrency regulation",
-        "central bank digital currency",
-        "payment stablecoin",
-        "reserve requirements",
-        "financial innovation"
-      ],
-      "result_count": 5,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 263,
-      "results_returned": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:41:53.006396",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "Genius Act"
-    },
-    "output": {
-      "results_count": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:42:09.316396",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "30 bills"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [],
-      "topic": "",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 30,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:42:09.806835",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [],
-      "result_count": 20,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 62252,
-      "results_returned": 20
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:42:09.813383",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "30 bills"
-    },
-    "output": {
-      "results_count": 20
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:42:22.481425",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Genius Act"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "Genius"
-      ],
-      "topic": "Genius Act legislation",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:42:23.668347",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "Genius",
-        "Guiding and Establishing National Innovation for US Stablecoins"
-      ],
-      "topic": "Genius Act legislation"
-    },
-    "output": {
-      "expanded_terms": [
-        "stablecoin",
-        "digital asset",
-        "cryptocurrency regulation",
-        "payment stablecoin",
-        "reserve requirements",
-        "central bank digital currency",
-        "financial stability"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:42:24.323363",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "stablecoin",
-        "digital asset",
-        "cryptocurrency regulation",
-        "payment stablecoin",
-        "reserve requirements",
-        "central bank digital currency",
-        "financial stability"
-      ],
-      "result_count": 5,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 542,
-      "results_returned": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:42:24.327182",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "Genius Act"
-    },
-    "output": {
-      "results_count": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:43:07.088072",
-    "agent": "bill_fetcher",
-    "action": "fetch_bill",
-    "input": {
-      "congress": 119,
-      "type": "hr",
-      "number": 1430
-    },
-    "output": {
-      "title": "No CBDC Act",
-      "status": "Referred to the House Committee on Financial Services."
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:43:07.463963",
-    "agent": "historian",
-    "action": "fetch_bill_actions",
-    "input": {
-      "congress": 119,
-      "type": "hr",
-      "number": 1430
-    },
-    "output": {
-      "action_count": 3
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:43:11.074302",
-    "agent": "translator",
-    "action": "translate_bill",
-    "input": {
-      "title": "No CBDC Act",
-      "sponsor": "Rep. Ogles, Andrew [R-TN-5]"
-    },
-    "output": {
-      "translation_preview": "# No CBDC Act - Plain English Explanation\n\n## 1. What This Bill Is\nThis bill would prevent the U.S. "
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:43:11.079258",
-    "agent": "vote_parser",
-    "action": "parse_vote_references",
-    "input": {
-      "action_count": 3
-    },
-    "output": {
-      "house_found": false,
-      "senate_found": false,
-      "house_roll": null,
-      "senate_roll": null
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:43:12.907099",
-    "agent": "historian",
-    "action": "summarize_history",
-    "input": {
-      "action_count": 3
-    },
-    "output": {
-      "preview": "# Bill Timeline\n\n**February 18, 2025:** A bill was introduced in the House of Representatives. That "
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:43:12.910995",
-    "agent": "api",
-    "action": "get_bill",
-    "input": {
-      "congress": 119,
-      "type": "hr",
-      "number": 1430
-    },
-    "output": {
-      "status": "complete",
-      "house_votes": 0,
-      "senate_votes": 0
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:44:17.561573",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Latest bills by trump"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [],
-      "topic": "",
-      "time_range": "presidential term",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        115,
-        116
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:44:18.123494",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [],
-      "result_count": 5,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 56848,
-      "results_returned": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:44:18.130187",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "Latest bills by trump"
-    },
-    "output": {
-      "results_count": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:51:27.395719",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Opioid Epedemic"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "opioid",
-        "epidemic"
-      ],
-      "topic": "opioid epidemic legislation",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:51:28.318108",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "opioid",
-        "epidemic"
-      ],
-      "topic": "opioid epidemic legislation"
-    },
-    "output": {
-      "expanded_terms": [
-        "opioid",
-        "fentanyl",
-        "naloxone",
-        "substance use disorder",
-        "overdose",
-        "addiction treatment",
-        "CARA"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:51:29.437532",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "opioid",
-        "fentanyl",
-        "naloxone",
-        "substance use disorder",
-        "overdose",
-        "addiction treatment",
-        "CARA"
-      ],
-      "result_count": 5,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 1948,
-      "results_returned": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:51:29.441914",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "Opioid Epedemic"
-    },
-    "output": {
-      "results_count": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:51:43.905446",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Recent Opioid Epidemic legislation"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "opioid",
-        "epidemic"
-      ],
-      "topic": "opioid epidemic legislation",
-      "time_range": "last 2 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:51:44.772492",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "opioid",
-        "epidemic"
-      ],
-      "topic": "opioid epidemic legislation"
-    },
-    "output": {
-      "expanded_terms": [
-        "opioid",
-        "fentanyl",
-        "naloxone",
-        "substance use disorder",
-        "overdose",
-        "CARA",
-        "medication-assisted treatment",
-        "prescription drug abuse"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:51:45.279067",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "opioid",
-        "fentanyl",
-        "naloxone",
-        "substance use disorder",
-        "overdose",
-        "CARA",
-        "medication-assisted treatment",
-        "prescription drug abuse"
-      ],
-      "result_count": 5,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 1242,
-      "results_returned": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T11:51:45.283281",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "Recent Opioid Epidemic legislation"
-    },
-    "output": {
-      "results_count": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T12:26:12.161186",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Hello"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [],
-      "topic": "",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T12:26:12.887584",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [],
-      "result_count": 5,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 62252,
-      "results_returned": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T12:26:12.896309",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "Hello"
-    },
-    "output": {
-      "results_count": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T12:26:23.936669",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Latest bill by trump"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [],
-      "topic": "",
-      "time_range": "presidential term",
-      "bill_type": "all",
-      "result_count": 1,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        115,
-        116
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T12:26:24.416507",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [],
-      "result_count": 1,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 56848,
-      "results_returned": 1
-    }
-  },
-  {
-    "timestamp": "2026-05-09T12:26:24.421581",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "Latest bill by trump"
-    },
-    "output": {
-      "results_count": 1
-    }
-  },
-  {
-    "timestamp": "2026-05-09T12:26:34.429809",
-    "agent": "bill_fetcher",
-    "action": "fetch_bill",
-    "input": {
-      "congress": 119,
-      "type": "hres",
-      "number": 1260
-    },
-    "output": {
-      "title": "Supporting the designation of May 10, 2026, as \"National Asian American, Native Hawaiian, and Pacific Islander Mental Health Day\".",
-      "status": "Referred to the House Committee on Energy and Commerce."
-    }
-  },
-  {
-    "timestamp": "2026-05-09T12:26:34.978062",
-    "agent": "historian",
-    "action": "fetch_bill_actions",
-    "input": {
-      "congress": 119,
-      "type": "hres",
-      "number": 1260
-    },
-    "output": {
-      "action_count": 2
-    }
-  },
-  {
-    "timestamp": "2026-05-09T12:26:38.170994",
-    "agent": "translator",
-    "action": "translate_bill",
-    "input": {
-      "title": "Supporting the designation of May 10, 2026, as \"National Asian American, Native Hawaiian, and Pacific Islander Mental Health Day\".",
-      "sponsor": "Rep. Chu, Judy [D-CA-28]"
-    },
-    "output": {
-      "translation_preview": "# Plain English Explanation\n\n## 1. What This Bill Does\nThis bill officially recognizes May 10, 2026,"
-    }
-  },
-  {
-    "timestamp": "2026-05-09T12:26:38.177616",
-    "agent": "vote_parser",
-    "action": "parse_vote_references",
-    "input": {
-      "action_count": 2
-    },
-    "output": {
-      "house_found": false,
-      "senate_found": false,
-      "house_roll": null,
-      "senate_roll": null
-    }
-  },
-  {
-    "timestamp": "2026-05-09T12:26:39.999795",
-    "agent": "historian",
-    "action": "summarize_history",
-    "input": {
-      "action_count": 2
-    },
-    "output": {
-      "preview": "# Bill Timeline\n\n**May 7, 2026:** A bill was introduced in the House of Representatives and immediat"
-    }
-  },
-  {
-    "timestamp": "2026-05-09T12:26:40.004127",
-    "agent": "api",
-    "action": "get_bill",
-    "input": {
-      "congress": 119,
-      "type": "hres",
-      "number": 1260
-    },
-    "output": {
-      "status": "complete",
-      "house_votes": 0,
-      "senate_votes": 0
-    }
-  },
-  {
-    "timestamp": "2026-05-09T12:27:10.940186",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Latest bill passed by trump"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "trump"
-      ],
-      "topic": "bills passed by trump",
-      "time_range": "presidential term",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        115,
-        116
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T12:27:12.064250",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "trump"
-      ],
-      "topic": "bills passed by trump"
-    },
-    "output": {
-      "expanded_terms": [
-        "Tax Cuts and Jobs Act",
-        "TCJA",
-        "executive order",
-        "regulatory rollback",
-        "judicial appointments",
-        "veto",
-        "infrastructure"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T12:27:12.608301",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "Tax Cuts and Jobs Act",
-        "TCJA",
-        "executive order",
-        "regulatory rollback",
-        "judicial appointments",
-        "veto",
-        "infrastructure"
-      ],
-      "result_count": 5,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 8873,
-      "results_returned": 4
-    }
-  },
-  {
-    "timestamp": "2026-05-09T12:27:12.612979",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "Latest bill passed by trump"
-    },
-    "output": {
-      "results_count": 4
-    }
-  },
-  {
-    "timestamp": "2026-05-09T12:27:19.664235",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Latest bill passed under trump"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "trump"
-      ],
-      "topic": "bills passed under Trump administration",
-      "time_range": "presidential term",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        115,
-        116
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T12:27:20.870388",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "trump"
-      ],
-      "topic": "bills passed under Trump administration"
-    },
-    "output": {
-      "expanded_terms": [
-        "Trump administration",
-        "45th presidency",
-        "2017-2021",
-        "executive order",
-        "Tax Cuts and Jobs Act",
-        "TCJA",
-        "regulatory rollback",
-        "judicial nomination",
-        "trade agreement",
-        "tariff",
-        "USMCA"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T12:27:21.517260",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "Trump administration",
-        "45th presidency",
-        "2017-2021",
-        "executive order",
-        "Tax Cuts and Jobs Act",
-        "TCJA",
-        "regulatory rollback",
-        "judicial nomination",
-        "trade agreement",
-        "tariff",
-        "USMCA"
-      ],
-      "result_count": 5,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 3848,
-      "results_returned": 4
-    }
-  },
-  {
-    "timestamp": "2026-05-09T12:27:21.521762",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "Latest bill passed under trump"
-    },
-    "output": {
-      "results_count": 4
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:08:16.328017",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "lead for kids act"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "lead",
-        "kids"
-      ],
-      "topic": "lead for kids legislation",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:08:17.301095",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "lead",
-        "kids"
-      ],
-      "topic": "lead for kids legislation"
-    },
-    "output": {
-      "expanded_terms": [
-        "lead poisoning",
-        "lead contamination",
-        "drinking water",
-        "childhood lead exposure",
-        "lead abatement",
-        "Safe Drinking Water Act",
-        "environmental protection"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:08:18.186944",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "lead poisoning",
-        "lead contamination",
-        "drinking water",
-        "childhood lead exposure",
-        "lead abatement",
-        "Safe Drinking Water Act",
-        "environmental protection"
-      ],
-      "result_count": 5,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 2490,
-      "results_returned": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:08:18.192280",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "lead for kids act"
-    },
-    "output": {
-      "results_count": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:08:29.741600",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Lead for kids act"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "kids",
-        "lead"
-      ],
-      "topic": "lead protection for children legislation",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:08:30.868210",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "kids",
-        "lead"
-      ],
-      "topic": "lead protection for children legislation"
-    },
-    "output": {
-      "expanded_terms": [
-        "lead poisoning",
-        "lead exposure",
-        "lead abatement",
-        "blood lead level",
-        "lead-based paint",
-        "Safe Drinking Water Act",
-        "childhood lead exposure"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:08:31.401144",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "lead poisoning",
-        "lead exposure",
-        "lead abatement",
-        "blood lead level",
-        "lead-based paint",
-        "Safe Drinking Water Act",
-        "childhood lead exposure"
-      ],
-      "result_count": 5,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 438,
-      "results_returned": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:08:31.405868",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "Lead for kids act"
-    },
-    "output": {
-      "results_count": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:08:38.240472",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Lead for Kids act"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "kids"
-      ],
-      "topic": "Lead for Kids act",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:08:39.161576",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "kids"
-      ],
-      "topic": "Lead for Kids act"
-    },
-    "output": {
-      "expanded_terms": [
-        "lead exposure",
-        "lead poisoning",
-        "childhood lead",
-        "lead abatement",
-        "lead contamination",
-        "drinking water safety",
-        "environmental health"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:08:39.690557",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "lead exposure",
-        "lead poisoning",
-        "childhood lead",
-        "lead abatement",
-        "lead contamination",
-        "drinking water safety",
-        "environmental health"
-      ],
-      "result_count": 5,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 366,
-      "results_returned": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:08:39.699594",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "Lead for Kids act"
-    },
-    "output": {
-      "results_count": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:08:44.912166",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Lead for Kids act AI"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "Lead",
-        "Kids",
-        "AI"
-      ],
-      "topic": "Lead for Kids act AI legislation",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:08:46.329923",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "Lead",
-        "Kids",
-        "AI"
-      ],
-      "topic": "Lead for Kids act AI legislation"
-    },
-    "output": {
-      "expanded_terms": [
-        "lead exposure",
-        "lead poisoning",
-        "artificial intelligence",
-        "childhood health",
-        "environmental hazard",
-        "neurotoxin",
-        "AI transparency"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:08:46.862714",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "lead exposure",
-        "lead poisoning",
-        "artificial intelligence",
-        "childhood health",
-        "environmental hazard",
-        "neurotoxin",
-        "AI transparency"
-      ],
-      "result_count": 5,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 1389,
-      "results_returned": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:08:46.867668",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "Lead for Kids act AI"
-    },
-    "output": {
-      "results_count": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:09:11.245310",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "AI laws stopping kids from using it"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "AI",
-        "kids",
-        "children",
-        "minors"
-      ],
-      "topic": "artificial intelligence restrictions for children",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:09:12.442504",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "AI",
-        "kids",
-        "children",
-        "minors"
-      ],
-      "topic": "artificial intelligence restrictions for children"
-    },
-    "output": {
-      "expanded_terms": [
-        "artificial intelligence",
-        "algorithmic accountability",
-        "child safety online",
-        "social media age verification",
-        "digital protection minors",
-        "AI transparency requirements",
-        "youth data privacy"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:09:13.002378",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "artificial intelligence",
-        "algorithmic accountability",
-        "child safety online",
-        "social media age verification",
-        "digital protection minors",
-        "AI transparency requirements",
-        "youth data privacy"
-      ],
-      "result_count": 5,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 1287,
-      "results_returned": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:09:13.010006",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "AI laws stopping kids from using it"
-    },
-    "output": {
-      "results_count": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:09:18.021516",
-    "agent": "bill_fetcher",
-    "action": "fetch_bill",
-    "input": {
-      "congress": 118,
-      "type": "hr",
-      "number": 8756
-    },
-    "output": {
-      "title": "AI LEAD Act",
-      "status": "Referred to the Committee on Oversight and Accountability, and in addition to the Committee on Science, Space, and Technology, for a period to be subsequently determined by the Speaker, in each case for consideration of such provisions as fall within the jurisdiction of the committee concerned."
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:09:18.688636",
-    "agent": "historian",
-    "action": "fetch_bill_actions",
-    "input": {
-      "congress": 118,
-      "type": "hr",
-      "number": 8756
-    },
-    "output": {
-      "action_count": 4
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:09:22.887437",
-    "agent": "translator",
-    "action": "translate_bill",
-    "input": {
-      "title": "AI LEAD Act",
-      "sponsor": "Rep. Connolly, Gerald E. [D-VA-11]"
-    },
-    "output": {
-      "translation_preview": "# AI LEAD Act - Plain English Explanation\n\n## 1. What this bill is in one sentence\nThis bill would r"
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:09:22.892497",
-    "agent": "vote_parser",
-    "action": "parse_vote_references",
-    "input": {
-      "action_count": 4
-    },
-    "output": {
-      "house_found": false,
-      "senate_found": false,
-      "house_roll": null,
-      "senate_roll": null
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:09:25.241998",
-    "agent": "historian",
-    "action": "summarize_history",
-    "input": {
-      "action_count": 4
-    },
-    "output": {
-      "preview": "# Bill Timeline\n\n**June 14, 2024: Bill Introduced**\nThe bill was introduced in the House of Represen"
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:09:25.246961",
+    "timestamp": "2026-05-10T17:29:48.699309",
     "agent": "api",
     "action": "get_bill",
     "input": {
       "congress": 118,
       "type": "hr",
-      "number": 8756
+      "number": 10545
     },
     "output": {
       "status": "complete",
-      "house_votes": 0,
-      "senate_votes": 0
+      "house_votes": 430,
+      "senate_votes": 100
     }
   },
   {
-    "timestamp": "2026-05-09T15:13:57.159565",
+    "timestamp": "2026-05-10T17:40:49.604940",
     "agent": "router",
     "action": "route_query",
     "input": {
-      "question": "Big Beautiful Bill"
+      "question": "Bills Biden passed"
     },
     "output": {
       "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "Big",
-        "Beautiful",
-        "Bill"
-      ],
-      "topic": "Big Beautiful Bill",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
+      "confidence": 0.85,
+      "ambiguity_reason": "Biden could refer to President Biden's legislative agenda or bills where Biden is a co-sponsor/supporter",
+      "keywords": [],
+      "entity_name": null
     }
   },
   {
-    "timestamp": "2026-05-09T15:13:59.162588",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "Big",
-        "Beautiful",
-        "Bill"
-      ],
-      "topic": "Big Beautiful Bill"
-    },
-    "output": {
-      "expanded_terms": [
-        "infrastructure",
-        "economic development",
-        "appropriations",
-        "authorization",
-        "comprehensive reform",
-        "public works",
-        "capital investment"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:13:59.860131",
+    "timestamp": "2026-05-10T17:40:50.208385",
     "agent": "search",
     "action": "search_bills",
     "input": {
-      "keywords": [
-        "infrastructure",
-        "economic development",
-        "appropriations",
-        "authorization",
-        "comprehensive reform",
-        "public works",
-        "capital investment"
-      ],
+      "keywords": [],
       "result_count": 5,
       "status": "any"
     },
     "output": {
-      "total_available": 22383,
+      "total_available": 44364,
       "results_returned": 5
     }
   },
   {
-    "timestamp": "2026-05-09T15:13:59.864554",
+    "timestamp": "2026-05-10T17:40:50.210809",
     "agent": "api",
     "action": "search",
     "input": {
-      "question": "Big Beautiful Bill"
+      "question": "Bills Biden passed"
     },
     "output": {
       "results_count": 5
     }
   },
   {
-    "timestamp": "2026-05-09T15:14:17.689575",
-    "agent": "router",
-    "action": "route_query",
+    "timestamp": "2026-05-10T17:40:56.332131",
+    "agent": "feed",
+    "action": "fetch_feed",
     "input": {
-      "question": "Hope"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "hope"
+      "interests": [
+        "gun_policy"
       ],
-      "topic": "hope legislation",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
+      "reps": [
+        "W000805",
+        "K000384",
+        "G000568"
       ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:14:18.707064",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "hope"
-      ],
-      "topic": "hope legislation"
     },
     "output": {
-      "expanded_terms": [
-        "HOPE Act",
-        "HOPE scholarship",
-        "homeownership",
-        "foreclosure prevention",
-        "housing opportunity",
-        "mortgage assistance",
-        "residential stability"
-      ]
+      "total_items": 13
     }
   },
   {
-    "timestamp": "2026-05-09T15:14:19.642622",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "HOPE Act",
-        "HOPE scholarship",
-        "homeownership",
-        "foreclosure prevention",
-        "housing opportunity",
-        "mortgage assistance",
-        "residential stability"
-      ],
-      "result_count": 5,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 341,
-      "results_returned": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:14:19.645519",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "Hope"
-    },
-    "output": {
-      "results_count": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:14:37.088163",
-    "agent": "bill_fetcher",
-    "action": "fetch_bill",
-    "input": {
-      "congress": 119,
-      "type": "hr",
-      "number": 6998
-    },
-    "output": {
-      "title": "Renewed Hope Act",
-      "status": "Ordered to be Reported (Amended) by Voice Vote."
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:14:37.765534",
-    "agent": "historian",
-    "action": "fetch_bill_actions",
-    "input": {
-      "congress": 119,
-      "type": "hr",
-      "number": 6998
-    },
-    "output": {
-      "action_count": 5
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:14:40.651529",
-    "agent": "translator",
-    "action": "translate_bill",
-    "input": {
-      "title": "Renewed Hope Act",
-      "sponsor": "Rep. Lee, Laurel M. [R-FL-15]"
-    },
-    "output": {
-      "translation_preview": "# Renewed Hope Act - Plain English Explanation\n\n## 1. What This Bill Is\nThis bill provides money and"
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:14:40.654982",
-    "agent": "vote_parser",
-    "action": "parse_vote_references",
-    "input": {
-      "action_count": 5
-    },
-    "output": {
-      "house_found": false,
-      "senate_found": false,
-      "house_roll": null,
-      "senate_roll": null
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:14:43.297871",
-    "agent": "historian",
-    "action": "summarize_history",
-    "input": {
-      "action_count": 5
-    },
-    "output": {
-      "preview": "# Bill Timeline\n\n**January 9, 2026:** The bill was introduced in the House of Representatives.\n\n**Ja"
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:14:43.306538",
-    "agent": "api",
-    "action": "get_bill",
-    "input": {
-      "congress": 119,
-      "type": "hr",
-      "number": 6998
-    },
-    "output": {
-      "status": "complete",
-      "house_votes": 0,
-      "senate_votes": 0
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:15:00.585254",
-    "agent": "router",
-    "action": "route_query",
-    "input": {
-      "question": "Latest Trump bill"
-    },
-    "output": {
-      "query_type": "legislation",
-      "entity_name": null,
-      "keywords": [
-        "Trump"
-      ],
-      "topic": "Trump bills",
-      "time_range": "presidential term",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        115,
-        116
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:15:01.746878",
-    "agent": "query_expander",
-    "action": "expand_query",
-    "input": {
-      "keywords": [
-        "Trump"
-      ],
-      "topic": "Trump bills"
-    },
-    "output": {
-      "expanded_terms": [
-        "Trump administration",
-        "executive order",
-        "presidential veto",
-        "Tax Cuts and Jobs Act",
-        "trade agreement",
-        "immigration enforcement",
-        "judicial confirmation"
-      ]
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:15:02.425984",
-    "agent": "search",
-    "action": "search_bills",
-    "input": {
-      "keywords": [
-        "Trump administration",
-        "executive order",
-        "presidential veto",
-        "Tax Cuts and Jobs Act",
-        "trade agreement",
-        "immigration enforcement",
-        "judicial confirmation"
-      ],
-      "result_count": 5,
-      "status": "any"
-    },
-    "output": {
-      "total_available": 2471,
-      "results_returned": 3
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:15:02.429346",
-    "agent": "api",
-    "action": "search",
-    "input": {
-      "question": "Latest Trump bill"
-    },
-    "output": {
-      "results_count": 3
-    }
-  },
-  {
-    "timestamp": "2026-05-09T15:24:28.800595",
+    "timestamp": "2026-05-10T17:41:02.377828",
     "agent": "router",
     "action": "route_query",
     "input": {
@@ -4792,23 +419,14 @@
     },
     "output": {
       "query_type": "member",
-      "entity_name": "Bernie Sanders",
+      "confidence": 1.0,
+      "ambiguity_reason": null,
       "keywords": [],
-      "topic": "",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
-      ]
+      "entity_name": "Bernie Sanders"
     }
   },
   {
-    "timestamp": "2026-05-09T15:24:33.208509",
+    "timestamp": "2026-05-10T17:41:07.579044",
     "agent": "member_search",
     "action": "search_member",
     "input": {
@@ -4821,7 +439,7 @@
     }
   },
   {
-    "timestamp": "2026-05-09T15:24:33.585504",
+    "timestamp": "2026-05-10T17:41:07.914206",
     "agent": "member_search",
     "action": "fetch_member_profile",
     "input": {
@@ -4833,7 +451,7 @@
     }
   },
   {
-    "timestamp": "2026-05-09T15:24:38.448327",
+    "timestamp": "2026-05-10T17:41:13.846666",
     "agent": "member_search",
     "action": "fetch_member_legislation",
     "input": {
@@ -4845,7 +463,7 @@
     }
   },
   {
-    "timestamp": "2026-05-09T15:24:52.771193",
+    "timestamp": "2026-05-10T17:41:22.014941",
     "agent": "bill_fetcher",
     "action": "fetch_bill",
     "input": {
@@ -4859,7 +477,7 @@
     }
   },
   {
-    "timestamp": "2026-05-09T15:24:53.296126",
+    "timestamp": "2026-05-10T17:41:22.522070",
     "agent": "historian",
     "action": "fetch_bill_actions",
     "input": {
@@ -4872,7 +490,7 @@
     }
   },
   {
-    "timestamp": "2026-05-09T15:24:56.245228",
+    "timestamp": "2026-05-10T17:41:25.213565",
     "agent": "translator",
     "action": "translate_bill",
     "input": {
@@ -4880,11 +498,11 @@
       "sponsor": "Sen. Sanders, Bernard [I-VT]"
     },
     "output": {
-      "translation_preview": "# Protecting America's Workers Act \u2013 Plain English\n\n## 1. What this bill is\nThis bill would give wor"
+      "translation_preview": "# Protecting America's Workers Act \u2013 Plain English Explanation\n\n## 1. What This Bill Is\nThis bill wo"
     }
   },
   {
-    "timestamp": "2026-05-09T15:24:56.249830",
+    "timestamp": "2026-05-10T17:41:25.215163",
     "agent": "vote_parser",
     "action": "parse_vote_references",
     "input": {
@@ -4898,18 +516,18 @@
     }
   },
   {
-    "timestamp": "2026-05-09T15:24:58.279222",
+    "timestamp": "2026-05-10T17:41:27.058199",
     "agent": "historian",
     "action": "summarize_history",
     "input": {
       "action_count": 2
     },
     "output": {
-      "preview": "# Timeline for This Bill\n\n**April 28, 2026:** A senator introduced this bill in the Senate. On the s"
+      "preview": "# Bill Timeline\n\n**April 28, 2026**: A senator introduced this bill in the Senate. On the same day, "
     }
   },
   {
-    "timestamp": "2026-05-09T15:24:58.284686",
+    "timestamp": "2026-05-10T17:41:27.059021",
     "agent": "api",
     "action": "get_bill",
     "input": {
@@ -4924,112 +542,1333 @@
     }
   },
   {
-    "timestamp": "2026-05-09T16:05:22.240090",
+    "timestamp": "2026-05-10T17:41:57.163188",
     "agent": "router",
     "action": "route_query",
     "input": {
-      "question": "Bernie Sanders"
+      "question": "Bills passed under trump recently"
     },
     "output": {
-      "query_type": "member",
-      "entity_name": "Bernie Sanders",
-      "keywords": [],
-      "topic": "",
-      "time_range": "last 5 years",
-      "bill_type": "all",
-      "result_count": 5,
-      "specific_bill": null,
-      "status": "any",
-      "congress_numbers": [
-        119,
-        118,
-        117
+      "query_type": "legislation",
+      "confidence": 0.75,
+      "ambiguity_reason": "Trump could refer to legislation during Trump's presidency or recently passed bills under Trump's influence; time reference is vague",
+      "keywords": [
+        "Trump"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:41:58.083054",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "Trump"
+      ],
+      "topic": "bills passed under Trump"
+    },
+    "output": {
+      "expanded_terms": [
+        "45th President",
+        "Trump administration",
+        "2017-2021",
+        "executive order",
+        "Tax Cuts and Jobs Act",
+        "TCJA",
+        "regulatory reform"
       ]
     }
   },
   {
-    "timestamp": "2026-05-09T16:05:22.897755",
+    "timestamp": "2026-05-10T17:41:58.585381",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [
+        "45th President",
+        "Trump administration",
+        "2017-2021",
+        "executive order",
+        "Tax Cuts and Jobs Act",
+        "TCJA",
+        "regulatory reform"
+      ],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 3292,
+      "results_returned": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:41:58.588216",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Bills passed under trump recently"
+    },
+    "output": {
+      "results_count": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:42:42.731338",
+    "agent": "analyst",
+    "action": "analyze",
+    "input": {
+      "days": 7,
+      "searches_analyzed": 48
+    },
+    "output": {
+      "report_length": 1837
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:44:29.241201",
+    "agent": "analyst",
+    "action": "analyze",
+    "input": {
+      "days": 7,
+      "searches_analyzed": 48
+    },
+    "output": {
+      "report_length": 1950
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:44:40.492671",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Bills passed under trump recently"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.75,
+      "ambiguity_reason": "Trump could refer to bills passed during Trump's presidency (2017-2021) or bills passed recently that Trump supported, creating temporal ambiguity",
+      "keywords": [
+        "Trump"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:44:41.377237",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "Trump"
+      ],
+      "topic": "bills passed under Trump administration"
+    },
+    "output": {
+      "expanded_terms": [
+        "Trump administration",
+        "45th presidency",
+        "2017-2021",
+        "executive order",
+        "Tax Cuts and Jobs Act",
+        "TCJA",
+        "regulatory rollback"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:44:42.128344",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [
+        "Trump administration",
+        "45th presidency",
+        "2017-2021",
+        "executive order",
+        "Tax Cuts and Jobs Act",
+        "TCJA",
+        "regulatory rollback"
+      ],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 3233,
+      "results_returned": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:44:42.130072",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Bills passed under trump recently"
+    },
+    "output": {
+      "results_count": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:44:57.590996",
+    "agent": "analyst",
+    "action": "analyze",
+    "input": {
+      "days": 7,
+      "searches_analyzed": 1
+    },
+    "output": {
+      "report_length": 1358
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:46:33.848984",
+    "agent": "analyst",
+    "action": "analyze",
+    "input": {
+      "days": 7,
+      "searches_analyzed": 1
+    },
+    "output": {
+      "report_length": 1528
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:46:38.764370",
+    "agent": "analyst",
+    "action": "analyze",
+    "input": {
+      "days": 7,
+      "searches_analyzed": 1
+    },
+    "output": {
+      "report_length": 1588
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:49:38.603355",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Bills passed under trump recently"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.75,
+      "ambiguity_reason": "Query references Trump administration but doesn't specify if searching for bills authored by Trump, passed during his presidency, or bills related to Trump.",
+      "keywords": [],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:49:39.323992",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 17888,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:49:39.324937",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Bills passed under trump recently"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:49:55.227064",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1260
+    },
+    "output": {
+      "title": "Supporting the designation of May 10, 2026, as \"National Asian American, Native Hawaiian, and Pacific Islander Mental Health Day\".",
+      "status": "Referred to the House Committee on Energy and Commerce."
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:49:55.738563",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1260
+    },
+    "output": {
+      "action_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:49:58.754368",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Supporting the designation of May 10, 2026, as \"National Asian American, Native Hawaiian, and Pacific Islander Mental Health Day\".",
+      "sponsor": "Rep. Chu, Judy [D-CA-28]"
+    },
+    "output": {
+      "translation_preview": "# What This Bill Does\n\n**In one sentence:** This bill officially declares May 10, 2026, as a nationa"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:49:58.757325",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:49:59.986303",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**May 7, 2026:** The bill was introduced in the House of Representatives and immedi"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:49:59.987291",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1260
+    },
+    "output": {
+      "status": "complete",
+      "house_votes": 0,
+      "senate_votes": 0
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:51:20.897697",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Bills passed under trump recently"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.75,
+      "ambiguity_reason": "Trump could refer to bills passed during Trump's presidency (2017-2021) or bills passed recently that Trump supported, creating temporal ambiguity",
+      "keywords": [],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:51:21.532401",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [],
+      "result_count": 5,
+      "status": "enacted"
+    },
+    "output": {
+      "total_available": 89,
+      "results_returned": 0
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:52:00.096861",
+    "agent": "analyst",
+    "action": "analyze",
+    "input": {
+      "days": 7,
+      "searches_analyzed": 2
+    },
+    "output": {
+      "report_length": 1419
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:52:04.509337",
+    "agent": "analyst",
+    "action": "analyze",
+    "input": {
+      "days": 7,
+      "searches_analyzed": 2
+    },
+    "output": {
+      "report_length": 1486
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:52:10.915798",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Bills passed under trump recently"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.75,
+      "ambiguity_reason": "Trump could refer to bills sponsored by Trump or bills passed during Trump's presidency; 'recently' is relative",
+      "keywords": [
+        "bills"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:52:11.735170",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "bills"
+      ],
+      "topic": "bills passed during Trump administration"
+    },
+    "output": {
+      "expanded_terms": [
+        "enacted legislation",
+        "signed into law",
+        "Public Law",
+        "statute",
+        "legislative passage",
+        "bill signing",
+        "statutory authority"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:52:12.214122",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [
+        "enacted legislation",
+        "signed into law",
+        "Public Law",
+        "statute",
+        "legislative passage",
+        "bill signing",
+        "statutory authority"
+      ],
+      "result_count": 5,
+      "status": "enacted"
+    },
+    "output": {
+      "total_available": 65,
+      "results_returned": 0
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:52:28.151964",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Bills passed under trump recently"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.65,
+      "ambiguity_reason": "Query mentions Trump but unclear if seeking bills he sponsored/authored versus bills passed during his presidency/administration",
+      "keywords": [],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:52:28.972375",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [],
+      "result_count": 5,
+      "status": "enacted"
+    },
+    "output": {
+      "total_available": 89,
+      "results_returned": 0
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:52:47.124135",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Bills passed under trump recently"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.75,
+      "ambiguity_reason": "Trump could refer to bills sponsored by Trump-era legislators or bills passed during Trump's presidency; temporal scope unclear",
+      "keywords": [
+        "trump"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:52:48.237924",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "trump"
+      ],
+      "topic": "bills passed during Trump administration"
+    },
+    "output": {
+      "expanded_terms": [
+        "45th presidency",
+        "2017-2021 congressional session",
+        "Tax Cuts and Jobs Act",
+        "TCJA",
+        "regulatory rollback",
+        "trade tariff",
+        "USMCA",
+        "judicial appointment",
+        "executive order"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:52:48.988736",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [
+        "45th presidency",
+        "2017-2021 congressional session",
+        "Tax Cuts and Jobs Act",
+        "TCJA",
+        "regulatory rollback",
+        "trade tariff",
+        "USMCA",
+        "judicial appointment",
+        "executive order"
+      ],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 1895,
+      "results_returned": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:52:48.992231",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Bills passed under trump recently"
+    },
+    "output": {
+      "results_count": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:55:16.816579",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Bills passed under trump recently"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.9,
+      "ambiguity_reason": null,
+      "keywords": [],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:55:17.318828",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 56848,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:55:17.320454",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Bills passed under trump recently"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:55:43.265688",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1260
+    },
+    "output": {
+      "title": "Supporting the designation of May 10, 2026, as \"National Asian American, Native Hawaiian, and Pacific Islander Mental Health Day\".",
+      "status": "Referred to the House Committee on Energy and Commerce."
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:55:43.602970",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1260
+    },
+    "output": {
+      "action_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:55:46.916657",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Supporting the designation of May 10, 2026, as \"National Asian American, Native Hawaiian, and Pacific Islander Mental Health Day\".",
+      "sponsor": "Rep. Chu, Judy [D-CA-28]"
+    },
+    "output": {
+      "translation_preview": "# What This Bill Does\n\n**In one sentence:** This bill officially designates May 10, 2026, as a natio"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:55:46.918048",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:55:48.658143",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**May 7, 2026:** The bill was introduced in the House of Representatives and immedi"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:55:48.661646",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1260
+    },
+    "output": {
+      "status": "complete",
+      "house_votes": 0,
+      "senate_votes": 0
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:56:35.979573",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Bills passed under trump recently"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.95,
+      "ambiguity_reason": null,
+      "keywords": [],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:56:37.031548",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [],
+      "result_count": 5,
+      "status": "enacted"
+    },
+    "output": {
+      "total_available": 876,
+      "results_returned": 0
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:56:44.883203",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Bills passed under trump recently"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.9,
+      "ambiguity_reason": null,
+      "keywords": [],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:56:45.316283",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [],
+      "result_count": 5,
+      "status": "enacted"
+    },
+    "output": {
+      "total_available": 876,
+      "results_returned": 0
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:56:48.581667",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Bills passed under trump recently"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.9,
+      "ambiguity_reason": null,
+      "keywords": [],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:56:49.004198",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 56848,
+      "results_returned": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:56:49.005495",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Bills passed under trump recently"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:57:09.255754",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 8680
+    },
+    "output": {
+      "title": "Armed Forces Carry Rights Protection Act of 2026",
+      "status": "Referred to the House Committee on Armed Services."
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:57:09.773740",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 8680
+    },
+    "output": {
+      "action_count": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:57:13.147810",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Armed Forces Carry Rights Protection Act of 2026",
+      "sponsor": "Rep. Crank, Jeff [R-CO-5]"
+    },
+    "output": {
+      "translation_preview": "# Armed Forces Carry Rights Protection Act of 2026 - Plain English Explanation\n\n## 1. What This Bill"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:57:13.149198",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 3
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:57:14.880046",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 3
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**May 7, 2026:** A bill was introduced in the House of Representatives and immediat"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:57:14.883183",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 8680
+    },
+    "output": {
+      "status": "complete",
+      "house_votes": 0,
+      "senate_votes": 0
+    }
+  },
+  {
+    "timestamp": "2026-05-10T17:59:50.522977",
+    "agent": "feed",
+    "action": "fetch_feed",
+    "input": {
+      "interests": [
+        "gun_policy"
+      ],
+      "reps": [
+        "W000805",
+        "K000384",
+        "G000568"
+      ]
+    },
+    "output": {
+      "total_items": 13
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:00:03.361710",
+    "agent": "civic_resolver",
+    "action": "resolve_zip",
+    "input": {
+      "zip_code": "20151"
+    },
+    "output": {
+      "state": "VA",
+      "senators": [
+        "Mark Warner",
+        "Timothy Kaine"
+      ],
+      "representative": "H. Griffith"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:00:03.548314",
+    "agent": "civic_resolver",
+    "action": "resolve_zip",
+    "input": {
+      "zip_code": "20151"
+    },
+    "output": {
+      "state": "VA",
+      "senators": [
+        "Mark Warner",
+        "Timothy Kaine"
+      ],
+      "representative": "H. Griffith"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:00:09.131732",
+    "agent": "feed",
+    "action": "fetch_feed",
+    "input": {
+      "interests": [
+        "education"
+      ],
+      "reps": [
+        "W000805",
+        "K000384",
+        "G000568"
+      ]
+    },
+    "output": {
+      "total_items": 13
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:00:36.308979",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Ted Kennedy"
+    },
+    "output": {
+      "query_type": "member",
+      "confidence": 1.0,
+      "ambiguity_reason": null,
+      "keywords": [],
+      "entity_name": "Ted Kennedy"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:00:39.517726",
     "agent": "member_search",
     "action": "search_member",
     "input": {
-      "name": "Bernie Sanders"
+      "name": "Ted Kennedy"
     },
     "output": {
-      "found": "Sanders, Bernard",
-      "bioguide_id": "S000033",
+      "found": "Kennedy, Edward M.",
+      "bioguide_id": "K000105",
       "score": 4
     }
   },
   {
-    "timestamp": "2026-05-09T16:05:23.269314",
+    "timestamp": "2026-05-10T18:00:40.291147",
     "agent": "member_search",
     "action": "fetch_member_profile",
     "input": {
-      "bioguide_id": "S000033"
+      "bioguide_id": "K000105"
     },
     "output": {
-      "name": "Bernard Sanders",
-      "years_served": 35
+      "name": "Edward M. Kennedy",
+      "years_served": 48
     }
   },
   {
-    "timestamp": "2026-05-09T16:05:24.060296",
+    "timestamp": "2026-05-10T18:00:47.968667",
     "agent": "member_search",
     "action": "fetch_member_legislation",
     "input": {
-      "bioguide_id": "S000033"
+      "bioguide_id": "K000105"
     },
     "output": {
-      "sponsored_count": 1169,
-      "cosponsored_count": 7854
+      "sponsored_count": 2552,
+      "cosponsored_count": 6967
     }
   },
   {
-    "timestamp": "2026-05-09T21:18:10.523087",
-    "agent": "civic_resolver",
-    "action": "resolve_zip",
+    "timestamp": "2026-05-10T18:01:19.412287",
+    "agent": "router",
+    "action": "route_query",
     "input": {
-      "zip_code": "05401"
+      "question": "Senate Judiciary Committee"
     },
     "output": {
-      "state": "VT",
-      "senators": [
-        "Bernard Sanders",
-        "Peter Welch"
-      ],
-      "representative": "Becca Balint"
+      "query_type": "committee",
+      "confidence": 1.0,
+      "ambiguity_reason": null,
+      "keywords": [],
+      "entity_name": "Senate Judiciary Committee"
     }
   },
   {
-    "timestamp": "2026-05-09T21:18:10.573626",
-    "agent": "civic_resolver",
-    "action": "resolve_zip",
+    "timestamp": "2026-05-10T18:02:49.624908",
+    "agent": "router",
+    "action": "route_query",
     "input": {
-      "zip_code": "10001"
+      "question": "Senate Judiciary Committee"
     },
     "output": {
-      "state": "NY",
-      "senators": [
-        "Kirsten Gillibrand",
-        "Charles Schumer"
-      ],
-      "representative": "Yvette Clarke"
+      "query_type": "committee",
+      "confidence": 1.0,
+      "ambiguity_reason": null,
+      "keywords": [],
+      "entity_name": "Senate Judiciary Committee"
     }
   },
   {
-    "timestamp": "2026-05-09T21:18:10.645872",
-    "agent": "civic_resolver",
-    "action": "resolve_zip",
+    "timestamp": "2026-05-10T18:03:04.239705",
+    "agent": "router",
+    "action": "route_query",
     "input": {
-      "zip_code": "90210"
+      "question": "senate judiciary committee"
     },
     "output": {
-      "state": "CA",
-      "senators": [
-        "Adam Schiff",
-        "Alejandro Padilla"
+      "query_type": "committee",
+      "confidence": 1.0,
+      "ambiguity_reason": null,
+      "keywords": [],
+      "entity_name": "Senate Judiciary Committee"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:03:16.845466",
+    "agent": "feed",
+    "action": "fetch_feed",
+    "input": {
+      "interests": [
+        "education"
       ],
-      "representative": "Ken Calvert"
+      "reps": [
+        "W000805",
+        "K000384",
+        "G000568"
+      ]
+    },
+    "output": {
+      "total_items": 13
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:03:41.650099",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Senate Judiciary Committee"
+    },
+    "output": {
+      "query_type": "committee",
+      "confidence": 1.0,
+      "ambiguity_reason": null,
+      "keywords": [],
+      "entity_name": "Senate Judiciary Committee"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:05:45.401935",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Senate Judiciary Committee"
+    },
+    "output": {
+      "query_type": "committee",
+      "confidence": 1.0,
+      "ambiguity_reason": null,
+      "keywords": [],
+      "entity_name": "Senate Judiciary Committee"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:07:16.385308",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Senate Judiciary Committee"
+    },
+    "output": {
+      "query_type": "committee",
+      "confidence": 1.0,
+      "ambiguity_reason": null,
+      "keywords": [],
+      "entity_name": "Senate Judiciary Committee"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:07:38.115178",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Senate Judiciary Committee"
+    },
+    "output": {
+      "query_type": "committee",
+      "confidence": 1.0,
+      "ambiguity_reason": null,
+      "keywords": [],
+      "entity_name": "Senate Judiciary Committee"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:08:17.516979",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Senate Judiciary Committee"
+    },
+    "output": {
+      "query_type": "committee",
+      "confidence": 1.0,
+      "ambiguity_reason": null,
+      "keywords": [],
+      "entity_name": "Senate Judiciary Committee"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:08:54.277814",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Senate Judiciary Committee"
+    },
+    "output": {
+      "query_type": "committee",
+      "confidence": 1.0,
+      "ambiguity_reason": null,
+      "keywords": [],
+      "entity_name": "Senate Judiciary Committee"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:09:37.442555",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Senate Judiciary Committee"
+    },
+    "output": {
+      "query_type": "committee",
+      "confidence": 1.0,
+      "ambiguity_reason": null,
+      "keywords": [],
+      "entity_name": "Senate Judiciary Committee"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:09:42.425610",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 110,
+      "type": "hconres",
+      "number": 71
+    },
+    "output": {
+      "title": "Commemorating the 85th Anniversary of the founding of the American Hellenic Educational Progressive Association (AHEPA), a leading association for the Nation's 1.3 million American citizens of Greek ancestry, and Philhellenes.",
+      "status": "Message on Senate action sent to the House."
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:09:43.316740",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 110,
+      "type": "hconres",
+      "number": 71
+    },
+    "output": {
+      "action_count": 17
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:09:45.444729",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Commemorating the 85th Anniversary of the founding of the American Hellenic Educational Progressive Association (AHEPA), a leading association for the Nation's 1.3 million American citizens of Greek ancestry, and Philhellenes.",
+      "sponsor": "Rep. Maloney, Carolyn B. [D-NY-14]"
+    },
+    "output": {
+      "translation_preview": "# Plain English Explanation\n\n## 1. What this bill is in one sentence\nThis bill is a statement from C"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:09:45.446700",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 17
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:09:48.129968",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 17
+    },
+    "output": {
+      "preview": "# How H. Con. Res. 71 Moved Through Congress\n\n**February 16, 2007:** The resolution was introduced i"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:09:48.131691",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 110,
+      "type": "hconres",
+      "number": 71
+    },
+    "output": {
+      "status": "complete",
+      "house_votes": 0,
+      "senate_votes": 0
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:12:14.994612",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Senate Judiciary Committee"
+    },
+    "output": {
+      "query_type": "committee",
+      "confidence": 1.0,
+      "ambiguity_reason": null,
+      "keywords": [],
+      "entity_name": "Senate Judiciary Committee"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:13:57.166633",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Senate Judiciary Committee"
+    },
+    "output": {
+      "query_type": "committee",
+      "confidence": 1.0,
+      "ambiguity_reason": null,
+      "keywords": [],
+      "entity_name": "Senate Judiciary Committee"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:15:11.415820",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Senate Judiciary Committee"
+    },
+    "output": {
+      "query_type": "committee",
+      "confidence": 1.0,
+      "ambiguity_reason": null,
+      "keywords": [],
+      "entity_name": "Senate Judiciary Committee"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:16:24.014027",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Most recent bill under trump that has passed"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.9,
+      "ambiguity_reason": null,
+      "keywords": [],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:16:24.418646",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [],
+      "result_count": 1,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 56848,
+      "results_returned": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:16:24.420641",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Most recent bill under trump that has passed"
+    },
+    "output": {
+      "results_count": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:16:33.328511",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Most recent bill under trump that has 'passed'"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.9,
+      "ambiguity_reason": null,
+      "keywords": [],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:16:34.072013",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [],
+      "result_count": 1,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 56848,
+      "results_returned": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:16:34.076039",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Most recent bill under trump that has 'passed'"
+    },
+    "output": {
+      "results_count": 1
     }
   }
 ]

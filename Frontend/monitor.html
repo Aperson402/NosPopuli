@@ -406,7 +406,10 @@
 
 <!-- Analytics panel -->
 <div class="analytics-panel" id="tab-analytics">
-  <button class="refresh-btn" onclick="loadAnalytics()">↻ Refresh Analysis</button>
+  <div style="display:flex;gap:0.75rem;margin-bottom:1.5rem">
+    <button class="refresh-btn" style="margin-bottom:0" onclick="loadAnalytics()">↻ Refresh Analysis</button>
+    <button class="refresh-btn" style="margin-bottom:0;border-color:var(--red);color:var(--red)" onclick="clearSearchLog()">✕ Clear Search Log</button>
+  </div>
 
   <div class="stat-cards" id="stat-cards">
     <div class="stat-card">
@@ -563,7 +566,7 @@
               <div class="data-value">${String(v).slice(0,120)}</div>
             </div>
           `).join('')}
-          ${outputKeys.slice(0,2).map(([k,v]) => `
+          ${outputKeys.slice(0,4).map(([k,v]) => `
             <div class="data-block">
               <div class="data-label">OUT · ${k}</div>
               <div class="data-value">${String(v).slice(0,120)}</div>
@@ -751,6 +754,22 @@
 
     } catch(e) {
       document.getElementById('analysis-report').textContent = 'Failed to load analysis. Is the server running?';
+    }
+  }
+
+  async function clearSearchLog() {
+    if (!confirm('Clear all search log data? This cannot be undone.')) return;
+    try {
+      await fetch('/monitor/clear-search-log', { method: 'POST' });
+      document.getElementById('stat-searches').textContent = '0';
+      document.getElementById('stat-bills').textContent = '0';
+      document.getElementById('stat-members').textContent = '0';
+      document.getElementById('analysis-report').textContent = 'Search log cleared.';
+      document.getElementById('top-queries').innerHTML = '';
+      document.getElementById('zero-results').innerHTML = '';
+      document.getElementById('top-bills').innerHTML = '';
+    } catch(e) {
+      alert('Failed to clear search log.');
     }
   }
 

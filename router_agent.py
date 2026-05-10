@@ -96,70 +96,96 @@ def route_query(user_question, client):
     """
     
     prompt = f"""
-    You are a query router for a legislative search system.
-    Extract search intent from a plain English question.
-    Return ONLY valid JSON, no markdown, no explanation.
+You are a query router for a legislative search system.
+Extract search intent from a plain English question.
+Return ONLY valid JSON, no markdown, no explanation.
 
-    User question: {user_question}
+CURRENT DATE CONTEXT (authoritative — do not use training-data assumptions):
+- Today is 2026. Donald Trump is the current U.S. President (second term, began January 2025).
+- The current Congress is the 119th (2025–2026).
+- Biden served 2021–2025 (117th and 118th Congresses).
+- Trump's first term was 2017–2021 (115th and 116th Congresses).
+- When the user says "recently" or "now" in relation to Trump, they mean his CURRENT second term (119th Congress), not his first.
 
-    Rules for query_type:
-    - A person's name, "Senator X", "Representative X", "what did X do", "X's record", "X's votes", "who is X" → "member"
-    - "X Committee", "committee on X", "House/Senate committee" → "committee"
-    - Everything else → "legislation"
+User question: {user_question}
 
-    Rules for entity_name:
-    - For member queries: extract the person's name only. "What did Ted Kennedy do" → "Ted Kennedy"
-    - For committee queries: extract the committee name. "Senate Judiciary Committee" → "Senate Judiciary Committee"
-    - For legislation queries: null
+Rules for query_type:
+- A person's name, "Senator X", "Representative X", "what did X do", "X's record", "X's votes", "who is X" → "member"
+- "X Committee", "committee on X", "House/Senate committee" → "committee"
+- Everything else → "legislation"
 
-    Rules for result_count:
-    - "a bill", "one bill", "a law", "an example" → 1
-    - "a few", "some" → 3
-    - No quantity mentioned → 5
-    - "many", "lots", explicit number → that number
-    - Maximum: 20
+Rules for confidence (0.0 to 1.0):
+- 1.0 → completely unambiguous. "HR 3590", "Ted Kennedy", "Senate Judiciary Committee"
+- 0.8 → clear intent with minor uncertainty. "healthcare bills", "Bernie Sanders record"
+- 0.6 → some ambiguity. "Kennedy healthcare" could be member or legislation
+- 0.4 → significant ambiguity. Mixed signals, unclear intent
+- 0.2 → very unclear. Could mean many things
+- Always explain low confidence (below 0.7) in ambiguity_reason
 
-    Rules for specific_bill:
-    - If user mentions a bill number like "HR 3590", "S 1234" → extract it
-    - Otherwise → null
+Rules for ambiguity_reason:
+- null if confidence >= 0.7
+- One sentence explaining the ambiguity if confidence < 0.7
+- Example: "Kennedy could refer to a person or legislation named after Kennedy"
 
-    Rules for status:
-    - "passed", "became law", "signed", "enacted", "a law" → "enacted"
-    - "failed", "rejected" → "failed"
-    - No status mentioned → "any"
+Rules for entity_name:
+- For member queries: extract the person's name only
+- For committee queries: extract the committee name
+- For legislation queries: null
 
-    Rules for keywords (legislation only):
-    - Extract ONLY subject matter nouns
-    - NEVER include: show, me, bills, find, a, one, some, what, has, done, about, related, to, from, the, give, senator, representative
+Rules for result_count:
+- "a bill", "one bill", "a law", "an example" → 1
+- "a few", "some" → 3
+- No quantity mentioned → 5
+- "many", "lots", explicit number → that number
+- Maximum: 20
 
-    Rules for time_range:
-    - "recent", "recently" → "last 2 years"
-    - "last 5 years" or nothing → "last 5 years"
-    - "last 10 years" → "last 10 years"
+Rules for specific_bill:
+- If user mentions a bill number like "HR 3590", "S 1234" → extract it
+- Otherwise → null
 
-    Examples:
-    "What did Ted Kennedy do in Congress?" →
-    {{"query_type": "member", "entity_name": "Ted Kennedy", "keywords": [], "topic": "", "time_range": "last 5 years", "bill_type": "all", "result_count": 5, "specific_bill": null, "status": "any"}}
+Rules for status:
+- "passed", "became law", "signed", "enacted", "a law" → "enacted"
+- "failed", "rejected" → "failed"
+- No status mentioned → "any"
 
-    "Show me the Senate Judiciary Committee" →
-    {{"query_type": "committee", "entity_name": "Senate Judiciary Committee", "keywords": [], "topic": "", "time_range": "last 5 years", "bill_type": "all", "result_count": 5, "specific_bill": null, "status": "any"}}
+Rules for keywords (legislation only):
+- Extract ONLY subject matter nouns
+- NEVER include: show, me, bills, find, a, one, some, what, has, done, about, related, to, from, the, give, senator, representative
 
-    "Find bills about climate change" →
-    {{"query_type": "legislation", "entity_name": null, "keywords": ["climate", "change"], "topic": "climate change legislation", "time_range": "last 5 years", "bill_type": "all", "result_count": 5, "specific_bill": null, "status": "any"}}
+Rules for time_range:
+- "recent", "recently" → "last 2 years"
+- "last 5 years" or nothing → "last 5 years"
+- "last 10 years" → "last 10 years"
+- Presidential terms handled separately
 
-    Return ONLY this JSON structure:
-    {{
-        "query_type": "legislation",
-        "entity_name": null,
-        "keywords": ["keyword1"],
-        "topic": "description",
-        "time_range": "last 5 years",
-        "bill_type": "all",
-        "result_count": 5,
-        "specific_bill": null,
-        "status": "any"
-    }}
-    """
+Examples:
+"HR 3590" →
+{{"query_type": "legislation", "confidence": 1.0, "ambiguity_reason": null, "entity_name": null, "keywords": [], "topic": "specific bill HR 3590", "time_range": "last 5 years", "bill_type": "hr", "result_count": 1, "specific_bill": {{"type": "hr", "number": 3590, "congress": null}}, "status": "any"}}
+
+"Kennedy healthcare" →
+{{"query_type": "legislation", "confidence": 0.5, "ambiguity_reason": "Kennedy could refer to Senator Ted Kennedy or legislation named after Kennedy", "entity_name": null, "keywords": ["healthcare"], "topic": "Kennedy healthcare legislation", "time_range": "last 5 years", "bill_type": "all", "result_count": 5, "specific_bill": null, "status": "any"}}
+
+"Ted Kennedy" →
+{{"query_type": "member", "confidence": 0.95, "ambiguity_reason": null, "entity_name": "Ted Kennedy", "keywords": [], "topic": "", "time_range": "last 5 years", "bill_type": "all", "result_count": 5, "specific_bill": null, "status": "any"}}
+
+"Senate Judiciary Committee" →
+{{"query_type": "committee", "confidence": 1.0, "ambiguity_reason": null, "entity_name": "Senate Judiciary Committee", "keywords": [], "topic": "", "time_range": "last 5 years", "bill_type": "all", "result_count": 5, "specific_bill": null, "status": "any"}}
+
+Return ONLY this JSON structure:
+{{
+    "query_type": "legislation",
+    "confidence": 0.9,
+    "ambiguity_reason": null,
+    "entity_name": null,
+    "keywords": ["keyword1"],
+    "topic": "description",
+    "time_range": "last 5 years",
+    "bill_type": "all",
+    "result_count": 5,
+    "specific_bill": null,
+    "status": "any"
+}}
+"""
     
     message = client.messages.create(
         model="claude-haiku-4-5-20251001",
@@ -239,22 +265,23 @@ def route_query(user_question, client):
                     structured["entity_name"] = None
 
     log_action(
-        agent_name="router",
-        action="route_query",
-        input_data={"question": user_question},
-        output_data=structured
-    )
+    agent_name="router",
+    action="route_query",
+    input_data={"question": user_question},
+    output_data={
+        "query_type": structured.get("query_type"),
+        "confidence": structured.get("confidence"),
+        "ambiguity_reason": structured.get("ambiguity_reason"),
+        "keywords": structured.get("keywords"),
+        "entity_name": structured.get("entity_name"),
+    }
+)
     
     return structured
 
 if __name__ == "__main__":
     import anthropic
     client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
-    
-    test = "What are the latest bills that trump has passed"
-    result = route_query(test, client)
-    print(f"query_type: {result['query_type']}")
-    print(f"keywords: {result['keywords']}")
-    print(f"status: {result['status']}")
-    print(f"congress_numbers: {result['congress_numbers']}")
-    print(f"time_range: {result['time_range']}")
+    result = route_query("senate judiciary committee", client)
+    print(result['query_type'])
+    print(result['entity_name'])
