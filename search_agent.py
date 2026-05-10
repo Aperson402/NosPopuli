@@ -37,9 +37,9 @@ def search_bills(structured_query, max_results=None):
 
     payload = {
         "query": full_query,
-        "pageSize": max_results,
+        "pageSize": max_results * 3,
         "offsetMark": "*",
-        "sorts": [{"field": "score", "sortOrder": "DESC"}]
+        "sorts": [{"field": "publishdate", "sortOrder": "DESC"}]
     }
 
     try:

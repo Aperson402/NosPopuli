@@ -48,14 +48,14 @@ def years_to_congress_numbers(year_range_str):
     import datetime
     current_year = datetime.datetime.now().year
     
-    if "last 5 years" in year_range_str.lower():
-        start_year = current_year - 5
+    if "last 2 years" in year_range_str.lower():
+        start_year = current_year - 2
+    elif "last 5 years" in year_range_str.lower():
+        start_year = current_year - 3
     elif "last 10 years" in year_range_str.lower():
         start_year = current_year - 10
-    elif "last 2 years" in year_range_str.lower():
-        start_year = current_year - 2
     else:
-        start_year = current_year - 5  # Default to last 5 years
+        start_year = current_year - 3
     
     matching = []
     for congress, (start, end) in CONGRESS_YEARS.items():

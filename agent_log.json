@@ -3909,5 +3909,77 @@
     "output": {
       "results_count": 5
     }
+  },
+  {
+    "timestamp": "2026-05-10T19:52:32.229040",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Health Care bills"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.8,
+      "ambiguity_reason": "Query could mean all health care bills or a specific subset, but intent is clearly legislative",
+      "keywords": [
+        "health care"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:52:33.009584",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "health care"
+      ],
+      "topic": "health care bills"
+    },
+    "output": {
+      "expanded_terms": [
+        "Affordable Care Act",
+        "Medicare",
+        "Medicaid",
+        "insurance coverage",
+        "prescription drug",
+        "ACA",
+        "public option"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:52:33.640602",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [
+        "Affordable Care Act",
+        "Medicare",
+        "Medicaid",
+        "insurance coverage",
+        "prescription drug",
+        "ACA",
+        "public option"
+      ],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 2802,
+      "results_returned": 15
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:52:33.644290",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Health Care bills"
+    },
+    "output": {
+      "results_count": 5
+    }
   }
 ]
