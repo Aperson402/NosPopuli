@@ -42,17 +42,31 @@ def search_bills(structured_query, max_results=None):
         "sorts": [{"field": "score", "sortOrder": "DESC"}]
     }
 
-    response = requests.post(
-        "https://api.govinfo.gov/search",
-        json=payload,
-        params={"api_key": GOVINFO_API_KEY}
-    )
+    try:
+        response = requests.post(
+            "https://api.govinfo.gov/search",
+            json=payload,
+            params={"api_key": GOVINFO_API_KEY},
+            timeout=15
+        )
+    except requests.exceptions.Timeout:
+        print(f"[SEARCH] Timeout")
+        return []
+    except Exception as e:
+        print(f"[SEARCH] Error: {e}")
+        return []
 
+    if response.status_code == 429:
+        print(f"[SEARCH] Rate limited")
+        return []
     if response.status_code != 200:
         print(f"[SEARCH] Error: {response.status_code}")
         return []
 
-    data = response.json()
+    try:
+        data = response.json()
+    except Exception:
+        return []
     raw_results = data.get("results", [])
 
     results = []

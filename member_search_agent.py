@@ -197,12 +197,16 @@ def fetch_member_legislation(bioguide_id, limit=20):
     policy_areas = {}
 
     # Fetch 250 bills for accurate policy area distribution
-    r = requests.get(sponsored_url, params={
-        "api_key": CONGRESS_API_KEY, "format": "json", "limit": 250
-    }, timeout=30)
+    try:
+        r = requests.get(sponsored_url, params={
+            "api_key": CONGRESS_API_KEY, "format": "json", "limit": 250
+        }, timeout=30)
+        bills_raw = r.json().get("sponsoredLegislation", []) if r.status_code == 200 else []
+    except Exception:
+        bills_raw = []
 
-    if r.status_code == 200:
-        bills = r.json().get("sponsoredLegislation", [])
+    if bills_raw:
+        bills = bills_raw
         for bill in bills:
             policy = (bill.get("policyArea") or {}).get("name", "Other")
             if policy and policy != "None":
@@ -221,15 +225,21 @@ def fetch_member_legislation(bioguide_id, limit=20):
                 })
 
     # Total counts
-    r2 = requests.get(sponsored_url, params={
-        "api_key": CONGRESS_API_KEY, "format": "json", "limit": 1
-    }, timeout=10)
-    sponsored_count = r2.json().get("pagination", {}).get("count", 0) if r2.status_code == 200 else 0
+    try:
+        r2 = requests.get(sponsored_url, params={
+            "api_key": CONGRESS_API_KEY, "format": "json", "limit": 1
+        }, timeout=10)
+        sponsored_count = r2.json().get("pagination", {}).get("count", 0) if r2.status_code == 200 else 0
+    except Exception:
+        sponsored_count = 0
 
-    r3 = requests.get(cosponsored_url, params={
-        "api_key": CONGRESS_API_KEY, "format": "json", "limit": 1
-    }, timeout=10)
-    cosponsored_count = r3.json().get("pagination", {}).get("count", 0) if r3.status_code == 200 else 0
+    try:
+        r3 = requests.get(cosponsored_url, params={
+            "api_key": CONGRESS_API_KEY, "format": "json", "limit": 1
+        }, timeout=10)
+        cosponsored_count = r3.json().get("pagination", {}).get("count", 0) if r3.status_code == 200 else 0
+    except Exception:
+        cosponsored_count = 0
 
     log_action(
         agent_name="member_search",

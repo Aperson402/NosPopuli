@@ -2966,5 +2966,148 @@
       "house_votes": 0,
       "senate_votes": 0
     }
+  },
+  {
+    "timestamp": "2026-05-10T18:54:35.483282",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "s",
+      "number": 272
+    },
+    "output": {
+      "title": "Protect Infant Formula from Contamination Act",
+      "status": "Held at the desk."
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:54:35.822635",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "s",
+      "number": 272
+    },
+    "output": {
+      "action_count": 11
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:54:39.721910",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Protect Infant Formula from Contamination Act",
+      "sponsor": "Sen. Peters, Gary C. [D-MI]",
+      "personalized": true
+    },
+    "output": {
+      "translation_preview": "# Protect Infant Formula from Contamination Act\n\n## What it does\nThis bill would require the FDA (th"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:54:39.725347",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 11
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:54:42.587972",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 11
+    },
+    "output": {
+      "preview": "# How This Bill Moved Through Congress\n\n**January 28, 2025:** The bill was introduced in the Senate "
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:54:42.590709",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "s",
+      "number": 272
+    },
+    "output": {
+      "status": "complete",
+      "house_votes": 0,
+      "senate_votes": 0
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:59:55.736895",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [],
+      "result_count": 3,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 17888,
+      "results_returned": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:03:09.272930",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "HR 9999999"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 1.0,
+      "ambiguity_reason": null,
+      "keywords": [],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:03:39.743656",
+    "agent": "feed",
+    "action": "fetch_feed",
+    "input": {
+      "interests": [
+        "healthcare",
+        "agriculture"
+      ],
+      "reps": [
+        "S000033",
+        "W000800",
+        "B001318"
+      ]
+    },
+    "output": {
+      "total_items": 9
+    }
+  },
+  {
+    "timestamp": "2026-05-10T19:03:45.307286",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "HR 9999"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 1.0,
+      "ambiguity_reason": null,
+      "keywords": [],
+      "entity_name": null
+    }
   }
 ]

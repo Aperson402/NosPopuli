@@ -15,29 +15,61 @@ def fetch_bill(congress_number, bill_type, bill_number):
         "format": "json"
     }
     
-    response = requests.get(url, params=params)
-    
-    if response.status_code == 200:
-        data = response.json()
-        
-        log_action(
-            agent_name="bill_fetcher",
-            action="fetch_bill",
-            input_data={
-                "congress": congress_number,
-                "type": bill_type,
-                "number": bill_number
-            },
-            output_data={
-                "title": data["bill"]["title"],
-                "status": data["bill"]["latestAction"]["text"]
-            }
-        )
-        
-        return data
-    else:
-        print(f"Error: {response.status_code}")
+    try:
+        response = requests.get(url, params=params, timeout=10)
+    except requests.exceptions.Timeout:
+        print(f"[BILL FETCHER] Timeout fetching {bill_type}{bill_number}")
         return None
+    except requests.exceptions.ConnectionError:
+        print(f"[BILL FETCHER] Connection error fetching {bill_type}{bill_number}")
+        return None
+    except Exception as e:
+        print(f"[BILL FETCHER] Unexpected error: {e}")
+        return None
+    
+    if response.status_code == 429:
+        print(f"[BILL FETCHER] Rate limited by Congress.gov")
+        return None
+    
+    if response.status_code == 404:
+        print(f"[BILL FETCHER] Bill not found: {bill_type}{bill_number}")
+        return None
+    
+    if response.status_code != 200:
+        print(f"[BILL FETCHER] Error {response.status_code} for {bill_type}{bill_number}")
+        return None
+    
+    try:
+        data = response.json()
+    except Exception as e:
+        print(f"[BILL FETCHER] Failed to parse JSON: {e}")
+        return None
+    
+    if "bill" not in data:
+        print(f"[BILL FETCHER] Unexpected response structure for {bill_type}{bill_number}")
+        return None
+    
+    bill = data["bill"]
+    
+    # Safe extraction with fallbacks
+    title = bill.get("title", "Unknown title")
+    latest_action = (bill.get("latestAction") or {}).get("text", "No action recorded")
+    
+    log_action(
+        agent_name="bill_fetcher",
+        action="fetch_bill",
+        input_data={
+            "congress": congress_number,
+            "type": bill_type,
+            "number": bill_number
+        },
+        output_data={
+            "title": title,
+            "status": latest_action
+        }
+    )
+    
+    return data
 def fetch_law(congress, law_number):
     """
     Fetches bill data by public law number.
@@ -49,13 +81,27 @@ def fetch_law(congress, law_number):
         "format": "json"
     }
     
-    response = requests.get(url, params=params, timeout=10)
-    
+    try:
+        response = requests.get(url, params=params, timeout=10)
+    except requests.exceptions.Timeout:
+        print(f"[BILL FETCHER] Timeout fetching law {congress} pub {law_number}")
+        return None
+    except Exception as e:
+        print(f"[BILL FETCHER] Error fetching law: {e}")
+        return None
+
+    if response.status_code == 429:
+        print(f"[BILL FETCHER] Rate limited fetching law")
+        return None
     if response.status_code != 200:
         print(f"[BILL FETCHER] Law not found: {congress} pub {law_number}")
         return None
-    
-    data = response.json()
+
+    try:
+        data = response.json()
+    except Exception:
+        return None
+
     bill = data.get("bill")
     
     if not bill:

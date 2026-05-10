@@ -1,6 +1,6 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi import Response
 import json
 from fastapi.staticfiles import StaticFiles
@@ -32,6 +32,17 @@ from historian_agent import fetch_bill_actions, fetch_related_bills, summarize_h
 from documentor_agent import log_action
 
 app = FastAPI(title="NosPopuli API")
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    print(f"[API] Unhandled exception on {request.url.path}: {exc}")
+    return JSONResponse(
+        status_code=500,
+        content={
+            "error": "Something went wrong on our end.",
+            "path": str(request.url.path)
+        }
+    )
 
 app.add_middleware(
     CORSMiddleware,
@@ -264,183 +275,207 @@ async def resolve_zip_endpoint(request: ZipRequest):
 @app.post("/feed")
 async def get_feed(request: FeedRequest):
     """Returns personalized feed based on interests and representatives."""
-    loop = asyncio.get_event_loop()
-    
-    items = await loop.run_in_executor(
-        None,
-        fetch_feed,
-        request.interests,
-        request.senator_bioguides,
-        request.rep_bioguide,
-        30,
-        3
-    )
-    
-    return {"items": items, "count": len(items)}
+    try:
+        loop = asyncio.get_event_loop()
+        items = await loop.run_in_executor(
+            None,
+            fetch_feed,
+            request.interests,
+            request.senator_bioguides,
+            request.rep_bioguide,
+            30,
+            3
+        )
+        return {"items": items, "count": len(items)}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"[API] Error generating feed: {e}")
+        raise HTTPException(status_code=500, detail="Failed to generate feed. Please try again.")
 
 @app.post("/search")
 async def search(request: SearchRequest):
     if not request.question.strip():
         raise HTTPException(status_code=400, detail="Question cannot be empty")
 
-    structured = route_query(request.question, client)
-    loop = asyncio.get_event_loop()
-    question = request.question
+    try:
+        structured = route_query(request.question, client)
+        loop = asyncio.get_event_loop()
+        question = request.question
 
-    # ── Presidential override ──
-    president_congresses = extract_president_congress(question)
-    if president_congresses:
-        structured["congress_numbers"] = president_congresses
-        structured["time_range"] = "presidential term"
-        if structured.get("status") == "enacted":
-            structured["status"] = "any"
+        # ── Presidential override ──
+        president_congresses = extract_president_congress(question)
+        if president_congresses:
+            structured["congress_numbers"] = president_congresses
+            structured["time_range"] = "presidential term"
+            if structured.get("status") == "enacted":
+                structured["status"] = "any"
 
-    # ── Dispatcher ──
-    query_type = structured.get("query_type", "legislation")
+        # ── Dispatcher ──
+        query_type = structured.get("query_type", "legislation")
 
-    PRESIDENTS = ["trump", "biden", "obama", "bush", "clinton", "reagan"]
-    entity = (structured.get("entity_name") or "").lower()
-    question_lower = question.lower()
+        PRESIDENTS = ["trump", "biden", "obama", "bush", "clinton", "reagan"]
+        entity = (structured.get("entity_name") or "").lower()
+        question_lower = question.lower()
 
-    presidential_signals = ["signed", "passed", "under", "era", "administration", "presidency", "white house"]
-    congressional_signals = ["voted", "sponsored", "senator", "representative", "voting record", "cosponsored"]
+        presidential_signals = ["signed", "passed", "under", "era", "administration", "presidency", "white house"]
+        congressional_signals = ["voted", "sponsored", "senator", "representative", "voting record", "cosponsored"]
 
-    if query_type == "member" and any(p in entity for p in PRESIDENTS):
-        has_presidential = any(s in question_lower for s in presidential_signals)
-        has_congressional = any(s in question_lower for s in congressional_signals)
-        if has_presidential and not has_congressional:
-            query_type = "legislation"
-            structured["query_type"] = "legislation"
-            structured["entity_name"] = None
-        elif not has_congressional and "trump" in entity:
-            query_type = "legislation"
-            structured["query_type"] = "legislation"
-            structured["entity_name"] = None
+        if query_type == "member" and any(p in entity for p in PRESIDENTS):
+            has_presidential = any(s in question_lower for s in presidential_signals)
+            has_congressional = any(s in question_lower for s in congressional_signals)
+            if has_presidential and not has_congressional:
+                query_type = "legislation"
+                structured["query_type"] = "legislation"
+                structured["entity_name"] = None
+            elif not has_congressional and "trump" in entity:
+                query_type = "legislation"
+                structured["query_type"] = "legislation"
+                structured["entity_name"] = None
 
-    # ── Route ──
-    if query_type == "member" and structured.get("entity_name"):
-        return await handle_member_search(structured, question, loop)
+        # ── Route ──
+        if query_type == "member" and structured.get("entity_name"):
+            return await handle_member_search(structured, question, loop)
 
-    if query_type == "committee" and structured.get("entity_name"):
-        return await handle_committee_search(structured, question, loop)
+        if query_type == "committee" and structured.get("entity_name"):
+            return await handle_committee_search(structured, question, loop)
 
-    specific = structured.get("specific_bill")
-    if specific and specific.get("number") and specific.get("type"):
-        return await handle_specific_bill(structured, question)
+        specific = structured.get("specific_bill")
+        if specific and specific.get("number") and specific.get("type"):
+            return await handle_specific_bill(structured, question)
 
-    return await handle_legislation_search(structured, question, loop)
+        return await handle_legislation_search(structured, question, loop)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"[API] Error processing search '{request.question}': {e}")
+        raise HTTPException(status_code=500, detail="Search failed. Please try again.")
 @app.post("/bill")
 async def get_bill(request: BillRequest):
-    loop = asyncio.get_event_loop()
+    try:
+        loop = asyncio.get_event_loop()
 
-    # Fetch bill data
-    bill_data = await loop.run_in_executor(
-        None, fetch_bill, request.congress, request.bill_type, request.number
-    )
+        bill_data = await loop.run_in_executor(
+            None, fetch_bill, request.congress, request.bill_type, request.number
+        )
 
-    if not bill_data:
-        raise HTTPException(status_code=404, detail="Bill not found")
+        if not bill_data:
+            raise HTTPException(status_code=404, detail="Bill not found or unavailable.")
 
-    # Run translation and actions in parallel
-    translation, actions = await asyncio.gather(
-        loop.run_in_executor(None, translate_bill, bill_data, client, request.user_context),
-        loop.run_in_executor(None, fetch_bill_actions, request.congress, request.bill_type, request.number)
-    )
+        translation, actions = await asyncio.gather(
+            loop.run_in_executor(None, translate_bill, bill_data, client, request.user_context),
+            loop.run_in_executor(None, fetch_bill_actions, request.congress, request.bill_type, request.number)
+        )
 
-    # Timeline and vote parsing both need actions — run in parallel
-    timeline, vote_refs = await asyncio.gather(
-        loop.run_in_executor(None, summarize_history, actions, client),
-        loop.run_in_executor(None, parse_vote_references, actions)
-    )
+        translation = translation or "Translation unavailable for this bill."
+        actions = actions or []
 
-    # Fetch both chamber votes in parallel
-    house_raw, senate_raw = await asyncio.gather(
-        loop.run_in_executor(None, fetch_house_votes, vote_refs.get("house")),
-        loop.run_in_executor(None, fetch_senate_votes, vote_refs.get("senate"))
-    )
+        timeline, vote_refs = await asyncio.gather(
+            loop.run_in_executor(None, summarize_history, actions, client),
+            loop.run_in_executor(None, parse_vote_references, actions)
+        )
 
-    # Map to seat positions
-    house_mapped = map_house_votes(house_raw)
-    senate_mapped = map_senate_votes(senate_raw)
+        timeline = timeline or "Timeline unavailable for this bill."
+        vote_refs = vote_refs or {}
 
-    log_action(
-        agent_name="api",
-        action="get_bill",
-        input_data={"congress": request.congress, "type": request.bill_type, "number": request.number},
-        output_data={
-            "status": "complete",
-            "house_votes": len(house_raw) if house_raw else 0,
-            "senate_votes": len(senate_raw) if senate_raw else 0,
+        house_raw, senate_raw = await asyncio.gather(
+            loop.run_in_executor(None, fetch_house_votes, vote_refs.get("house")),
+            loop.run_in_executor(None, fetch_senate_votes, vote_refs.get("senate"))
+        )
+
+        house_mapped = map_house_votes(house_raw)
+        senate_mapped = map_senate_votes(senate_raw)
+
+        log_action(
+            agent_name="api",
+            action="get_bill",
+            input_data={"congress": request.congress, "type": request.bill_type, "number": request.number},
+            output_data={"status": "complete"}
+        )
+
+        log_bill_opened(
+            bill_id=f"{request.bill_type}{request.number}",
+            title=bill_data.get("bill", {}).get("title", ""),
+            from_query=""
+        )
+
+        return {
+            "congress": request.congress,
+            "type": request.bill_type,
+            "number": request.number,
+            "translation": translation,
+            "timeline": timeline,
+            "votes": {"house": house_mapped, "senate": senate_mapped}
         }
-    )
 
-    log_bill_opened(
-        bill_id=f"{request.bill_type}{request.number}",
-        title=bill_data.get("bill", {}).get("title", ""),
-        from_query=""
-    )
-
-    return {
-        "congress": request.congress,
-        "type": request.bill_type,
-        "number": request.number,
-        "translation": translation,
-        "timeline": timeline,
-        "votes": {
-            "house": house_mapped,
-            "senate": senate_mapped
-        }
-    }
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"[API] Error processing bill {request.bill_type}{request.number}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to process bill. Please try again.")
 
 @app.post("/law")
 async def get_law(request: LawRequest):
-    loop = asyncio.get_event_loop()
+    try:
+        loop = asyncio.get_event_loop()
 
-    bill_data = await loop.run_in_executor(
-        None, fetch_law, request.congress, request.law_number
-    )
+        bill_data = await loop.run_in_executor(
+            None, fetch_law, request.congress, request.law_number
+        )
 
-    if not bill_data:
-        raise HTTPException(status_code=404, detail="Law not found")
+        if not bill_data:
+            raise HTTPException(status_code=404, detail="Law not found")
 
-    # Extract bill identifiers from the fetched data
-    bill = bill_data.get("bill", {})
-    bill_congress = bill.get("congress", request.congress)
-    bill_type = bill.get("type", "").lower()
-    bill_number = int(bill.get("number", 0))
+        bill = bill_data.get("bill", {})
+        bill_congress = bill.get("congress", request.congress)
+        bill_type = bill.get("type", "").lower()
+        bill_number = int(bill.get("number", 0))
 
-    translation, actions = await asyncio.gather(
-        loop.run_in_executor(None, translate_bill, bill_data, client, request.user_context),
-        loop.run_in_executor(None, fetch_bill_actions, bill_congress, bill_type, bill_number)
-    )
+        translation, actions = await asyncio.gather(
+            loop.run_in_executor(None, translate_bill, bill_data, client, request.user_context),
+            loop.run_in_executor(None, fetch_bill_actions, bill_congress, bill_type, bill_number)
+        )
 
-    timeline, vote_refs = await asyncio.gather(
-        loop.run_in_executor(None, summarize_history, actions, client),
-        loop.run_in_executor(None, parse_vote_references, actions)
-    )
+        translation = translation or "Translation unavailable for this law."
+        actions = actions or []
 
-    house_raw, senate_raw = await asyncio.gather(
-        loop.run_in_executor(None, fetch_house_votes, vote_refs.get("house")),
-        loop.run_in_executor(None, fetch_senate_votes, vote_refs.get("senate"))
-    )
+        timeline, vote_refs = await asyncio.gather(
+            loop.run_in_executor(None, summarize_history, actions, client),
+            loop.run_in_executor(None, parse_vote_references, actions)
+        )
 
-    house_mapped = map_house_votes(house_raw)
-    senate_mapped = map_senate_votes(senate_raw)
+        timeline = timeline or "Timeline unavailable for this law."
+        vote_refs = vote_refs or {}
 
-    log_action(
-        agent_name="api",
-        action="get_law",
-        input_data={"congress": request.congress, "law_number": request.law_number},
-        output_data={"status": "complete"}
-    )
+        house_raw, senate_raw = await asyncio.gather(
+            loop.run_in_executor(None, fetch_house_votes, vote_refs.get("house")),
+            loop.run_in_executor(None, fetch_senate_votes, vote_refs.get("senate"))
+        )
 
-    return {
-        "congress": request.congress,
-        "law_number": request.law_number,
-        "translation": translation,
-        "timeline": timeline,
-        "votes": {"house": house_mapped, "senate": senate_mapped}
-    }
+        house_mapped = map_house_votes(house_raw)
+        senate_mapped = map_senate_votes(senate_raw)
+
+        log_action(
+            agent_name="api",
+            action="get_law",
+            input_data={"congress": request.congress, "law_number": request.law_number},
+            output_data={"status": "complete"}
+        )
+
+        return {
+            "congress": request.congress,
+            "law_number": request.law_number,
+            "translation": translation,
+            "timeline": timeline,
+            "votes": {"house": house_mapped, "senate": senate_mapped}
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"[API] Error processing law {request.congress} pub {request.law_number}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to process law. Please try again.")
 
 @app.post("/member/search")
 async def member_search(request: MemberSearchRequest):

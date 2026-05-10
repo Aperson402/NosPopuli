@@ -962,8 +962,13 @@
     } catch (err) {
       document.getElementById('detail-loading').innerHTML = `
         <div class="empty-state">
-          <p>Failed to load bill details.</p>
-          <p style="margin-top:0.5rem;font-size:0.6rem">${err.message}</p>
+          <p>This bill couldn't be loaded right now.</p>
+          <p style="margin-top:0.5rem">The data may be temporarily unavailable.</p>
+          <button class="example-pill"
+            style="margin-top:1rem"
+            onclick="openDetail(${JSON.stringify(bill).replace(/"/g, '&quot;')})">
+            Try again
+          </button>
         </div>`;
     }
   }
@@ -1429,7 +1434,23 @@
     loadFeed();
   }
 
+  async function checkServer() {
+    try {
+      const r = await fetch('/health', { signal: AbortSignal.timeout(3000) });
+      if (!r.ok) throw new Error();
+    } catch {
+      document.getElementById('results-section').innerHTML = `
+        <div class="empty-state">
+          <p>Cannot connect to NosPopuli server.</p>
+          <p style="margin-top:0.5rem;font-size:0.6rem">
+            Make sure uvicorn is running: uvicorn api:app --reload
+          </p>
+        </div>`;
+    }
+  }
+
   // ── Init ──
+  checkServer();
   loadFeed();
 </script>
 </body>

@@ -9,61 +9,78 @@ CONGRESS_API_KEY = os.getenv("CONGRESS_API_KEY")
 
 def fetch_bill_actions(congress_number, bill_type, bill_number):
     """Gets the full action history of a bill - every step it took through Congress"""
-    
+
     url = f"https://api.congress.gov/v3/bill/{congress_number}/{bill_type}/{bill_number}/actions"
-    
-    params = {
-        "api_key": CONGRESS_API_KEY,
-        "format": "json",
-        "limit": 20
-    }
-    
-    response = requests.get(url, params=params)
-    
-    if response.status_code == 200:
-        data = response.json()
-        actions = data["actions"]
-        
-        log_action(
-            agent_name="historian",
-            action="fetch_bill_actions",
-            input_data={"congress": congress_number, "type": bill_type, "number": bill_number},
-            output_data={"action_count": len(actions)}
-        )
-        
-        return actions
-    else:
-        print(f"Error: {response.status_code}")
+    params = {"api_key": CONGRESS_API_KEY, "format": "json", "limit": 20}
+
+    try:
+        response = requests.get(url, params=params, timeout=10)
+    except requests.exceptions.Timeout:
+        print(f"[HISTORIAN] Timeout fetching actions for {bill_type}{bill_number}")
         return None
+    except Exception as e:
+        print(f"[HISTORIAN] Error fetching actions: {e}")
+        return None
+
+    if response.status_code == 429:
+        print(f"[HISTORIAN] Rate limited fetching actions")
+        return None
+    if response.status_code != 200:
+        print(f"[HISTORIAN] Error {response.status_code} fetching actions")
+        return None
+
+    try:
+        data = response.json()
+    except Exception:
+        return None
+
+    actions = data.get("actions", [])
+
+    log_action(
+        agent_name="historian",
+        action="fetch_bill_actions",
+        input_data={"congress": congress_number, "type": bill_type, "number": bill_number},
+        output_data={"action_count": len(actions)}
+    )
+
+    return actions
 
 def fetch_related_bills(congress_number, bill_type, bill_number):
     """Finds bills related to this one"""
-    
+
     url = f"https://api.congress.gov/v3/bill/{congress_number}/{bill_type}/{bill_number}/relatedbills"
-    
-    params = {
-        "api_key": CONGRESS_API_KEY,
-        "format": "json",
-        "limit": 5
-    }
-    
-    response = requests.get(url, params=params)
-    
-    if response.status_code == 200:
-        data = response.json()
-        related = data.get("relatedBills", [])
-        
-        log_action(
-            agent_name="historian",
-            action="fetch_related_bills",
-            input_data={"congress": congress_number, "type": bill_type, "number": bill_number},
-            output_data={"related_count": len(related)}
-        )
-        
-        return related
-    else:
-        print(f"Error: {response.status_code}")
+    params = {"api_key": CONGRESS_API_KEY, "format": "json", "limit": 5}
+
+    try:
+        response = requests.get(url, params=params, timeout=10)
+    except requests.exceptions.Timeout:
+        print(f"[HISTORIAN] Timeout fetching related bills")
         return None
+    except Exception as e:
+        print(f"[HISTORIAN] Error fetching related bills: {e}")
+        return None
+
+    if response.status_code == 429:
+        print(f"[HISTORIAN] Rate limited fetching related bills")
+        return None
+    if response.status_code != 200:
+        return None
+
+    try:
+        data = response.json()
+    except Exception:
+        return None
+
+    related = data.get("relatedBills", [])
+
+    log_action(
+        agent_name="historian",
+        action="fetch_related_bills",
+        input_data={"congress": congress_number, "type": bill_type, "number": bill_number},
+        output_data={"related_count": len(related)}
+    )
+
+    return related
 
 def summarize_history(actions, client):
     """Uses AI to turn the raw action list into a readable timeline"""
@@ -89,7 +106,7 @@ def summarize_history(actions, client):
     """
     
     message = client.messages.create(
-        model="claude-haiku-4-5",
+        model="claude-haiku-4-5-20251001",
         max_tokens=1024,
         messages=[
             {"role": "user", "content": prompt}
