@@ -939,7 +939,7 @@
       const endpoint = bill.is_law ? '/law' : '/bill';
       const body = bill.is_law
         ? { congress: bill.congress, law_number: bill.law_number }
-        : { congress: bill.congress, bill_type: bill.type, number: bill.number };
+        : { congress: bill.congress, bill_type: bill.type, number: bill.number, user_context: getPrefs() };
 
       const response = await fetch(endpoint, {
         method: 'POST',

@@ -52,6 +52,7 @@ class BillRequest(BaseModel):
     congress: int
     bill_type: str
     number: int
+    user_context: dict = None
 
 class LawRequest(BaseModel):
     congress: int
@@ -342,7 +343,7 @@ async def get_bill(request: BillRequest):
 
     # Run translation and actions in parallel
     translation, actions = await asyncio.gather(
-        loop.run_in_executor(None, translate_bill, bill_data, client),
+        loop.run_in_executor(None, translate_bill, bill_data, client, request.user_context),
         loop.run_in_executor(None, fetch_bill_actions, request.congress, request.bill_type, request.number)
     )
 
@@ -409,7 +410,7 @@ async def get_law(request: LawRequest):
     bill_number = int(bill.get("number", 0))
 
     translation, actions = await asyncio.gather(
-        loop.run_in_executor(None, translate_bill, bill_data, client),
+        loop.run_in_executor(None, translate_bill, bill_data, client, request.user_context),
         loop.run_in_executor(None, fetch_bill_actions, bill_congress, bill_type, bill_number)
     )
 

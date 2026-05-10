@@ -2746,5 +2746,225 @@
     "output": {
       "total_items": 6
     }
+  },
+  {
+    "timestamp": "2026-05-10T18:48:10.461953",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 111,
+      "type": "hr",
+      "number": 3590
+    },
+    "output": {
+      "title": "Patient Protection and Affordable Care Act",
+      "status": "Became Public Law No: 111-148."
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:48:15.937411",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Patient Protection and Affordable Care Act",
+      "sponsor": "Rep. Rangel, Charles B. [D-NY-15]",
+      "personalized": false
+    },
+    "output": {
+      "translation_preview": "# Patient Protection and Affordable Care Act - Plain English Explanation\n\n## 1. What This Bill Does "
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:48:20.224286",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Patient Protection and Affordable Care Act",
+      "sponsor": "Rep. Rangel, Charles B. [D-NY-15]",
+      "personalized": true
+    },
+    "output": {
+      "translation_preview": "# The Affordable Care Act (ACA) \u2014 Plain English Explanation\n\n## One sentence:\nThis law changes how h"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:48:25.285230",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Patient Protection and Affordable Care Act",
+      "sponsor": "Rep. Rangel, Charles B. [D-NY-15]",
+      "personalized": true
+    },
+    "output": {
+      "translation_preview": "# The Patient Protection and Affordable Care Act (ACA) \u2014 Plain English Explanation\n\n## What is this "
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:51:19.952080",
+    "agent": "feed",
+    "action": "fetch_feed",
+    "input": {
+      "interests": [
+        "education"
+      ],
+      "reps": [
+        "W000805",
+        "K000384",
+        "G000568"
+      ]
+    },
+    "output": {
+      "total_items": 6
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:51:23.346685",
+    "agent": "civic_resolver",
+    "action": "resolve_zip",
+    "input": {
+      "zip_code": "20151"
+    },
+    "output": {
+      "state": "VA",
+      "senators": [
+        "Mark Warner",
+        "Timothy Kaine"
+      ],
+      "representative": "H. Griffith"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:51:27.371121",
+    "agent": "feed",
+    "action": "fetch_feed",
+    "input": {
+      "interests": [
+        "education"
+      ],
+      "reps": [
+        "W000805",
+        "K000384",
+        "G000568"
+      ]
+    },
+    "output": {
+      "total_items": 6
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:52:26.398865",
+    "agent": "civic_resolver",
+    "action": "resolve_zip",
+    "input": {
+      "zip_code": "05001"
+    },
+    "output": {
+      "state": "VT",
+      "senators": [
+        "Bernard Sanders",
+        "Peter Welch"
+      ],
+      "representative": "Becca Balint"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:52:43.943004",
+    "agent": "feed",
+    "action": "fetch_feed",
+    "input": {
+      "interests": [
+        "healthcare",
+        "agriculture"
+      ],
+      "reps": [
+        "S000033",
+        "W000800",
+        "B001318"
+      ]
+    },
+    "output": {
+      "total_items": 9
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:52:58.557169",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 8667
+    },
+    "output": {
+      "title": "MISSION Rx Act",
+      "status": "Referred to the Committee on Veterans' Affairs, and in addition to the Committee on Armed Services, for a period to be subsequently determined by the Speaker, in each case for consideration of such provisions as fall within the jurisdiction of the committee concerned."
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:52:59.161133",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 8667
+    },
+    "output": {
+      "action_count": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:53:02.500079",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "MISSION Rx Act",
+      "sponsor": "Rep. Vindman, Eugene Simon [D-VA-7]",
+      "personalized": true
+    },
+    "output": {
+      "translation_preview": "# The MISSION Rx Act \u2014 Plain English\n\n## What it does (one sentence)\nThis bill would allow active-du"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:53:02.502488",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 4
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:53:04.384573",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 4
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**May 7, 2026:** The bill was introduced in the House of Representatives.\n\n**May 7,"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T18:53:04.387190",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 8667
+    },
+    "output": {
+      "status": "complete",
+      "house_votes": 0,
+      "senate_votes": 0
+    }
   }
 ]
