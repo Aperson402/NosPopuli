@@ -19,6 +19,29 @@ CONGRESS_YEARS = {
     111: (2009, 2010),
     110: (2007, 2008),
 }
+# Add this near the CONGRESS_YEARS dict
+PRESIDENT_TERMS = {
+    "biden": [117, 118],
+    "trump": [119, 116, 115],  # Current + first term
+    "trump's first term": [115, 116],
+    "first trump": [115, 116],
+    "obama": [111, 112, 113, 114],
+    "bush": [107, 108, 109, 110],
+    "clinton": [103, 104, 105, 106],
+    "reagan": [97, 98, 99, 100],
+    "carter": [95, 96],
+}
+
+PRESIDENTIAL_CONTEXT = [
+    "signed", "passed", "under", "era", "administration",
+    "presidency", "president", "white house", "oval office"
+]
+
+CONGRESSIONAL_CONTEXT = [
+    "voted", "sponsored", "senator", "representative", 
+    "congress", "voting record", "cosponsored", "introduced"
+]
+
 
 def years_to_congress_numbers(year_range_str):
     """Convert a year range like 'last 5 years' to congress numbers"""
@@ -41,6 +64,31 @@ def years_to_congress_numbers(year_range_str):
     
     return sorted(matching, reverse=True)
 
+def extract_president_congress(question):
+    question_lower = question.lower()
+    
+    # More flexible matching
+    PRESIDENT_PATTERNS = {
+        "biden": [117, 118],
+        "trump": [119, 115, 116],
+        "obama": [111, 112, 113, 114],
+        "bush": [107, 108, 109, 110],
+        "clinton": [103, 104, 105, 106],
+        "reagan": [97, 98, 99, 100],
+    }
+    
+    for president, congresses in PRESIDENT_PATTERNS.items():
+        if president in question_lower:
+            # Avoid matching "trump" as a verb
+            # Check it's used as a name by looking for context
+            idx = question_lower.find(president)
+            before = question_lower[max(0, idx-10):idx]
+            # If preceded by "to " it's likely a verb
+            if president == "trump" and before.strip().endswith("to"):
+                continue
+            return congresses
+    
+    return None
 def route_query(user_question, client):
     """
     Takes a plain English question and returns a structured search query.
@@ -137,7 +185,59 @@ def route_query(user_question, client):
     
     # Add congress numbers based on time range
     structured["congress_numbers"] = years_to_congress_numbers(structured["time_range"])
-    
+
+    # Override congress_numbers if a president was mentioned
+    president_congresses = extract_president_congress(user_question)
+    if president_congresses:
+        structured["congress_numbers"] = president_congresses
+        structured["time_range"] = "presidential term"
+        # Don't force enacted status just because they said "passed"
+        # Let it search all bills from that term
+        if structured.get("status") == "enacted":
+            structured["status"] = "any"
+
+    PRESIDENTS = ["trump", "biden", "obama", "bush", "clinton", "reagan", "carter"]
+
+    question_lower = user_question.lower()
+
+    presidential_signals = ["signed", "passed", "under", "era",
+                            "administration", "presidency", "president",
+                            "white house"]
+
+    congressional_signals = ["voted", "sponsored", "senator",
+                             "representative", "voting record",
+                             "cosponsored", "introduced"]
+
+    entity = (structured.get("entity_name") or "").lower()
+
+    if structured.get("query_type") == "member":
+        if any(p in entity for p in PRESIDENTS):
+            has_presidential = any(s in question_lower for s in presidential_signals)
+            has_congressional = any(s in question_lower for s in congressional_signals)
+
+            if has_presidential and not has_congressional:
+                structured["query_type"] = "legislation"
+                structured["entity_name"] = None
+
+                stop_words = {"what", "are", "the", "latest", "bills", "that",
+                              "has", "passed", "signed", "under", "laws", "legislation",
+                              "trump", "biden", "obama", "bush", "clinton", "reagan"}
+
+                words = user_question.lower().split()
+                meaningful = [w for w in words if w not in stop_words and len(w) > 3]
+
+                if meaningful:
+                    structured["keywords"] = meaningful
+                else:
+                    structured["keywords"] = ["enacted", "signed"]
+            elif has_congressional and not has_presidential:
+                pass  # Keep as member — they were in Congress
+            else:
+                # Ambiguous — Trump defaults to legislation; Biden/Obama stay as member
+                if "trump" in entity:
+                    structured["query_type"] = "legislation"
+                    structured["entity_name"] = None
+
     log_action(
         agent_name="router",
         action="route_query",
@@ -151,16 +251,10 @@ if __name__ == "__main__":
     import anthropic
     client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
     
-    tests = [
-        "What did Ted Kennedy do in Congress?",
-        "Show me the Senate Judiciary Committee",
-        "Find bills about climate change",
-        "Bernie Sanders voting record",
-        "Give me a law that passed",
-    ]
-    
-    for q in tests:
-        result = route_query(q, client)
-        print(f"Q: {q}")
-        print(f"   type={result['query_type']} entity={result.get('entity_name')} keywords={result.get('keywords')}")
-        print()
+    test = "What are the latest bills that trump has passed"
+    result = route_query(test, client)
+    print(f"query_type: {result['query_type']}")
+    print(f"keywords: {result['keywords']}")
+    print(f"status: {result['status']}")
+    print(f"congress_numbers: {result['congress_numbers']}")
+    print(f"time_range: {result['time_range']}")
