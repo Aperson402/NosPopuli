@@ -1003,7 +1003,7 @@
       const endpoint = bill.is_law ? '/law' : '/bill';
       const body = bill.is_law
         ? { congress: bill.congress, law_number: bill.law_number }
-        : { congress: bill.congress, bill_type: bill.type, number: bill.number, user_context: getPrefs() };
+        : { congress: parseInt(bill.congress), bill_type: bill.type, number: parseInt(bill.number), user_context: getPrefs() };
 
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -1141,9 +1141,9 @@
       card.className = 'feed-card';
       card.style.animationDelay = (i * 0.06) + 's';
       card.onclick = () => openDetail({
-        congress: item.congress,
+        congress: parseInt(item.congress),
         type: item.type,
-        number: item.number,
+        number: parseInt(item.number),
         title: item.title
       });
 
