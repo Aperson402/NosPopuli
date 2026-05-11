@@ -6,7 +6,572 @@
   <title>NosPopuli — Law for the People</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:          #0e0e0e;
+      --paper:        #f5f0e8;
+      --card-bg:      #faf7f2;
+      --aged:         #e8e0cc;
+      --accent:       #8b1a1a;
+      --accent-light: #c0392b;
+      --muted:        #6b6355;
+      --rule:         #c8bfaa;
+      --content-width: 760px;
+      --vote-yea:     #2a6e2a;
+      --vote-nay:     #8b1a1a;
+      --vote-present: #8b7a1a;
+      --vote-absent:  #c8bfaa;
+    }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-weight: 300;
+      min-height: 100vh;
+      background-image: repeating-linear-gradient(
+        0deg, transparent, transparent 27px,
+        rgba(0,0,0,0.03) 27px, rgba(0,0,0,0.03) 28px
+      );
+    }
+
+    /* ── HEADER ── */
+    header {
+      border-bottom: 3px double var(--ink);
+      padding: 2rem 0 1.5rem;
+      text-align: center; cursor: pointer;
+    }
+    header::before {
+      content: ''; display: block;
+      height: 3px; background: var(--ink); margin-bottom: 0.75rem;
+    }
+    .masthead {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 700; letter-spacing: -0.02em; line-height: 1;
+    }
+    .masthead span { color: var(--accent); font-style: italic; }
+    .tagline {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem; letter-spacing: 0.25em;
+      text-transform: uppercase; color: var(--muted); margin-top: 0.5rem;
+    }
+
+    /* ── PAGES ── */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ── PERSISTENT SEARCH BAR ── */
+    .search-bar-wrap {
+      max-width: var(--content-width);
+      margin: 2rem auto 0; padding: 0 1.5rem;
+    }
+    .search-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--muted);
+      display: block; margin-bottom: 0.5rem;
+    }
+    .search-row { display: flex; border: 1.5px solid var(--ink); background: white; }
+    .search-row input {
+      flex: 1; padding: 1rem 1.25rem;
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 1.05rem; font-weight: 300;
+      border: none; outline: none; background: transparent; color: var(--ink);
+    }
+    .search-row input::placeholder { color: var(--muted); font-style: italic; }
+    .search-btn {
+      padding: 1rem 1.75rem; background: var(--ink); color: var(--paper);
+      border: none; font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase;
+      cursor: pointer; transition: background 0.15s; white-space: nowrap;
+    }
+    .search-btn:hover { background: var(--accent); }
+    .search-btn:disabled { background: var(--muted); cursor: not-allowed; }
+
+    .example-queries {
+      margin-top: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;
+    }
+    .example-queries span {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem; color: var(--muted); letter-spacing: 0.05em;
+    }
+    .example-pill {
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem;
+      color: var(--accent); background: none;
+      border: 1px solid var(--rule); padding: 0.2rem 0.6rem;
+      cursor: pointer; transition: all 0.15s; letter-spacing: 0.03em;
+    }
+    .example-pill:hover { border-color: var(--accent); background: var(--accent); color: white; }
+
+    /* ── STATUS BAR ── */
+    .status-bar {
+      max-width: var(--content-width); margin: 1.5rem auto 0;
+      padding: 0 1.5rem; display: none;
+    }
+    .status-bar.visible { display: block; }
+    .status-inner {
+      border-left: 2px solid var(--accent); padding: 0.5rem 1rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem; color: var(--accent); letter-spacing: 0.05em;
+    }
+    .status-step { opacity: 0; transform: translateY(4px); transition: all 0.3s; }
+    .status-step.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── HOME PAGE ── */
+    .home-content {
+      max-width: var(--content-width);
+      margin: 0 auto; padding: 0 1.5rem 4rem;
+    }
+
+    /* Feed section on home */
+    .feed-header {
+      border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+      padding: 0.5rem 0; margin: 2rem 0 1.5rem;
+      display: flex; align-items: baseline; justify-content: space-between;
+    }
+    .feed-header h2 {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--muted); font-weight: 400;
+    }
+    .feed-header-right {
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .feed-location {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem; color: var(--muted);
+    }
+    .feed-settings-btn {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--accent); background: none; border: none; cursor: pointer;
+      padding: 0; transition: color 0.15s;
+    }
+    .feed-settings-btn:hover { color: var(--accent-light); }
+
+    /* Feed cards */
+    .feed-card {
+      background: var(--card-bg); border: 1px solid var(--rule);
+      margin-bottom: 1rem; cursor: pointer;
+      opacity: 0; transform: translateY(10px);
+      animation: cardIn 0.35s forwards;
+      transition: border-color 0.15s;
+    }
+    .feed-card:hover { border-color: var(--accent); }
+    @keyframes cardIn { to { opacity: 1; transform: translateY(0); } }
+
+    .feed-card-inner { padding: 1.1rem 1.5rem; }
+    .feed-reason {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.58rem; letter-spacing: 0.12em; text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+    .reason-rep    { color: var(--accent); }
+    .reason-topic  { color: var(--muted); }
+
+    .feed-bill-id {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.62rem; letter-spacing: 0.15em;
+      color: var(--muted); text-transform: uppercase; margin-bottom: 0.3rem;
+    }
+    .feed-bill-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1rem; font-weight: 700; line-height: 1.3; color: var(--ink);
+      margin-bottom: 0.4rem;
+    }
+    .feed-bill-action {
+      font-size: 0.82rem; color: var(--muted); line-height: 1.5;
+      display: -webkit-box; -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .feed-card-footer {
+      padding: 0.4rem 1.5rem 0.6rem;
+      border-top: 1px solid var(--rule);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .feed-date {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.58rem; color: var(--muted); letter-spacing: 0.05em;
+    }
+    .feed-arrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem; color: var(--muted); transition: color 0.15s;
+    }
+    .feed-card:hover .feed-arrow { color: var(--accent); }
+
+    /* No feed / onboarding prompt */
+    .onboarding-prompt {
+      margin-top: 2.5rem; padding: 2rem;
+      border: 1px solid var(--rule); background: var(--card-bg);
+      text-align: center;
+    }
+    .onboarding-prompt-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.3rem; font-weight: 700; margin-bottom: 0.75rem;
+    }
+    .onboarding-prompt-text {
+      font-size: 0.9rem; color: var(--muted); line-height: 1.7;
+      margin-bottom: 1.25rem;
+    }
+    .onboarding-start-btn {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase;
+      padding: 0.85rem 2rem; background: var(--ink); color: var(--paper);
+      border: none; cursor: pointer; transition: background 0.15s;
+    }
+    .onboarding-start-btn:hover { background: var(--accent); }
+
+    /* ── SEARCH RESULTS (shown on home page below search) ── */
+    .results-section {
+      max-width: var(--content-width);
+      margin: 0 auto 4rem; padding: 0 1.5rem;
+    }
+    .results-header {
+      border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+      padding: 0.5rem 0; margin-bottom: 2rem;
+      display: flex; align-items: baseline; justify-content: space-between;
+    }
+    .results-header h2 {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--muted); font-weight: 400;
+    }
+    .results-count { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--muted); }
+
+    .result-card {
+      background: var(--card-bg); border: 1px solid var(--rule);
+      margin-bottom: 1rem; cursor: pointer;
+      opacity: 0; transform: translateY(10px);
+      animation: cardIn 0.35s forwards;
+      transition: border-color 0.15s;
+    }
+    .result-card:hover { border-color: var(--accent); }
+    .result-card-inner {
+      padding: 1.1rem 1.5rem;
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 1.5rem;
+    }
+    .result-card-left { flex: 1; min-width: 0; }
+    .result-bill-id {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.62rem; letter-spacing: 0.15em;
+      color: var(--accent); text-transform: uppercase; margin-bottom: 0.3rem;
+    }
+    .result-bill-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1rem; font-weight: 700; line-height: 1.3; color: var(--ink);
+    }
+    .result-card-arrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem; color: var(--muted); flex-shrink: 0; transition: color 0.15s;
+    }
+    .result-card:hover .result-card-arrow { color: var(--accent); }
+    .result-meta {
+      padding: 0.4rem 1.5rem 0.6rem; border-top: 1px solid var(--rule);
+      display: flex; gap: 1.5rem;
+    }
+    .meta-item {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.58rem; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase;
+    }
+    .meta-item strong { color: var(--ink); font-weight: 500; }
+
+    /* ── ONBOARDING PAGE ── */
+    .onboarding-page {
+      max-width: 600px; margin: 0 auto; padding: 2rem 1.5rem 4rem;
+    }
+    .onboarding-back {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--muted); background: none; border: none;
+      cursor: pointer; padding: 1rem 0; transition: color 0.15s;
+    }
+    .onboarding-back:hover { color: var(--accent); }
+
+    .onboarding-step { display: none; }
+    .onboarding-step.active { display: block; }
+
+    .step-header {
+      border-top: 3px double var(--ink);
+      border-bottom: 1px solid var(--rule);
+      padding: 1.25rem 0; margin-bottom: 2rem;
+    }
+    .step-number {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 0.4rem;
+    }
+    .step-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.5rem; font-weight: 700; color: var(--ink);
+    }
+    .step-subtitle {
+      font-size: 0.9rem; color: var(--muted); margin-top: 0.4rem; line-height: 1.6;
+    }
+
+    /* Zip input */
+    .zip-input-wrap { margin-bottom: 1.5rem; }
+    .zip-input {
+      width: 100%; padding: 1rem 1.25rem;
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 1.1rem; font-weight: 300;
+      border: 1.5px solid var(--ink); outline: none;
+      background: white; color: var(--ink); letter-spacing: 0.1em;
+    }
+    .zip-input::placeholder { color: var(--muted); font-style: italic; letter-spacing: 0; }
+    .zip-input:focus { border-color: var(--accent); }
+
+    .zip-result {
+      margin-top: 1rem; padding: 1rem 1.25rem;
+      border: 1px solid var(--rule); background: var(--card-bg);
+      display: none;
+    }
+    .zip-result.visible { display: block; }
+    .zip-result-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.58rem; letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 0.5rem;
+    }
+    .zip-rep-row {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.35rem 0; border-bottom: 1px solid var(--rule);
+      font-size: 0.88rem;
+    }
+    .zip-rep-row:last-child { border-bottom: none; }
+    .zip-rep-chamber {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.55rem; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); width: 50px; flex-shrink: 0;
+    }
+    .zip-rep-name { color: var(--ink); flex: 1; }
+    .zip-rep-party {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.58rem; color: var(--muted);
+    }
+
+    /* Interest grid */
+    .interests-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem; margin-bottom: 2rem;
+    }
+    .interest-pill {
+      padding: 0.85rem 0.5rem; text-align: center;
+      border: 1px solid var(--rule); background: var(--card-bg);
+      cursor: pointer; transition: all 0.15s;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--muted);
+    }
+    .interest-pill:hover { border-color: var(--ink); color: var(--ink); }
+    .interest-pill.selected {
+      border-color: var(--accent); background: var(--accent);
+      color: white;
+    }
+    .interest-icon { font-size: 1.1rem; display: block; margin-bottom: 0.3rem; }
+
+    /* Step buttons */
+    .step-btn {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase;
+      padding: 0.9rem 2rem; background: var(--ink); color: var(--paper);
+      border: none; cursor: pointer; transition: background 0.15s;
+      width: 100%;
+    }
+    .step-btn:hover { background: var(--accent); }
+    .step-btn:disabled { background: var(--muted); cursor: not-allowed; }
+
+    /* ── DETAIL PAGES ── */
+    .detail-back {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--muted); background: none; border: none;
+      cursor: pointer; padding: 1.5rem 0; transition: color 0.15s;
+    }
+    .detail-back:hover { color: var(--accent); }
+
+    .detail-page {
+      max-width: var(--content-width);
+      margin: 0 auto; padding: 0 1.5rem 4rem;
+    }
+    .detail-header {
+      border-top: 3px double var(--ink);
+      border-bottom: 1px solid var(--rule);
+      padding: 1.5rem 0; margin-bottom: 2rem;
+    }
+    .detail-bill-id {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem; letter-spacing: 0.2em;
+      color: var(--accent); text-transform: uppercase; margin-bottom: 0.5rem;
+    }
+    .detail-bill-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 700; line-height: 1.25; color: var(--ink);
+    }
+
+    .detail-loading { padding: 4rem 0; text-align: center; }
+    .loading-spinner {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--muted);
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+    .loading-steps {
+      margin-top: 1.5rem; border-left: 2px solid var(--rule);
+      padding: 0.5rem 1rem; text-align: left; display: inline-block;
+    }
+    .loading-step {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem; color: var(--muted);
+      letter-spacing: 0.05em; margin-bottom: 0.25rem;
+      opacity: 0; transition: opacity 0.4s;
+    }
+    .loading-step.visible { opacity: 1; }
+    .loading-step.done { color: var(--accent); }
+
+    .detail-section { margin-bottom: 2.5rem; }
+    .section-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--muted);
+      display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+
+    .detail-explanation { font-size: 0.95rem; line-height: 1.8; color: var(--ink); }
+    .detail-explanation h1, .detail-explanation h2, .detail-explanation h3 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1rem; font-weight: 700; margin: 1.25rem 0 0.4rem;
+    }
+    .detail-explanation strong { font-weight: 600; }
+    .detail-explanation li { margin-left: 1.25rem; margin-bottom: 0.25rem; }
+
+    .timeline-text { font-size: 0.92rem; line-height: 1.85; color: var(--ink); }
+    .timeline-text h1, .timeline-text h2, .timeline-text h3 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 0.95rem; font-weight: 700; margin: 1rem 0 0.3rem;
+    }
+    .timeline-text strong { font-weight: 600; }
+    .timeline-text li { margin-left: 1.25rem; margin-bottom: 0.2rem; }
+
+    /* ── VOTE VIZ ── */
+    .chambers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .chamber-block { background: var(--card-bg); border: 1px solid var(--rule); padding: 1.25rem; }
+    .chamber-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.62rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--muted);
+      margin-bottom: 0.75rem; text-align: center;
+    }
+    .vote-summary {
+      display: flex; justify-content: center; gap: 1.25rem; margin-bottom: 1rem;
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; letter-spacing: 0.08em;
+    }
+    .vote-count-yea { color: var(--vote-yea); }
+    .vote-count-nay { color: var(--vote-nay); }
+    .vote-count-other { color: var(--muted); }
+    .chamber-svg { width: 100%; display: block; }
+    .vote-tooltip {
+      position: fixed; background: var(--ink); color: var(--paper);
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; letter-spacing: 0.05em;
+      padding: 0.4rem 0.75rem; pointer-events: none; z-index: 100;
+      opacity: 0; transition: opacity 0.1s; white-space: nowrap;
+    }
+    .vote-tooltip.visible { opacity: 1; }
+    .vote-legend {
+      display: flex; justify-content: center; gap: 1rem; margin-top: 0.75rem;
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .legend-item { display: flex; align-items: center; gap: 0.3rem; color: var(--muted); }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── MEMBER PAGE ── */
+    .member-page { max-width: var(--content-width); margin: 0 auto; padding: 0 1.5rem 4rem; }
+    .member-header {
+      border-top: 3px double var(--ink); border-bottom: 1px solid var(--rule);
+      padding: 1.5rem 0; margin-bottom: 2rem;
+      display: flex; gap: 2rem; align-items: flex-start;
+    }
+    .member-photo-wrap {
+      flex-shrink: 0; width: 100px; height: 120px;
+      border: 1px solid var(--rule); overflow: hidden; background: var(--aged);
+    }
+    .member-photo-wrap img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+    .member-header-info { flex: 1; }
+    .member-party-tag {
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem;
+      letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.4rem;
+    }
+    .member-name {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 700; line-height: 1.2;
+      color: var(--ink); margin-bottom: 0.4rem;
+    }
+    .member-meta-line {
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem;
+      color: var(--muted); letter-spacing: 0.05em; margin-bottom: 0.5rem;
+    }
+    .member-status {
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem;
+      letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent);
+    }
+    .member-stats-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 1px; background: var(--rule); border: 1px solid var(--rule); margin-bottom: 2.5rem;
+    }
+    .stat-block { background: var(--card-bg); padding: 1.25rem 1rem; text-align: center; }
+    .stat-number {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.75rem; font-weight: 700; color: var(--ink); line-height: 1;
+    }
+    .stat-label {
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-top: 0.3rem;
+    }
+    .policy-bar-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.6rem; }
+    .policy-bar-label {
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; color: var(--muted);
+      width: 180px; flex-shrink: 0; white-space: nowrap; overflow: hidden;
+      text-overflow: ellipsis; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .policy-bar-track { flex: 1; height: 8px; background: var(--aged); }
+    .policy-bar-fill { height: 100%; background: var(--ink); transition: width 0.6s ease; }
+    .policy-bar-count {
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem;
+      color: var(--muted); width: 30px; text-align: right; flex-shrink: 0;
+    }
+    .member-bill-row {
+      padding: 0.75rem 0; border-bottom: 1px solid var(--rule);
+      cursor: pointer; transition: all 0.1s;
+    }
+    .member-bill-row:hover { background: var(--aged); margin: 0 -1.5rem; padding: 0.75rem 1.5rem; }
+    .member-bill-id {
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem;
+      color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.2rem;
+    }
+    .member-bill-title { font-family: 'Source Serif 4', Georgia, serif; font-size: 0.9rem; color: var(--ink); line-height: 1.4; }
+    .member-bill-date { font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; color: var(--muted); margin-top: 0.2rem; }
+
+    /* ── EMPTY / ERROR ── */
+    .empty-state { text-align: center; padding: 3rem 0; color: var(--muted); }
+    .empty-state p { font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; letter-spacing: 0.1em; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 3px double var(--ink); text-align: center; padding: 1.5rem;
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem;
+      letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase;
+    }
+  </style>
 </head>
 <body>
 
@@ -273,6 +838,829 @@
   <span style="cursor:pointer;text-decoration:underline" onclick="showPage('page-onboarding');showStep(1)">Personalize my feed</span>
 </footer>
 
-<script src="app.js"></script>
+<script>
+  // ── State ──
+  let currentResults = [];
+  let currentSearchContext = {};
+  let previousPage = 'page-home';
+  const tooltip = document.getElementById('tooltip');
+
+  // ── localStorage keys ──
+  const PREFS_KEY = 'np_preferences';
+
+  function getPrefs() {
+    try { return JSON.parse(localStorage.getItem(PREFS_KEY)) || null; }
+    catch { return null; }
+  }
+
+  function savePrefs(prefs) {
+    localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
+  }
+
+  // ── Pages ──
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function goHome() {
+    showPage('page-home');
+    document.getElementById('results-section').innerHTML = '';
+    clearStatus();
+  }
+
+  function goBack() {
+    showPage(previousPage);
+  }
+
+  // ── Search ──
+  const input = document.getElementById('search-input');
+  const btn = document.getElementById('search-btn');
+  const statusBar = document.getElementById('status-bar');
+  const statusInner = document.getElementById('status-inner');
+  const resultsSection = document.getElementById('results-section');
+
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') runSearch(); });
+  function setQuery(q) { input.value = q; input.focus(); }
+
+  function setStatus(msg) {
+    statusBar.classList.add('visible');
+    const line = document.createElement('div');
+    line.className = 'status-step';
+    line.textContent = '› ' + msg;
+    statusInner.appendChild(line);
+    requestAnimationFrame(() => line.classList.add('visible'));
+  }
+  function clearStatus() {
+    statusInner.innerHTML = '';
+    statusBar.classList.remove('visible');
+  }
+
+  function billIdFromParts(type, number) {
+    return (type || '').toUpperCase() + ' ' + number;
+  }
+
+  function renderMarkdown(text) {
+    return (text || '')
+      .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+      .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+      .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      .replace(/^- (.+)$/gm, '<li>$1</li>')
+      .replace(/^---$/gm, '<hr style="border:none;border-top:1px solid var(--rule);margin:0.75rem 0">');
+  }
+
+  // ── Tooltip ──
+  function showTooltip(e, seat) {
+    const partyLabel = seat.party === 'D' ? 'Democrat' : seat.party === 'R' ? 'Republican' : 'Independent';
+    tooltip.textContent = `${seat.name} · ${seat.state} · ${partyLabel} · ${seat.vote}`;
+    tooltip.classList.add('visible');
+    moveTooltip(e);
+  }
+  function moveTooltip(e) {
+    tooltip.style.left = (e.clientX + 12) + 'px';
+    tooltip.style.top  = (e.clientY - 28) + 'px';
+  }
+  function hideTooltip() { tooltip.classList.remove('visible'); }
+
+  // ── Chamber SVG ──
+  function renderChamber(title, data, svgW, svgH) {
+    if (!data || !data.seats || !data.seats.length) return null;
+    const s = data.summary;
+    const block = document.createElement('div');
+    block.className = 'chamber-block';
+    const titleEl = document.createElement('div');
+    titleEl.className = 'chamber-title';
+    titleEl.textContent = title;
+    block.appendChild(titleEl);
+    const summary = document.createElement('div');
+    summary.className = 'vote-summary';
+    summary.innerHTML = `
+      <span class="vote-count-yea">YEA ${s.yea}</span>
+      <span class="vote-count-nay">NAY ${s.nay}</span>
+      ${s.present > 0 ? `<span class="vote-count-other">PRESENT ${s.present}</span>` : ''}
+      ${s.not_voting > 0 ? `<span class="vote-count-other">NOT VOTING ${s.not_voting}</span>` : ''}
+    `;
+    block.appendChild(summary);
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', `0 0 ${svgW} ${svgH}`);
+    svg.setAttribute('class', 'chamber-svg');
+    data.seats.forEach(seat => {
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle.setAttribute('cx', seat.x);
+      circle.setAttribute('cy', seat.y);
+      circle.setAttribute('r', title.includes('House') ? 4.5 : 6);
+      circle.setAttribute('fill', seat.color);
+      circle.setAttribute('opacity', '0.9');
+      circle.style.cursor = 'pointer';
+      circle.addEventListener('mouseenter', e => showTooltip(e, seat));
+      circle.addEventListener('mousemove',  e => moveTooltip(e));
+      circle.addEventListener('mouseleave', hideTooltip);
+      svg.appendChild(circle);
+    });
+    block.appendChild(svg);
+    return block;
+  }
+
+  function renderVotes(votes) {
+    const section = document.getElementById('votes-section');
+    const grid = document.getElementById('chambers-grid');
+    grid.innerHTML = '';
+    const hasHouse  = votes && votes.house  && votes.house.seats  && votes.house.seats.length;
+    const hasSenate = votes && votes.senate && votes.senate.seats && votes.senate.seats.length;
+    if (!hasHouse && !hasSenate) { section.style.display = 'none'; return; }
+    section.style.display = 'block';
+    if (hasHouse) { const b = renderChamber('House of Representatives', votes.house, 500, 260); if (b) grid.appendChild(b); }
+    if (hasSenate) { const b = renderChamber('Senate', votes.senate, 300, 200); if (b) grid.appendChild(b); }
+    grid.style.gridTemplateColumns = (hasHouse && hasSenate) ? '1fr 1fr' : '1fr';
+  }
+
+  // ── Bill detail ──
+  async function openDetail(bill) {
+    bill = {
+      ...bill,
+      congress: parseInt(bill.congress) || bill.congress,
+      number: parseInt(bill.number) || bill.number,
+      law_number: bill.law_number ? parseInt(bill.law_number) : null
+    };
+    previousPage = document.querySelector('.page.active').id;
+    const billId = bill.is_law
+      ? `Public Law ${bill.congress}-${bill.law_number}`
+      : billIdFromParts(bill.type, bill.number);
+
+    document.getElementById('detail-bill-id').textContent = billId;
+    document.getElementById('detail-bill-title').textContent = bill.title || billId;
+    document.getElementById('detail-loading').style.display = 'block';
+    document.getElementById('detail-content').style.display = 'none';
+    document.getElementById('votes-section').style.display = 'none';
+
+    const steps = ['lstep-1', 'lstep-2', 'lstep-3', 'lstep-4'];
+    steps.forEach((id, i) => {
+      const el = document.getElementById(id);
+      el.classList.remove('visible', 'done');
+      setTimeout(() => el.classList.add('visible'), i * 700);
+    });
+
+    showPage('page-detail');
+
+    try {
+      const endpoint = bill.is_law ? '/law' : '/bill';
+      const body = bill.is_law
+        ? { congress: bill.congress, law_number: bill.law_number }
+        : { congress: parseInt(bill.congress), bill_type: bill.type, number: parseInt(bill.number), user_context: getPrefs() };
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      if (!response.ok) throw new Error(`Error: ${response.status}`);
+      const data = await response.json();
+      steps.forEach(id => document.getElementById(id).classList.add('done'));
+
+      setTimeout(() => {
+        document.getElementById('detail-loading').style.display = 'none';
+        document.getElementById('detail-explanation').innerHTML = renderMarkdown(data.translation);
+        document.getElementById('detail-timeline').innerHTML = renderMarkdown(data.timeline);
+        renderVotes(data.votes);
+        document.getElementById('detail-content').style.display = 'block';
+      }, 400);
+
+    } catch (err) {
+      document.getElementById('detail-loading').innerHTML = `
+        <div class="empty-state">
+          <p>This bill couldn't be loaded right now.</p>
+          <p style="margin-top:0.5rem">The data may be temporarily unavailable.</p>
+          <button class="example-pill"
+            style="margin-top:1rem"
+            onclick="openDetail(${JSON.stringify(bill).replace(/"/g, '&quot;')})">
+            Try again
+          </button>
+        </div>`;
+    }
+  }
+
+  function openDetailFromBill(bill) {
+    openDetail({ congress: bill.congress, type: bill.type, number: parseInt(bill.number), title: bill.title });
+  }
+
+  // ── Member profile ──
+  function renderMemberPage(data) {
+    previousPage = document.querySelector('.page.active').id;
+    const m = data.member;
+    const leg = data.legislation;
+
+    document.getElementById('member-party-tag').textContent =
+      [m.party || 'Independent', m.chambers ? m.chambers.join(' & ') : m.chamber || ''].filter(Boolean).join('  ·  ');
+    document.getElementById('member-name').textContent = m.name || '';
+    document.getElementById('member-meta-line').textContent = [
+      m.state,
+      m.start_year ? `${m.start_year}–${m.end_year || 'present'}` : '',
+      m.birth_year ? `b. ${m.birth_year}` : ''
+    ].filter(Boolean).join('  ·  ');
+    document.getElementById('member-status').textContent = m.current ? 'Currently serving' : 'Former member';
+
+    const photo = document.getElementById('member-photo');
+    if (m.bioguide_id) { photo.style.display = 'block'; photo.src = `/member/photo/${m.bioguide_id.toLowerCase()}`; photo.alt = m.name; }
+
+    const statsGrid = document.getElementById('member-stats-grid');
+    const stats = [
+      { number: m.years_served || '—', label: 'Years Served' },
+      { number: (leg.sponsored_count || 0).toLocaleString(), label: 'Bills Sponsored' },
+      { number: (leg.cosponsored_count || 0).toLocaleString(), label: 'Cosponsored' },
+      { number: Object.keys(leg.policy_areas || {}).filter(k => k && k !== 'None').length, label: 'Policy Areas' },
+    ];
+    statsGrid.innerHTML = stats.map(s => `
+      <div class="stat-block">
+        <div class="stat-number">${s.number}</div>
+        <div class="stat-label">${s.label}</div>
+      </div>
+    `).join('');
+
+    const policyChart = document.getElementById('policy-chart');
+    const areas = Object.entries(leg.policy_areas || {})
+      .filter(([k]) => k && k !== 'None' && k !== 'Other' && k !== 'null')
+      .sort((a, b) => b[1] - a[1]);
+    if (areas.length) {
+      const max = areas[0][1];
+      policyChart.innerHTML = areas.map(([label, count]) => `
+        <div class="policy-bar-row">
+          <div class="policy-bar-label">${label}</div>
+          <div class="policy-bar-track"><div class="policy-bar-fill" style="width:${(count/max*100).toFixed(1)}%"></div></div>
+          <div class="policy-bar-count">${count}</div>
+        </div>
+      `).join('');
+    }
+
+    const billsEl = document.getElementById('member-bills');
+    const validBills = (leg.sponsored || []).filter(b => b.title && b.number);
+    billsEl.innerHTML = validBills.map(b => `
+      <div class="member-bill-row" onclick='openDetailFromBill(${JSON.stringify(b)})'>
+        <div class="member-bill-id">${(b.type || '').toUpperCase()} ${b.number}</div>
+        <div class="member-bill-title">${(b.title || '').slice(0, 100)}${(b.title || '').length > 100 ? '…' : ''}</div>
+        <div class="member-bill-date">${b.date || ''}</div>
+      </div>
+    `).join('') || '<p style="font-family:\'IBM Plex Mono\',monospace;font-size:0.7rem;color:var(--muted)">No recent bills found</p>';
+
+    showPage('page-member');
+  }
+
+  // ── Feed rendering ──
+  function renderFeedSection(items, prefs) {
+    const feedSection = document.getElementById('feed-section');
+
+    if (!items || !items.length) {
+      feedSection.innerHTML = `
+        <div class="feed-header">
+          <h2>Your Feed</h2>
+          <div class="feed-header-right">
+            <button class="feed-settings-btn" onclick="showPage('page-onboarding');showStep(1)">Edit preferences</button>
+          </div>
+        </div>
+        <div class="empty-state">
+          <p>No recent legislation found for your interests.</p>
+          <p style="margin-top:0.5rem">Try updating your topics.</p>
+        </div>`;
+      return;
+    }
+
+    const repNames = [
+      ...prefs.senators.map(s => s.name),
+      prefs.representative ? prefs.representative.name : null
+    ].filter(Boolean);
+
+    feedSection.innerHTML = `
+      <div class="feed-header">
+        <h2>Your Feed</h2>
+        <div class="feed-header-right">
+          <span class="feed-location">${prefs.state}</span>
+          <button class="feed-settings-btn" onclick="showPage('page-onboarding');showStep(1)">Edit</button>
+        </div>
+      </div>
+    `;
+
+    items.forEach((item, i) => {
+      const card = document.createElement('div');
+      card.className = 'feed-card';
+      card.style.animationDelay = (i * 0.06) + 's';
+      card.onclick = () => openDetail({
+        congress: parseInt(item.congress),
+        type: item.type,
+        number: parseInt(item.number),
+        title: item.title
+      });
+
+      const isRep = item.feed_reason === 'your_rep';
+      const reasonText = isRep
+        ? `Your representative sponsored this`
+        : `${item.feed_interest ? item.feed_interest.replace('_', ' ') : item.feed_reason}`;
+
+      const billId = `${(item.type || '').toUpperCase()} ${item.number}`;
+
+      card.innerHTML = `
+        <div class="feed-card-inner">
+          <div class="feed-reason ${isRep ? 'reason-rep' : 'reason-topic'}">
+            ${isRep ? '⚡ ' : ''}${reasonText}
+          </div>
+          <div class="feed-bill-id">${billId}</div>
+          <div class="feed-bill-title">${item.title || billId}</div>
+          ${item.latest_action ? `<div class="feed-bill-action">${item.latest_action}</div>` : ''}
+        </div>
+        <div class="feed-card-footer">
+          <div class="feed-date">${item.date || ''}</div>
+          <div class="feed-arrow">Read more →</div>
+        </div>
+      `;
+
+      feedSection.appendChild(card);
+    });
+  }
+
+  async function loadFeed() {
+    const prefs = getPrefs();
+    const feedSection = document.getElementById('feed-section');
+
+    if (!prefs) {
+      feedSection.innerHTML = `
+        <div class="onboarding-prompt">
+          <div class="onboarding-prompt-title">Your personal civic feed</div>
+          <div class="onboarding-prompt-text">
+            Tell us where you live and what issues matter to you.<br>
+            We'll curate a daily feed of legislation that affects you.<br>
+            No account needed. Stored only in your browser.
+          </div>
+          <button class="onboarding-start-btn" onclick="showPage('page-onboarding');showStep(1)">
+            Set up my feed →
+          </button>
+        </div>`;
+      return;
+    }
+
+    feedSection.innerHTML = `<div style="padding:2rem 0;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:var(--muted)">Loading your feed...</div>`;
+
+    try {
+      const response = await fetch('/feed', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          interests: prefs.interests,
+          senator_bioguides: prefs.senators.map(s => s.bioguide_id),
+          rep_bioguide: prefs.representative ? prefs.representative.bioguide_id : null
+        })
+      });
+
+      const data = await response.json();
+      renderFeedSection(data.items, prefs);
+
+    } catch(err) {
+      feedSection.innerHTML = `<div class="empty-state"><p>Could not load feed.</p></div>`;
+    }
+  }
+
+  // ── Committee page ──
+  function renderCommitteePage(data) {
+    const c = data.committee;
+    resultsSection.innerHTML = '';
+
+    const header = document.createElement('div');
+    header.className = 'results-header';
+    header.innerHTML = `
+        <h2>${c.name}</h2>
+        <span class="results-count">${c.chamber}</span>`;
+    resultsSection.appendChild(header);
+
+    if (!data.bills || !data.bills.length) {
+        resultsSection.innerHTML += `<div class="empty-state"><p>No recent bills found for this committee.</p></div>`;
+        return;
+    }
+
+    data.bills.forEach((bill, i) => {
+        const card = document.createElement('div');
+        card.className = 'result-card';
+        card.style.animationDelay = (i * 0.05) + 's';
+        card.onclick = () => openDetail({
+            congress: parseInt(bill.congress),
+            type: bill.type,
+            number: parseInt(bill.number),
+            title: bill.title,
+            date: bill.date,
+            latest_action: bill.latest_action,
+        });
+
+        const billId = billIdFromParts(bill.type, bill.number);
+
+        card.innerHTML = `
+            <div class="result-card-inner">
+                <div class="result-card-left">
+                    <div class="result-bill-id">${billId}</div>
+                    <div class="result-bill-title">${bill.title || billId}</div>
+                </div>
+                <div class="result-card-arrow">Read more →</div>
+            </div>
+            <div class="result-meta">
+                <div class="meta-item"><strong>${bill.congress}th Congress</strong></div>
+                <div class="meta-item"><strong>${bill.date || ''}</strong></div>
+                <div class="meta-item">${bill.latest_action ? bill.latest_action.slice(0,50) : ''}</div>
+            </div>`;
+
+        resultsSection.appendChild(card);
+    });
+  }
+
+  // ── Search results ──
+  function renderResults(data) {
+    resultsSection.innerHTML = '';
+    currentResults = data.results || [];
+
+    currentSearchContext = {
+      query: input.value.trim(),
+      expanded_terms: data.query?.expanded_terms || [],
+      congress_numbers: data.query?.congress_numbers || [],
+      confidence: data.confidence || 1.0,
+      results_shown: currentResults.map(r => ({
+        bill_id: `${(r.type||'').toUpperCase()}${r.number}`,
+        title: r.title,
+        date: r.date_issued
+      }))
+    };
+
+    if (!currentResults.length) {
+      resultsSection.innerHTML = `
+        <div class="empty-state">
+          <p>No bills found for that query.</p>
+          <p style="margin-top:0.5rem">Try different keywords or a broader question.</p>
+        </div>`;
+      return;
+    }
+
+    const header = document.createElement('div');
+    header.className = 'results-header';
+    header.innerHTML = `
+      <h2>Search Results</h2>
+      <span class="results-count">${currentResults.length} bill${currentResults.length !== 1 ? 's' : ''} found</span>`;
+    resultsSection.appendChild(header);
+
+    currentResults.forEach((bill, i) => {
+      const card = document.createElement('div');
+      card.className = 'result-card';
+      card.style.animationDelay = (i * 0.05) + 's';
+      card.onclick = () => openDetail({
+        congress: parseInt(bill.congress),
+        type: bill.type,
+        number: parseInt(bill.number),
+        title: bill.title,
+        is_law: bill.is_law,
+        law_number: bill.law_number ? parseInt(bill.law_number) : null
+      });
+
+      const billId = bill.is_law
+        ? `Public Law ${bill.congress}-${bill.law_number}`
+        : billIdFromParts(bill.type || '', bill.number || '');
+      const congress = bill.congress ? `${bill.congress}th Congress` : '';
+      const date = bill.date_issued ? bill.date_issued.slice(0, 4) : '';
+
+      card.innerHTML = `
+        <div class="result-card-inner">
+          <div class="result-card-left">
+            <div class="result-bill-id">${billId}</div>
+            <div class="result-bill-title">${bill.title || billId}</div>
+          </div>
+          <div class="result-card-arrow">Read more →</div>
+        </div>
+        <div class="result-meta">
+          <div class="meta-item"><strong>${congress}</strong></div>
+          <div class="meta-item"><strong>${date}</strong></div>
+          <div class="meta-item">Click for full analysis</div>
+        </div>`;
+
+      resultsSection.appendChild(card);
+    });
+
+    const flagRow = document.createElement('div');
+    flagRow.style.cssText = 'margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--rule);text-align:center';
+    flagRow.innerHTML = `
+      <button class="feed-settings-btn" onclick="showSearchFlag()">
+        Didn't find what you were looking for? Flag this search
+      </button>`;
+    resultsSection.appendChild(flagRow);
+  }
+
+  // ── Clarification bar ──
+  function showClarificationBar(confidence, reason, question) {
+    if (confidence >= 0.7 || !reason) return;
+
+    const bar = document.createElement('div');
+    bar.style.cssText = `
+        border-left: 2px solid var(--accent);
+        padding: 0.75rem 1rem;
+        margin-bottom: 1.5rem;
+        background: var(--card-bg);
+        border: 1px solid var(--rule);
+    `;
+    bar.innerHTML = `
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;
+                    letter-spacing:0.15em;text-transform:uppercase;
+                    color:var(--muted);margin-bottom:0.5rem">
+            Ambiguous query · confidence ${Math.round(confidence * 100)}%
+        </div>
+        <div style="font-size:0.88rem;color:var(--ink);margin-bottom:0.75rem">
+            ${reason}
+        </div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+            <button class="example-pill"
+                onclick="setQuery('${question} legislation');runSearch()">
+                Search as legislation
+            </button>
+            <button class="example-pill"
+                onclick="setQuery('${question} senator');runSearch()">
+                Search as person
+            </button>
+        </div>
+    `;
+    resultsSection.insertBefore(bar, resultsSection.firstChild);
+  }
+
+  // ── Main search ──
+  async function runSearch() {
+    const question = input.value.trim();
+    if (!question) return;
+
+    btn.disabled = true;
+    resultsSection.innerHTML = '';
+    clearStatus();
+    showPage('page-home');
+
+    setStatus('Understanding your question...');
+
+    try {
+      setTimeout(() => setStatus('Searching federal legislation...'), 500);
+
+      const response = await fetch('/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question, max_results: 10 })
+      });
+
+      if (!response.ok) throw new Error(`Server error: ${response.status}`);
+      const data = await response.json();
+      clearStatus();
+
+      if (data.confidence < 0.7 && data.ambiguity_reason) {
+        showClarificationBar(data.confidence, data.ambiguity_reason, question);
+      }
+
+      if (data.query_type === 'member') {
+        if (data.found) {
+          renderMemberPage(data);
+        } else {
+          resultsSection.innerHTML = `
+            <div class="empty-state">
+              <p>Member not found.</p>
+              <p style="margin-top:0.5rem">Try using their full name.</p>
+            </div>`;
+        }
+      } else if (data.query_type === 'committee') {
+        if (data.found) {
+          renderCommitteePage(data);
+        } else {
+          resultsSection.innerHTML = `
+            <div class="empty-state">
+              <p>Committee not found.</p>
+              <p style="margin-top:0.5rem">Try the full committee name.</p>
+            </div>`;
+        }
+      } else {
+        renderResults(data);
+        resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+    } catch (err) {
+      clearStatus();
+      resultsSection.innerHTML = `
+        <div class="empty-state">
+          <p>Something went wrong. Is the server running?</p>
+          <p style="margin-top:0.5rem;font-size:0.6rem">${err.message}</p>
+        </div>`;
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  // ── Onboarding ──
+  let onboardingData = { zip: null, state: null, senators: [], representative: null, interests: [] };
+
+  function showStep(n) {
+    document.querySelectorAll('.onboarding-step').forEach(s => s.classList.remove('active'));
+    document.getElementById(`step-${n}`).classList.add('active');
+  }
+
+  async function handleZipInput(val) {
+    if (val.length === 5 && /^\d{5}$/.test(val)) {
+      await lookupZip(val);
+    } else {
+      document.getElementById('zip-result').classList.remove('visible');
+      document.getElementById('step1-btn').disabled = true;
+    }
+  }
+
+  async function lookupZip(zip) {
+    zip = zip || document.getElementById('zip-input').value;
+    if (!/^\d{5}$/.test(zip)) return;
+
+    try {
+      const res = await fetch('/resolve-zip', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ zip_code: zip })
+      });
+
+      if (!res.ok) throw new Error('Not found');
+      const data = await res.json();
+
+      onboardingData.zip = zip;
+      onboardingData.state = data.state;
+      onboardingData.senators = data.senators || [];
+      onboardingData.representative = data.representative;
+
+      // Show reps
+      const repsEl = document.getElementById('zip-reps');
+      const all = [
+        ...data.senators.map(s => ({ ...s, label: 'Senator' })),
+        data.representative ? { ...data.representative, label: 'Rep.' } : null
+      ].filter(Boolean);
+
+      repsEl.innerHTML = all.map(p => `
+        <div class="zip-rep-row">
+          <div class="zip-rep-chamber">${p.label}</div>
+          <div class="zip-rep-name">${p.name}</div>
+          <div class="zip-rep-party">${p.party}</div>
+        </div>
+      `).join('');
+
+      document.getElementById('zip-result').classList.add('visible');
+      document.getElementById('step1-btn').disabled = false;
+
+    } catch(e) {
+      document.getElementById('zip-result').innerHTML = '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:0.7rem;color:var(--accent)">Could not find representatives for this zip code.</div>';
+      document.getElementById('zip-result').classList.add('visible');
+    }
+  }
+
+  function goToStep2() {
+    showPage('page-onboarding');
+    showStep(2);
+  }
+
+  function toggleInterest(el) {
+    el.classList.toggle('selected');
+    const selected = document.querySelectorAll('.interest-pill.selected');
+    document.getElementById('step2-btn').disabled = selected.length === 0;
+  }
+
+  function finishOnboarding() {
+    const selected = [...document.querySelectorAll('.interest-pill.selected')]
+      .map(el => el.dataset.interest);
+
+    const prefs = {
+      zip: onboardingData.zip,
+      state: onboardingData.state,
+      senators: onboardingData.senators,
+      representative: onboardingData.representative,
+      interests: selected,
+      created: new Date().toISOString()
+    };
+
+    savePrefs(prefs);
+    showPage('page-home');
+    loadFeed();
+  }
+
+  async function checkServer() {
+    try {
+      const r = await fetch('/health', { signal: AbortSignal.timeout(3000) });
+      if (!r.ok) throw new Error();
+    } catch {
+      document.getElementById('results-section').innerHTML = `
+        <div class="empty-state">
+          <p>Cannot connect to NosPopuli server.</p>
+          <p style="margin-top:0.5rem;font-size:0.6rem">
+            Make sure uvicorn is running: uvicorn api:app --reload
+          </p>
+        </div>`;
+    }
+  }
+
+  // ── Flag system ──
+  let currentFlagType = null;
+  let currentFlagContext = {};
+
+  const SEARCH_REASONS = [
+    "Results not relevant",
+    "Missing important bills",
+    "Wrong time period",
+    "Misunderstood my question",
+    "Other"
+  ];
+
+  const BILL_REASONS = [
+    "Translation is inaccurate",
+    "Missing key information",
+    "Wrong bill details",
+    "Timeline is incorrect",
+    "Other"
+  ];
+
+  function showSearchFlag() {
+    currentFlagType = 'search';
+    currentFlagContext = currentSearchContext;
+    document.getElementById('flag-modal-title').textContent = 'What was wrong with these results?';
+    renderFlagReasons(SEARCH_REASONS);
+    openFlagModal();
+  }
+
+  function showBillFlag(section) {
+    currentFlagType = 'bill';
+    currentFlagContext = { section };
+    document.getElementById('flag-modal-title').textContent = 'What is inaccurate?';
+    renderFlagReasons(BILL_REASONS);
+    openFlagModal();
+  }
+
+  function renderFlagReasons(reasons) {
+    const container = document.getElementById('flag-reasons');
+    container.innerHTML = reasons.map((r, i) => `
+      <label style="display:flex;align-items:center;gap:0.5rem;
+                    margin-bottom:0.5rem;cursor:pointer;
+                    font-size:0.88rem;font-family:'Source Serif 4',serif">
+        <input type="radio" name="flag-reason" value="${r}" ${i === 0 ? 'checked' : ''}>
+        ${r}
+      </label>
+    `).join('');
+  }
+
+  function openFlagModal() {
+    document.getElementById('flag-notes').value = '';
+    document.getElementById('flag-success').style.display = 'none';
+    const modal = document.getElementById('flag-modal');
+    modal.style.display = 'flex';
+  }
+
+  function closeFlagModal() {
+    document.getElementById('flag-modal').style.display = 'none';
+    currentFlagType = null;
+    currentFlagContext = {};
+  }
+
+  async function submitFlag() {
+    const reason = document.querySelector('input[name="flag-reason"]:checked')?.value;
+    const notes = document.getElementById('flag-notes').value.trim();
+    if (!reason) return;
+
+    try {
+      if (currentFlagType === 'search') {
+        await fetch('/flag/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query: currentFlagContext.query,
+            results_shown: currentFlagContext.results_shown,
+            expanded_terms: currentFlagContext.expanded_terms,
+            congress_numbers: currentFlagContext.congress_numbers,
+            confidence: currentFlagContext.confidence,
+            reason, notes
+          })
+        });
+      } else if (currentFlagType === 'bill') {
+        const billId = document.getElementById('detail-bill-id').textContent;
+        await fetch('/flag/bill', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            bill_id: billId,
+            congress: 0,
+            bill_type: currentFlagContext.section || 'translation',
+            reason, notes,
+            flagged_section: currentFlagContext.section || 'translation'
+          })
+        });
+      }
+      document.getElementById('flag-success').style.display = 'block';
+      setTimeout(closeFlagModal, 1500);
+    } catch(err) {
+      console.error('Flag submission failed:', err);
+    }
+  }
+
+  document.getElementById('flag-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeFlagModal();
+  });
+
+  // ── Init ──
+  checkServer();
+  loadFeed();
+</script>
 </body>
 </html>
