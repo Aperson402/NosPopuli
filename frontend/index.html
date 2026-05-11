@@ -724,10 +724,22 @@
       <div class="detail-section">
         <div class="section-label">Plain English Explanation</div>
         <div class="detail-explanation" id="detail-explanation"></div>
+        <div style="margin-top:0.75rem;text-align:right">
+          <button class="feed-settings-btn" id="flag-translation-btn"
+              onclick="showBillFlag('translation')">
+            Flag inaccuracy
+          </button>
+        </div>
       </div>
       <div class="detail-section">
         <div class="section-label">Legislative Timeline</div>
         <div class="timeline-text" id="detail-timeline"></div>
+        <div style="margin-top:0.75rem;text-align:right">
+          <button class="feed-settings-btn" id="flag-timeline-btn"
+              onclick="showBillFlag('timeline')">
+            Flag inaccuracy
+          </button>
+        </div>
       </div>
       <div class="detail-section" id="votes-section" style="display:none">
         <div class="section-label">Recorded Votes</div>
@@ -770,6 +782,57 @@
   </div>
 </div>
 
+<!-- Flag modal -->
+<div id="flag-modal" style="
+    display:none;position:fixed;top:0;left:0;right:0;bottom:0;
+    background:rgba(0,0,0,0.5);z-index:200;
+    align-items:center;justify-content:center;">
+  <div style="
+      background:var(--paper);border:1.5px solid var(--ink);
+      padding:2rem;max-width:480px;width:90%;margin:1rem">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;
+                letter-spacing:0.2em;text-transform:uppercase;
+                color:var(--muted);margin-bottom:1rem">
+        Submit Feedback
+    </div>
+    <div style="font-family:'Playfair Display',serif;font-size:1.1rem;
+                font-weight:700;margin-bottom:1.5rem" id="flag-modal-title">
+        What's wrong?
+    </div>
+
+    <div id="flag-reasons" style="margin-bottom:1rem"></div>
+
+    <textarea id="flag-notes" placeholder="Additional notes (optional)"
+        style="width:100%;padding:0.75rem;font-family:'Source Serif 4',serif;
+               font-size:0.9rem;border:1px solid var(--rule);
+               background:white;resize:vertical;min-height:80px;
+               margin-bottom:1rem;outline:none"></textarea>
+
+    <div style="display:flex;gap:0.75rem">
+        <button onclick="submitFlag()" style="
+            flex:1;font-family:'IBM Plex Mono',monospace;
+            font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;
+            padding:0.75rem;background:var(--ink);color:var(--paper);
+            border:none;cursor:pointer">
+            Submit
+        </button>
+        <button onclick="closeFlagModal()" style="
+            font-family:'IBM Plex Mono',monospace;
+            font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;
+            padding:0.75rem 1rem;background:none;
+            border:1px solid var(--rule);cursor:pointer;color:var(--muted)">
+            Cancel
+        </button>
+    </div>
+
+    <div id="flag-success" style="display:none;margin-top:1rem;
+        font-family:'IBM Plex Mono',monospace;font-size:0.7rem;
+        color:var(--vote-yea);text-align:center">
+        Thank you for the feedback.
+    </div>
+  </div>
+</div>
+
 <footer>
   NosPopuli &nbsp;·&nbsp; Data via Congress.gov &amp; GovInfo &amp; Senate.gov &nbsp;·&nbsp; Not legal advice &nbsp;·&nbsp;
   <span style="cursor:pointer;text-decoration:underline" onclick="showPage('page-onboarding');showStep(1)">Personalize my feed</span>
@@ -778,6 +841,7 @@
 <script>
   // ── State ──
   let currentResults = [];
+  let currentSearchContext = {};
   let previousPage = 'page-home';
   const tooltip = document.getElementById('tooltip');
 
@@ -1198,6 +1262,18 @@
     resultsSection.innerHTML = '';
     currentResults = data.results || [];
 
+    currentSearchContext = {
+      query: input.value.trim(),
+      expanded_terms: data.query?.expanded_terms || [],
+      congress_numbers: data.query?.congress_numbers || [],
+      confidence: data.confidence || 1.0,
+      results_shown: currentResults.map(r => ({
+        bill_id: `${(r.type||'').toUpperCase()}${r.number}`,
+        title: r.title,
+        date: r.date_issued
+      }))
+    };
+
     if (!currentResults.length) {
       resultsSection.innerHTML = `
         <div class="empty-state">
@@ -1242,6 +1318,14 @@
 
       resultsSection.appendChild(card);
     });
+
+    const flagRow = document.createElement('div');
+    flagRow.style.cssText = 'margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--rule);text-align:center';
+    flagRow.innerHTML = `
+      <button class="feed-settings-btn" onclick="showSearchFlag()">
+        Didn't find what you were looking for? Flag this search
+      </button>`;
+    resultsSection.appendChild(flagRow);
   }
 
   // ── Clarification bar ──
@@ -1448,6 +1532,111 @@
         </div>`;
     }
   }
+
+  // ── Flag system ──
+  let currentFlagType = null;
+  let currentFlagContext = {};
+
+  const SEARCH_REASONS = [
+    "Results not relevant",
+    "Missing important bills",
+    "Wrong time period",
+    "Misunderstood my question",
+    "Other"
+  ];
+
+  const BILL_REASONS = [
+    "Translation is inaccurate",
+    "Missing key information",
+    "Wrong bill details",
+    "Timeline is incorrect",
+    "Other"
+  ];
+
+  function showSearchFlag() {
+    currentFlagType = 'search';
+    currentFlagContext = currentSearchContext;
+    document.getElementById('flag-modal-title').textContent = 'What was wrong with these results?';
+    renderFlagReasons(SEARCH_REASONS);
+    openFlagModal();
+  }
+
+  function showBillFlag(section) {
+    currentFlagType = 'bill';
+    currentFlagContext = { section };
+    document.getElementById('flag-modal-title').textContent = 'What is inaccurate?';
+    renderFlagReasons(BILL_REASONS);
+    openFlagModal();
+  }
+
+  function renderFlagReasons(reasons) {
+    const container = document.getElementById('flag-reasons');
+    container.innerHTML = reasons.map((r, i) => `
+      <label style="display:flex;align-items:center;gap:0.5rem;
+                    margin-bottom:0.5rem;cursor:pointer;
+                    font-size:0.88rem;font-family:'Source Serif 4',serif">
+        <input type="radio" name="flag-reason" value="${r}" ${i === 0 ? 'checked' : ''}>
+        ${r}
+      </label>
+    `).join('');
+  }
+
+  function openFlagModal() {
+    document.getElementById('flag-notes').value = '';
+    document.getElementById('flag-success').style.display = 'none';
+    const modal = document.getElementById('flag-modal');
+    modal.style.display = 'flex';
+  }
+
+  function closeFlagModal() {
+    document.getElementById('flag-modal').style.display = 'none';
+    currentFlagType = null;
+    currentFlagContext = {};
+  }
+
+  async function submitFlag() {
+    const reason = document.querySelector('input[name="flag-reason"]:checked')?.value;
+    const notes = document.getElementById('flag-notes').value.trim();
+    if (!reason) return;
+
+    try {
+      if (currentFlagType === 'search') {
+        await fetch('/flag/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query: currentFlagContext.query,
+            results_shown: currentFlagContext.results_shown,
+            expanded_terms: currentFlagContext.expanded_terms,
+            congress_numbers: currentFlagContext.congress_numbers,
+            confidence: currentFlagContext.confidence,
+            reason, notes
+          })
+        });
+      } else if (currentFlagType === 'bill') {
+        const billId = document.getElementById('detail-bill-id').textContent;
+        await fetch('/flag/bill', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            bill_id: billId,
+            congress: 0,
+            bill_type: currentFlagContext.section || 'translation',
+            reason, notes,
+            flagged_section: currentFlagContext.section || 'translation'
+          })
+        });
+      }
+      document.getElementById('flag-success').style.display = 'block';
+      setTimeout(closeFlagModal, 1500);
+    } catch(err) {
+      console.error('Flag submission failed:', err);
+    }
+  }
+
+  document.getElementById('flag-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeFlagModal();
+  });
 
   // ── Init ──
   checkServer();

@@ -1,3 +1,6 @@
+# NOTE: This orchestrator is used for batch processing and CLI testing.
+# The production API uses FastAPI's async handlers directly.
+# See api.py for the production implementation.
 import asyncio
 import anthropic
 import os

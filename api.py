@@ -17,6 +17,7 @@ from member_search_agent import search_member, fetch_member_profile, fetch_membe
 from query_expander_agent import expand_query
 from search_logger import log_search, log_bill_opened, log_member_opened
 from analyst_agent import analyze
+from flag_logger import log_search_flag, log_bill_flag, get_flags
 from feed_agent import fetch_feed
 from civic_resolver import resolve_zip
 import httpx
@@ -28,7 +29,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from router_agent import route_query, extract_president_congress
-from search_agent import search_bills
+from search_agent import search_bills, search_summaries
 from bill_fetcher import fetch_bill
 from translator_agent import translate_bill
 from historian_agent import fetch_bill_actions, fetch_related_bills, summarize_history
@@ -93,6 +94,23 @@ class FeedRequest(BaseModel):
 
 class ZipRequest(BaseModel):
     zip_code: str
+
+class SearchFlagRequest(BaseModel):
+    query: str
+    results_shown: list
+    expanded_terms: list = []
+    congress_numbers: list = []
+    confidence: float = 1.0
+    reason: str
+    notes: str = ""
+
+class BillFlagRequest(BaseModel):
+    bill_id: str
+    congress: int
+    bill_type: str
+    reason: str
+    notes: str = ""
+    flagged_section: str = "translation"
 
 # ── Search handlers ──
 
@@ -246,10 +264,34 @@ async def handle_legislation_search(structured, question, loop):
         structured.get("topic", ""),
         get_client()
     )
-    structured["expanded_terms"] = expanded
+    structured["expanded_terms"] = expanded or []
     structured["original_question"] = question
 
-    raw_results = await loop.run_in_executor(None, search_bills, structured)
+    govinfo_results, summary_results = await asyncio.gather(
+        loop.run_in_executor(None, search_bills, structured),
+        loop.run_in_executor(
+            None, search_summaries,
+            " ".join(structured.get("keywords", [])),
+            structured.get("congress_numbers", [119, 118])
+        )
+    )
+
+    seen = set()
+    merged = []
+    for r in summary_results:
+        key = f"{r.get('congress')}{r.get('type')}{r.get('number')}"
+        if key not in seen and r.get('number'):
+            seen.add(key)
+            r['source'] = 'summary'
+            merged.append(r)
+    for r in govinfo_results:
+        key = f"{r.get('congress')}{r.get('type')}{r.get('number')}"
+        if key not in seen and r.get('number'):
+            seen.add(key)
+            r['source'] = 'govinfo'
+            merged.append(r)
+
+    raw_results = merged[:structured.get("result_count", 5)]
 
     log_search(
         query=question,
@@ -366,7 +408,8 @@ async def search(request: Request, body: SearchRequest):
     except HTTPException:
         raise
     except Exception as e:
-        print(f"[API] Error processing search '{body.question}': {e}")
+        import traceback
+        print(f"[API] Full error: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail="Search failed. Please try again.")
 @app.post("/bill")
 @limiter.limit("30/minute")
@@ -541,6 +584,38 @@ async def member_photo(bioguide_id: str):
 @app.get("/")
 async def root():
     return FileResponse("frontend/index.html")
+
+@app.post("/flag/search")
+async def flag_search(request: SearchFlagRequest):
+    try:
+        log_search_flag(
+            query=request.query,
+            results_shown=request.results_shown,
+            reason=request.reason,
+            notes=request.notes
+        )
+        return {"status": "flagged", "message": "Thank you for the feedback."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to log flag")
+
+@app.post("/flag/bill")
+async def flag_bill(request: BillFlagRequest):
+    try:
+        log_bill_flag(
+            bill_id=request.bill_id,
+            congress=request.congress,
+            bill_type=request.bill_type,
+            reason=request.reason,
+            notes=request.notes,
+            flagged_section=request.flagged_section
+        )
+        return {"status": "flagged", "message": "Thank you for the feedback."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to log flag")
+
+@app.get("/monitor/flags")
+async def get_all_flags():
+    return get_flags()
 
 @app.get("/health")
 async def health():

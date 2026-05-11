@@ -64,6 +64,47 @@ def years_to_congress_numbers(year_range_str):
     
     return sorted(matching, reverse=True)
 
+KNOWN_BILLS = {
+    # Current major legislation
+    "genius act": {"congress": 119, "type": "s", "number": 1582},
+    "genius": {"congress": 119, "type": "s", "number": 1582},
+    "inflation reduction act": {"congress": 117, "type": "hr", "number": 5376},
+    "chips act": {"congress": 117, "type": "hr", "number": 4346},
+    "infrastructure investment": {"congress": 117, "type": "hr", "number": 3684},
+    "bipartisan infrastructure": {"congress": 117, "type": "hr", "number": 3684},
+
+    # Healthcare
+    "affordable care act": {"congress": 111, "type": "hr", "number": 3590},
+    "aca": {"congress": 111, "type": "hr", "number": 3590},
+    "obamacare": {"congress": 111, "type": "hr", "number": 3590},
+
+    # Historical major acts
+    "patriot act": {"congress": 107, "type": "hr", "number": 3162},
+    "usa patriot": {"congress": 107, "type": "hr", "number": 3162},
+    "cara": {"congress": 114, "type": "s", "number": 524},
+    "dodd frank": {"congress": 111, "type": "hr", "number": 4173},
+    "dodd-frank": {"congress": 111, "type": "hr", "number": 4173},
+    "citizens united": {"congress": 111, "type": "hr", "number": 2517},
+
+    # Defense
+    "ndaa": {"congress": 118, "type": "hr", "number": 2670},
+    "national defense authorization": {"congress": 118, "type": "hr", "number": 2670},
+
+    # Education
+    "higher education act": {"congress": 89, "type": "hr", "number": 9567},
+
+    # Civil rights
+    "voting rights act": {"congress": 89, "type": "hr", "number": 6400},
+    "civil rights act": {"congress": 88, "type": "hr", "number": 7152},
+}
+
+def check_known_bills(question):
+    question_lower = question.lower()
+    for name, bill in KNOWN_BILLS.items():
+        if name in question_lower:
+            return bill
+    return None
+
 def extract_president_congress(question):
     question_lower = question.lower()
     
@@ -209,8 +250,15 @@ Return ONLY this JSON structure:
             "bill_type": "all"
         }
     
+    # Check for known bills before anything else
+    known = check_known_bills(user_question)
+    if known:
+        structured["specific_bill"] = known
+        structured["query_type"] = "legislation"
+        structured["result_count"] = 1
+
     # Add congress numbers based on time range
-    structured["congress_numbers"] = years_to_congress_numbers(structured["time_range"])
+    structured["congress_numbers"] = years_to_congress_numbers(structured.get("time_range", "last 5 years"))
 
     # Override congress_numbers if a president was mentioned
     president_congresses = extract_president_congress(user_question)

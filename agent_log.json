@@ -3981,5 +3981,1334 @@
     "output": {
       "results_count": 5
     }
+  },
+  {
+    "timestamp": "2026-05-10T20:01:44.567345",
+    "agent": "feed",
+    "action": "fetch_feed",
+    "input": {
+      "interests": [
+        "healthcare",
+        "agriculture"
+      ],
+      "reps": [
+        "S000033",
+        "W000800",
+        "B001318"
+      ]
+    },
+    "output": {
+      "total_items": 9
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:01:50.304991",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Hi"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.2,
+      "ambiguity_reason": "Query is too vague to determine intent; 'Hi' provides no searchable context.",
+      "keywords": [],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:01:50.745438",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 40828,
+      "results_returned": 15
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:01:50.748925",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Hi"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:02:45.695132",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Genius Act"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.9,
+      "ambiguity_reason": null,
+      "keywords": [
+        "Genius Act"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:02:47.646545",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "Genius Act",
+        "Guiding and Establishing National Innovation for US Stablecoins"
+      ],
+      "topic": "Genius Act legislation"
+    },
+    "output": {
+      "expanded_terms": [
+        "stablecoin",
+        "digital asset",
+        "cryptocurrency regulation",
+        "monetary policy",
+        "payment system",
+        "financial innovation",
+        "GENNUIS"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:02:48.137017",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [
+        "stablecoin",
+        "digital asset",
+        "cryptocurrency regulation",
+        "monetary policy",
+        "payment system",
+        "financial innovation",
+        "GENNUIS"
+      ],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 355,
+      "results_returned": 15
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:02:48.144758",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Genius Act"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:05:47.771995",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Genius Act"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.85,
+      "ambiguity_reason": "Genius Act is a known piece of legislation but the acronym/name could refer to multiple bills with similar intent around innovation or STEM",
+      "keywords": [
+        "Genius",
+        "Act"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:05:48.718363",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "Genius",
+        "Act",
+        "Guiding and Establishing National Innovation for US Stablecoins"
+      ],
+      "topic": "Genius Act legislation"
+    },
+    "output": {
+      "expanded_terms": [
+        "stablecoin",
+        "digital currency",
+        "cryptocurrency regulation",
+        "monetary policy",
+        "payment systems",
+        "financial stability",
+        "GENIUS Act"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:05:49.282930",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [
+        "stablecoin",
+        "digital currency",
+        "cryptocurrency regulation",
+        "monetary policy",
+        "payment systems",
+        "financial stability",
+        "GENIUS Act"
+      ],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 361,
+      "results_returned": 15
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:05:49.286418",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Genius Act"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:07:21.545157",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Genius Act"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.9,
+      "ambiguity_reason": null,
+      "keywords": [
+        "Genius",
+        "Act"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:07:22.784044",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "Genius",
+        "Act",
+        "Guiding and Establishing National Innovation for US Stablecoins Act"
+      ],
+      "topic": "Genius Act legislation"
+    },
+    "output": {
+      "expanded_terms": [
+        "stablecoin",
+        "digital currency",
+        "cryptocurrency regulation",
+        "central bank digital currency",
+        "blockchain",
+        "monetary policy",
+        "financial stability"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:07:23.380920",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [
+        "stablecoin",
+        "digital currency",
+        "cryptocurrency regulation",
+        "central bank digital currency",
+        "blockchain",
+        "monetary policy",
+        "financial stability"
+      ],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 413,
+      "results_returned": 14
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:07:23.386196",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Genius Act"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:07:47.470696",
+    "agent": "analyst",
+    "action": "analyze",
+    "input": {
+      "days": 7,
+      "searches_analyzed": 36
+    },
+    "output": {
+      "report_length": 1580
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:09:35.923683",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Genius Act"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.9,
+      "ambiguity_reason": null,
+      "keywords": [
+        "Genius",
+        "Act"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:09:36.936609",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "Genius",
+        "Act",
+        "Guiding and Establishing National Innovation for US Stablecoins Act"
+      ],
+      "topic": "Genius Act legislation"
+    },
+    "output": {
+      "expanded_terms": [
+        "stablecoin",
+        "digital currency",
+        "cryptocurrency regulation",
+        "monetary policy",
+        "payment systems",
+        "financial stability",
+        "GENIUS Act"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:09:37.490161",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [
+        "stablecoin",
+        "digital currency",
+        "cryptocurrency regulation",
+        "monetary policy",
+        "payment systems",
+        "financial stability",
+        "GENIUS Act"
+      ],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 365,
+      "results_returned": 15
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:09:37.497208",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Genius Act"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:10:38.727603",
+    "agent": "feed",
+    "action": "fetch_feed",
+    "input": {
+      "interests": [
+        "healthcare",
+        "agriculture"
+      ],
+      "reps": [
+        "S000033",
+        "W000800",
+        "B001318"
+      ]
+    },
+    "output": {
+      "total_items": 9
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:10:41.550917",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Genius Act"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.85,
+      "ambiguity_reason": "Genius Act could refer to a specific bill or be a shorthand name requiring clarification",
+      "keywords": [
+        "Genius Act"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:10:42.554478",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "Genius Act",
+        "Guiding and Establishing National Innovation for US Stablecoins Act"
+      ],
+      "topic": "Genius Act legislation"
+    },
+    "output": {
+      "expanded_terms": [
+        "stablecoin",
+        "digital asset",
+        "cryptocurrency regulation",
+        "payment stablecoin",
+        "central bank digital currency",
+        "stablecoin reserve requirements",
+        "blockchain"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:10:43.053757",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [
+        "stablecoin",
+        "digital asset",
+        "cryptocurrency regulation",
+        "payment stablecoin",
+        "central bank digital currency",
+        "stablecoin reserve requirements",
+        "blockchain"
+      ],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 230,
+      "results_returned": 14
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:10:43.062853",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Genius Act"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:11:41.163862",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Genius Act"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.9,
+      "ambiguity_reason": null,
+      "keywords": [
+        "Genius",
+        "Act"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:11:42.072542",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "Genius",
+        "Act",
+        "Guiding and Establishing National Innovation for US Stablecoins stablecoin payment"
+      ],
+      "topic": "Genius Act legislation"
+    },
+    "output": {
+      "expanded_terms": [
+        "stablecoin",
+        "digital currency",
+        "payment system",
+        "cryptocurrency regulation",
+        "GENIUS Act",
+        "financial innovation",
+        "central bank digital currency"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:11:42.661211",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [
+        "stablecoin",
+        "digital currency",
+        "payment system",
+        "cryptocurrency regulation",
+        "GENIUS Act",
+        "financial innovation",
+        "central bank digital currency"
+      ],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 266,
+      "results_returned": 15
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:11:42.670786",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Genius Act"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:12:12.814223",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Genius Act"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.85,
+      "ambiguity_reason": "Genius Act could refer to a specific bill acronym or legislation related to genius/gifted education",
+      "keywords": [
+        "Genius Act"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:12:14.634628",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "Genius Act",
+        "Guiding and Establishing National Innovation for US Stablecoins stablecoin payment"
+      ],
+      "topic": "Genius Act legislation"
+    },
+    "output": {
+      "expanded_terms": [
+        "stablecoin",
+        "digital asset",
+        "payment system",
+        "cryptocurrency regulation",
+        "central bank digital currency",
+        "financial stability",
+        "consumer protection"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:12:15.097429",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [
+        "stablecoin",
+        "digital asset",
+        "payment system",
+        "cryptocurrency regulation",
+        "central bank digital currency",
+        "financial stability",
+        "consumer protection"
+      ],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 896,
+      "results_returned": 15
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:12:15.101120",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Genius Act"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:13:17.830842",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Genius Act"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.95,
+      "ambiguity_reason": null,
+      "keywords": [
+        "Genius Act"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:13:18.837905",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "Genius Act",
+        "Guiding and Establishing National Innovation for US Stablecoins stablecoin payment"
+      ],
+      "topic": "Genius Act legislation"
+    },
+    "output": {
+      "expanded_terms": [
+        "GENIUS Act",
+        "stablecoin",
+        "digital currency",
+        "payment system",
+        "cryptocurrency regulation",
+        "monetary policy",
+        "financial innovation"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:13:19.801610",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [
+        "GENIUS Act",
+        "stablecoin",
+        "digital currency",
+        "payment system",
+        "cryptocurrency regulation",
+        "monetary policy",
+        "financial innovation"
+      ],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 312,
+      "results_returned": 15
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:13:19.813402",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Genius Act"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:15:13.260712",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Genius Act"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.95,
+      "ambiguity_reason": null,
+      "keywords": [
+        "Genius Act"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:15:14.892296",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "Genius Act",
+        "Guiding and Establishing National Innovation for US Stablecoins stablecoin payment"
+      ],
+      "topic": "Genius Act legislation"
+    },
+    "output": {
+      "expanded_terms": [
+        "stablecoin",
+        "digital currency",
+        "payment system",
+        "cryptocurrency regulation",
+        "monetary authority",
+        "central bank digital currency",
+        "blockchain"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:15:15.428128",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [
+        "stablecoin",
+        "digital currency",
+        "payment system",
+        "cryptocurrency regulation",
+        "monetary authority",
+        "central bank digital currency",
+        "blockchain"
+      ],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 358,
+      "results_returned": 15
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:15:16.291849",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Genius Act"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:15:24.108762",
+    "agent": "feed",
+    "action": "fetch_feed",
+    "input": {
+      "interests": [
+        "healthcare",
+        "agriculture"
+      ],
+      "reps": [
+        "S000033",
+        "W000800",
+        "B001318"
+      ]
+    },
+    "output": {
+      "total_items": 9
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:15:31.177300",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "GENIUS Act"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.95,
+      "ambiguity_reason": null,
+      "keywords": [
+        "GENIUS Act"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:15:32.878096",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "GENIUS Act",
+        "Guiding and Establishing National Innovation for US Stablecoins stablecoin payment"
+      ],
+      "topic": "GENIUS Act legislation"
+    },
+    "output": {
+      "expanded_terms": [
+        "stablecoin",
+        "digital currency",
+        "payment system",
+        "cryptocurrency regulation",
+        "central bank digital currency",
+        "financial innovation",
+        "monetary policy"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:15:33.377913",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [
+        "stablecoin",
+        "digital currency",
+        "payment system",
+        "cryptocurrency regulation",
+        "central bank digital currency",
+        "financial innovation",
+        "monetary policy"
+      ],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 310,
+      "results_returned": 15
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:15:33.538593",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "GENIUS Act"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:18:39.785631",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "GENIUS Act"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.9,
+      "ambiguity_reason": null,
+      "keywords": [
+        "GENIUS Act"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:18:40.581198",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "GENIUS Act",
+        "Guiding and Establishing National Innovation for US Stablecoins stablecoin payment"
+      ],
+      "topic": "GENIUS Act legislation"
+    },
+    "output": {
+      "expanded_terms": [
+        "stablecoin",
+        "digital currency",
+        "payment system",
+        "blockchain",
+        "cryptocurrency regulation",
+        "monetary policy",
+        "financial innovation"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:18:41.051324",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [
+        "stablecoin",
+        "digital currency",
+        "payment system"
+      ],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 258,
+      "results_returned": 14
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:18:41.411884",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "GENIUS Act"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:19:06.065596",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "s",
+      "number": 3907
+    },
+    "output": {
+      "title": "Foreign Stablecoin Transparency Act",
+      "status": "Read twice and referred to the Committee on Banking, Housing, and Urban Affairs. (Sponsor introductory remarks on measure: CR S653-654)"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:19:06.595759",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "s",
+      "number": 3907
+    },
+    "output": {
+      "action_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:19:11.297524",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Foreign Stablecoin Transparency Act",
+      "sponsor": "Sen. Reed, Jack [D-RI]",
+      "personalized": true
+    },
+    "output": {
+      "translation_preview": "# Foreign Stablecoin Transparency Act \u2013 Plain English Explanation\n\n## What This Bill Does (One Sente"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:19:11.301263",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:19:13.346745",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**February 24, 2026:** A senator introduced this bill in the Senate. The senator ma"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:19:13.351600",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "s",
+      "number": 3907
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:20:12.432556",
+    "agent": "feed",
+    "action": "fetch_feed",
+    "input": {
+      "interests": [
+        "healthcare",
+        "agriculture"
+      ],
+      "reps": [
+        "S000033",
+        "W000800",
+        "B001318"
+      ]
+    },
+    "output": {
+      "total_items": 9
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:20:17.299020",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Genius act"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.85,
+      "ambiguity_reason": "GENIUS Act is a specific bill acronym but could refer to multiple bills with that acronym across different Congresses",
+      "keywords": [
+        "GENIUS"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:20:18.226644",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "GENIUS",
+        "Guiding and Establishing National Innovation for US Stablecoins stablecoin payment"
+      ],
+      "topic": "GENIUS Act legislation"
+    },
+    "output": {
+      "expanded_terms": [
+        "stablecoin",
+        "digital currency",
+        "payment system",
+        "cryptocurrency regulation",
+        "financial innovation",
+        "monetary policy",
+        "central bank digital currency"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:21:15.133178",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Genius act"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.85,
+      "ambiguity_reason": "GENIUS Act could refer to a specific bill or general legislation on gifted education and STEM",
+      "keywords": [
+        "GENIUS",
+        "gifted education"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:21:16.127559",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "GENIUS",
+        "gifted education",
+        "Guiding and Establishing National Innovation for US Stablecoins stablecoin payment"
+      ],
+      "topic": "GENIUS Act legislation"
+    },
+    "output": {
+      "expanded_terms": [
+        "GENIUS Act",
+        "gifted and talented education",
+        "advanced learner programs",
+        "K-12 education funding",
+        "stablecoin",
+        "digital currency",
+        "payment systems"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:22:08.869485",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Genius act"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.9,
+      "ambiguity_reason": null,
+      "keywords": [
+        "GENIUS"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:22:10.502260",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "GENIUS",
+        "Guiding and Establishing National Innovation for US Stablecoins stablecoin payment"
+      ],
+      "topic": "GENIUS act legislation"
+    },
+    "output": {
+      "expanded_terms": [
+        "stablecoin",
+        "digital currency",
+        "payment system",
+        "cryptocurrency regulation",
+        "monetary policy",
+        "financial innovation",
+        "central bank digital currency"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:23:03.226332",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Genius act"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.85,
+      "ambiguity_reason": "Genius Act is a specific bill name but could refer to multiple pieces of legislation with that name across different Congresses",
+      "keywords": [
+        "Genius"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:23:04.055444",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "Genius",
+        "Guiding and Establishing National Innovation for US Stablecoins stablecoin payment"
+      ],
+      "topic": "Genius Act legislation"
+    },
+    "output": {
+      "expanded_terms": [
+        "stablecoin",
+        "digital currency",
+        "payment settlement",
+        "monetary policy",
+        "financial innovation",
+        "central bank digital currency",
+        "cryptocurrency regulation"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:23:04.504041",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [
+        "stablecoin",
+        "digital currency",
+        "payment settlement",
+        "monetary policy",
+        "financial innovation",
+        "central bank digital currency",
+        "cryptocurrency regulation"
+      ],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 101,
+      "results_returned": 11
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:23:04.713570",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Genius act"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:24:25.281684",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Genius act"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.9,
+      "ambiguity_reason": null,
+      "keywords": [
+        "Genius"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:25:04.715630",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "s",
+      "number": 1582
+    },
+    "output": {
+      "title": "GENIUS Act",
+      "status": "Became Public Law No: 119-27."
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:25:05.503445",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "s",
+      "number": 1582
+    },
+    "output": {
+      "action_count": 20
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:25:09.806013",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "GENIUS Act",
+      "sponsor": "Sen. Hagerty, Bill [R-TN]",
+      "personalized": true
+    },
+    "output": {
+      "translation_preview": "# GENIUS Act Explanation\n\n## What This Bill Does (In One Sentence)\nThis law allows banks to offer sp"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:25:09.815510",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "house_found": true,
+      "senate_found": false,
+      "house_roll": 200,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:25:12.341487",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "preview": "# How S. 1582 Became Law\n\n**June 23, 2025:** The Senate passed S. 1582 and sent it to the House.\n\n**"
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:25:21.023156",
+    "agent": "vote_fetcher",
+    "action": "fetch_house_votes",
+    "input": {
+      "congress": 119,
+      "roll": 200
+    },
+    "output": {
+      "members_found": 432
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:25:21.031843",
+    "agent": "vote_mapper",
+    "action": "map_house_votes",
+    "input": {
+      "member_count": 432
+    },
+    "output": {
+      "yea": 308,
+      "nay": 122,
+      "present": 0,
+      "not_voting": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-10T20:25:21.039611",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "s",
+      "number": 1582
+    },
+    "output": {
+      "status": "complete"
+    }
   }
 ]

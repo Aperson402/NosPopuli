@@ -6,6 +6,7 @@ from documentor_agent import log_action
 load_dotenv()
 
 GOVINFO_API_KEY = os.getenv("GovInfo_API_KEY")
+CONGRESS_API_KEY = os.getenv("CONGRESS_API_KEY")
 
 def search_bills(structured_query, max_results=None):
     if max_results is None:
@@ -16,30 +17,52 @@ def search_bills(structured_query, max_results=None):
     status = structured_query.get("status", "any")
 
     # Use expanded terms if available, fall back to original keywords
-    terms = structured_query.get("expanded_terms") or structured_query.get("keywords", [])
+    expanded = structured_query.get("expanded_terms") or []
+    keywords = structured_query.get("keywords") or []
+    terms = expanded or keywords
+
+    # Detect named act queries — use relevance scoring for precision
+    original = (structured_query.get("original_question") or "").lower()
+    keywords_str = " ".join(keywords).lower()
+    is_named_act = "act" in original or "act" in keywords_str or "law" in original
+    sort_field = "score" if is_named_act else "publishdate"
+
+    # Build the terms list — named acts get exact phrase first, then top expanded terms
+    if is_named_act and keywords:
+        original_phrase = " ".join(keywords)
+        top_expanded = expanded[:2]
+        all_terms = [original_phrase] + top_expanded
+    else:
+        all_terms = terms[:3]
 
     # Build OR query — quote multi-word terms, leave single words bare
-    terms_query = " OR ".join(f'"{t}"' if " " in t else t for t in terms)
+    terms_query = " OR ".join(f'"{t}"' if " " in t else t for t in all_terms)
     congress_filter = " OR ".join([f"congress:{c}" for c in congress_numbers])
 
+    keywords_lower = " ".join(terms).lower()
+
     if status == "enacted":
-        collection = "PLAW"
         if terms_query:
             full_query = f"({terms_query}) collection:PLAW ({congress_filter})"
         else:
             full_query = f"collection:PLAW ({congress_filter})"
+    elif any(word in keywords_lower for word in ["act", "law", "stablecoin", "guiding"]):
+        if terms_query:
+            full_query = f"({terms_query}) (collection:BILLS OR collection:PLAW) ({congress_filter})"
+        else:
+            full_query = f"(collection:BILLS OR collection:PLAW) ({congress_filter})"
     else:
-        collection = "BILLS"
         if terms_query:
             full_query = f"({terms_query}) collection:BILLS ({congress_filter})"
         else:
             full_query = f"collection:BILLS ({congress_filter})"
 
+    sort_order = "DESC" if sort_field == "publishdate" else "DESC"
     payload = {
         "query": full_query,
         "pageSize": max_results * 3,
         "offsetMark": "*",
-        "sorts": [{"field": "publishdate", "sortOrder": "DESC"}]
+        "sorts": [{"field": sort_field, "sortOrder": sort_order}]
     }
 
     try:
@@ -80,11 +103,14 @@ def search_bills(structured_query, max_results=None):
         else:
             parsed = parse_package_id(package_id)
 
+        if not parsed:
+            continue
+
         results.append({
             "package_id": package_id,
             "title": item.get("title", "No title"),
             "date_issued": item.get("dateIssued", "Unknown"),
-            "congress": parsed["congress"] if parsed else None,
+            "congress": parsed["congress"],
             "type": parsed.get("type"),
             "number": parsed.get("number"),
             "is_law": status == "enacted",
@@ -144,6 +170,54 @@ def parse_plaw_package_id(package_id):
             "number": None,
         }
     return None
+
+def search_summaries(query, congress_numbers):
+    """
+    Search Congress.gov summaries for named acts.
+    Better for finding specific legislation by nickname or popular name.
+    """
+    results = []
+
+    for congress in congress_numbers[:2]:
+        url = f"https://api.congress.gov/v3/summaries/{congress}"
+        params = {
+            "api_key": CONGRESS_API_KEY,
+            "format": "json",
+            "limit": 20,
+        }
+
+        try:
+            r = requests.get(url, params=params, timeout=10)
+        except Exception as e:
+            print(f"[SEARCH] summaries error: {e}")
+            continue
+
+        if r.status_code != 200:
+            continue
+
+        try:
+            summaries = r.json().get("summaries", [])
+        except Exception:
+            continue
+
+        query_lower = query.lower()
+
+        for s in summaries:
+            text = (s.get("text") or "").lower()
+            title = (s.get("bill", {}).get("title") or "").lower()
+
+            if query_lower in text or query_lower in title:
+                bill = s.get("bill", {})
+                results.append({
+                    "congress": bill.get("congress"),
+                    "type": (bill.get("type") or "").lower(),
+                    "number": bill.get("number"),
+                    "title": bill.get("title", ""),
+                    "date_issued": s.get("actionDate", ""),
+                })
+
+    return results
+
 if __name__ == "__main__":
     test_query = {
         "keywords": ["student", "loans"],

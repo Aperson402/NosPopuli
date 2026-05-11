@@ -384,6 +384,7 @@
 <div class="tabs">
   <button class="tab active" onclick="switchTab('agents')">Agent Feed</button>
   <button class="tab" onclick="switchTab('analytics')">Analytics</button>
+  <button class="tab" onclick="switchTab('flags')">Flags</button>
 </div>
 
 <div class="main" id="tab-agents">
@@ -446,6 +447,21 @@
   <div class="analysis-section">
     <div class="analysis-title">Most Opened Bills</div>
     <div id="top-bills"></div>
+  </div>
+</div>
+
+<!-- Flags panel -->
+<div class="analytics-panel" id="tab-flags">
+  <button class="refresh-btn" onclick="loadFlags()">↻ Refresh Flags</button>
+
+  <div class="analysis-section">
+    <div class="analysis-title">Search Flags</div>
+    <div id="search-flags-list"></div>
+  </div>
+
+  <div class="analysis-section">
+    <div class="analysis-title">Bill Flags</div>
+    <div id="bill-flags-list"></div>
   </div>
 </div>
 
@@ -698,10 +714,56 @@
     if (tab === 'agents') {
       document.getElementById('tab-agents').style.display = 'flex';
       document.querySelectorAll('.tab')[0].classList.add('active');
-    } else {
+    } else if (tab === 'analytics') {
       document.getElementById('tab-analytics').style.display = 'block';
       document.querySelectorAll('.tab')[1].classList.add('active');
       loadAnalytics();
+    } else if (tab === 'flags') {
+      document.getElementById('tab-flags').style.display = 'block';
+      document.querySelectorAll('.tab')[2].classList.add('active');
+      loadFlags();
+    }
+  }
+
+  // ── Flags loading ──
+  async function loadFlags() {
+    try {
+      const res = await fetch('/monitor/flags');
+      const flags = await res.json();
+
+      const searchFlags = flags.filter(f => f.event === 'search_flag');
+      const billFlags   = flags.filter(f => f.event === 'bill_flag');
+
+      const searchEl = document.getElementById('search-flags-list');
+      searchEl.innerHTML = searchFlags.length
+        ? searchFlags.slice().reverse().map(f => `
+            <div class="query-row">
+              <div class="query-text">
+                <div style="color:var(--text)">"${f.query}"</div>
+                <div style="color:var(--red);font-size:0.6rem">${f.reason}</div>
+                ${f.notes ? `<div style="color:var(--muted);font-size:0.6rem">${f.notes}</div>` : ''}
+              </div>
+              <div class="query-count">${(f.timestamp || '').slice(11,19)}</div>
+            </div>
+          `).join('')
+        : '<div style="color:var(--muted);font-size:0.7rem">No search flags yet</div>';
+
+      const billEl = document.getElementById('bill-flags-list');
+      billEl.innerHTML = billFlags.length
+        ? billFlags.slice().reverse().map(f => `
+            <div class="query-row">
+              <div class="query-text">
+                <div style="color:var(--text)">${f.bill_id} · ${f.flagged_section}</div>
+                <div style="color:var(--red);font-size:0.6rem">${f.reason}</div>
+                ${f.notes ? `<div style="color:var(--muted);font-size:0.6rem">${f.notes}</div>` : ''}
+              </div>
+              <div class="query-count">${(f.timestamp || '').slice(11,19)}</div>
+            </div>
+          `).join('')
+        : '<div style="color:var(--muted);font-size:0.7rem">No bill flags yet</div>';
+
+    } catch(e) {
+      console.error('Failed to load flags:', e);
     }
   }
 

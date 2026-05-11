@@ -7,7 +7,8 @@ from documentor_agent import log_action
 load_dotenv()
 
 KNOWN_ACRONYMS = {
-    "genius act": "Guiding and Establishing National Innovation for US Stablecoins",
+    "genius act": "Guiding and Establishing National Innovation for US Stablecoins stablecoin payment",
+    "genius": "Guiding and Establishing National Innovation for US Stablecoins stablecoin",
     "cara": "Comprehensive Addiction and Recovery Act",
     "aca": "Affordable Care Act",
     "chips act": "Creating Helpful Incentives to Produce Semiconductors",
@@ -20,13 +21,16 @@ KNOWN_ACRONYMS = {
 }
 
 def expand_query(keywords, topic, client):
+    print(f"[EXPANDER] Input keywords: {keywords}")
     # Check for known acronyms first
     topic_lower = topic.lower()
+    expanded_from_acronym = None
     for acronym, full_name in KNOWN_ACRONYMS.items():
         if acronym in topic_lower:
-            # Add the full name to keywords before AI expansion
+            expanded_from_acronym = full_name
             keywords = keywords + [full_name]
             break
+    print(f"[EXPANDER] Acronym match: {expanded_from_acronym}")
     """
     Takes router keywords and expands them into legislative vocabulary.
     Returns 5-7 specific terms that GovInfo will find relevant bills for.
@@ -79,13 +83,15 @@ def expand_query(keywords, topic, client):
     except json.JSONDecodeError:
         expanded = keywords
     
+    print(f"[EXPANDER] Final output: {expanded}")
+
     log_action(
         agent_name="query_expander",
         action="expand_query",
         input_data={"keywords": keywords, "topic": topic},
         output_data={"expanded_terms": expanded}
     )
-    
+
     return expanded
 
 if __name__ == "__main__":
