@@ -979,6 +979,12 @@
 
   // ── Bill detail ──
   async function openDetail(bill) {
+    bill = {
+      ...bill,
+      congress: parseInt(bill.congress) || bill.congress,
+      number: parseInt(bill.number) || bill.number,
+      law_number: bill.law_number ? parseInt(bill.law_number) : null
+    };
     previousPage = document.querySelector('.page.active').id;
     const billId = bill.is_law
       ? `Public Law ${bill.congress}-${bill.law_number}`
@@ -1235,7 +1241,14 @@
         const card = document.createElement('div');
         card.className = 'result-card';
         card.style.animationDelay = (i * 0.05) + 's';
-        card.onclick = () => openDetail(bill);
+        card.onclick = () => openDetail({
+            congress: parseInt(bill.congress),
+            type: bill.type,
+            number: parseInt(bill.number),
+            title: bill.title,
+            date: bill.date,
+            latest_action: bill.latest_action,
+        });
 
         const billId = billIdFromParts(bill.type, bill.number);
 
@@ -1294,7 +1307,14 @@
       const card = document.createElement('div');
       card.className = 'result-card';
       card.style.animationDelay = (i * 0.05) + 's';
-      card.onclick = () => openDetail(bill);
+      card.onclick = () => openDetail({
+        congress: parseInt(bill.congress),
+        type: bill.type,
+        number: parseInt(bill.number),
+        title: bill.title,
+        is_law: bill.is_law,
+        law_number: bill.law_number ? parseInt(bill.law_number) : null
+      });
 
       const billId = bill.is_law
         ? `Public Law ${bill.congress}-${bill.law_number}`
