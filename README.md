@@ -232,6 +232,10 @@ Low-confidence queries are logged to `search_log.json` for Analyst review.
 
 ---
 
+**##Currently Running**
+
+https://nospopuli-production.up.railway.app/
+
 ## Running Locally
 
 ```bash
