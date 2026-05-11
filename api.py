@@ -10,6 +10,7 @@ import json
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
+from typing import Optional
 from vote_parser_agent import parse_vote_references
 from vote_fetcher_agent import fetch_house_votes, fetch_senate_votes
 from vote_mapper_agent import map_house_votes, map_senate_votes
@@ -83,7 +84,7 @@ class BillRequest(BaseModel):
     congress: int
     bill_type: str
     number: int
-    user_context: dict = None
+    user_context: Optional[dict] = None
 
 class LawRequest(BaseModel):
     congress: int
