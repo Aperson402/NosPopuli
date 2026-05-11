@@ -1,10 +1,14 @@
-import json
 import os
 import threading
 from datetime import datetime
+from supabase import create_client, Client
 
-FLAG_LOG_FILE = "flags.json"
 _lock = threading.Lock()
+
+def _get_client() -> Client:
+    url = os.environ["SUPABASE_URL"]
+    key = os.environ["SUPABASE_API_KEY"]
+    return create_client(url, key)
 
 def log_search_flag(query, results_shown, reason, notes=""):
     """Log when a user flags search results as unhelpful."""
@@ -24,33 +28,28 @@ def log_bill_flag(bill_id, congress, bill_type, reason, notes="", flagged_sectio
         "timestamp": datetime.now().isoformat(),
         "event": "bill_flag",
         "bill_id": bill_id,
-        "congress": congress,
-        "bill_type": bill_type,
+        "congress": str(congress),
+        "flagged_section": flagged_section,
         "reason": reason,
         "notes": notes,
-        "flagged_section": flagged_section,
     }
     _append(entry)
 
 def get_flags():
     """Return all flags."""
     try:
-        with open(FLAG_LOG_FILE, "r") as f:
-            return json.load(f)
-    except:
+        client = _get_client()
+        response = client.table("flags").select("*").order("timestamp", desc=True).execute()
+        return response.data
+    except Exception as e:
+        print(f"[FLAG] Error fetching flags: {e}")
         return []
 
 def _append(entry):
     with _lock:
-        log = []
-        if os.path.exists(FLAG_LOG_FILE):
-            try:
-                with open(FLAG_LOG_FILE, "r") as f:
-                    log = json.load(f)
-            except:
-                log = []
-        log.append(entry)
-        with open(FLAG_LOG_FILE, "w") as f:
-            json.dump(log, f, indent=2)
-    
-    print(f"[FLAG] Logged: {entry['event']} — {entry.get('query') or entry.get('bill_id')}")
+        try:
+            client = _get_client()
+            client.table("flags").insert(entry).execute()
+            print(f"[FLAG] Logged: {entry['event']} — {entry.get('query') or entry.get('bill_id')}")
+        except Exception as e:
+            print(f"[FLAG] Error logging flag: {e}")
