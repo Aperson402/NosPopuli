@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s \"https://api.congress.gov/v3/bill?api_key=NfmLSCgQh1T2pW72mBAf70ddXK9bPQ50nvUuz0NU&format=json&query=Education+Amendments&limit=20&sort=date+asc\")",
+      "Bash(python3 -c \"import json,sys; data=json.load\\(sys.stdin\\); [print\\(b.get\\('congress'\\), b.get\\('type'\\), b.get\\('number'\\), b.get\\('title',''\\)[:80]\\) for b in data.get\\('bills',[]\\) if b.get\\('congress'\\) and int\\(b.get\\('congress',999\\)\\) <= 95]\")",
+      "Bash(curl -s \"https://api.congress.gov/v3/bill?api_key=NfmLSCgQh1T2pW72mBAf70ddXK9bPQ50nvUuz0NU&format=json&query=Title+IX+education&limit=20\")",
+      "Bash(curl -s \"https://api.congress.gov/v3/law/92/pub/318?api_key=NfmLSCgQh1T2pW72mBAf70ddXK9bPQ50nvUuz0NU&format=json\")",
+      "Bash(python3 -m json.tool)"
+    ]
+  }
+}

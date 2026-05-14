@@ -223,7 +223,8 @@
 
     /* Agent colors */
     .c-router       { color: var(--blue);    background: rgba(137,180,250,0.1); border-color: rgba(137,180,250,0.2); }
-    .c-search       { color: var(--cyan);    background: rgba(137,220,235,0.1); border-color: rgba(137,220,235,0.2); }
+    .c-search        { color: var(--cyan);    background: rgba(137,220,235,0.1); border-color: rgba(137,220,235,0.2); }
+    .c-title_search  { color: var(--cyan);    background: rgba(137,220,235,0.1); border-color: rgba(137,220,235,0.2); }
     .c-bill_fetcher { color: var(--yellow);  background: rgba(249,226,175,0.1); border-color: rgba(249,226,175,0.2); }
     .c-translator   { color: var(--green);   background: rgba(166,227,161,0.1); border-color: rgba(166,227,161,0.2); }
     .c-historian    { color: var(--magenta); background: rgba(203,166,247,0.1); border-color: rgba(203,166,247,0.2); }
@@ -232,7 +233,9 @@
     .c-vote_mapper  { color: var(--red);     background: rgba(243,139,168,0.1); border-color: rgba(243,139,168,0.2); }
     .c-orchestrator { color: var(--white);   background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
     .c-member_search{ color: var(--peach);   background: rgba(250,179,135,0.1); border-color: rgba(250,179,135,0.2); }
-    .c-api          { color: var(--white);   background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.08); }
+    .c-api              { color: var(--white);   background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.08); }
+    .c-dispatcher       { color: var(--yellow);  background: rgba(249,226,175,0.08); border-color: rgba(249,226,175,0.2); }
+    .c-result_validator { color: var(--green);   background: rgba(166,227,161,0.08); border-color: rgba(166,227,161,0.2); }
 
     /* ── EMPTY STATE ── */
     .empty {
@@ -477,7 +480,10 @@
     { id: 'vote_fetcher',  label: 'Vote Fetcher',  icon: '⊕' },
     { id: 'vote_mapper',   label: 'Vote Mapper',   icon: '⊞' },
     { id: 'member_search', label: 'Member Search', icon: '◉' },
-    { id: 'api',           label: 'API',           icon: '⊳' },
+    { id: 'title_search',      label: 'Title Search',  icon: '⊛' },
+    { id: 'dispatcher',        label: 'Dispatcher',    icon: '⇢' },
+    { id: 'result_validator',  label: 'Validator',     icon: '✓' },
+    { id: 'api',               label: 'API',           icon: '⊳' },
   ];
 
   let seenCount = 0;

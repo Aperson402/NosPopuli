@@ -16,6 +16,11 @@ def search_bills(structured_query, max_results=None):
     congress_numbers = structured_query["congress_numbers"]
     status = structured_query.get("status", "any")
 
+    # Route enacted queries to Congress.gov law endpoint — not GovInfo
+    if status == "enacted":
+        keywords = structured_query.get("expanded_terms") or structured_query.get("keywords") or []
+        return search_laws(keywords, congress_numbers, max_results)
+
     # Use expanded terms if available, fall back to original keywords
     expanded = structured_query.get("expanded_terms") or []
     keywords = structured_query.get("keywords") or []
@@ -27,26 +32,21 @@ def search_bills(structured_query, max_results=None):
     is_named_act = "act" in original or "act" in keywords_str or "law" in original
     sort_field = "score" if is_named_act else "publishdate"
 
-    # Build the terms list — named acts get exact phrase first, then top expanded terms
     if is_named_act and keywords:
         original_phrase = " ".join(keywords)
-        top_expanded = expanded[:2]
-        all_terms = [original_phrase] + top_expanded
+        if len(keywords) <= 3:
+            all_terms = [original_phrase]
+        else:
+            all_terms = [original_phrase] + expanded[:2]
     else:
         all_terms = terms[:3]
 
-    # Build OR query — quote multi-word terms, leave single words bare
     terms_query = " OR ".join(f'"{t}"' if " " in t else t for t in all_terms)
     congress_filter = " OR ".join([f"congress:{c}" for c in congress_numbers])
 
     keywords_lower = " ".join(terms).lower()
 
-    if status == "enacted":
-        if terms_query:
-            full_query = f"({terms_query}) collection:PLAW ({congress_filter})"
-        else:
-            full_query = f"collection:PLAW ({congress_filter})"
-    elif any(word in keywords_lower for word in ["act", "law", "stablecoin", "guiding"]):
+    if any(word in keywords_lower for word in ["act", "law", "stablecoin", "guiding"]):
         if terms_query:
             full_query = f"({terms_query}) (collection:BILLS OR collection:PLAW) ({congress_filter})"
         else:
@@ -57,7 +57,7 @@ def search_bills(structured_query, max_results=None):
         else:
             full_query = f"collection:BILLS ({congress_filter})"
 
-    sort_order = "DESC" if sort_field == "publishdate" else "DESC"
+    sort_order = "DESC"
     payload = {
         "query": full_query,
         "pageSize": max_results * 3,
@@ -90,22 +90,15 @@ def search_bills(structured_query, max_results=None):
         data = response.json()
     except Exception:
         return []
+
     raw_results = data.get("results", [])
 
     results = []
     for item in raw_results:
         package_id = item.get("packageId", "")
-
-        # PLAW package IDs look like PLAW-118publ234
-        # BILLS package IDs look like BILLS-118hr1234ih
-        if status == "enacted":
-            parsed = parse_plaw_package_id(package_id)
-        else:
-            parsed = parse_package_id(package_id)
-
+        parsed = parse_package_id(package_id)
         if not parsed:
             continue
-
         results.append({
             "package_id": package_id,
             "title": item.get("title", "No title"),
@@ -113,11 +106,10 @@ def search_bills(structured_query, max_results=None):
             "congress": parsed["congress"],
             "type": parsed.get("type"),
             "number": parsed.get("number"),
-            "is_law": status == "enacted",
-            "law_number": parsed.get("law_number") if status == "enacted" else None,
+            "is_law": False,
+            "law_number": None,
         })
 
-    # Deduplicate by congress + type + number
     seen = set()
     deduplicated = []
     for r in results:
@@ -215,6 +207,76 @@ def search_summaries(query, congress_numbers):
                     "title": bill.get("title", ""),
                     "date_issued": s.get("actionDate", ""),
                 })
+
+    return results
+
+def search_laws(keywords, congress_numbers, max_results=5):
+    """
+    Search enacted public laws via Congress.gov law endpoint.
+    Use this instead of GovInfo PLAW when status == 'enacted'.
+    """
+    META_WORDS = {
+        "law", "laws", "enacted", "passed", "signed", "became",
+        "trump", "biden", "obama", "bush", "clinton", "reagan", "carter",
+        "under", "latest", "recent", "bills", "legislation",
+    }
+    results = []
+    seen = set()
+    keywords_lower = [k.lower() for k in keywords if k and k.lower() not in META_WORDS]
+
+    for congress in congress_numbers:
+        url = f"https://api.congress.gov/v3/law/{congress}/pub"
+        params = {
+            "api_key": CONGRESS_API_KEY,
+            "format": "json",
+            "limit": 250,
+            "sort": "updateDate+desc"
+        }
+
+        try:
+            r = requests.get(url, params=params, timeout=10)
+        except Exception as e:
+            print(f"[SEARCH] search_laws error for congress {congress}: {e}")
+            continue
+
+        if r.status_code != 200:
+            print(f"[SEARCH] search_laws {congress}: status {r.status_code}")
+            continue
+
+        try:
+            laws = r.json().get("bills", [])
+        except Exception:
+            continue
+
+        for law in laws:
+            title = (law.get("title") or "").lower()
+            law_number = (law.get("laws") or [{}])[0].get("number", "")
+
+            if keywords_lower and not any(k in title for k in keywords_lower):
+                continue
+
+            bill_type = (law.get("type") or "").lower()
+            bill_number = law.get("number")
+            bill_congress = law.get("congress", congress)
+
+            key = f"{bill_congress}{bill_type}{bill_number}"
+            if key in seen or not bill_number:
+                continue
+            seen.add(key)
+
+            results.append({
+                "package_id": f"BILLS-{bill_congress}{bill_type}{bill_number}",
+                "title": law.get("title", ""),
+                "date_issued": (law.get("latestAction") or {}).get("actionDate", ""),
+                "congress": bill_congress,
+                "type": bill_type,
+                "number": bill_number,
+                "is_law": True,
+                "law_number": law_number,
+            })
+
+            if len(results) >= max_results:
+                return results
 
     return results
 

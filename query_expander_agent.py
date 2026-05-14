@@ -18,6 +18,8 @@ KNOWN_ACRONYMS = {
     "essa": "Every Student Succeeds Act",
     "snap": "Supplemental Nutrition Assistance Program",
     "tanf": "Temporary Assistance for Needy Families",
+    "title ix": "Title IX",
+    "title 9": "Title IX",
 }
 
 def expand_query(keywords, topic, client):

@@ -32,10 +32,12 @@ load_dotenv()
 
 from router_agent import route_query, extract_president_congress
 from search_agent import search_bills, search_summaries
+from title_search_agent import search_by_title
 from bill_fetcher import fetch_bill
 from translator_agent import translate_bill
 from historian_agent import fetch_bill_actions, fetch_related_bills, summarize_history
 from documentor_agent import log_action
+from result_validator_agent import validate_results
 
 app = FastAPI(title="NosPopuli API")
 
@@ -79,6 +81,7 @@ def get_client():
 class SearchRequest(BaseModel):
     question: str
     max_results: int = 10
+    full_history: bool = False
 
 class BillRequest(BaseModel):
     congress: int
@@ -264,6 +267,45 @@ async def handle_specific_bill(structured, question):
     }
 
 
+async def handle_named_entity_search(structured, question, loop):
+    named_entity = structured.get("named_entity") or question
+
+    title_results = await loop.run_in_executor(None, search_by_title, named_entity, 3)
+
+    if len(title_results) < 2:
+        structured["expanded_terms"] = [named_entity]
+        structured["original_question"] = question
+        govinfo_results = await loop.run_in_executor(None, search_bills, structured)
+        seen = {f"{r['congress']}{r['type']}{r['number']}" for r in title_results}
+        for r in govinfo_results:
+            key = f"{r['congress']}{r['type']}{r['number']}"
+            if key not in seen:
+                title_results.append(r)
+                seen.add(key)
+                if len(title_results) >= 4:
+                    break
+
+    validated = await loop.run_in_executor(None, validate_results, question, title_results, get_client())
+    final = validated if validated else title_results
+
+    log_search(
+        query=question,
+        query_type="named_entity",
+        expanded_terms=[],
+        results_count=len(final),
+        result_ids=[f"{r.get('type','')}{r.get('number','')}" for r in final],
+        confidence=structured.get("confidence", 1.0)
+    )
+
+    return {
+        "query_type": "legislation",
+        "confidence": structured.get("confidence", 1.0),
+        "ambiguity_reason": structured.get("ambiguity_reason"),
+        "query": structured,
+        "results": final
+    }
+
+
 async def handle_legislation_search(structured, question, loop):
     expanded = await loop.run_in_executor(
         None, expand_query,
@@ -274,14 +316,18 @@ async def handle_legislation_search(structured, question, loop):
     structured["expanded_terms"] = expanded or []
     structured["original_question"] = question
 
-    govinfo_results, summary_results = await asyncio.gather(
-        loop.run_in_executor(None, search_bills, structured),
-        loop.run_in_executor(
-            None, search_summaries,
-            " ".join(structured.get("keywords", [])),
-            structured.get("congress_numbers", [119, 118])
+    if structured.get("status") == "enacted":
+        govinfo_results = await loop.run_in_executor(None, search_bills, structured)
+        summary_results = []
+    else:
+        govinfo_results, summary_results = await asyncio.gather(
+            loop.run_in_executor(None, search_bills, structured),
+            loop.run_in_executor(
+                None, search_summaries,
+                " ".join(structured.get("keywords", [])),
+                structured.get("congress_numbers", [119, 118])
+            )
         )
-    )
 
     seen = set()
     merged = []
@@ -299,6 +345,7 @@ async def handle_legislation_search(structured, question, loop):
             merged.append(r)
 
     raw_results = merged[:structured.get("result_count", 5)]
+    raw_results = await loop.run_in_executor(None, validate_results, question, raw_results, get_client())
 
     log_search(
         query=question,
@@ -323,6 +370,124 @@ async def handle_legislation_search(structured, question, loop):
         "query": structured,
         "results": raw_results
     }
+
+async def handle_named_entity_with_date(structured, question, loop):
+    named_entity = structured.get("named_entity") or question
+    congress_numbers = structured.get("congress_numbers", [119])
+
+    all_results = await loop.run_in_executor(None, search_by_title, named_entity, 3)
+
+    filtered = [r for r in all_results if r.get("congress") in congress_numbers]
+    final = filtered if filtered else all_results
+
+    validated = await loop.run_in_executor(None, validate_results, question, final, get_client())
+    final = validated if validated else final
+
+    log_search(
+        query=question,
+        query_type="named_entity_with_date",
+        expanded_terms=[],
+        results_count=len(final),
+        result_ids=[f"{r.get('type','')}{r.get('number','')}" for r in final],
+        confidence=structured.get("confidence", 1.0)
+    )
+
+    return {
+        "query_type": "legislation",
+        "confidence": structured.get("confidence", 1.0),
+        "ambiguity_reason": structured.get("ambiguity_reason"),
+        "query": structured,
+        "results": final
+    }
+
+
+async def handle_concept_with_date(structured, question, loop):
+    expanded = await loop.run_in_executor(
+        None, expand_query,
+        structured.get("keywords", []),
+        structured.get("topic", ""),
+        get_client()
+    )
+    structured["expanded_terms"] = expanded or []
+    structured["original_question"] = question
+
+    govinfo_results = await loop.run_in_executor(None, search_bills, structured)
+
+    raw_results = [r for r in govinfo_results if r.get("number")][:structured.get("result_count", 5)]
+
+    validated = await loop.run_in_executor(None, validate_results, question, raw_results, get_client())
+    raw_results = validated if validated else raw_results
+
+    log_search(
+        query=question,
+        query_type="concept_with_date",
+        expanded_terms=expanded,
+        results_count=len(raw_results),
+        result_ids=[f"{r.get('type','')}{r.get('number','')}" for r in raw_results],
+        confidence=structured.get("confidence", 1.0)
+    )
+
+    return {
+        "query_type": "legislation",
+        "confidence": structured.get("confidence", 1.0),
+        "ambiguity_reason": structured.get("ambiguity_reason"),
+        "query": structured,
+        "results": raw_results
+    }
+
+
+async def handle_law_search(structured, question, loop):
+    structured["original_question"] = question
+    structured["expanded_terms"] = structured.get("keywords", [])
+
+    govinfo_results = await loop.run_in_executor(None, search_bills, structured)
+
+    raw_results = [r for r in govinfo_results if r.get("number")][:structured.get("result_count", 5)]
+
+    log_search(
+        query=question,
+        query_type="enacted",
+        expanded_terms=structured.get("keywords", []),
+        results_count=len(raw_results),
+        result_ids=[f"{r.get('type','')}{r.get('number','')}" for r in raw_results],
+        confidence=structured.get("confidence", 1.0)
+    )
+
+    return {
+        "query_type": "legislation",
+        "confidence": structured.get("confidence", 1.0),
+        "ambiguity_reason": structured.get("ambiguity_reason"),
+        "query": structured,
+        "results": raw_results
+    }
+
+
+async def handle_browse(structured, question, loop):
+    structured["expanded_terms"] = []
+    structured["keywords"] = []
+    structured["original_question"] = question
+
+    govinfo_results = await loop.run_in_executor(None, search_bills, structured)
+
+    raw_results = [r for r in govinfo_results if r.get("number")][:structured.get("result_count", 5)]
+
+    log_search(
+        query=question,
+        query_type="browse",
+        expanded_terms=[],
+        results_count=len(raw_results),
+        result_ids=[f"{r.get('type','')}{r.get('number','')}" for r in raw_results],
+        confidence=structured.get("confidence", 1.0)
+    )
+
+    return {
+        "query_type": "legislation",
+        "confidence": structured.get("confidence", 1.0),
+        "ambiguity_reason": structured.get("ambiguity_reason"),
+        "query": structured,
+        "results": raw_results
+    }
+
 
 @app.post("/resolve-zip")
 @limiter.limit("10/minute")
@@ -365,7 +530,7 @@ async def search(request: Request, body: SearchRequest):
         raise HTTPException(status_code=400, detail="Question cannot be empty")
 
     try:
-        structured = route_query(body.question, get_client())
+        structured = route_query(body.question, get_client(), full_history=body.full_history)
         loop = asyncio.get_event_loop()
         question = body.question
 
@@ -374,8 +539,6 @@ async def search(request: Request, body: SearchRequest):
         if president_congresses:
             structured["congress_numbers"] = president_congresses
             structured["time_range"] = "presidential term"
-            if structured.get("status") == "enacted":
-                structured["status"] = "any"
 
         # ── Dispatcher ──
         query_type = structured.get("query_type", "legislation")
@@ -409,6 +572,30 @@ async def search(request: Request, body: SearchRequest):
         specific = structured.get("specific_bill")
         if specific and specific.get("number") and specific.get("type"):
             return await handle_specific_bill(structured, question)
+
+        # ── Legislation subtypes ──
+        subtype = structured.get("query_subtype", "concept")
+        log_action(
+            agent_name="dispatcher",
+            action=subtype,
+            input_data={"question": question, "congress": structured.get("congress_numbers")},
+            output_data={}
+        )
+
+        if subtype == "named_entity":
+            return await handle_named_entity_search(structured, question, loop)
+
+        if subtype == "named_entity_with_date":
+            return await handle_named_entity_with_date(structured, question, loop)
+
+        if subtype == "concept_with_date":
+            return await handle_concept_with_date(structured, question, loop)
+
+        if subtype == "enacted" or structured.get("status") == "enacted":
+            return await handle_law_search(structured, question, loop)
+
+        if subtype == "browse":
+            return await handle_browse(structured, question, loop)
 
         return await handle_legislation_search(structured, question, loop)
 
@@ -494,7 +681,13 @@ async def get_law(request: Request, body: LawRequest):
         )
 
         if not bill_data:
-            raise HTTPException(status_code=404, detail="Law not found")
+            return {
+                "congress": body.congress,
+                "law_number": body.law_number,
+                "translation": "This law was recently enacted and its full details are not yet available in Congress.gov. Check back soon.",
+                "timeline": "Timeline unavailable — law not yet indexed.",
+                "votes": {"house": None, "senate": None}
+            }
 
         bill = bill_data.get("bill", {})
         bill_congress = bill.get("congress", body.congress)

@@ -901,6 +901,18 @@
     return (type || '').toUpperCase() + ' ' + number;
   }
 
+  function formatCongress(n) {
+    if (!n) return '';
+    const s = n % 100;
+    if (s >= 11 && s <= 13) return `${n}th`;
+    switch (n % 10) {
+      case 1: return `${n}st`;
+      case 2: return `${n}nd`;
+      case 3: return `${n}rd`;
+      default: return `${n}th`;
+    }
+  }
+
   function renderMarkdown(text) {
     return (text || '')
       .replace(/^### (.+)$/gm, '<h3>$1</h3>')
@@ -985,7 +997,8 @@
       number: parseInt(bill.number) || bill.number,
       law_number: bill.law_number ? parseInt(bill.law_number) : null
     };
-    previousPage = document.querySelector('.page.active').id;
+    const activePage = document.querySelector('.page.active').id;
+    if (activePage !== 'page-detail') previousPage = activePage;
     const billId = bill.is_law
       ? `Public Law ${bill.congress}-${bill.law_number}`
       : billIdFromParts(bill.type, bill.number);
@@ -999,6 +1012,7 @@
     const steps = ['lstep-1', 'lstep-2', 'lstep-3', 'lstep-4'];
     steps.forEach((id, i) => {
       const el = document.getElementById(id);
+      if (!el) return;
       el.classList.remove('visible', 'done');
       setTimeout(() => el.classList.add('visible'), i * 700);
     });
@@ -1032,7 +1046,7 @@
     } catch (err) {
       document.getElementById('detail-loading').innerHTML = `
         <div class="empty-state">
-          <p>This bill couldn't be loaded right now.</p>
+          <p>This couldn't be loaded right now.</p>
           <p style="margin-top:0.5rem">The data may be temporarily unavailable.</p>
           <button class="example-pill"
             style="margin-top:1rem"
@@ -1040,6 +1054,9 @@
             Try again
           </button>
         </div>`;
+      document.getElementById('detail-loading').style.display = 'block';
+      document.getElementById('detail-content').style.display = 'none';
+      btn.disabled = false;
     }
   }
 
@@ -1049,7 +1066,8 @@
 
   // ── Member profile ──
   function renderMemberPage(data) {
-    previousPage = document.querySelector('.page.active').id;
+    const activeMemberPage = document.querySelector('.page.active').id;
+    if (activeMemberPage !== 'page-member') previousPage = activeMemberPage;
     const m = data.member;
     const leg = data.legislation;
 
@@ -1261,7 +1279,7 @@
                 <div class="result-card-arrow">Read more →</div>
             </div>
             <div class="result-meta">
-                <div class="meta-item"><strong>${bill.congress}th Congress</strong></div>
+                <div class="meta-item"><strong>${formatCongress(bill.congress)} Congress</strong></div>
                 <div class="meta-item"><strong>${bill.date || ''}</strong></div>
                 <div class="meta-item">${bill.latest_action ? bill.latest_action.slice(0,50) : ''}</div>
             </div>`;
@@ -1319,7 +1337,7 @@
       const billId = bill.is_law
         ? `Public Law ${bill.congress}-${bill.law_number}`
         : billIdFromParts(bill.type || '', bill.number || '');
-      const congress = bill.congress ? `${bill.congress}th Congress` : '';
+      const congress = bill.congress ? `${formatCongress(bill.congress)} Congress` : '';
       const date = bill.date_issued ? bill.date_issued.slice(0, 4) : '';
 
       card.innerHTML = `

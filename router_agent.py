@@ -7,19 +7,16 @@ from documentor_agent import log_action
 load_dotenv()
 
 # Static knowledge - never changes
-CONGRESS_YEARS = {
-    119: (2025, 2026),
-    118: (2023, 2024),
-    117: (2021, 2022),
-    116: (2019, 2020),
-    115: (2017, 2018),
-    114: (2015, 2016),
-    113: (2013, 2014),
-    112: (2011, 2012),
-    111: (2009, 2010),
-    110: (2007, 2008),
-}
-# Add this near the CONGRESS_YEARS dict
+def year_to_congress(year):
+    if year < 1789:
+        return None
+    return ((year - 1789) // 2) + 1
+
+def congress_to_years(congress):
+    start = 1789 + (congress - 1) * 2
+    return (start, start + 1)
+
+
 PRESIDENT_TERMS = {
     "biden": [117, 118],
     "trump": [119, 116, 115],  # Current + first term
@@ -43,26 +40,32 @@ CONGRESSIONAL_CONTEXT = [
 ]
 
 
-def years_to_congress_numbers(year_range_str):
-    """Convert a year range like 'last 5 years' to congress numbers"""
+def years_to_congress_numbers(year_range_str, all_congresses=False):
     import datetime
+    import re
+
     current_year = datetime.datetime.now().year
-    
-    if "last 2 years" in year_range_str.lower():
+    current_congress = year_to_congress(current_year)
+
+    # Specific year always wins — even over full_history
+    year_match = re.match(r"year:(\d{4})", year_range_str or "")
+    if year_match:
+        year = int(year_match.group(1))
+        congress = year_to_congress(year)
+        return [congress] if congress else [current_congress]
+
+    if all_congresses:
+        return list(range(current_congress, 0, -1))
+
+    if "last 2 years" in (year_range_str or "").lower():
         start_year = current_year - 2
-    elif "last 5 years" in year_range_str.lower():
-        start_year = current_year - 3
-    elif "last 10 years" in year_range_str.lower():
+    elif "last 10 years" in (year_range_str or "").lower():
         start_year = current_year - 10
     else:
         start_year = current_year - 3
-    
-    matching = []
-    for congress, (start, end) in CONGRESS_YEARS.items():
-        if end >= start_year:
-            matching.append(congress)
-    
-    return sorted(matching, reverse=True)
+
+    start_congress = year_to_congress(start_year)
+    return list(range(current_congress, start_congress - 1, -1))
 
 KNOWN_BILLS = {
     # Current major legislation
@@ -130,7 +133,7 @@ def extract_president_congress(question):
             return congresses
     
     return None
-def route_query(user_question, client):
+def route_query(user_question, client, full_history=False):
     """
     Takes a plain English question and returns a structured search query.
     This agent never fetches bills - it only extracts intent.
@@ -155,6 +158,22 @@ Rules for query_type:
 - "X Committee", "committee on X", "House/Senate committee" → "committee"
 - Everything else → "legislation"
 
+Rules for query_subtype (legislation queries only):
+- Proper noun law name, named act, roman numerals, known acronym → "named_entity"
+- Proper noun law name + specific year, president, or era → "named_entity_with_date"
+- General topic + specific year, president, or era → "concept_with_date"
+- "give me a bill", "show me something", "any bill", no specific topic → "browse"
+- "laws", "enacted", "signed into law", "passed into law", "became law" → "enacted"
+- Everything else → "concept"
+
+Rules for time_filter:
+- true if query contains: specific year, president name, era, "recent", "latest", "oldest"
+- false otherwise
+
+Rules for named_entity:
+- If query_subtype is named_entity or named_entity_with_date: extract the law name exactly as written
+- Otherwise: null
+
 Rules for confidence (0.0 to 1.0):
 - 1.0 → completely unambiguous. "HR 3590", "Ted Kennedy", "Senate Judiciary Committee"
 - 0.8 → clear intent with minor uncertainty. "healthcare bills", "Bernie Sanders record"
@@ -166,7 +185,6 @@ Rules for confidence (0.0 to 1.0):
 Rules for ambiguity_reason:
 - null if confidence >= 0.7
 - One sentence explaining the ambiguity if confidence < 0.7
-- Example: "Kennedy could refer to a person or legislation named after Kennedy"
 
 Rules for entity_name:
 - For member queries: extract the person's name only
@@ -185,36 +203,58 @@ Rules for specific_bill:
 - Otherwise → null
 
 Rules for status:
-- "passed", "became law", "signed", "enacted", "a law" → "enacted"
+- "passed", "became law", "signed", "enacted", "a law", "laws" → "enacted"
 - "failed", "rejected" → "failed"
 - No status mentioned → "any"
 
 Rules for keywords (legislation only):
 - Extract ONLY subject matter nouns
-- NEVER include: show, me, bills, find, a, one, some, what, has, done, about, related, to, from, the, give, senator, representative
+- NEVER include: show, me, bills, find, a, one, some, what, has, done, about, related, to, from, the, give, senator, representative, laws, passed, signed, enacted
 
 Rules for time_range:
+- "in [year]", "from [year]", "[year] bill" → "year:YYYY"
 - "recent", "recently" → "last 2 years"
 - "last 5 years" or nothing → "last 5 years"
 - "last 10 years" → "last 10 years"
 - Presidential terms handled separately
 
 Examples:
+"Title IX" →
+{{"query_type": "legislation", "query_subtype": "named_entity", "named_entity": "Title IX", "time_filter": false, "confidence": 0.95, "ambiguity_reason": null, "entity_name": null, "keywords": ["Title IX"], "topic": "Title IX education legislation", "time_range": "last 5 years", "bill_type": "all", "result_count": 4, "specific_bill": null, "status": "any"}}
+
+"Title IX in 1972" →
+{{"query_type": "legislation", "query_subtype": "named_entity_with_date", "named_entity": "Title IX", "time_filter": true, "confidence": 0.95, "ambiguity_reason": null, "entity_name": null, "keywords": ["Title IX"], "topic": "Title IX 1972", "time_range": "year:1972", "bill_type": "all", "result_count": 4, "specific_bill": null, "status": "any"}}
+
+"healthcare bills from 2017" →
+{{"query_type": "legislation", "query_subtype": "concept_with_date", "named_entity": null, "time_filter": true, "confidence": 0.9, "ambiguity_reason": null, "entity_name": null, "keywords": ["healthcare"], "topic": "healthcare legislation 2017", "time_range": "year:2017", "bill_type": "all", "result_count": 5, "specific_bill": null, "status": "any"}}
+
+"give me a bill" →
+{{"query_type": "legislation", "query_subtype": "browse", "named_entity": null, "time_filter": false, "confidence": 0.8, "ambiguity_reason": null, "entity_name": null, "keywords": [], "topic": "recent legislation", "time_range": "last 2 years", "bill_type": "all", "result_count": 5, "specific_bill": null, "status": "any"}}
+
+"laws passed under trump" →
+{{"query_type": "legislation", "query_subtype": "enacted", "named_entity": null, "time_filter": true, "confidence": 0.9, "ambiguity_reason": null, "entity_name": null, "keywords": [], "topic": "enacted legislation trump", "time_range": "last 5 years", "bill_type": "all", "result_count": 5, "specific_bill": null, "status": "enacted"}}
+
+"gun control bills" →
+{{"query_type": "legislation", "query_subtype": "concept", "named_entity": null, "time_filter": false, "confidence": 0.9, "ambiguity_reason": null, "entity_name": null, "keywords": ["gun", "control"], "topic": "gun control legislation", "time_range": "last 5 years", "bill_type": "all", "result_count": 5, "specific_bill": null, "status": "any"}}
+
 "HR 3590" →
-{{"query_type": "legislation", "confidence": 1.0, "ambiguity_reason": null, "entity_name": null, "keywords": [], "topic": "specific bill HR 3590", "time_range": "last 5 years", "bill_type": "hr", "result_count": 1, "specific_bill": {{"type": "hr", "number": 3590, "congress": null}}, "status": "any"}}
+{{"query_type": "legislation", "query_subtype": "concept", "named_entity": null, "time_filter": false, "confidence": 1.0, "ambiguity_reason": null, "entity_name": null, "keywords": [], "topic": "specific bill HR 3590", "time_range": "last 5 years", "bill_type": "hr", "result_count": 1, "specific_bill": {{"type": "hr", "number": 3590, "congress": null}}, "status": "any"}}
 
 "Kennedy healthcare" →
-{{"query_type": "legislation", "confidence": 0.5, "ambiguity_reason": "Kennedy could refer to Senator Ted Kennedy or legislation named after Kennedy", "entity_name": null, "keywords": ["healthcare"], "topic": "Kennedy healthcare legislation", "time_range": "last 5 years", "bill_type": "all", "result_count": 5, "specific_bill": null, "status": "any"}}
+{{"query_type": "legislation", "query_subtype": "concept", "named_entity": null, "time_filter": false, "confidence": 0.5, "ambiguity_reason": "Kennedy could refer to Senator Ted Kennedy or legislation named after Kennedy", "entity_name": null, "keywords": ["healthcare"], "topic": "Kennedy healthcare legislation", "time_range": "last 5 years", "bill_type": "all", "result_count": 5, "specific_bill": null, "status": "any"}}
 
 "Ted Kennedy" →
-{{"query_type": "member", "confidence": 0.95, "ambiguity_reason": null, "entity_name": "Ted Kennedy", "keywords": [], "topic": "", "time_range": "last 5 years", "bill_type": "all", "result_count": 5, "specific_bill": null, "status": "any"}}
+{{"query_type": "member", "query_subtype": "concept", "named_entity": null, "time_filter": false, "confidence": 0.95, "ambiguity_reason": null, "entity_name": "Ted Kennedy", "keywords": [], "topic": "", "time_range": "last 5 years", "bill_type": "all", "result_count": 5, "specific_bill": null, "status": "any"}}
 
 "Senate Judiciary Committee" →
-{{"query_type": "committee", "confidence": 1.0, "ambiguity_reason": null, "entity_name": "Senate Judiciary Committee", "keywords": [], "topic": "", "time_range": "last 5 years", "bill_type": "all", "result_count": 5, "specific_bill": null, "status": "any"}}
+{{"query_type": "committee", "query_subtype": "concept", "named_entity": null, "time_filter": false, "confidence": 1.0, "ambiguity_reason": null, "entity_name": "Senate Judiciary Committee", "keywords": [], "topic": "", "time_range": "last 5 years", "bill_type": "all", "result_count": 5, "specific_bill": null, "status": "any"}}
 
 Return ONLY this JSON structure:
 {{
     "query_type": "legislation",
+    "query_subtype": "concept",
+    "named_entity": null,
+    "time_filter": false,
     "confidence": 0.9,
     "ambiguity_reason": null,
     "entity_name": null,
@@ -247,7 +287,9 @@ Return ONLY this JSON structure:
             "keywords": user_question.split()[:3],
             "topic": user_question,
             "time_range": "last 5 years",
-            "bill_type": "all"
+            "bill_type": "all",
+            "query_subtype": "concept",
+            "named_entity": None,
         }
     
     # Check for known bills before anything else
@@ -258,17 +300,13 @@ Return ONLY this JSON structure:
         structured["result_count"] = 1
 
     # Add congress numbers based on time range
-    structured["congress_numbers"] = years_to_congress_numbers(structured.get("time_range", "last 5 years"))
+    structured["congress_numbers"] = years_to_congress_numbers(structured.get("time_range", "last 5 years"), all_congresses=full_history)
 
     # Override congress_numbers if a president was mentioned
     president_congresses = extract_president_congress(user_question)
     if president_congresses:
         structured["congress_numbers"] = president_congresses
         structured["time_range"] = "presidential term"
-        # Don't force enacted status just because they said "passed"
-        # Let it search all bills from that term
-        if structured.get("status") == "enacted":
-            structured["status"] = "any"
 
     PRESIDENTS = ["trump", "biden", "obama", "bush", "clinton", "reagan", "carter"]
 

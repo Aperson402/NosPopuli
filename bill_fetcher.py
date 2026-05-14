@@ -93,6 +93,22 @@ def fetch_law(congress, law_number):
     if response.status_code == 429:
         print(f"[BILL FETCHER] Rate limited fetching law")
         return None
+    if response.status_code == 404:
+        print(f"[BILL FETCHER] Law {congress} pub {law_number} not in item endpoint — trying list fallback")
+        fallback_url = f"https://api.congress.gov/v3/law/{congress}/pub"
+        try:
+            r2 = requests.get(fallback_url, params={**params, "limit": 250}, timeout=10)
+            if r2.status_code == 200:
+                for bill in r2.json().get("bills", []):
+                    for law in (bill.get("laws") or []):
+                        if str(law.get("number")) == str(law_number):
+                            bill_type = (bill.get("type") or "").lower()
+                            bill_number_val = bill.get("number")
+                            if bill_type and bill_number_val:
+                                return fetch_bill(congress, bill_type, int(bill_number_val))
+        except Exception as e:
+            print(f"[BILL FETCHER] Fallback error: {e}")
+        return None
     if response.status_code != 200:
         print(f"[BILL FETCHER] Law not found: {congress} pub {law_number}")
         return None
