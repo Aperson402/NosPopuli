@@ -571,6 +571,127 @@
       font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem;
       letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase;
     }
+  /* ── TIMELINE ── */
+  .tl-entries {
+    position: relative;
+    padding-left: 120px;
+    margin-top: 1rem;
+  }
+  .tl-spine {
+    position: absolute;
+    left: 108px;
+    top: 8px;
+    bottom: 0;
+    width: 1px;
+    background: var(--rule);
+  }
+  .tl-entry {
+    position: relative;
+    margin-bottom: 1.75rem;
+  }
+  .tl-entry:last-child { margin-bottom: 0; }
+  .tl-date {
+    position: absolute;
+    left: -120px;
+    width: 100px;
+    text-align: right;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    line-height: 1.4;
+    padding-top: 3px;
+  }
+  .tl-date-year {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--ink);
+    letter-spacing: 0.05em;
+  }
+  .tl-dot {
+    position: absolute;
+    left: -17px;
+    top: 5px;
+    width: 9px;
+    height: 9px;
+    border: 1.5px solid var(--ink);
+    background: var(--paper);
+  }
+  .tl-dot-filled { background: var(--ink); }
+  .tl-dot-law {
+    width: 13px;
+    height: 13px;
+    left: -19px;
+    top: 3px;
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .tl-dot-vetoed {
+    background: var(--muted);
+    border-color: var(--muted);
+  }
+  .tl-card {
+    border: 1px solid var(--rule);
+    background: var(--card-bg);
+    padding: 0.8rem 1rem;
+  }
+  .tl-card-signed {
+    border-left: 3px solid var(--accent);
+  }
+  .tl-card-vetoed {
+    border-left: 3px solid var(--muted);
+  }
+  .tl-chamber-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.3rem;
+  }
+  .tl-event {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.4;
+    margin-bottom: 0.2rem;
+  }
+  .tl-detail {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 0.8rem;
+    font-weight: 300;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .tl-vote-row {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--rule);
+  }
+  .tl-vote-pill {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.15rem 0.5rem;
+    border: 1px solid var(--rule);
+  }
+  .tl-vote-yea { color: var(--vote-yea); border-color: var(--vote-yea); }
+  .tl-vote-nay { color: var(--vote-nay); border-color: var(--vote-nay); }
+  .tl-note {
+    margin-top: 1.5rem;
+    padding: 0.5rem 0.75rem;
+    border-left: 2px solid var(--rule);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+    line-height: 1.6;
+  }
   </style>
 </head>
 <body>
@@ -733,7 +854,7 @@
       </div>
       <div class="detail-section">
         <div class="section-label">Legislative Timeline</div>
-        <div class="timeline-text" id="detail-timeline"></div>
+        <div id="detail-timeline"></div>
         <div style="margin-top:0.75rem;text-align:right">
           <button class="feed-settings-btn" id="flag-timeline-btn"
               onclick="showBillFlag('timeline')">
@@ -913,6 +1034,90 @@
     }
   }
 
+  function formatTimelineDate(dateStr) {
+    if (!dateStr) return { day: '', year: '' };
+    const months = ['Jan','Feb','Mar','Apr','May','Jun',
+                    'Jul','Aug','Sep','Oct','Nov','Dec'];
+    const parts = dateStr.split('-');
+    if (parts.length < 2) return { day: '', year: dateStr };
+    const year = parts[0];
+    const month = months[parseInt(parts[1]) - 1] || '';
+    const day = parts[2] ? parseInt(parts[2]) : '';
+    return { day: `${month} ${day}`, year };
+  }
+
+  function chamberLabel(event) {
+    const c = (event.chamber || '').toLowerCase();
+    const t = event.event_type;
+    if (t === 'signed') return 'President · Signed into Law';
+    if (t === 'vetoed') return 'President · Vetoed';
+    if (t === 'conference') return 'Conference Committee';
+    if (c === 'house') return `House · ${capitalize(t)}`;
+    if (c === 'senate') return `Senate · ${capitalize(t)}`;
+    return capitalize(t);
+  }
+
+  function capitalize(str) {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  function renderTimeline(events, fallbackMarkdown) {
+    const el = document.getElementById('detail-timeline');
+
+    if (!events || !events.length) {
+      el.innerHTML = renderMarkdown(fallbackMarkdown);
+      return;
+    }
+
+    let html = '<div class="tl-entries"><div class="tl-spine"></div>';
+
+    events.forEach(event => {
+      const { day, year } = formatTimelineDate(event.date);
+      const isSigned = event.event_type === 'signed';
+      const isVetoed = event.event_type === 'vetoed';
+      const isPassed = event.event_type === 'passed';
+      const isCommittee = event.event_type === 'committee';
+
+      const dotClass = isSigned ? 'tl-dot tl-dot-law'
+                     : isVetoed ? 'tl-dot tl-dot-vetoed'
+                     : isPassed || isCommittee ? 'tl-dot tl-dot-filled'
+                     : 'tl-dot';
+
+      const cardClass = isSigned ? 'tl-card tl-card-signed'
+                      : isVetoed ? 'tl-card tl-card-vetoed'
+                      : 'tl-card';
+
+      const voteHtml = (event.yea !== null && event.nay !== null) ? `
+        <div class="tl-vote-row">
+          <span class="tl-vote-pill tl-vote-yea">Yea ${event.yea}</span>
+          <span class="tl-vote-pill tl-vote-nay">Nay ${event.nay}</span>
+        </div>` : '';
+
+      html += `
+        <div class="tl-entry">
+          <div class="tl-date">
+            <span>${day}</span>
+            <span class="tl-date-year">${year}</span>
+          </div>
+          <div class="${dotClass}"></div>
+          <div class="${cardClass}">
+            <div class="tl-chamber-tag">${chamberLabel(event)}</div>
+            <div class="tl-event">${event.text}</div>
+            ${event.detail && event.detail !== event.text
+              ? `<div class="tl-detail">${event.detail.slice(0, 200)}${event.detail.length > 200 ? '…' : ''}</div>`
+              : ''}
+            ${voteHtml}
+          </div>
+        </div>`;
+    });
+
+    html += '</div>';
+    html += '<div class="tl-note">Data sourced from Congress.gov legislative actions.</div>';
+
+    el.innerHTML = html;
+  }
+
   function renderMarkdown(text) {
     return (text || '')
       .replace(/^### (.+)$/gm, '<h3>$1</h3>')
@@ -1038,7 +1243,7 @@
       setTimeout(() => {
         document.getElementById('detail-loading').style.display = 'none';
         document.getElementById('detail-explanation').innerHTML = renderMarkdown(data.translation);
-        document.getElementById('detail-timeline').innerHTML = renderMarkdown(data.timeline);
+        renderTimeline(data.timeline_events, data.timeline);
         renderVotes(data.votes);
         document.getElementById('detail-content').style.display = 'block';
       }, 400);

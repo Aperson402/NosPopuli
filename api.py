@@ -35,7 +35,7 @@ from search_agent import search_bills, search_summaries
 from title_search_agent import search_by_title
 from bill_fetcher import fetch_bill
 from translator_agent import translate_bill
-from historian_agent import fetch_bill_actions, fetch_related_bills, summarize_history
+from historian_agent import fetch_bill_actions, fetch_related_bills, summarize_history, structure_history
 from documentor_agent import log_action
 from result_validator_agent import validate_results
 
@@ -661,6 +661,7 @@ async def get_bill(request: Request, body: BillRequest):
             "number": body.number,
             "translation": translation,
             "timeline": timeline,
+            "timeline_events": structure_history(actions),
             "votes": {"house": house_mapped, "senate": senate_mapped}
         }
 
@@ -730,6 +731,7 @@ async def get_law(request: Request, body: LawRequest):
             "law_number": body.law_number,
             "translation": translation,
             "timeline": timeline,
+            "timeline_events": structure_history(actions),
             "votes": {"house": house_mapped, "senate": senate_mapped}
         }
 

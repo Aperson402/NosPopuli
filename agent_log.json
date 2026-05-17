@@ -25390,5 +25390,5137 @@
     "output": {
       "results_count": 3
     }
+  },
+  {
+    "timestamp": "2026-05-14T11:41:50.498567",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "sjres",
+      "number": 135
+    },
+    "output": {
+      "title": "A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Consumer Financial Protection relating to the withdrawal of the rule relating to \"Consumer Financial Protection Circular 2024-04: Whistleblower Protections Under CFPA Section 1057\".",
+      "status": "Motion to proceed to consideration of measure rejected in Senate by Voice Vote."
+    }
+  },
+  {
+    "timestamp": "2026-05-14T11:41:51.383752",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "sjres",
+      "number": 135
+    },
+    "output": {
+      "action_count": 6
+    }
+  },
+  {
+    "timestamp": "2026-05-14T11:41:59.838340",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Consumer Financial Protection relating to the withdrawal of the rule relating to \"Consumer Financial Protection Circular 2024-04: Whistleblower Protections Under CFPA Section 1057\".",
+      "sponsor": "Sen. Warner, Mark R. [D-VA]",
+      "personalized": true
+    },
+    "output": {
+      "translation_preview": "# What This Bill Does\n\n**In one sentence:** This bill would have blocked a federal rule that protect"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T11:41:59.854814",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 6
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-14T11:42:02.626237",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 6
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**March 19, 2026:** The bill was introduced in the Senate and sent to the Banking, "
+    }
+  },
+  {
+    "timestamp": "2026-05-14T11:42:02.638578",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "sjres",
+      "number": 135
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T12:26:57.183209",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Patriot Act"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.95,
+      "ambiguity_reason": null,
+      "keywords": [
+        "Patriot Act"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-14T12:26:58.792930",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 3162
+    },
+    "output": {
+      "title": "Uniting and Strengthening America by Providing Appropriate Tools Required to Intercept and Obstruct Terrorism (USA PATRIOT ACT) Act of 2001",
+      "status": "Became Public Law No: 107-56."
+    }
+  },
+  {
+    "timestamp": "2026-05-14T12:26:59.168614",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 3162
+    },
+    "output": {
+      "action_count": 20
+    }
+  },
+  {
+    "timestamp": "2026-05-14T12:27:03.074823",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Uniting and Strengthening America by Providing Appropriate Tools Required to Intercept and Obstruct Terrorism (USA PATRIOT ACT) Act of 2001",
+      "sponsor": "Rep. Sensenbrenner, F. James, Jr. [R-WI-9]",
+      "personalized": true
+    },
+    "output": {
+      "translation_preview": "# USA PATRIOT ACT of 2001 \u2014 Plain English Explanation\n\n## What it is in one sentence\nThis law gave f"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T12:27:03.086828",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "house_found": true,
+      "senate_found": true,
+      "house_roll": 398,
+      "senate_roll": 313
+    }
+  },
+  {
+    "timestamp": "2026-05-14T12:27:05.691614",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "preview": "# How H.R. 3162 Became Law\n\n**October 23, 2001:** The bill was referred to the House Judiciary Commi"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T12:27:06.144775",
+    "agent": "vote_fetcher",
+    "action": "fetch_house_votes",
+    "input": {
+      "congress": 107,
+      "roll": 398
+    },
+    "output": {
+      "members_found": 432
+    }
+  },
+  {
+    "timestamp": "2026-05-14T12:27:06.432810",
+    "agent": "vote_fetcher",
+    "action": "fetch_senate_votes",
+    "input": {
+      "congress": 107,
+      "roll": 313
+    },
+    "output": {
+      "members_found": 100
+    }
+  },
+  {
+    "timestamp": "2026-05-14T12:27:06.457568",
+    "agent": "vote_mapper",
+    "action": "map_house_votes",
+    "input": {
+      "member_count": 432
+    },
+    "output": {
+      "yea": 357,
+      "nay": 66,
+      "present": 0,
+      "not_voting": 9
+    }
+  },
+  {
+    "timestamp": "2026-05-14T12:27:06.486645",
+    "agent": "vote_mapper",
+    "action": "map_senate_votes",
+    "input": {
+      "member_count": 100
+    },
+    "output": {
+      "yea": 98,
+      "nay": 1,
+      "present": 0,
+      "not_voting": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-14T12:27:06.499786",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 3162
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T12:27:21.356753",
+    "agent": "feed",
+    "action": "fetch_feed",
+    "input": {
+      "interests": [
+        "climate",
+        "education",
+        "economy"
+      ],
+      "reps": [
+        "W000805",
+        "K000384",
+        "G000568"
+      ]
+    },
+    "output": {
+      "total_items": 11
+    }
+  },
+  {
+    "timestamp": "2026-05-14T12:27:45.107230",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Ted Kennedy"
+    },
+    "output": {
+      "query_type": "member",
+      "confidence": 1.0,
+      "ambiguity_reason": null,
+      "keywords": [],
+      "entity_name": "Ted Kennedy"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T12:27:48.544120",
+    "agent": "member_search",
+    "action": "search_member",
+    "input": {
+      "name": "Ted Kennedy"
+    },
+    "output": {
+      "found": "Kennedy, Edward M.",
+      "bioguide_id": "K000105",
+      "score": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-14T12:27:49.243590",
+    "agent": "member_search",
+    "action": "fetch_member_profile",
+    "input": {
+      "bioguide_id": "K000105"
+    },
+    "output": {
+      "name": "Edward M. Kennedy",
+      "years_served": 48
+    }
+  },
+  {
+    "timestamp": "2026-05-14T12:27:55.888741",
+    "agent": "member_search",
+    "action": "fetch_member_legislation",
+    "input": {
+      "bioguide_id": "K000105"
+    },
+    "output": {
+      "sponsored_count": 2552,
+      "cosponsored_count": 6967
+    }
+  },
+  {
+    "timestamp": "2026-05-14T12:28:02.717054",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Patriot act"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.95,
+      "ambiguity_reason": null,
+      "keywords": [
+        "Patriot Act"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-14T12:28:15.583318",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Civil Rights Act"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.95,
+      "ambiguity_reason": null,
+      "keywords": [
+        "Civil Rights Act"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:11:12.636081",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Voting Rights Act"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.95,
+      "ambiguity_reason": null,
+      "keywords": [
+        "Voting Rights Act"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:11:23.324746",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "s",
+      "number": 4484
+    },
+    "output": {
+      "title": "I\u201347 Future Interstate Act of 2026",
+      "status": "Read twice and referred to the Committee on Environment and Public Works."
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:11:23.842427",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "s",
+      "number": 4484
+    },
+    "output": {
+      "action_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:11:28.224911",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "I\u201347 Future Interstate Act of 2026",
+      "sponsor": "Sen. Cornyn, John [R-TX]",
+      "personalized": true
+    },
+    "output": {
+      "translation_preview": "# What I\u201347 Future Interstate Act of 2026 Does\n\n**In one sentence:** This bill would update and expa"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:11:28.237698",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:11:30.538523",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**May 11, 2026:** The bill was introduced in the Senate.\n\n**May 11, 2026:** The bil"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:11:30.553848",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "s",
+      "number": 4484
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:11:32.928372",
+    "agent": "feed",
+    "action": "fetch_feed",
+    "input": {
+      "interests": [
+        "climate",
+        "education",
+        "economy"
+      ],
+      "reps": [
+        "W000805",
+        "K000384",
+        "G000568"
+      ]
+    },
+    "output": {
+      "total_items": 11
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:11:37.515850",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 8717
+    },
+    "output": {
+      "title": "Negating Neighborhood Noise Act of 2026",
+      "status": "Referred to the House Committee on Transportation and Infrastructure."
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:11:38.047930",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 8717
+    },
+    "output": {
+      "action_count": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:11:42.498373",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Negating Neighborhood Noise Act of 2026",
+      "sponsor": "Rep. Williams, Nikema [D-GA-5]",
+      "personalized": true
+    },
+    "output": {
+      "translation_preview": "# Negating Neighborhood Noise Act of 2026\n\n## What it does\nThis bill would set stricter federal limi"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:11:42.516758",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 3
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:11:43.868484",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 3
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\nThis bill has not become law. Here's what happened:\n\n**May 7, 2026:** A bill was in"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:11:43.906820",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 8717
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:12:07.036203",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Show me a bill about housing affordability"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.9,
+      "ambiguity_reason": null,
+      "keywords": [
+        "housing",
+        "affordability"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:12:07.053315",
+    "agent": "dispatcher",
+    "action": "concept",
+    "input": {
+      "question": "Show me a bill about housing affordability",
+      "congress": [
+        119,
+        118
+      ]
+    },
+    "output": {}
+  },
+  {
+    "timestamp": "2026-05-14T13:12:08.363854",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "housing",
+        "affordability"
+      ],
+      "topic": "housing affordability legislation"
+    },
+    "output": {
+      "expanded_terms": [
+        "affordable housing",
+        "fair housing",
+        "HUD",
+        "Section 8",
+        "low-income housing tax credit",
+        "rent stabilization",
+        "homelessness"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:12:08.846236",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [
+        "affordable housing",
+        "fair housing",
+        "HUD",
+        "Section 8",
+        "low-income housing tax credit",
+        "rent stabilization",
+        "homelessness"
+      ],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 615,
+      "results_returned": 15
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:12:11.513838",
+    "agent": "result_validator",
+    "action": "validate_results",
+    "input": {
+      "query": "Show me a bill about housing affordability",
+      "result_count": 5
+    },
+    "output": {
+      "kept": 2,
+      "dropped": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:12:11.530842",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Show me a bill about housing affordability"
+    },
+    "output": {
+      "results_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:12:13.328568",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1249
+    },
+    "output": {
+      "title": "Unhoused Persons Bill of Rights",
+      "status": "Referred to the Committee on Financial Services, and in addition to the Committees on Energy and Commerce, Education and Workforce, the Judiciary, Agriculture, and Ways and Means, for a period to be subsequently determined by the Speaker, in each case for consideration of such provisions as fall within the jurisdiction of the committee concerned."
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:12:14.003941",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1249
+    },
+    "output": {
+      "action_count": 7
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:12:18.935236",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Unhoused Persons Bill of Rights",
+      "sponsor": "Rep. Tlaib, Rashida [D-MI-12]",
+      "personalized": true
+    },
+    "output": {
+      "translation_preview": "# Unhoused Persons Bill of Rights \u2014 Plain English Explanation\n\n## What this bill does (one sentence)"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:12:18.947665",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 7
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:12:21.059780",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 7
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**April 30, 2026: Bill Submitted to the House**\n\nThe bill was introduced in the Hou"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:12:21.078530",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1249
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:14:07.899287",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Unhoused Persons Bill of Rights"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.75,
+      "ambiguity_reason": "Could refer to a specific named bill or a general concept for legislation protecting unhoused persons' rights",
+      "keywords": [
+        "unhoused",
+        "persons",
+        "rights"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:14:07.917702",
+    "agent": "dispatcher",
+    "action": "named_entity",
+    "input": {
+      "question": "Unhoused Persons Bill of Rights",
+      "congress": [
+        119,
+        118
+      ]
+    },
+    "output": {}
+  },
+  {
+    "timestamp": "2026-05-14T13:14:11.944420",
+    "agent": "title_search",
+    "action": "search_by_title",
+    "input": {
+      "named_entity": "Unhoused Persons Bill of Rights"
+    },
+    "output": {
+      "original_found": true,
+      "recent_count": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:14:13.408077",
+    "agent": "result_validator",
+    "action": "validate_results",
+    "input": {
+      "query": "Unhoused Persons Bill of Rights",
+      "result_count": 4
+    },
+    "output": {
+      "kept": 0,
+      "dropped": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:14:24.595483",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Show me a bill about housing affordability"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.9,
+      "ambiguity_reason": null,
+      "keywords": [
+        "housing",
+        "affordability"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:14:24.608277",
+    "agent": "dispatcher",
+    "action": "concept",
+    "input": {
+      "question": "Show me a bill about housing affordability",
+      "congress": [
+        119,
+        118
+      ]
+    },
+    "output": {}
+  },
+  {
+    "timestamp": "2026-05-14T13:14:25.682096",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "housing",
+        "affordability"
+      ],
+      "topic": "housing affordability legislation"
+    },
+    "output": {
+      "expanded_terms": [
+        "affordable housing",
+        "housing costs",
+        "rent stabilization",
+        "low-income housing",
+        "fair housing",
+        "Section 8",
+        "HOME program",
+        "community development",
+        "zoning reform",
+        "inclusionary zoning"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:14:26.272028",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [
+        "affordable housing",
+        "housing costs",
+        "rent stabilization",
+        "low-income housing",
+        "fair housing",
+        "Section 8",
+        "HOME program",
+        "community development",
+        "zoning reform",
+        "inclusionary zoning"
+      ],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 500,
+      "results_returned": 15
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:14:28.301027",
+    "agent": "result_validator",
+    "action": "validate_results",
+    "input": {
+      "query": "Show me a bill about housing affordability",
+      "result_count": 5
+    },
+    "output": {
+      "kept": 2,
+      "dropped": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:14:28.316124",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Show me a bill about housing affordability"
+    },
+    "output": {
+      "results_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:14:32.004131",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1249
+    },
+    "output": {
+      "title": "Unhoused Persons Bill of Rights",
+      "status": "Referred to the Committee on Financial Services, and in addition to the Committees on Energy and Commerce, Education and Workforce, the Judiciary, Agriculture, and Ways and Means, for a period to be subsequently determined by the Speaker, in each case for consideration of such provisions as fall within the jurisdiction of the committee concerned."
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:14:32.369718",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1249
+    },
+    "output": {
+      "action_count": 7
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:14:36.288077",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Unhoused Persons Bill of Rights",
+      "sponsor": "Rep. Tlaib, Rashida [D-MI-12]",
+      "personalized": true
+    },
+    "output": {
+      "translation_preview": "# Unhoused Persons Bill of Rights \u2014 Plain English Explanation\n\n## What it is in one sentence\nThis bi"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:14:36.301459",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 7
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:14:38.812563",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 7
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**April 30, 2026: Bill Submitted to the House**\n\nThe bill was introduced in the Hou"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:14:38.828604",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1249
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:14:59.451588",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1198
+    },
+    "output": {
+      "title": "Recognizing that stable housing keeps families together.",
+      "status": "Referred to the House Committee on Financial Services."
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:14:59.977617",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1198
+    },
+    "output": {
+      "action_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:15:03.915428",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Recognizing that stable housing keeps families together.",
+      "sponsor": "Rep. Ramirez, Delia C. [D-IL-3]",
+      "personalized": true
+    },
+    "output": {
+      "translation_preview": "# What This Bill Does\n\n**In one sentence:** This bill recognizes that stable housing is important fo"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:15:03.929069",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:15:05.197239",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**April 20, 2026**\nThe bill was introduced in the House of Representatives and sent"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:15:05.220796",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1198
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:15:14.797522",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "PAtriot Act"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.95,
+      "ambiguity_reason": null,
+      "keywords": [
+        "Patriot Act"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:15:16.369286",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 3162
+    },
+    "output": {
+      "title": "Uniting and Strengthening America by Providing Appropriate Tools Required to Intercept and Obstruct Terrorism (USA PATRIOT ACT) Act of 2001",
+      "status": "Became Public Law No: 107-56."
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:15:17.288377",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 3162
+    },
+    "output": {
+      "action_count": 20
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:15:21.717509",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Uniting and Strengthening America by Providing Appropriate Tools Required to Intercept and Obstruct Terrorism (USA PATRIOT ACT) Act of 2001",
+      "sponsor": "Rep. Sensenbrenner, F. James, Jr. [R-WI-9]",
+      "personalized": true
+    },
+    "output": {
+      "translation_preview": "# USA PATRIOT Act of 2001 \u2014 Plain English\n\n## What this bill does in one sentence\nIt gives federal l"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:15:21.751201",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "house_found": true,
+      "senate_found": true,
+      "house_roll": 398,
+      "senate_roll": 313
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:15:24.454838",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "preview": "# How H.R. 3162 Became Law\n\n**October 23, 2001:** The bill was referred to the House Judiciary Commi"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:15:24.924457",
+    "agent": "vote_fetcher",
+    "action": "fetch_house_votes",
+    "input": {
+      "congress": 107,
+      "roll": 398
+    },
+    "output": {
+      "members_found": 432
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:15:25.020193",
+    "agent": "vote_fetcher",
+    "action": "fetch_senate_votes",
+    "input": {
+      "congress": 107,
+      "roll": 313
+    },
+    "output": {
+      "members_found": 100
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:15:25.033855",
+    "agent": "vote_mapper",
+    "action": "map_house_votes",
+    "input": {
+      "member_count": 432
+    },
+    "output": {
+      "yea": 357,
+      "nay": 66,
+      "present": 0,
+      "not_voting": 9
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:15:25.047164",
+    "agent": "vote_mapper",
+    "action": "map_senate_votes",
+    "input": {
+      "member_count": 100
+    },
+    "output": {
+      "yea": 98,
+      "nay": 1,
+      "present": 0,
+      "not_voting": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:15:25.060079",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 3162
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:21:41.966000",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "PAtriot Act"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.95,
+      "ambiguity_reason": null,
+      "keywords": [
+        "PATRIOT Act"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:21:45.970560",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 3162
+    },
+    "output": {
+      "title": "Uniting and Strengthening America by Providing Appropriate Tools Required to Intercept and Obstruct Terrorism (USA PATRIOT ACT) Act of 2001",
+      "status": "Became Public Law No: 107-56."
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:21:46.351105",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 3162
+    },
+    "output": {
+      "action_count": 20
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:21:50.364357",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Uniting and Strengthening America by Providing Appropriate Tools Required to Intercept and Obstruct Terrorism (USA PATRIOT ACT) Act of 2001",
+      "sponsor": "Rep. Sensenbrenner, F. James, Jr. [R-WI-9]",
+      "personalized": true
+    },
+    "output": {
+      "translation_preview": "# The USA PATRIOT Act Explained\n\n## One Sentence\nThis law gave law enforcement and intelligence agen"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:21:50.377885",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "house_found": true,
+      "senate_found": true,
+      "house_roll": 398,
+      "senate_roll": 313
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:21:52.704537",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "preview": "# How H.R. 3162 Became Law\n\n**October 23, 2001**\nThe bill was referred to the House Judiciary Commit"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:21:53.085965",
+    "agent": "vote_fetcher",
+    "action": "fetch_senate_votes",
+    "input": {
+      "congress": 107,
+      "roll": 313
+    },
+    "output": {
+      "members_found": 100
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:21:53.174164",
+    "agent": "vote_fetcher",
+    "action": "fetch_house_votes",
+    "input": {
+      "congress": 107,
+      "roll": 398
+    },
+    "output": {
+      "members_found": 432
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:21:53.187062",
+    "agent": "vote_mapper",
+    "action": "map_house_votes",
+    "input": {
+      "member_count": 432
+    },
+    "output": {
+      "yea": 357,
+      "nay": 66,
+      "present": 0,
+      "not_voting": 9
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:21:53.199523",
+    "agent": "vote_mapper",
+    "action": "map_senate_votes",
+    "input": {
+      "member_count": 100
+    },
+    "output": {
+      "yea": 98,
+      "nay": 1,
+      "present": 0,
+      "not_voting": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-14T13:21:53.212372",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 3162
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:40:53.016355",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "pakistan"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.2,
+      "ambiguity_reason": "Pakistan is a country name with no clear legislative search intent; could refer to foreign policy, trade, aid, or bilateral relations legislation, or could be a misspelling/incomplete query.",
+      "keywords": [
+        "Pakistan"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:40:53.030728",
+    "agent": "dispatcher",
+    "action": "concept",
+    "input": {
+      "question": "pakistan",
+      "congress": [
+        119,
+        118
+      ]
+    },
+    "output": {}
+  },
+  {
+    "timestamp": "2026-05-14T14:40:53.972550",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "Pakistan"
+      ],
+      "topic": "Pakistan-related legislation"
+    },
+    "output": {
+      "expanded_terms": [
+        "Pakistan",
+        "South Asia",
+        "bilateral relations",
+        "trade agreement",
+        "foreign aid",
+        "Kashmir",
+        "counterterrorism"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:40:54.993005",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [
+        "Pakistan",
+        "South Asia",
+        "bilateral relations",
+        "trade agreement",
+        "foreign aid",
+        "Kashmir",
+        "counterterrorism"
+      ],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 173,
+      "results_returned": 12
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:40:58.761263",
+    "agent": "result_validator",
+    "action": "validate_results",
+    "input": {
+      "query": "pakistan",
+      "result_count": 5
+    },
+    "output": {
+      "kept": 2,
+      "dropped": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:40:58.777792",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "pakistan"
+    },
+    "output": {
+      "results_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:41:20.272257",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Title IX"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.95,
+      "ambiguity_reason": null,
+      "keywords": [
+        "Title IX"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:41:20.286528",
+    "agent": "dispatcher",
+    "action": "named_entity",
+    "input": {
+      "question": "Title IX",
+      "congress": [
+        119,
+        118
+      ]
+    },
+    "output": {}
+  },
+  {
+    "timestamp": "2026-05-14T14:41:21.963219",
+    "agent": "title_search",
+    "action": "search_by_title",
+    "input": {
+      "named_entity": "Title IX"
+    },
+    "output": {
+      "original_found": true,
+      "recent_count": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:41:23.830225",
+    "agent": "result_validator",
+    "action": "validate_results",
+    "input": {
+      "query": "Title IX",
+      "result_count": 4
+    },
+    "output": {
+      "kept": 1,
+      "dropped": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:41:26.084410",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 92,
+      "type": "s",
+      "number": 659
+    },
+    "output": {
+      "title": "Education Amendments of 1972",
+      "status": "Became Public Law No. 92-318"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:41:27.042466",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 92,
+      "type": "s",
+      "number": 659
+    },
+    "output": {
+      "action_count": 6
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:41:31.036589",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Education Amendments of 1972",
+      "sponsor": "Unknown",
+      "personalized": true
+    },
+    "output": {
+      "translation_preview": "# Education Amendments of 1972 \u2014 Plain English Explanation\n\n## What is this bill in one sentence?\nTh"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:41:31.050417",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 6
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:41:32.806083",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 6
+    },
+    "output": {
+      "preview": "# How This Bill Became Law\n\n**February 8, 1971:** A senator introduced the bill in the Senate.\n\n**Au"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:41:32.830531",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 92,
+      "type": "s",
+      "number": 659
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:41:59.607497",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Title IIV"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.65,
+      "ambiguity_reason": "Title IIV appears to be a misspelling or non-standard reference; likely intended as Title IV or similar education/civil rights statute, but exact referent is unclear",
+      "keywords": [
+        "Title IIV"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:41:59.620753",
+    "agent": "dispatcher",
+    "action": "named_entity",
+    "input": {
+      "question": "Title IIV",
+      "congress": [
+        119,
+        118
+      ]
+    },
+    "output": {}
+  },
+  {
+    "timestamp": "2026-05-14T14:42:02.186051",
+    "agent": "title_search",
+    "action": "search_by_title",
+    "input": {
+      "named_entity": "Title IIV"
+    },
+    "output": {
+      "original_found": true,
+      "recent_count": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:42:03.677118",
+    "agent": "result_validator",
+    "action": "validate_results",
+    "input": {
+      "query": "Title IIV",
+      "result_count": 4
+    },
+    "output": {
+      "kept": 0,
+      "dropped": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:42:23.429802",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Title IV"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.95,
+      "ambiguity_reason": null,
+      "keywords": [
+        "Title IV"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:42:23.453716",
+    "agent": "dispatcher",
+    "action": "named_entity",
+    "input": {
+      "question": "Title IV",
+      "congress": [
+        119,
+        118
+      ]
+    },
+    "output": {}
+  },
+  {
+    "timestamp": "2026-05-14T14:42:25.860517",
+    "agent": "title_search",
+    "action": "search_by_title",
+    "input": {
+      "named_entity": "Title IV"
+    },
+    "output": {
+      "original_found": true,
+      "recent_count": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:42:27.400809",
+    "agent": "result_validator",
+    "action": "validate_results",
+    "input": {
+      "query": "Title IV",
+      "result_count": 4
+    },
+    "output": {
+      "kept": 0,
+      "dropped": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:43:50.737328",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Title VI"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.95,
+      "ambiguity_reason": null,
+      "keywords": [
+        "Title VI"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:43:50.750438",
+    "agent": "dispatcher",
+    "action": "named_entity",
+    "input": {
+      "question": "Title VI",
+      "congress": [
+        119,
+        118
+      ]
+    },
+    "output": {}
+  },
+  {
+    "timestamp": "2026-05-14T14:43:52.390707",
+    "agent": "title_search",
+    "action": "search_by_title",
+    "input": {
+      "named_entity": "Title VI"
+    },
+    "output": {
+      "original_found": true,
+      "recent_count": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:43:54.370388",
+    "agent": "result_validator",
+    "action": "validate_results",
+    "input": {
+      "query": "Title VI",
+      "result_count": 4
+    },
+    "output": {
+      "kept": 2,
+      "dropped": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:44:02.392929",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 169
+    },
+    "output": {
+      "title": "Notification and Federal Employee Antidiscrimination and Retaliation Act of 2002",
+      "status": "Became Public Law No: 107-174."
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:44:03.493315",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 169
+    },
+    "output": {
+      "action_count": 20
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:44:06.601551",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Notification and Federal Employee Antidiscrimination and Retaliation Act of 2002",
+      "sponsor": "Rep. Sensenbrenner, F. James, Jr. [R-WI-9]",
+      "personalized": true
+    },
+    "output": {
+      "translation_preview": "# What This Bill Does\n\n**One sentence:** This law requires federal agencies to notify their employee"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:44:06.623937",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "house_found": true,
+      "senate_found": false,
+      "house_roll": 117,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:44:08.807459",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "preview": "# How H.R. 169 Became Law\n\n**April 15, 2002:** The Senate's Governmental Affairs Committee, led by S"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:44:09.512172",
+    "agent": "vote_fetcher",
+    "action": "fetch_house_votes",
+    "input": {
+      "congress": 107,
+      "roll": 117
+    },
+    "output": {
+      "members_found": 434
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:44:09.528380",
+    "agent": "vote_mapper",
+    "action": "map_house_votes",
+    "input": {
+      "member_count": 434
+    },
+    "output": {
+      "yea": 412,
+      "nay": 0,
+      "present": 0,
+      "not_voting": 22
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:44:09.542049",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 169
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:45:08.541251",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Millender-Mcdonald"
+    },
+    "output": {
+      "query_type": "member",
+      "confidence": 0.85,
+      "ambiguity_reason": "Millender-McDonald is a surname; likely refers to Representative Carrie Meek or a historical legislator, but needs clarification on which member",
+      "keywords": [],
+      "entity_name": "Millender-McDonald"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:45:18.860438",
+    "agent": "member_search",
+    "action": "search_member",
+    "input": {
+      "name": "Millender-McDonald"
+    },
+    "output": {
+      "found": "Millender-McDonald, Juanita",
+      "bioguide_id": "M000714",
+      "score": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:45:19.772549",
+    "agent": "member_search",
+    "action": "fetch_member_profile",
+    "input": {
+      "bioguide_id": "M000714"
+    },
+    "output": {
+      "name": "Juanita Millender-McDonald",
+      "years_served": 12
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:45:27.832197",
+    "agent": "member_search",
+    "action": "fetch_member_legislation",
+    "input": {
+      "bioguide_id": "M000714"
+    },
+    "output": {
+      "sponsored_count": 192,
+      "cosponsored_count": 2195
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:45:54.004710",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Patriot Act"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.95,
+      "ambiguity_reason": null,
+      "keywords": [
+        "Patriot Act"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:45:56.463240",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 3162
+    },
+    "output": {
+      "title": "Uniting and Strengthening America by Providing Appropriate Tools Required to Intercept and Obstruct Terrorism (USA PATRIOT ACT) Act of 2001",
+      "status": "Became Public Law No: 107-56."
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:45:57.589619",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 3162
+    },
+    "output": {
+      "action_count": 20
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:46:00.843328",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Uniting and Strengthening America by Providing Appropriate Tools Required to Intercept and Obstruct Terrorism (USA PATRIOT ACT) Act of 2001",
+      "sponsor": "Rep. Sensenbrenner, F. James, Jr. [R-WI-9]",
+      "personalized": true
+    },
+    "output": {
+      "translation_preview": "# USA PATRIOT Act of 2001 \u2014 Plain English Explanation\n\n## What it is in one sentence\nThis law gave f"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:46:00.946011",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "house_found": true,
+      "senate_found": true,
+      "house_roll": 398,
+      "senate_roll": 313
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:46:03.507329",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "preview": "# How H.R. 3162 Became Law\n\n**October 23, 2001**\nThe bill was referred to the House Judiciary Commit"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:46:04.048301",
+    "agent": "vote_fetcher",
+    "action": "fetch_house_votes",
+    "input": {
+      "congress": 107,
+      "roll": 398
+    },
+    "output": {
+      "members_found": 432
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:46:04.379315",
+    "agent": "vote_fetcher",
+    "action": "fetch_senate_votes",
+    "input": {
+      "congress": 107,
+      "roll": 313
+    },
+    "output": {
+      "members_found": 100
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:46:04.395107",
+    "agent": "vote_mapper",
+    "action": "map_house_votes",
+    "input": {
+      "member_count": 432
+    },
+    "output": {
+      "yea": 357,
+      "nay": 66,
+      "present": 0,
+      "not_voting": 9
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:46:04.409096",
+    "agent": "vote_mapper",
+    "action": "map_senate_votes",
+    "input": {
+      "member_count": 100
+    },
+    "output": {
+      "yea": 98,
+      "nay": 1,
+      "present": 0,
+      "not_voting": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:46:04.422194",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 3162
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:46:31.926584",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Patriot Act"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.95,
+      "ambiguity_reason": null,
+      "keywords": [
+        "Patriot Act"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:46:35.102286",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 3162
+    },
+    "output": {
+      "title": "Uniting and Strengthening America by Providing Appropriate Tools Required to Intercept and Obstruct Terrorism (USA PATRIOT ACT) Act of 2001",
+      "status": "Became Public Law No: 107-56."
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:46:35.617617",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 3162
+    },
+    "output": {
+      "action_count": 20
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:46:39.697797",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Uniting and Strengthening America by Providing Appropriate Tools Required to Intercept and Obstruct Terrorism (USA PATRIOT ACT) Act of 2001",
+      "sponsor": "Rep. Sensenbrenner, F. James, Jr. [R-WI-9]",
+      "personalized": true
+    },
+    "output": {
+      "translation_preview": "# USA PATRIOT Act of 2001 \u2014 Plain English Explanation\n\n## What This Bill Does (In One Sentence)\nIt g"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:46:39.711528",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "house_found": true,
+      "senate_found": true,
+      "house_roll": 398,
+      "senate_roll": 313
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:46:41.811105",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "preview": "# How H.R. 3162 Became Law\n\n**October 23, 2001**\nThe bill was sent to eight House committees for rev"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:46:42.345189",
+    "agent": "vote_fetcher",
+    "action": "fetch_house_votes",
+    "input": {
+      "congress": 107,
+      "roll": 398
+    },
+    "output": {
+      "members_found": 432
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:46:42.462232",
+    "agent": "vote_fetcher",
+    "action": "fetch_senate_votes",
+    "input": {
+      "congress": 107,
+      "roll": 313
+    },
+    "output": {
+      "members_found": 100
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:46:42.477743",
+    "agent": "vote_mapper",
+    "action": "map_house_votes",
+    "input": {
+      "member_count": 432
+    },
+    "output": {
+      "yea": 357,
+      "nay": 66,
+      "present": 0,
+      "not_voting": 9
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:46:42.492543",
+    "agent": "vote_mapper",
+    "action": "map_senate_votes",
+    "input": {
+      "member_count": 100
+    },
+    "output": {
+      "yea": 98,
+      "nay": 1,
+      "present": 0,
+      "not_voting": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-14T14:46:42.507400",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 3162
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T16:50:20.318549",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Sex"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.2,
+      "ambiguity_reason": "Single word 'Sex' is extremely ambiguous\u2014could refer to sex education, sex discrimination, sexual assault legislation, reproductive rights, or other sex-related topics.",
+      "keywords": [
+        "sex"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-14T16:50:20.331446",
+    "agent": "dispatcher",
+    "action": "concept",
+    "input": {
+      "question": "Sex",
+      "congress": [
+        119,
+        118
+      ]
+    },
+    "output": {}
+  },
+  {
+    "timestamp": "2026-05-14T16:50:21.341461",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "sex"
+      ],
+      "topic": "sex-related legislation"
+    },
+    "output": {
+      "expanded_terms": [
+        "sexual assault",
+        "sex trafficking",
+        "reproductive health",
+        "sexual abuse",
+        "Title IX",
+        "consent",
+        "sexual harassment"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-14T16:50:22.787741",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [
+        "sexual assault",
+        "sex trafficking",
+        "reproductive health",
+        "sexual abuse",
+        "Title IX",
+        "consent",
+        "sexual harassment"
+      ],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 740,
+      "results_returned": 15
+    }
+  },
+  {
+    "timestamp": "2026-05-14T16:50:24.540761",
+    "agent": "result_validator",
+    "action": "validate_results",
+    "input": {
+      "query": "Sex",
+      "result_count": 5
+    },
+    "output": {
+      "kept": 1,
+      "dropped": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-14T16:50:24.565940",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Sex"
+    },
+    "output": {
+      "results_count": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-14T16:52:01.286189",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Patriot Act"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.95,
+      "ambiguity_reason": null,
+      "keywords": [
+        "Patriot Act"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-14T16:52:25.656676",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 3162
+    },
+    "output": {
+      "title": "Uniting and Strengthening America by Providing Appropriate Tools Required to Intercept and Obstruct Terrorism (USA PATRIOT ACT) Act of 2001",
+      "status": "Became Public Law No: 107-56."
+    }
+  },
+  {
+    "timestamp": "2026-05-14T16:52:26.988531",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 3162
+    },
+    "output": {
+      "action_count": 20
+    }
+  },
+  {
+    "timestamp": "2026-05-14T16:52:30.062873",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Uniting and Strengthening America by Providing Appropriate Tools Required to Intercept and Obstruct Terrorism (USA PATRIOT ACT) Act of 2001",
+      "sponsor": "Rep. Sensenbrenner, F. James, Jr. [R-WI-9]",
+      "personalized": true
+    },
+    "output": {
+      "translation_preview": "# USA PATRIOT Act of 2001: Plain English Explanation\n\n## What it is in one sentence\nThis law gives f"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T16:52:30.096784",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "house_found": true,
+      "senate_found": true,
+      "house_roll": 398,
+      "senate_roll": 313
+    }
+  },
+  {
+    "timestamp": "2026-05-14T16:52:32.749196",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "preview": "# How H.R. 3162 Became Law\n\n**October 23, 2001**\nThe bill was referred to the House Judiciary Commit"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T16:52:33.522347",
+    "agent": "vote_fetcher",
+    "action": "fetch_house_votes",
+    "input": {
+      "congress": 107,
+      "roll": 398
+    },
+    "output": {
+      "members_found": 432
+    }
+  },
+  {
+    "timestamp": "2026-05-14T16:52:33.660872",
+    "agent": "vote_fetcher",
+    "action": "fetch_senate_votes",
+    "input": {
+      "congress": 107,
+      "roll": 313
+    },
+    "output": {
+      "members_found": 100
+    }
+  },
+  {
+    "timestamp": "2026-05-14T16:52:33.691496",
+    "agent": "vote_mapper",
+    "action": "map_house_votes",
+    "input": {
+      "member_count": 432
+    },
+    "output": {
+      "yea": 357,
+      "nay": 66,
+      "present": 0,
+      "not_voting": 9
+    }
+  },
+  {
+    "timestamp": "2026-05-14T16:52:33.710148",
+    "agent": "vote_mapper",
+    "action": "map_senate_votes",
+    "input": {
+      "member_count": 100
+    },
+    "output": {
+      "yea": 98,
+      "nay": 1,
+      "present": 0,
+      "not_voting": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-14T16:52:33.725654",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 3162
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T16:52:38.696522",
+    "agent": "feed",
+    "action": "fetch_feed",
+    "input": {
+      "interests": [
+        "climate",
+        "education",
+        "economy"
+      ],
+      "reps": [
+        "W000805",
+        "K000384",
+        "G000568"
+      ]
+    },
+    "output": {
+      "total_items": 11
+    }
+  },
+  {
+    "timestamp": "2026-05-14T16:52:58.620110",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Patriot ACt"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.95,
+      "ambiguity_reason": null,
+      "keywords": [
+        "Patriot Act"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-14T16:53:00.215521",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 3162
+    },
+    "output": {
+      "title": "Uniting and Strengthening America by Providing Appropriate Tools Required to Intercept and Obstruct Terrorism (USA PATRIOT ACT) Act of 2001",
+      "status": "Became Public Law No: 107-56."
+    }
+  },
+  {
+    "timestamp": "2026-05-14T16:53:00.754064",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 3162
+    },
+    "output": {
+      "action_count": 20
+    }
+  },
+  {
+    "timestamp": "2026-05-14T16:53:05.082610",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Uniting and Strengthening America by Providing Appropriate Tools Required to Intercept and Obstruct Terrorism (USA PATRIOT ACT) Act of 2001",
+      "sponsor": "Rep. Sensenbrenner, F. James, Jr. [R-WI-9]",
+      "personalized": true
+    },
+    "output": {
+      "translation_preview": "# USA PATRIOT Act of 2001 \u2014 Plain English Summary\n\n## What This Bill Does (One Sentence)\nThis law ex"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T16:53:05.098760",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "house_found": true,
+      "senate_found": true,
+      "house_roll": 398,
+      "senate_roll": 313
+    }
+  },
+  {
+    "timestamp": "2026-05-14T16:53:07.644111",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "preview": "# How H.R. 3162 Became Law\n\n**October 23, 2001:** The bill was referred to the House Judiciary Commi"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T16:53:08.257647",
+    "agent": "vote_fetcher",
+    "action": "fetch_house_votes",
+    "input": {
+      "congress": 107,
+      "roll": 398
+    },
+    "output": {
+      "members_found": 432
+    }
+  },
+  {
+    "timestamp": "2026-05-14T16:53:08.297645",
+    "agent": "vote_fetcher",
+    "action": "fetch_senate_votes",
+    "input": {
+      "congress": 107,
+      "roll": 313
+    },
+    "output": {
+      "members_found": 100
+    }
+  },
+  {
+    "timestamp": "2026-05-14T16:53:08.310635",
+    "agent": "vote_mapper",
+    "action": "map_house_votes",
+    "input": {
+      "member_count": 432
+    },
+    "output": {
+      "yea": 357,
+      "nay": 66,
+      "present": 0,
+      "not_voting": 9
+    }
+  },
+  {
+    "timestamp": "2026-05-14T16:53:08.323333",
+    "agent": "vote_mapper",
+    "action": "map_senate_votes",
+    "input": {
+      "member_count": 100
+    },
+    "output": {
+      "yea": 98,
+      "nay": 1,
+      "present": 0,
+      "not_voting": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-14T16:53:08.336145",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 3162
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T19:34:20.812853",
+    "agent": "feed",
+    "action": "fetch_feed",
+    "input": {
+      "interests": [
+        "climate",
+        "education",
+        "economy"
+      ],
+      "reps": [
+        "W000805",
+        "K000384",
+        "G000568"
+      ]
+    },
+    "output": {
+      "total_items": 11
+    }
+  },
+  {
+    "timestamp": "2026-05-14T19:40:46.318235",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Show me a bill about housing affordability"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.9,
+      "ambiguity_reason": null,
+      "keywords": [
+        "housing",
+        "affordability"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-14T19:40:46.335630",
+    "agent": "dispatcher",
+    "action": "concept",
+    "input": {
+      "question": "Show me a bill about housing affordability",
+      "congress": [
+        119,
+        118
+      ]
+    },
+    "output": {}
+  },
+  {
+    "timestamp": "2026-05-14T19:40:47.808316",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "housing",
+        "affordability"
+      ],
+      "topic": "housing affordability legislation"
+    },
+    "output": {
+      "expanded_terms": [
+        "affordable housing",
+        "low-income housing",
+        "fair market rent",
+        "housing assistance",
+        "HOME program",
+        "housing voucher",
+        "Section 8",
+        "Community Development Block Grant"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-14T19:40:48.428625",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [
+        "affordable housing",
+        "low-income housing",
+        "fair market rent",
+        "housing assistance",
+        "HOME program",
+        "housing voucher",
+        "Section 8",
+        "Community Development Block Grant"
+      ],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 542,
+      "results_returned": 15
+    }
+  },
+  {
+    "timestamp": "2026-05-14T19:40:51.265497",
+    "agent": "result_validator",
+    "action": "validate_results",
+    "input": {
+      "query": "Show me a bill about housing affordability",
+      "result_count": 5
+    },
+    "output": {
+      "kept": 3,
+      "dropped": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-14T19:40:51.304277",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Show me a bill about housing affordability"
+    },
+    "output": {
+      "results_count": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-14T19:41:32.246858",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1249
+    },
+    "output": {
+      "title": "Unhoused Persons Bill of Rights",
+      "status": "Referred to the Committee on Financial Services, and in addition to the Committees on Energy and Commerce, Education and Workforce, the Judiciary, Agriculture, and Ways and Means, for a period to be subsequently determined by the Speaker, in each case for consideration of such provisions as fall within the jurisdiction of the committee concerned."
+    }
+  },
+  {
+    "timestamp": "2026-05-14T19:41:32.958006",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1249
+    },
+    "output": {
+      "action_count": 7
+    }
+  },
+  {
+    "timestamp": "2026-05-14T19:41:36.628089",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Unhoused Persons Bill of Rights",
+      "sponsor": "Rep. Tlaib, Rashida [D-MI-12]",
+      "personalized": true
+    },
+    "output": {
+      "translation_preview": "# Unhoused Persons Bill of Rights \u2014 Plain English\n\n**What it is:**\nThis bill would create a set of l"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T19:41:36.642677",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 7
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-14T19:41:38.744907",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 7
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**April 30, 2026: Bill Introduced in the House**\n\nThe bill was submitted to the Hou"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T19:41:38.771353",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1249
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T19:41:59.149659",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Patriot Act"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.95,
+      "ambiguity_reason": null,
+      "keywords": [
+        "Patriot Act"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-14T19:42:06.451236",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 3162
+    },
+    "output": {
+      "title": "Uniting and Strengthening America by Providing Appropriate Tools Required to Intercept and Obstruct Terrorism (USA PATRIOT ACT) Act of 2001",
+      "status": "Became Public Law No: 107-56."
+    }
+  },
+  {
+    "timestamp": "2026-05-14T19:42:07.524994",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 3162
+    },
+    "output": {
+      "action_count": 20
+    }
+  },
+  {
+    "timestamp": "2026-05-14T19:42:11.153340",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Uniting and Strengthening America by Providing Appropriate Tools Required to Intercept and Obstruct Terrorism (USA PATRIOT ACT) Act of 2001",
+      "sponsor": "Rep. Sensenbrenner, F. James, Jr. [R-WI-9]",
+      "personalized": true
+    },
+    "output": {
+      "translation_preview": "# USA PATRIOT Act of 2001 \u2014 Plain English Explanation\n\n## What it is in one sentence\nThis law gave f"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T19:42:11.181179",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "house_found": true,
+      "senate_found": true,
+      "house_roll": 398,
+      "senate_roll": 313
+    }
+  },
+  {
+    "timestamp": "2026-05-14T19:42:13.430524",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "preview": "# How H.R. 3162 Became Law\n\n**October 23, 2001:** The bill was referred to eight different House com"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T19:42:14.026191",
+    "agent": "vote_fetcher",
+    "action": "fetch_house_votes",
+    "input": {
+      "congress": 107,
+      "roll": 398
+    },
+    "output": {
+      "members_found": 432
+    }
+  },
+  {
+    "timestamp": "2026-05-14T19:42:14.207165",
+    "agent": "vote_fetcher",
+    "action": "fetch_senate_votes",
+    "input": {
+      "congress": 107,
+      "roll": 313
+    },
+    "output": {
+      "members_found": 100
+    }
+  },
+  {
+    "timestamp": "2026-05-14T19:42:14.234391",
+    "agent": "vote_mapper",
+    "action": "map_house_votes",
+    "input": {
+      "member_count": 432
+    },
+    "output": {
+      "yea": 357,
+      "nay": 66,
+      "present": 0,
+      "not_voting": 9
+    }
+  },
+  {
+    "timestamp": "2026-05-14T19:42:14.260893",
+    "agent": "vote_mapper",
+    "action": "map_senate_votes",
+    "input": {
+      "member_count": 100
+    },
+    "output": {
+      "yea": 98,
+      "nay": 1,
+      "present": 0,
+      "not_voting": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-14T19:42:14.287018",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 3162
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T19:42:35.500941",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Russel Feingold"
+    },
+    "output": {
+      "query_type": "member",
+      "confidence": 0.95,
+      "ambiguity_reason": null,
+      "keywords": [],
+      "entity_name": "Russ Feingold"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T19:42:44.193487",
+    "agent": "member_search",
+    "action": "search_member",
+    "input": {
+      "name": "Russ Feingold"
+    },
+    "output": {
+      "found": "Feingold, Russell D.",
+      "bioguide_id": "F000061",
+      "score": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-14T19:42:45.077717",
+    "agent": "member_search",
+    "action": "fetch_member_profile",
+    "input": {
+      "bioguide_id": "F000061"
+    },
+    "output": {
+      "name": "Russell D. Feingold",
+      "years_served": 18
+    }
+  },
+  {
+    "timestamp": "2026-05-14T19:42:52.679807",
+    "agent": "member_search",
+    "action": "fetch_member_legislation",
+    "input": {
+      "bioguide_id": "F000061"
+    },
+    "output": {
+      "sponsored_count": 1173,
+      "cosponsored_count": 2656
+    }
+  },
+  {
+    "timestamp": "2026-05-14T19:43:22.217901",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 111,
+      "type": "s",
+      "number": 3415
+    },
+    "output": {
+      "title": "Fair Pricing for Prescription Drugs Act",
+      "status": "Read twice and referred to the Committee on Health, Education, Labor, and Pensions."
+    }
+  },
+  {
+    "timestamp": "2026-05-14T19:43:22.815027",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 111,
+      "type": "s",
+      "number": 3415
+    },
+    "output": {
+      "action_count": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-14T19:43:26.622906",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "Fair Pricing for Prescription Drugs Act",
+      "sponsor": "Sen. Feingold, Russell D. [D-WI]",
+      "personalized": true
+    },
+    "output": {
+      "translation_preview": "# Fair Pricing for Prescription Drugs Act \u2014 Plain English Explanation\n\n## What it does in one senten"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T19:43:26.642363",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 3
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-14T19:43:28.688290",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 3
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**May 25, 2010:** A Senator introduced this bill in the Senate and made opening rem"
+    }
+  },
+  {
+    "timestamp": "2026-05-14T19:43:28.725792",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 111,
+      "type": "s",
+      "number": 3415
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-15T08:19:17.731578",
+    "agent": "feed",
+    "action": "fetch_feed",
+    "input": {
+      "interests": [
+        "climate",
+        "education",
+        "economy"
+      ],
+      "reps": [
+        "W000805",
+        "K000384",
+        "G000568"
+      ]
+    },
+    "output": {
+      "total_items": 11
+    }
+  },
+  {
+    "timestamp": "2026-05-15T08:20:12.789375",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "nigga"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.2,
+      "ambiguity_reason": "Query contains only a single word with no legislative or political context",
+      "keywords": [],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-15T08:20:12.816614",
+    "agent": "dispatcher",
+    "action": "browse",
+    "input": {
+      "question": "nigga",
+      "congress": [
+        119,
+        118
+      ]
+    },
+    "output": {}
+  },
+  {
+    "timestamp": "2026-05-15T08:20:13.814076",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 41044,
+      "results_returned": 15
+    }
+  },
+  {
+    "timestamp": "2026-05-15T08:20:48.193713",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "sex"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.2,
+      "ambiguity_reason": "Single word 'sex' is extremely ambiguous and could refer to sex education, sex discrimination, sexual assault, reproductive rights, or many other legislative topics.",
+      "keywords": [
+        "sex"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-15T08:20:48.220280",
+    "agent": "dispatcher",
+    "action": "concept",
+    "input": {
+      "question": "sex",
+      "congress": [
+        119,
+        118
+      ]
+    },
+    "output": {}
+  },
+  {
+    "timestamp": "2026-05-15T08:20:49.241044",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "sex"
+      ],
+      "topic": "sex-related legislation"
+    },
+    "output": {
+      "expanded_terms": [
+        "sexual assault",
+        "sex trafficking",
+        "sexual harassment",
+        "reproductive rights",
+        "sexual abuse",
+        "sex offender",
+        "sexual violence"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-15T08:20:50.284070",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [
+        "sexual assault",
+        "sex trafficking",
+        "sexual harassment",
+        "reproductive rights",
+        "sexual abuse",
+        "sex offender",
+        "sexual violence"
+      ],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 599,
+      "results_returned": 15
+    }
+  },
+  {
+    "timestamp": "2026-05-15T08:20:52.748406",
+    "agent": "result_validator",
+    "action": "validate_results",
+    "input": {
+      "query": "sex",
+      "result_count": 5
+    },
+    "output": {
+      "kept": 1,
+      "dropped": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-15T08:20:52.779886",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "sex"
+    },
+    "output": {
+      "results_count": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-15T08:22:07.979516",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "sjres",
+      "number": 135
+    },
+    "output": {
+      "title": "A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Consumer Financial Protection relating to the withdrawal of the rule relating to \"Consumer Financial Protection Circular 2024-04: Whistleblower Protections Under CFPA Section 1057\".",
+      "status": "Motion to proceed to consideration of measure rejected in Senate by Voice Vote. (consideration: CR S2272)"
+    }
+  },
+  {
+    "timestamp": "2026-05-15T08:22:09.191684",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "sjres",
+      "number": 135
+    },
+    "output": {
+      "action_count": 6
+    }
+  },
+  {
+    "timestamp": "2026-05-15T08:22:12.196740",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Consumer Financial Protection relating to the withdrawal of the rule relating to \"Consumer Financial Protection Circular 2024-04: Whistleblower Protections Under CFPA Section 1057\".",
+      "sponsor": "Sen. Warner, Mark R. [D-VA]",
+      "personalized": true
+    },
+    "output": {
+      "translation_preview": "# What This Bill Does\n\n**In one sentence:** This bill would reverse a decision by the Consumer Finan"
+    }
+  },
+  {
+    "timestamp": "2026-05-15T08:22:12.228749",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 6
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-15T08:22:14.722510",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 6
+    },
+    "output": {
+      "preview": "# How This Bill Moved Through Congress\n\n**March 19, 2026:** A senator introduced this bill in the Se"
+    }
+  },
+  {
+    "timestamp": "2026-05-15T08:22:14.750699",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "sjres",
+      "number": 135
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-15T14:12:03.325907",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "one dollar bill"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.3,
+      "ambiguity_reason": "Extremely vague query - 'one dollar bill' could refer to currency legislation, a specific named bill, or be a casual reference unrelated to legislation",
+      "keywords": [
+        "dollar"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-15T14:12:03.360407",
+    "agent": "dispatcher",
+    "action": "concept",
+    "input": {
+      "question": "one dollar bill",
+      "congress": [
+        119,
+        118
+      ]
+    },
+    "output": {}
+  },
+  {
+    "timestamp": "2026-05-15T14:12:04.338214",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "dollar"
+      ],
+      "topic": "currency legislation"
+    },
+    "output": {
+      "expanded_terms": [
+        "monetary policy",
+        "coin",
+        "legal tender",
+        "currency exchange",
+        "Federal Reserve",
+        "numismatic",
+        "tender"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-15T14:12:05.051187",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [
+        "monetary policy",
+        "coin",
+        "legal tender",
+        "currency exchange",
+        "Federal Reserve",
+        "numismatic",
+        "tender"
+      ],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 268,
+      "results_returned": 15
+    }
+  },
+  {
+    "timestamp": "2026-05-15T14:12:08.308087",
+    "agent": "result_validator",
+    "action": "validate_results",
+    "input": {
+      "query": "one dollar bill",
+      "result_count": 5
+    },
+    "output": {
+      "kept": 0,
+      "dropped": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-15T14:12:08.325025",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "one dollar bill"
+    },
+    "output": {
+      "results_count": 5
+    }
+  },
+  {
+    "timestamp": "2026-05-15T14:12:13.363520",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "sres",
+      "number": 713
+    },
+    "output": {
+      "title": "A resolution supporting the United States dollar as the reserve currency of the world and combating the economic influence of the People's Republic of China.",
+      "status": "Referred to the Committee on Foreign Relations. (text: CR S2176-2177)"
+    }
+  },
+  {
+    "timestamp": "2026-05-15T14:12:14.077061",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "sres",
+      "number": 713
+    },
+    "output": {
+      "action_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-15T14:12:17.654972",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "title": "A resolution supporting the United States dollar as the reserve currency of the world and combating the economic influence of the People's Republic of China.",
+      "sponsor": "Sen. Budd, Ted [R-NC]",
+      "personalized": true
+    },
+    "output": {
+      "translation_preview": "# What This Bill Does\n\n**In one sentence:** This resolution expresses support for keeping the U.S. d"
+    }
+  },
+  {
+    "timestamp": "2026-05-15T14:12:17.688751",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-15T14:12:19.446543",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**April 30, 2026** \u2014 A bill was introduced in the Senate. The text was published in"
+    }
+  },
+  {
+    "timestamp": "2026-05-15T14:12:19.467498",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "sres",
+      "number": 713
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:14:07.687612",
+    "agent": "feed",
+    "action": "fetch_feed",
+    "input": {
+      "interests": [
+        "climate",
+        "education",
+        "economy"
+      ],
+      "reps": [
+        "W000805",
+        "K000384",
+        "G000568"
+      ]
+    },
+    "output": {
+      "total_items": 11
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:14:09.134094",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "sjres",
+      "number": 135
+    },
+    "output": {
+      "title": "A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Consumer Financial Protection relating to the withdrawal of the rule relating to \"Consumer Financial Protection Circular 2024-04: Whistleblower Protections Under CFPA Section 1057\".",
+      "status": "Motion to proceed to consideration of measure rejected in Senate by Voice Vote. (consideration: CR S2272)"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:14:09.740281",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "sjres",
+      "number": 135
+    },
+    "output": {
+      "action_count": 6
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:15:15.478115",
+    "agent": "feed",
+    "action": "fetch_feed",
+    "input": {
+      "interests": [
+        "climate",
+        "education",
+        "economy"
+      ],
+      "reps": [
+        "W000805",
+        "K000384",
+        "G000568"
+      ]
+    },
+    "output": {
+      "total_items": 11
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:15:25.485700",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Patriot ACt"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.95,
+      "ambiguity_reason": null,
+      "keywords": [
+        "Patriot Act"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:15:28.115595",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 3162
+    },
+    "output": {
+      "title": "Uniting and Strengthening America by Providing Appropriate Tools Required to Intercept and Obstruct Terrorism (USA PATRIOT ACT) Act of 2001",
+      "status": "Became Public Law No: 107-56."
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:15:29.107229",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "congress": 119,
+      "type": "sjres",
+      "number": "135",
+      "title": "A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Consumer Financial Protection relating to the withdrawal of the rule relating to \"Consumer Financial Protection Circular 2024-04: Whistleblower Protections Under CFPA Section 1057\"."
+    },
+    "output": {
+      "translation_preview": "# Plain English Explanation\n\n## 1. What this bill does in one sentence\nThis bill would reject and ca",
+      "source": "api"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:15:29.124390",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 6
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:15:29.210491",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 3162
+    },
+    "output": {
+      "action_count": 20
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:15:31.509846",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 6
+    },
+    "output": {
+      "preview": "# Timeline: How This Bill Moved Through Congress\n\n**March 19, 2026:** A senator introduced a bill in"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:15:31.526956",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "sjres",
+      "number": 135
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:15:32.315839",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": "3162",
+      "title": "Uniting and Strengthening America by Providing Appropriate Tools Required to Intercept and Obstruct Terrorism (USA PATRIOT ACT) Act of 2001"
+    },
+    "output": {
+      "translation_preview": "# USA PATRIOT Act of 2001 \u2013 Plain English Explanation\n\n## 1. What it does in one sentence\nThis law g",
+      "source": "api"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:15:32.339489",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "house_found": true,
+      "senate_found": true,
+      "house_roll": 398,
+      "senate_roll": 313
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:15:35.686691",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "preview": "# How H.R. 3162 Became Law\n\n**October 23, 2001:** The bill was referred to the House Judiciary Commi"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:15:36.160191",
+    "agent": "vote_fetcher",
+    "action": "fetch_house_votes",
+    "input": {
+      "congress": 107,
+      "roll": 398
+    },
+    "output": {
+      "members_found": 432
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:15:36.501103",
+    "agent": "vote_fetcher",
+    "action": "fetch_senate_votes",
+    "input": {
+      "congress": 107,
+      "roll": 313
+    },
+    "output": {
+      "members_found": 100
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:15:36.517463",
+    "agent": "vote_mapper",
+    "action": "map_house_votes",
+    "input": {
+      "member_count": 432
+    },
+    "output": {
+      "yea": 357,
+      "nay": 66,
+      "present": 0,
+      "not_voting": 9
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:15:36.533908",
+    "agent": "vote_mapper",
+    "action": "map_senate_votes",
+    "input": {
+      "member_count": 100
+    },
+    "output": {
+      "yea": 98,
+      "nay": 1,
+      "present": 0,
+      "not_voting": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:15:36.549332",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 3162
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:48:59.676167",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "sjres",
+      "number": 135
+    },
+    "output": {
+      "title": "A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Consumer Financial Protection relating to the withdrawal of the rule relating to \"Consumer Financial Protection Circular 2024-04: Whistleblower Protections Under CFPA Section 1057\".",
+      "status": "Motion to proceed to consideration of measure rejected in Senate by Voice Vote. (consideration: CR S2272)"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:49:00.085184",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "sjres",
+      "number": 135
+    },
+    "output": {
+      "action_count": 6
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:49:32.553286",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Bernie Sanders"
+    },
+    "output": {
+      "query_type": "member",
+      "confidence": 1.0,
+      "ambiguity_reason": null,
+      "keywords": [],
+      "entity_name": "Bernie Sanders"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:49:33.005260",
+    "agent": "member_search",
+    "action": "search_member",
+    "input": {
+      "name": "Bernie Sanders"
+    },
+    "output": {
+      "found": "Sanders, Bernard",
+      "bioguide_id": "S000033",
+      "score": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:49:33.367312",
+    "agent": "member_search",
+    "action": "fetch_member_profile",
+    "input": {
+      "bioguide_id": "S000033"
+    },
+    "output": {
+      "name": "Bernard Sanders",
+      "years_served": 35
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:49:34.677140",
+    "agent": "member_search",
+    "action": "fetch_member_legislation",
+    "input": {
+      "bioguide_id": "S000033"
+    },
+    "output": {
+      "sponsored_count": 1170,
+      "cosponsored_count": 7861
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:50:20.073336",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "congress": 119,
+      "type": "sjres",
+      "number": "135",
+      "title": "A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Consumer Financial Protection relating to the withdrawal of the rule relating to \"Consumer Financial Protection Circular 2024-04: Whistleblower Protections Under CFPA Section 1057\"."
+    },
+    "output": {
+      "translation_preview": "# What This Bill Does\n\n**One sentence:** Congress is voting to reject and cancel a rule from the Con",
+      "source": "api"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:50:20.090900",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 6
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:50:22.296736",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 6
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**March 19, 2026:** The bill was introduced in the Senate and sent to the Committee"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:50:22.311333",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "sjres",
+      "number": 135
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:51:04.992214",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "s",
+      "number": 4272
+    },
+    "output": {
+      "title": "Home Team Act of 2026",
+      "status": "Read twice and referred to the Committee on Commerce, Science, and Transportation."
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:51:05.523472",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "s",
+      "number": 4272
+    },
+    "output": {
+      "action_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:51:09.958570",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "congress": 119,
+      "type": "s",
+      "number": "4272",
+      "title": "Home Team Act of 2026"
+    },
+    "output": {
+      "translation_preview": "# Home Team Act of 2026 \u2013 Plain English Explanation\n\n## 1. What it does (one sentence)\nThis bill wou",
+      "source": "api"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:51:09.974239",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:51:11.854253",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**March 26, 2026:** The bill was introduced in the Senate. A senator proposed it as"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:51:11.872017",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "s",
+      "number": 4272
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:52:20.752011",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Show me a bill about housing affordability"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.9,
+      "ambiguity_reason": null,
+      "keywords": [
+        "housing",
+        "affordability"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:52:20.774788",
+    "agent": "dispatcher",
+    "action": "concept",
+    "input": {
+      "question": "Show me a bill about housing affordability",
+      "congress": [
+        119,
+        118
+      ]
+    },
+    "output": {}
+  },
+  {
+    "timestamp": "2026-05-17T12:52:21.768006",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "housing",
+        "affordability"
+      ],
+      "topic": "housing affordability legislation"
+    },
+    "output": {
+      "expanded_terms": [
+        "affordable housing",
+        "low-income housing",
+        "fair market rent",
+        "housing voucher",
+        "public housing",
+        "HOME program",
+        "inclusionary zoning"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:52:22.960417",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [
+        "affordable housing",
+        "low-income housing",
+        "fair market rent",
+        "housing voucher",
+        "public housing",
+        "HOME program",
+        "inclusionary zoning"
+      ],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 543,
+      "results_returned": 15
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:52:24.964291",
+    "agent": "result_validator",
+    "action": "validate_results",
+    "input": {
+      "query": "Show me a bill about housing affordability",
+      "result_count": 5
+    },
+    "output": {
+      "kept": 2,
+      "dropped": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:52:24.985113",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Show me a bill about housing affordability"
+    },
+    "output": {
+      "results_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:52:28.528255",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1249
+    },
+    "output": {
+      "title": "Unhoused Persons Bill of Rights",
+      "status": "Referred to the Committee on Financial Services, and in addition to the Committees on Energy and Commerce, Education and Workforce, the Judiciary, Agriculture, and Ways and Means, for a period to be subsequently determined by the Speaker, in each case for consideration of such provisions as fall within the jurisdiction of the committee concerned."
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:52:29.267746",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1249
+    },
+    "output": {
+      "action_count": 7
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:52:33.055906",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": "1249",
+      "title": "Unhoused Persons Bill of Rights"
+    },
+    "output": {
+      "translation_preview": "# Unhoused Persons Bill of Rights - Plain English Explanation\n\n## What It Does\nThis bill would creat",
+      "source": "api"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:52:33.071392",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 7
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:52:34.967731",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 7
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**April 30, 2026: Bill Submitted to the House**\n\nThe bill was introduced in the Hou"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:52:34.982936",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1249
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:52:56.309770",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Show me a bill about housing affordability"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.9,
+      "ambiguity_reason": null,
+      "keywords": [
+        "housing",
+        "affordability"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:52:56.333688",
+    "agent": "dispatcher",
+    "action": "concept",
+    "input": {
+      "question": "Show me a bill about housing affordability",
+      "congress": [
+        119,
+        118
+      ]
+    },
+    "output": {}
+  },
+  {
+    "timestamp": "2026-05-17T12:52:57.282612",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "housing",
+        "affordability"
+      ],
+      "topic": "housing affordability legislation"
+    },
+    "output": {
+      "expanded_terms": [
+        "affordable housing",
+        "fair housing",
+        "housing voucher",
+        "rent control",
+        "inclusionary zoning",
+        "Section 8",
+        "community development block grant"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:52:57.836202",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [
+        "affordable housing",
+        "fair housing",
+        "housing voucher",
+        "rent control",
+        "inclusionary zoning",
+        "Section 8",
+        "community development block grant"
+      ],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 555,
+      "results_returned": 15
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:52:59.790592",
+    "agent": "result_validator",
+    "action": "validate_results",
+    "input": {
+      "query": "Show me a bill about housing affordability",
+      "result_count": 5
+    },
+    "output": {
+      "kept": 2,
+      "dropped": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:52:59.813566",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Show me a bill about housing affordability"
+    },
+    "output": {
+      "results_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:53:01.525469",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1198
+    },
+    "output": {
+      "title": "Recognizing that stable housing keeps families together.",
+      "status": "Referred to the House Committee on Financial Services."
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:53:02.109241",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1198
+    },
+    "output": {
+      "action_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:53:04.900079",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": "1198",
+      "title": "Recognizing that stable housing keeps families together."
+    },
+    "output": {
+      "translation_preview": "# Bill Explanation\n\n## 1. What it does\nThis bill officially recognizes that having a stable home is ",
+      "source": "api"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:53:04.915550",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:53:06.444581",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**April 20, 2026:** A bill was introduced in the House of Representatives and immed"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:53:06.477546",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1198
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:57:08.774539",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Show me a bill about housing affordability"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.9,
+      "ambiguity_reason": null,
+      "keywords": [
+        "housing",
+        "affordability"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:57:08.790631",
+    "agent": "dispatcher",
+    "action": "concept",
+    "input": {
+      "question": "Show me a bill about housing affordability",
+      "congress": [
+        119,
+        118
+      ]
+    },
+    "output": {}
+  },
+  {
+    "timestamp": "2026-05-17T12:57:09.672978",
+    "agent": "query_expander",
+    "action": "expand_query",
+    "input": {
+      "keywords": [
+        "housing",
+        "affordability"
+      ],
+      "topic": "housing affordability legislation"
+    },
+    "output": {
+      "expanded_terms": [
+        "affordable housing",
+        "low-income housing",
+        "rent control",
+        "housing voucher",
+        "Section 8",
+        "fair housing",
+        "inclusionary zoning",
+        "community development block grant"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:57:10.314401",
+    "agent": "search",
+    "action": "search_bills",
+    "input": {
+      "keywords": [
+        "affordable housing",
+        "low-income housing",
+        "rent control",
+        "housing voucher",
+        "Section 8",
+        "fair housing",
+        "inclusionary zoning",
+        "community development block grant"
+      ],
+      "result_count": 5,
+      "status": "any"
+    },
+    "output": {
+      "total_available": 539,
+      "results_returned": 15
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:57:12.717608",
+    "agent": "result_validator",
+    "action": "validate_results",
+    "input": {
+      "query": "Show me a bill about housing affordability",
+      "result_count": 5
+    },
+    "output": {
+      "kept": 2,
+      "dropped": 3
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:57:12.740912",
+    "agent": "api",
+    "action": "search",
+    "input": {
+      "question": "Show me a bill about housing affordability"
+    },
+    "output": {
+      "results_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:57:14.558198",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 8662
+    },
+    "output": {
+      "title": "To provide assisted living assistance through Medicaid and low-income housing tax credit.",
+      "status": "Referred to the Committee on Ways and Means, and in addition to the Committee on Energy and Commerce, for a period to be subsequently determined by the Speaker, in each case for consideration of such provisions as fall within the jurisdiction of the committee concerned."
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:57:15.265551",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 8662
+    },
+    "output": {
+      "action_count": 4
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:58:34.872997",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": "8662",
+      "title": "To provide assisted living assistance through Medicaid and low-income housing tax credit."
+    },
+    "output": {
+      "translation_preview": "# Bill Explanation\n\n## 1. What this bill does\nThis bill would help pay for assisted living facilitie",
+      "source": "api"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:58:34.891130",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 4
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:58:37.000090",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 4
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**May 4, 2026:** The bill was introduced in the House of Representatives.\n\n**May 4,"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:58:37.019825",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "hr",
+      "number": 8662
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:58:37.524162",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1262
+    },
+    "output": {
+      "title": "Recognizing and congratulating the Martinsville Missile's land speed record for a stock car.",
+      "status": "Referred to the House Committee on Oversight and Government Reform."
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:58:38.097731",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1262
+    },
+    "output": {
+      "action_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:58:40.674571",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": "1262",
+      "title": "Recognizing and congratulating the Martinsville Missile's land speed record for a stock car."
+    },
+    "output": {
+      "translation_preview": "# What This Bill Does\n\n**In one sentence:** Congress is officially recognizing and congratulating a ",
+      "source": "api"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:58:40.691759",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:58:42.114355",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**May 7, 2026:** A bill was introduced in the House of Representatives and sent to "
+    }
+  },
+  {
+    "timestamp": "2026-05-17T12:58:42.130009",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1262
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:00:14.799724",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1262
+    },
+    "output": {
+      "title": "Recognizing and congratulating the Martinsville Missile's land speed record for a stock car.",
+      "status": "Referred to the House Committee on Oversight and Government Reform."
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:00:15.208312",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1262
+    },
+    "output": {
+      "action_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:00:41.129346",
+    "agent": "feed",
+    "action": "fetch_feed",
+    "input": {
+      "interests": [
+        "climate",
+        "education",
+        "economy"
+      ],
+      "reps": [
+        "W000805",
+        "K000384",
+        "G000568"
+      ]
+    },
+    "output": {
+      "total_items": 11
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:00:43.270140",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1262
+    },
+    "output": {
+      "title": "Recognizing and congratulating the Martinsville Missile's land speed record for a stock car.",
+      "status": "Referred to the House Committee on Oversight and Government Reform."
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:00:43.689190",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1262
+    },
+    "output": {
+      "action_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:01:33.227882",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": "1262",
+      "title": "Recognizing and congratulating the Martinsville Missile's land speed record for a stock car."
+    },
+    "output": {
+      "translation_preview": "# What This Bill Does\n\n**In one sentence:** Congress is officially recognizing and congratulating th",
+      "source": "api"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:01:33.228143",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": "1262",
+      "title": "Recognizing and congratulating the Martinsville Missile's land speed record for a stock car."
+    },
+    "output": {
+      "translation_preview": "# Plain English Summary\n\n## 1. What This Bill Does\nCongress is officially recognizing and congratula",
+      "source": "api"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:01:33.248676",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:01:33.265716",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:01:34.814085",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**May 7, 2026** \u2013 The bill was submitted to the House of Representatives.\n\n**May 7,"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:01:34.832944",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1262
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:01:34.971887",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\nThis bill has **not become law yet**. Here's what has happened so far:\n\n**May 7, 20"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:01:34.989125",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1262
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:05:43.830117",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1262
+    },
+    "output": {
+      "title": "Recognizing and congratulating the Martinsville Missile's land speed record for a stock car.",
+      "status": "Referred to the House Committee on Oversight and Government Reform."
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:05:44.242411",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1262
+    },
+    "output": {
+      "action_count": 2
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:05:44.653900",
+    "agent": "translator",
+    "action": "translate_bill_cached",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": "1262"
+    },
+    "output": {
+      "source": "cache"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:05:44.673061",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:05:46.413039",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 2
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**May 7, 2026:** A bill was introduced in the House of Representatives and immediat"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:05:46.430244",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "hres",
+      "number": 1262
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:06:12.584904",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "sjres",
+      "number": 135
+    },
+    "output": {
+      "title": "A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Consumer Financial Protection relating to the withdrawal of the rule relating to \"Consumer Financial Protection Circular 2024-04: Whistleblower Protections Under CFPA Section 1057\".",
+      "status": "Motion to proceed to consideration of measure rejected in Senate by Voice Vote. (consideration: CR S2272)"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:06:12.985433",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "sjres",
+      "number": 135
+    },
+    "output": {
+      "action_count": 6
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:06:16.766080",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "congress": 119,
+      "type": "sjres",
+      "number": "135",
+      "title": "A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Consumer Financial Protection relating to the withdrawal of the rule relating to \"Consumer Financial Protection Circular 2024-04: Whistleblower Protections Under CFPA Section 1057\"."
+    },
+    "output": {
+      "translation_preview": "# Plain English Explanation\n\n## 1. What This Bill Does (One Sentence)\nCongress is trying to block a ",
+      "source": "api"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:06:16.804341",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 6
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:06:18.918989",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 6
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**March 19, 2026:** The bill was introduced in the Senate and sent to the Committee"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:06:18.946324",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "sjres",
+      "number": 135
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:06:28.776580",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 119,
+      "type": "sjres",
+      "number": 135
+    },
+    "output": {
+      "title": "A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Consumer Financial Protection relating to the withdrawal of the rule relating to \"Consumer Financial Protection Circular 2024-04: Whistleblower Protections Under CFPA Section 1057\".",
+      "status": "Motion to proceed to consideration of measure rejected in Senate by Voice Vote. (consideration: CR S2272)"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:06:29.053677",
+    "agent": "translator",
+    "action": "translate_bill_cached",
+    "input": {
+      "congress": 119,
+      "type": "sjres",
+      "number": "135"
+    },
+    "output": {
+      "source": "cache"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:06:29.145743",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 119,
+      "type": "sjres",
+      "number": 135
+    },
+    "output": {
+      "action_count": 6
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:06:29.164806",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 6
+    },
+    "output": {
+      "house_found": false,
+      "senate_found": false,
+      "house_roll": null,
+      "senate_roll": null
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:06:31.511441",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 6
+    },
+    "output": {
+      "preview": "# Bill Timeline\n\n**March 19, 2026:** The bill was introduced in the Senate and sent to the Committee"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:06:31.526842",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 119,
+      "type": "sjres",
+      "number": 135
+    },
+    "output": {
+      "status": "complete"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:06:57.527785",
+    "agent": "router",
+    "action": "route_query",
+    "input": {
+      "question": "Patriot ACt"
+    },
+    "output": {
+      "query_type": "legislation",
+      "confidence": 0.95,
+      "ambiguity_reason": null,
+      "keywords": [
+        "Patriot Act"
+      ],
+      "entity_name": null
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:06:58.800141",
+    "agent": "bill_fetcher",
+    "action": "fetch_bill",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 3162
+    },
+    "output": {
+      "title": "Uniting and Strengthening America by Providing Appropriate Tools Required to Intercept and Obstruct Terrorism (USA PATRIOT ACT) Act of 2001",
+      "status": "Became Public Law No: 107-56."
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:06:59.212377",
+    "agent": "historian",
+    "action": "fetch_bill_actions",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 3162
+    },
+    "output": {
+      "action_count": 20
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:07:03.252953",
+    "agent": "translator",
+    "action": "translate_bill",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": "3162",
+      "title": "Uniting and Strengthening America by Providing Appropriate Tools Required to Intercept and Obstruct Terrorism (USA PATRIOT ACT) Act of 2001"
+    },
+    "output": {
+      "translation_preview": "# USA PATRIOT Act of 2001 - Plain English Explanation\n\n## 1. What it does (one sentence)\nThis law gi",
+      "source": "api"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:07:03.269919",
+    "agent": "vote_parser",
+    "action": "parse_vote_references",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "house_found": true,
+      "senate_found": true,
+      "house_roll": 398,
+      "senate_roll": 313
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:07:05.817220",
+    "agent": "historian",
+    "action": "summarize_history",
+    "input": {
+      "action_count": 20
+    },
+    "output": {
+      "preview": "# How H.R. 3162 Became Law\n\n**October 23, 2001:** The bill was referred to the House Judiciary Commi"
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:07:06.272658",
+    "agent": "vote_fetcher",
+    "action": "fetch_house_votes",
+    "input": {
+      "congress": 107,
+      "roll": 398
+    },
+    "output": {
+      "members_found": 432
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:07:06.336225",
+    "agent": "vote_fetcher",
+    "action": "fetch_senate_votes",
+    "input": {
+      "congress": 107,
+      "roll": 313
+    },
+    "output": {
+      "members_found": 100
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:07:06.356045",
+    "agent": "vote_mapper",
+    "action": "map_house_votes",
+    "input": {
+      "member_count": 432
+    },
+    "output": {
+      "yea": 357,
+      "nay": 66,
+      "present": 0,
+      "not_voting": 9
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:07:06.372964",
+    "agent": "vote_mapper",
+    "action": "map_senate_votes",
+    "input": {
+      "member_count": 100
+    },
+    "output": {
+      "yea": 98,
+      "nay": 1,
+      "present": 0,
+      "not_voting": 1
+    }
+  },
+  {
+    "timestamp": "2026-05-17T13:07:06.389527",
+    "agent": "api",
+    "action": "get_bill",
+    "input": {
+      "congress": 107,
+      "type": "hr",
+      "number": 3162
+    },
+    "output": {
+      "status": "complete"
+    }
   }
 ]

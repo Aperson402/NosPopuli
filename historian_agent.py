@@ -124,6 +124,88 @@ def summarize_history(actions, client):
     
     return summary
 
+def make_event_title(text):
+    text = text.strip()
+
+    for sep in [', and in addition', '; and in addition', ', for a period', '. For a period']:
+        if sep in text:
+            text = text[:text.index(sep)]
+
+    text = text.rstrip('.,;')
+
+    if len(text) > 120:
+        text = text[:120].rsplit(' ', 1)[0] + '…'
+
+    return text
+
+def structure_history(actions):
+    """Returns actions as structured list for frontend timeline rendering."""
+    if not actions:
+        return []
+
+    import re
+    seen = set()
+    structured = []
+    for a in actions:
+        text = a.get("text", "")
+        date = a.get("actionDate", "")
+        key = f"{date}:{text[:80]}"
+        if key in seen:
+            continue
+        seen.add(key)
+
+        chamber = a.get("chamber", "")
+
+        text_lower = text.lower()
+        if any(w in text_lower for w in ["became public law", "signed by president", "presented to president"]):
+            event_type = "signed"
+        elif any(w in text_lower for w in ["passed house", "passed senate", "agreed to in"]):
+            event_type = "passed"
+        elif any(w in text_lower for w in ["committee", "reported by"]):
+            event_type = "committee"
+        elif "introduced" in text_lower:
+            event_type = "introduced"
+        elif "referred" in text_lower:
+            event_type = "referred"
+        elif "conference" in text_lower:
+            event_type = "conference"
+        elif "vetoed" in text_lower:
+            event_type = "vetoed"
+        else:
+            event_type = "action"
+
+        yea = nay = None
+        vote_match = re.search(
+            r'(?:yeas? and nays?|yea-nay vote|recorded vote)[^\d]*(\d+)\s*[-–]\s*(\d+)',
+            text,
+            re.IGNORECASE
+        )
+        if vote_match:
+            yea = int(vote_match.group(1))
+            nay = int(vote_match.group(2))
+        else:
+            vote_match2 = re.search(
+                r':\s*(\d{1,3})\s*[-–]\s*(\d{1,3})(?:\s*\(Roll|\s*Record)',
+                text,
+                re.IGNORECASE
+            )
+            if vote_match2:
+                yea = int(vote_match2.group(1))
+                nay = int(vote_match2.group(2))
+
+        raw = a.get("text", "")
+        structured.append({
+            "date": date,
+            "text": make_event_title(raw),
+            "detail": raw if len(raw) > 120 else None,
+            "chamber": chamber,
+            "event_type": event_type,
+            "yea": yea,
+            "nay": nay,
+        })
+
+    return structured
+
 if __name__ == "__main__":
     import anthropic
     
