@@ -42,6 +42,25 @@ from supabase import create_client
 import voyageai
 from dotenv import load_dotenv
 
+
+def _get_with_retry(url, params=None, timeout=30, retries=3, backoff=2.0):
+    for attempt in range(retries):
+        try:
+            r = requests.get(url, params=params, timeout=timeout)
+            if r.status_code == 429:
+                wait = backoff ** attempt * 5
+                print(f"[INGEST] Rate limited, waiting {wait:.0f}s")
+                time.sleep(wait)
+                continue
+            return r
+        except requests.exceptions.RequestException as e:
+            if attempt == retries - 1:
+                raise
+            wait = backoff ** attempt
+            print(f"[INGEST] Request error ({e}), retrying in {wait:.0f}s")
+            time.sleep(wait)
+    return None
+
 load_dotenv()
 
 GOVINFO_KEY = os.getenv("GovInfo_API_KEY")
@@ -59,7 +78,16 @@ INTRODUCED_VERSIONS = {"ih", "is"}  # introduced house, introduced senate
 
 # ── Stage 1: Discovery ──
 
-def discover_bills(congress=119):
+def discover_bills(congress=119, limit=None):
+    import json, pathlib
+    cache_file = pathlib.Path(f".discovery_cache_{congress}.json")
+    if cache_file.exists():
+        packages = json.loads(cache_file.read_text())
+        print(f"[INGEST] Loaded {len(packages)} packages from discovery cache")
+        if limit:
+            packages = packages[:limit]
+        return packages
+
     print(f"[INGEST] Discovering bills for {congress}th Congress...")
     url = "https://api.govinfo.gov/collections/BILLS"
     params = {
@@ -68,21 +96,21 @@ def discover_bills(congress=119):
         "offsetMark": "*",
         "congress": congress
     }
-    
+
     # Use date range for 119th Congress
     base_url = f"https://api.govinfo.gov/collections/BILLS/2025-01-01T00:00:00Z"
-    
+
     packages = []
     offset = "*"
     page = 0
-    
+
     while True:
         url = f"{base_url}?api_key={GOVINFO_KEY}&pageSize=100&offsetMark={offset}"
         
         try:
-            r = requests.get(url, timeout=30)
-            if r.status_code != 200:
-                print(f"[INGEST] Error {r.status_code}")
+            r = _get_with_retry(url, timeout=30)
+            if r is None or r.status_code != 200:
+                print(f"[INGEST] Error {r.status_code if r else 'no response'}")
                 break
             
             data = r.json()
@@ -109,7 +137,11 @@ def discover_bills(congress=119):
             
             page += 1
             print(f"[INGEST] Page {page}: {len(batch)} packages, {len(packages)} kept so far")
-            
+
+            if limit and len(packages) >= limit:
+                packages = packages[:limit]
+                break
+
             next_page = data.get("nextPage")
             if not next_page:
                 break
@@ -127,6 +159,10 @@ def discover_bills(congress=119):
             break
     
     print(f"[INGEST] Discovery complete: {len(packages)} bills to ingest")
+    cache_file.write_text(json.dumps(packages))
+    print(f"[INGEST] Discovery cached to {cache_file}")
+    if limit:
+        packages = packages[:limit]
     return packages
 
 
@@ -137,8 +173,8 @@ def fetch_metadata(package_id):
     params = {"api_key": GOVINFO_KEY}
     
     try:
-        r = requests.get(url, params=params, timeout=10)
-        if r.status_code != 200:
+        r = _get_with_retry(url, params=params, timeout=10)
+        if r is None or r.status_code != 200:
             return None
         return r.json()
     except Exception as e:
@@ -189,8 +225,8 @@ def fetch_bill_text(package_id):
     params = {"api_key": GOVINFO_KEY}
     
     try:
-        r = requests.get(url, params=params, timeout=30)
-        if r.status_code != 200:
+        r = _get_with_retry(url, params=params, timeout=30)
+        if r is None or r.status_code != 200:
             return None
         
         # Strip HTML
@@ -248,17 +284,24 @@ def chunk_bill_text(text, package_id, congress, bill_type, bill_number):
             section_number = sec_match.group(1)
             section_title = sec_match.group(2).strip()
         
-        chunks.append({
-            "package_id": package_id,
-            "congress": congress,
-            "bill_type": bill_type,
-            "bill_number": bill_number,
-            "section_number": section_number,
-            "section_title": section_title,
-            "chunk_index": i,
-            "chunk_text": section[:3000],  # hard cap
-            "token_count": len(section.split()),
-        })
+        words = section.split()
+        if len(words) <= 500:
+            sub_sections = [section]
+        else:
+            sub_sections = chunk_by_size(section, max_tokens=500)
+
+        for j, sub in enumerate(sub_sections):
+            chunks.append({
+                "package_id": package_id,
+                "congress": congress,
+                "bill_type": bill_type,
+                "bill_number": bill_number,
+                "section_number": section_number,
+                "section_title": section_title,
+                "chunk_index": i * 1000 + j,
+                "chunk_text": sub,
+                "token_count": len(sub.split()),
+            })
     
     return chunks
 
@@ -279,21 +322,30 @@ def chunk_by_size(text, max_tokens=500):
 
 # ── Stage 5: Embedding ──
 
+VOYAGE_BATCH_TOKEN_LIMIT = 100_000  # stay under the 120k hard cap
+
 def embed_chunks(chunks):
     if not chunks:
         return chunks
-    
-    texts = [c["chunk_text"] for c in chunks]
-    
-    try:
-        result = voyage.embed(
-            texts,
-            model="voyage-law-2",
-            input_type="document"
-        )
 
-        for i, chunk in enumerate(chunks):
-            chunk["embedding"] = result.embeddings[i]
+    try:
+        batch, batch_tokens = [], 0
+        batches = []
+        for chunk in chunks:
+            t = chunk["token_count"]
+            if batch and batch_tokens + t > VOYAGE_BATCH_TOKEN_LIMIT:
+                batches.append(batch)
+                batch, batch_tokens = [], 0
+            batch.append(chunk)
+            batch_tokens += t
+        if batch:
+            batches.append(batch)
+
+        for batch in batches:
+            texts = [c["chunk_text"] for c in batch]
+            result = voyage.embed(texts, model="voyage-law-2", input_type="document")
+            for i, chunk in enumerate(batch):
+                chunk["embedding"] = result.embeddings[i]
 
         return chunks
 
@@ -329,55 +381,68 @@ def store_chunks(bill_id, chunks):
 
 # ── Main pipeline ──
 
-def run_pipeline(congress=119, limit=None):
-    print(f"[INGEST] Starting pipeline for {congress}th Congress")
-    
+VOYAGE_COST_PER_TOKEN = 0.12 / 1_000_000  # $0.12 per 1M tokens
+
+def run_pipeline(congress=119, limit=None, budget_usd=5.0):
+    print(f"[INGEST] Starting pipeline for {congress}th Congress (budget: ${budget_usd})")
+    max_tokens = int(budget_usd / VOYAGE_COST_PER_TOKEN)
+
     # Stage 1
-    packages = discover_bills(congress)
-    if limit:
-        packages = packages[:limit]
-    
-    print(f"[INGEST] Processing {len(packages)} bills")
-    
+    packages = discover_bills(congress, limit=limit)
+
+    # Load already-embedded package IDs to skip on resume
+    done = supabase.table("bills").select("package_id").eq("embedded", True).execute()
+    done_ids = {r["package_id"] for r in done.data}
+    packages = [p for p in packages if p["packageId"] not in done_ids]
+    print(f"[INGEST] {len(done_ids)} already embedded, {len(packages)} remaining")
+
     success = 0
     failed = 0
-    
+    tokens_used = 0
+
     for i, pkg in enumerate(packages):
         package_id = pkg["packageId"]
         print(f"[INGEST] {i+1}/{len(packages)} — {package_id}")
-        
+
         # Stage 2 — metadata
         metadata = fetch_metadata(package_id)
         bill_id = store_bill_metadata(pkg, metadata)
         if not bill_id:
             failed += 1
             continue
-        
+
         # Stage 3 — text
         text = fetch_bill_text(package_id)
         if not text:
             failed += 1
             continue
-        
+
         # Stage 4 — chunks
         bill_type = metadata.get("billType", "")
         bill_number = int(metadata.get("billNumber", 0) or 0)
         chunks = chunk_bill_text(text, package_id, congress, bill_type, bill_number)
-        
+
         if not chunks:
             failed += 1
             continue
-        
+
+        bill_tokens = sum(c["token_count"] for c in chunks)
+        if tokens_used + bill_tokens > max_tokens:
+            cost_so_far = tokens_used * VOYAGE_COST_PER_TOKEN
+            print(f"[INGEST] Budget cap reached (${cost_so_far:.2f} used). Stopping.")
+            break
+
         # Stage 5 — embed
         chunks = embed_chunks(chunks)
         store_chunks(bill_id, chunks)
-        
+        tokens_used += bill_tokens
+
         # Mark as complete
         supabase.table("bills").update({
             "text_fetched": True,
             "embedded": True
         }).eq("id", bill_id).execute()
-        
+
         success += 1
         
         # Rate limiting — GovInfo allows ~1000 req/hour
@@ -387,7 +452,7 @@ def run_pipeline(congress=119, limit=None):
         if (i + 1) % 100 == 0:
             print(f"[INGEST] Progress: {success} success, {failed} failed")
     
-    print(f"[INGEST] Complete: {success} success, {failed} failed")
+    print(f"[INGEST] Complete: {success} success, {failed} failed — ${tokens_used * VOYAGE_COST_PER_TOKEN:.4f} spent")
 
 
 if __name__ == "__main__":

@@ -7,6 +7,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 import json
+import re
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
@@ -34,10 +35,16 @@ from router_agent import route_query, extract_president_congress
 from search_agent import search_bills, search_summaries
 from title_search_agent import search_by_title
 from bill_fetcher import fetch_bill
-from translator_agent import translate_bill
+from translator_agent import translate_bill, translate_state_bill
 from historian_agent import fetch_bill_actions, fetch_related_bills, summarize_history, structure_history
 from documentor_agent import log_action
 from result_validator_agent import validate_results
+from state_search_agent import (
+    search_state_bills, get_recent_state_bills, ENABLED_STATES,
+    fetch_state_bill_by_identifier, filter_enacted,
+)
+from state_bill_fetcher import fetch_state_bill, fetch_state_bill_text, structure_state_actions
+from state_member_search_agent import search_state_member, fetch_state_member_profile, fetch_state_member_bills
 
 app = FastAPI(title="NosPopuli API")
 
@@ -101,9 +108,24 @@ class FeedRequest(BaseModel):
     interests: list
     senator_bioguides: list
     rep_bioguide: str = None
+    state_code: str = None
 
 class ZipRequest(BaseModel):
     zip_code: str
+
+class StateBillRequest(BaseModel):
+    ocd_id: str
+    state_code: str
+    user_context: Optional[dict] = None
+
+class StateSearchRequest(BaseModel):
+    question: str
+    state_code: str
+    max_results: int = 5
+
+class StateMemberSearchRequest(BaseModel):
+    name: str
+    state_code: str
 
 class SearchFlagRequest(BaseModel):
     query: str
@@ -489,6 +511,109 @@ async def handle_browse(structured, question, loop):
     }
 
 
+async def handle_state_search(structured, question, loop):
+    state_code = structured["state_code"]
+
+    # ── Member query: route to legislator search instead of bill search ──
+    if structured.get("query_type") == "member" and structured.get("entity_name"):
+        member = await loop.run_in_executor(
+            None, search_state_member, structured["entity_name"], state_code
+        )
+        if member:
+            bills = await loop.run_in_executor(
+                None, fetch_state_member_bills,
+                member["ocd_person_id"], state_code, 10
+            )
+        else:
+            bills = []
+        return {
+            "query_type": "state_member",
+            "state_code": state_code,
+            "confidence": structured.get("confidence", 1.0),
+            "ambiguity_reason": structured.get("ambiguity_reason"),
+            "member": member,
+            "sponsored_bills": bills,
+        }
+
+    # ── Bill-number direct lookup (e.g. "HB 1234", "SB 45") ──
+    bill_id_match = re.search(r'\b([HS][BJCR]?\s*\d+)\b', question, re.IGNORECASE)
+    if bill_id_match:
+        identifier = re.sub(r'\s+', ' ', bill_id_match.group(1).upper().strip())
+        direct = await loop.run_in_executor(
+            None, fetch_state_bill_by_identifier, identifier, state_code
+        )
+        if direct:
+            return {
+                "query_type": "state_legislation",
+                "state_code": state_code,
+                "confidence": 1.0,
+                "ambiguity_reason": None,
+                "query": structured,
+                "results": direct,
+            }
+        # fall through to text search if identifier not found
+
+    keywords = structured.get("keywords", [])
+    expanded = await loop.run_in_executor(
+        None, expand_query,
+        keywords,
+        structured.get("topic", ""),
+        get_client()
+    )
+
+    # Build search terms from clean keywords, not the full conversational question.
+    # OpenStates does full-text search on bill titles so conversational phrasing hurts recall.
+    primary_term = " ".join(keywords) if keywords else question
+    seen = set()
+    results = []
+    search_terms = [primary_term] + (expanded[:2] if expanded else [])
+
+    for term in search_terms:
+        term_results = await loop.run_in_executor(
+            None, search_state_bills,
+            term, state_code, None, 5
+        )
+        for r in term_results:
+            key = r.get("ocd_id")
+            if key not in seen:
+                seen.add(key)
+                results.append(r)
+        if len(results) >= structured.get("result_count", 5):
+            break
+
+    results = results[:structured.get("result_count", 5)]
+
+    # ── Enacted filter ──
+    if structured.get("status") == "enacted":
+        enacted = filter_enacted(results)
+        if enacted:
+            results = enacted
+
+    validated = await loop.run_in_executor(
+        None, validate_results, question, results, get_client()
+    )
+    if validated:
+        results = validated
+
+    log_search(
+        query=question,
+        query_type="state_legislation",
+        expanded_terms=expanded or [],
+        results_count=len(results),
+        result_ids=[r.get("identifier", "") for r in results],
+        confidence=structured.get("confidence", 1.0)
+    )
+
+    return {
+        "query_type": "state_legislation",
+        "state_code": state_code,
+        "confidence": structured.get("confidence", 1.0),
+        "ambiguity_reason": None,
+        "query": structured,
+        "results": results
+    }
+
+
 @app.post("/resolve-zip")
 @limiter.limit("10/minute")
 async def resolve_zip_endpoint(request: Request, body: ZipRequest):
@@ -514,7 +639,8 @@ async def get_feed(request: Request, body: FeedRequest):
             body.senator_bioguides,
             body.rep_bioguide,
             30,
-            3
+            3,
+            body.state_code
         )
         return {"items": items, "count": len(items)}
     except HTTPException:
@@ -561,6 +687,20 @@ async def search(request: Request, body: SearchRequest):
                 query_type = "legislation"
                 structured["query_type"] = "legislation"
                 structured["entity_name"] = None
+
+        # ── State jurisdiction short-circuit ──
+        if structured.get("jurisdiction") == "state" and structured.get("state_code"):
+            state_code = structured["state_code"]
+            if state_code in ENABLED_STATES:
+                return await handle_state_search(structured, question, loop)
+            else:
+                return {
+                    "query_type": "legislation",
+                    "confidence": 1.0,
+                    "ambiguity_reason": f"{state_code} state legislation is not yet available.",
+                    "query": structured,
+                    "results": []
+                }
 
         # ── Route ──
         if query_type == "member" and structured.get("entity_name"):
@@ -740,6 +880,128 @@ async def get_law(request: Request, body: LawRequest):
     except Exception as e:
         print(f"[API] Error processing law {body.congress} pub {body.law_number}: {e}")
         raise HTTPException(status_code=500, detail="Failed to process law. Please try again.")
+
+@app.post("/state/search")
+@limiter.limit("20/minute")
+async def state_search(request: Request, body: StateSearchRequest):
+    if body.state_code.upper() not in ENABLED_STATES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"{body.state_code} is not yet available. Check back soon."
+        )
+    try:
+        loop = asyncio.get_event_loop()
+        results = await loop.run_in_executor(
+            None, search_state_bills,
+            body.question, body.state_code, None, body.max_results
+        )
+        return {
+            "query_type": "state_legislation",
+            "state_code": body.state_code,
+            "results": results
+        }
+    except Exception as e:
+        print(f"[API] State search error: {e}")
+        raise HTTPException(status_code=500, detail="State search failed.")
+
+
+@app.post("/state/bill")
+@limiter.limit("30/minute")
+async def get_state_bill(request: Request, body: StateBillRequest):
+    try:
+        loop = asyncio.get_event_loop()
+
+        bill_data = await loop.run_in_executor(
+            None, fetch_state_bill, body.ocd_id
+        )
+
+        if not bill_data:
+            raise HTTPException(status_code=404, detail="State bill not found.")
+
+        bill_text = await loop.run_in_executor(
+            None, fetch_state_bill_text, bill_data
+        )
+
+        synthetic_bill_data = {
+            "bill": {
+                "congress": None,
+                "type": body.state_code,
+                "number": bill_data.get("identifier", ""),
+                "title": bill_data.get("title", ""),
+                "sponsors": [
+                    {"fullName": s.get("name", "")}
+                    for s in bill_data.get("sponsorships", [])
+                    if s.get("primary")
+                ],
+                "latestAction": {
+                    "text": bill_data.get("latest_action_description", "")
+                },
+                "policyArea": {"name": ""},
+            }
+        }
+
+        translation = await loop.run_in_executor(
+            None, translate_state_bill,
+            synthetic_bill_data, bill_text, get_client()
+        )
+
+        timeline_events = structure_state_actions(bill_data)
+
+        log_action(
+            agent_name="api",
+            action="get_state_bill",
+            input_data={"ocd_id": body.ocd_id, "state": body.state_code},
+            output_data={"status": "complete"}
+        )
+
+        return {
+            "ocd_id": body.ocd_id,
+            "state_code": body.state_code,
+            "identifier": bill_data.get("identifier", ""),
+            "title": bill_data.get("title", ""),
+            "translation": translation,
+            "timeline": "",
+            "timeline_events": timeline_events,
+            "votes": {"house": None, "senate": None},
+            "is_state_bill": True,
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"[API] State bill error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to load state bill.")
+
+
+@app.post("/state/member/search")
+async def state_member_search(request: Request, body: StateMemberSearchRequest):
+    if not body.name.strip():
+        raise HTTPException(status_code=400, detail="Name required")
+
+    loop = asyncio.get_event_loop()
+    member = await loop.run_in_executor(
+        None, search_state_member, body.name, body.state_code
+    )
+
+    if not member:
+        return {"found": False, "member": None}
+
+    bills = await loop.run_in_executor(
+        None, fetch_state_member_bills,
+        member["ocd_person_id"], body.state_code, 10
+    )
+
+    return {
+        "found": True,
+        "member": member,
+        "legislation": {
+            "sponsored": bills,
+            "sponsored_count": len(bills),
+            "cosponsored_count": 0,
+            "policy_areas": {},
+        }
+    }
+
 
 @app.post("/member/search")
 async def member_search(request: MemberSearchRequest):

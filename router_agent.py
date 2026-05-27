@@ -158,6 +158,11 @@ Rules for query_type:
 - "X Committee", "committee on X", "House/Senate committee" → "committee"
 - Everything else → "legislation"
 
+Rules for jurisdiction:
+- "Virginia bill", "Virginia legislature", "Richmond", "General Assembly", "Virginia delegate", "Virginia senator" → jurisdiction: "state", state_code: "VA"
+- Any other US state name + bill/legislature/assembly → jurisdiction: "state", state_code: [2-letter code]
+- Everything else → jurisdiction: "federal", state_code: null
+
 Rules for query_subtype (legislation queries only):
 - Proper noun law name, named act, roman numerals, known acronym → "named_entity"
 - Proper noun law name + specific year, president, or era → "named_entity_with_date"
@@ -264,7 +269,9 @@ Return ONLY this JSON structure:
     "bill_type": "all",
     "result_count": 5,
     "specific_bill": null,
-    "status": "any"
+    "status": "any",
+    "jurisdiction": "federal",
+    "state_code": null
 }}
 """
     

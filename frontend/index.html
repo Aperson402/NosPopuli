@@ -692,6 +692,21 @@
     letter-spacing: 0.03em;
     line-height: 1.6;
   }
+  .jurisdiction-btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 0.3rem 0.75rem;
+    border: 1px solid var(--rule);
+    background: none; color: var(--muted);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .jurisdiction-btn.active {
+    background: var(--ink); color: var(--paper);
+    border-color: var(--ink);
+  }
+  .jurisdiction-btn:hover:not(.active) {
+    border-color: var(--ink); color: var(--ink);
+  }
   </style>
 </head>
 <body>
@@ -705,6 +720,16 @@
 
 <!-- ── PERSISTENT SEARCH BAR (always visible) ── -->
 <div class="search-bar-wrap" id="search-bar-wrap">
+  <div style="display:flex;align-items:center;gap:1rem;margin-bottom:0.75rem">
+    <label class="search-label" style="margin-bottom:0">Jurisdiction</label>
+    <div id="jurisdiction-toggle" style="display:flex;gap:0.5rem">
+      <button class="jurisdiction-btn active" data-jurisdiction="federal"
+              onclick="setJurisdiction('federal', this)">Federal</button>
+      <button class="jurisdiction-btn" data-jurisdiction="state"
+              onclick="setJurisdiction('state', this)"
+              id="state-toggle-btn" style="display:none">Virginia</button>
+    </div>
+  </div>
   <label class="search-label" for="search-input">Search legislation, members of Congress, or committees</label>
   <div class="search-row">
     <input id="search-input" type="text"
@@ -964,6 +989,8 @@
   let currentResults = [];
   let currentSearchContext = {};
   let previousPage = 'page-home';
+  let currentJurisdiction = 'federal';
+  let currentStateCode = null;
   const tooltip = document.getElementById('tooltip');
 
   // ── localStorage keys ──
@@ -1369,19 +1396,28 @@
       const card = document.createElement('div');
       card.className = 'feed-card';
       card.style.animationDelay = (i * 0.06) + 's';
-      card.onclick = () => openDetail({
-        congress: parseInt(item.congress),
-        type: item.type,
-        number: parseInt(item.number),
-        title: item.title
-      });
+      if (item.is_state_bill) {
+        card.onclick = () => openStateBill(item);
+      } else {
+        card.onclick = () => openDetail({
+          congress: parseInt(item.congress),
+          type: item.type,
+          number: parseInt(item.number),
+          title: item.title
+        });
+      }
 
       const isRep = item.feed_reason === 'your_rep';
+      const isState = item.feed_reason === 'state_legislature';
       const reasonText = isRep
         ? `Your representative sponsored this`
+        : isState
+        ? `Virginia Legislature`
         : `${item.feed_interest ? item.feed_interest.replace('_', ' ') : item.feed_reason}`;
 
-      const billId = `${(item.type || '').toUpperCase()} ${item.number}`;
+      const billId = item.is_state_bill
+        ? `${item.identifier} · Virginia`
+        : `${(item.type || '').toUpperCase()} ${item.number}`;
 
       card.innerHTML = `
         <div class="feed-card-inner">
@@ -1431,7 +1467,8 @@
         body: JSON.stringify({
           interests: prefs.interests,
           senator_bioguides: prefs.senators.map(s => s.bioguide_id),
-          rep_bioguide: prefs.representative ? prefs.representative.bioguide_id : null
+          rep_bioguide: prefs.representative ? prefs.representative.bioguide_id : null,
+          state_code: prefs.state || null
         })
       });
 
@@ -1606,10 +1643,156 @@
     resultsSection.insertBefore(bar, resultsSection.firstChild);
   }
 
+  // ── Jurisdiction toggle ──
+  function setJurisdiction(j, el) {
+    currentJurisdiction = j;
+    document.querySelectorAll('.jurisdiction-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function updateJurisdictionToggle(prefs) {
+    const stateBtn = document.getElementById('state-toggle-btn');
+    if (!prefs || !prefs.state) { stateBtn.style.display = 'none'; return; }
+    const ENABLED = ['VA'];
+    if (ENABLED.includes(prefs.state)) {
+      currentStateCode = prefs.state;
+      stateBtn.textContent = prefs.state === 'VA' ? 'Virginia' : prefs.state;
+      stateBtn.style.display = 'block';
+    } else {
+      stateBtn.style.display = 'none';
+    }
+  }
+
+  // ── State search ──
+  async function runStateSearch(question, stateCode) {
+    btn.disabled = true;
+    resultsSection.innerHTML = '';
+    clearStatus();
+    showPage('page-home');
+    setStatus('Searching Virginia legislation...');
+
+    try {
+      const response = await fetch('/state/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question, state_code: stateCode, max_results: 10 })
+      });
+      if (!response.ok) throw new Error(`Server error: ${response.status}`);
+      const data = await response.json();
+      clearStatus();
+      renderStateResults(data);
+      resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (err) {
+      clearStatus();
+      resultsSection.innerHTML = `
+        <div class="empty-state">
+          <p>State search failed. Please try again.</p>
+        </div>`;
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function renderStateResults(data) {
+    resultsSection.innerHTML = '';
+    const results = data.results || [];
+
+    if (!results.length) {
+      resultsSection.innerHTML = `
+        <div class="empty-state">
+          <p>No Virginia bills found.</p>
+          <p style="margin-top:0.5rem">Try different keywords.</p>
+        </div>`;
+      return;
+    }
+
+    const header = document.createElement('div');
+    header.className = 'results-header';
+    header.innerHTML = `
+      <h2>Virginia Results</h2>
+      <span class="results-count">${results.length} bill${results.length !== 1 ? 's' : ''} found</span>`;
+    resultsSection.appendChild(header);
+
+    results.forEach((bill, i) => {
+      const card = document.createElement('div');
+      card.className = 'result-card';
+      card.style.animationDelay = (i * 0.05) + 's';
+      card.onclick = () => openStateBill(bill);
+
+      card.innerHTML = `
+        <div class="result-card-inner">
+          <div class="result-card-left">
+            <div class="result-bill-id">${bill.identifier} · Virginia ${bill.session}</div>
+            <div class="result-bill-title">${bill.title}</div>
+          </div>
+          <div class="result-card-arrow">Read more →</div>
+        </div>
+        <div class="result-meta">
+          <div class="meta-item"><strong>${bill.chamber === 'lower' ? 'House' : 'Senate'}</strong></div>
+          <div class="meta-item"><strong>${bill.latest_action_date || ''}</strong></div>
+          <div class="meta-item">${(bill.latest_action || '').slice(0, 50)}</div>
+        </div>`;
+
+      resultsSection.appendChild(card);
+    });
+  }
+
+  async function openStateBill(bill) {
+    previousPage = document.querySelector('.page.active').id;
+
+    document.getElementById('detail-bill-id').textContent = `${bill.identifier} · Virginia`;
+    document.getElementById('detail-bill-title').textContent = bill.title || bill.identifier;
+    document.getElementById('detail-loading').style.display = 'block';
+    document.getElementById('detail-content').style.display = 'none';
+
+    const steps = ['lstep-1', 'lstep-2', 'lstep-3', 'lstep-4'];
+    steps.forEach((id, i) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('visible', 'done');
+      setTimeout(() => el.classList.add('visible'), i * 700);
+    });
+
+    showPage('page-detail');
+
+    try {
+      const response = await fetch('/state/bill', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ocd_id: bill.ocd_id, state_code: bill.state || 'VA' })
+      });
+      if (!response.ok) throw new Error(`Error: ${response.status}`);
+      const data = await response.json();
+
+      steps.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('done');
+      });
+
+      setTimeout(() => {
+        document.getElementById('detail-loading').style.display = 'none';
+        document.getElementById('detail-explanation').innerHTML = renderMarkdown(data.translation);
+        renderTimeline(data.timeline_events, data.timeline);
+        document.getElementById('votes-section').style.display = 'none';
+        document.getElementById('detail-content').style.display = 'block';
+      }, 400);
+
+    } catch (err) {
+      document.getElementById('detail-loading').innerHTML = `
+        <div class="empty-state">
+          <p>This bill couldn't be loaded right now.</p>
+        </div>`;
+    }
+  }
+
   // ── Main search ──
   async function runSearch() {
     const question = input.value.trim();
     if (!question) return;
+
+    if (currentJurisdiction === 'state' && currentStateCode) {
+      return await runStateSearch(question, currentStateCode);
+    }
 
     btn.disabled = true;
     resultsSection.innerHTML = '';
@@ -1757,6 +1940,7 @@
     };
 
     savePrefs(prefs);
+    updateJurisdictionToggle(prefs);
     showPage('page-home');
     loadFeed();
   }
@@ -1883,6 +2067,7 @@
 
   // ── Init ──
   checkServer();
+  updateJurisdictionToggle(getPrefs());
   loadFeed();
 </script>
 </body>

@@ -4,6 +4,7 @@ import json
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from documentor_agent import log_action
+from state_search_agent import get_recent_state_bills, ENABLED_STATES
 
 load_dotenv()
 
@@ -96,7 +97,7 @@ INTEREST_TERMS = {
     ],
 }
 
-def fetch_feed(interests, senator_bioguides, rep_bioguide, days_back=30, max_per_interest=3):
+def fetch_feed(interests, senator_bioguides, rep_bioguide, days_back=30, max_per_interest=3, state_code=None):
     """
     Generates a personalized feed based on user interests and representatives.
     
@@ -134,12 +135,24 @@ def fetch_feed(interests, senator_bioguides, rep_bioguide, days_back=30, max_per
                 bill["feed_interest"] = interest
                 feed_items.append(bill)
     
+    # ── Section 3: State bills if state is enabled ──
+    if state_code and state_code.upper() in ENABLED_STATES:
+        state_bills = get_recent_state_bills(state_code.upper(), limit=5)
+        for bill in state_bills:
+            key = f"state-{bill.get('identifier', '')}"
+            if key not in seen_bills:
+                seen_bills.add(key)
+                bill["feed_reason"] = "state_legislature"
+                bill["feed_interest"] = "state"
+                feed_items.append(bill)
+
     log_action(
         agent_name="feed",
         action="fetch_feed",
         input_data={
             "interests": interests,
-            "reps": senator_bioguides + ([rep_bioguide] if rep_bioguide else [])
+            "reps": senator_bioguides + ([rep_bioguide] if rep_bioguide else []),
+            "state_code": state_code,
         },
         output_data={"total_items": len(feed_items)}
     )
