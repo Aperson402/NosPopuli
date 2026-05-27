@@ -1,6 +1,6 @@
 # NosPopuli — Law for the People
 
-> *Nos Populi — Latin: "of the people"*
+> *Nos populus — Latin: "we the people"*
 
 A civic intelligence platform that makes American law accessible to every citizen regardless of legal background, education, or political affiliation. The law affects everyone but is practically readable by almost no one. NosPopuli fixes that.
 
@@ -306,5 +306,3 @@ Public law is not copyrightable in the United States. All legislative text fetch
 ---
 
 *NosPopuli — Law for the People*
-*Started May 2026 by a high school student who thought the law should be readable by everyone.*
-*Built in 3 days for 49 cents.*
