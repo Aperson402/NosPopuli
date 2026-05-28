@@ -43,15 +43,22 @@ Router agent          Classifies intent: legislation / member / committee / rela
       ↓
 Dispatcher            Routes to the correct handler based on query_type
       ↓
-─── legislation ──────────────────────────────────────────────
+─── federal legislation ──────────────────────────────────────
 Query Expander        Haiku → expands keywords to legislative vocabulary
                       "opioid epidemic" → ["fentanyl", "naloxone", "CARA", "overdose"]
                       Acronym table: "GENIUS Act" → exact bill S.1582
                       Known bills table: bypasses search for famous named acts
       ↓
+Title Search          Two-phase lookup for named acts
+                      Popular names table: "Title IX", "Voting Rights Act", etc.
+                      Falls back to Congress.gov title search + recent amendments
+      ↓
 Search agent          GovInfo API → full text search (BILLS or PLAW collection)
                       Congress.gov summaries → for named act lookups
                       Deduplicates by bill number across versions
+      ↓
+Result Validator      Haiku → scores each result 0–10 for query relevance
+                      Drops results scoring below 5 before sending to orchestrator
       ↓
 Orchestrator          Spins up parallel instances per bill (asyncio)
                       Semaphore caps concurrency
@@ -67,12 +74,28 @@ Vote mapper           Semicircle seat coordinates
                       House: 435 seats, 8 rows · Senate: 100 seats, 4 rows
                       Democrats left, Republicans right
 
-─── member ───────────────────────────────────────────────────
+─── state legislation ────────────────────────────────────────
+State Search          OpenStates v3 API → state bill search by keyword + session
+                      Filters enacted bills by governor signature actions
+                      Currently enabled: Virginia (VA)
+                      SKIP_PATTERNS filter ceremonial resolutions automatically
+      ↓
+State Bill Fetcher    Full bill detail: actions, versions, sponsorships, votes
+                      Fetches bill text HTML → strips boilerplate via BeautifulSoup
+                      Version preference: Chaptered > Enrolled > Engrossed > Introduced
+      ↓
+Translator agent      Same Haiku translator, adapted for state bill context
+
+─── member (federal) ─────────────────────────────────────────
 Member search         Paginates Congress.gov member list (up to 2,500 members)
                       Nickname expansion: Ted→Edward, Bernie→Bernard
                       Scores by name match weight
                       Fetches profile, terms, photo, sponsored legislation
                       Policy area breakdown from 250 most recent bills
+
+─── member (state) ───────────────────────────────────────────
+State Member Search   OpenStates /people endpoint → state legislators by name + state
+                      Returns normalized profile: chamber, party, district, role
 
 ─── committee ────────────────────────────────────────────────
 Committee search      Fetches 500 committees across both chambers
@@ -94,15 +117,18 @@ Analyst               Reads search + agent logs, generates plain English report
 
 ```
 Backend:      Python, FastAPI, uvicorn
-AI:           Anthropic API, claude-haiku-4-5 (almost exclusively)
-              claude-haiku-4-5-20251001 model string
+AI:           Anthropic API, claude-haiku-4-5-20251001 (almost exclusively)
 Data:         Congress.gov API — bills, members, votes, committees, laws
               GovInfo API — full text search (BILLS + PLAW collections)
+              OpenStates v3 API — state legislation + state legislators
               senate.gov XML — Senate roll call votes
               clerk.house.gov XML — House roll call votes (pre-118th)
               pgeocode + unitedstates/congress-legislators — zip→representative
+Ingest:       VoyageAI voyage-law-2 — legal document embeddings
+              Supabase pgvector — vector store for bill chunks
+              BeautifulSoup — bill HTML text extraction
 Deployment:   Railway (auto-deploys from GitHub)
-Frontend:     Vanilla HTML/CSS/JS, no framework
+Frontend:     Vanilla HTML/CSS/JS (no framework), CSS and JS in separate files
 Fonts:        Playfair Display · Source Serif 4 · IBM Plex Mono
 Rate limiting: slowapi (20/min search, 30/min bill, 10/min feed)
 ```
@@ -114,11 +140,17 @@ Rate limiting: slowapi (20/min search, 30/min bill, 10/min feed)
 ```
 /NosPopuli
   api.py                      FastAPI app — all endpoints, dispatcher pattern
+  main.py                     CLI REPL — interactive terminal interface for testing
   router_agent.py             Intent classification, confidence scoring,
                               presidential term handling, known bill lookup
   query_expander_agent.py     Keyword expansion to legislative vocabulary
                               Acronym table, known bills bypass
+  title_search_agent.py       Two-phase named act lookup
+                              Popular names table (Title IX, VRA, Civil Rights Act…)
+                              Falls back to Congress.gov title search
   search_agent.py             GovInfo full text search + Congress.gov summaries
+  result_validator_agent.py   Post-search relevance scoring via Haiku
+                              Filters results below threshold before display
   bill_fetcher.py             Congress.gov bill and public law fetching
   translator_agent.py         Plain English translation, personalized by
                               user state and interests (STATE_CONTEXT table)
@@ -126,7 +158,11 @@ Rate limiting: slowapi (20/min search, 30/min bill, 10/min feed)
   vote_parser_agent.py        Roll call number extraction from bill actions
   vote_fetcher_agent.py       House + Senate vote data (multiple sources)
   vote_mapper_agent.py        Semicircle seat position math
-  member_search_agent.py      Member lookup, profile, legislation, policy areas
+  member_search_agent.py      Federal member lookup, profile, legislation, policy areas
+  state_search_agent.py       OpenStates state bill search
+                              ENABLED_STATES gates rollout per state (VA first)
+  state_bill_fetcher.py       OpenStates bill detail + HTML text extraction
+  state_member_search_agent.py  State legislator lookup via OpenStates /people
   orchestrator.py             Batch processing / CLI testing (reference)
   documentor_agent.py         Thread-safe agent action logging
   search_logger.py            User-facing event logging with confidence scores
@@ -136,8 +172,12 @@ Rate limiting: slowapi (20/min search, 30/min bill, 10/min feed)
                               INTEREST_TERMS map topics to legislative vocabulary
   civic_resolver.py           Zip code → state → senators + representative
                               Uses pgeocode + legislators-current.json
+  ingest_bills.py             6-stage bill embedding pipeline (offline, run manually)
+                              Discovery → Metadata → Text → Chunking → Embedding → Index
+                              VoyageAI voyage-law-2 + Supabase pgvector
+  watch_agents.py             Terminal agent monitor — color-coded live log tail
 
-  /frontend
+  /Frontend
     index.html                Main app:
                               - Unified search bar (always visible)
                               - Personalized feed (below search, localStorage)
@@ -152,6 +192,12 @@ Rate limiting: slowapi (20/min search, 30/min bill, 10/min feed)
                               - Pipeline flow visualization
                               - Analytics tab (AI-generated report)
                               - Flags tab (user feedback log)
+    /css
+      index.css               Main app styles
+      monitor.css             Monitor page styles
+    /js
+      index.js                Main app logic
+      monitor.js              Monitor page logic
 
   /data
     legislators-current.json  All current US members (1.4MB)
@@ -177,6 +223,11 @@ POST /bill                Full bill processing (translation, timeline, votes)
 POST /law                 Public law lookup by congress + law number
 POST /feed                Personalized feed — interests + representative bioguides
 POST /resolve-zip         Zip code → state + senators + representative
+POST /state/search        State legislation search via OpenStates
+                          Requires state_code; filters enacted bills only
+POST /state/bill          Full state bill detail + translation
+POST /state/member/search State legislator lookup by name + state
+POST /member/search       Federal member search
 POST /flag/search         Log user feedback on search results
 POST /flag/bill           Log user feedback on bill translation/timeline
 GET  /member/photo/{id}   Proxied Congress.gov member photo
@@ -184,6 +235,7 @@ GET  /monitor             Real-time agent monitor UI
 GET  /monitor/stream      Agent log as JSON (polled every 500ms)
 GET  /monitor/analysis    AI-generated usage analysis
 GET  /monitor/flags       All user flags
+POST /monitor/clear-search-log  Clear the search log (monitor admin action)
 GET  /health              Service health check
 ```
 
@@ -232,7 +284,7 @@ Low-confidence queries are logged to `search_log.json` for Analyst review.
 
 ---
 
-**##Currently Running**
+## Currently Running
 
 https://nospopuli-production.up.railway.app/
 
@@ -246,6 +298,12 @@ pip install -r requirements.txt
 ANTHROPIC_API_KEY=your_key
 CONGRESS_API_KEY=your_key
 GovInfo_API_KEY=your_key
+OPENSTATES_API_KEY=your_key       # required for state legislation endpoints
+
+# Optional — only needed if running ingest_bills.py
+SUPABASE_URL=your_url
+SUPABASE_KEY=your_key
+VOYAGEAI_API_KEY=your_key
 
 # Run
 uvicorn api:app --reload
@@ -253,6 +311,15 @@ uvicorn api:app --reload
 # Open
 http://localhost:8000          Main app
 http://localhost:8000/monitor  Agent monitor
+
+# CLI REPL (for testing without a browser)
+python main.py
+
+# Terminal agent monitor (live log tail with color coding)
+python watch_agents.py
+
+# Bill embedding pipeline (run once offline to populate pgvector)
+python ingest_bills.py
 ```
 
 ---
@@ -271,9 +338,9 @@ Production estimate at 1,000 daily active users: ~$3–5/day.
 
 ```
 SEARCH QUALITY
-→ Known bills lookup expansion (top 50 named acts)
 → Relational queries: "How does X relate to Y" (Sonnet)
 → Member search filters (party, chamber, state)
+→ RAG over embedded bill corpus (ingest pipeline built, query layer pending)
 
 VISUALIZATIONS
 → Vote breakdown charts (party line vs independent)
@@ -282,9 +349,11 @@ VISUALIZATIONS
 → Bill progress tracker
 
 STATE EXPANSION
-→ Plural Policy (OpenStates) — bill data + members, all 50 states
-→ LegiScan — full text search across all 50 states
-→ State member profiles
+✓ OpenStates v3 integration — state bills, state member search
+✓ State bill search, detail, translation endpoints
+✓ Virginia (VA) live
+→ Expand ENABLED_STATES as each state is tested and validated
+→ State vote data + chamber visualizations
 → Local/municipal (demand-driven, long term)
 
 SELF-IMPROVEMENT PIPELINE
