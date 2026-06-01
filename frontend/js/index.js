@@ -172,7 +172,7 @@ function renderMarkdown(text) {
 // ── Tooltip ──
 function showTooltip(e, seat) {
   const partyLabel = seat.party === 'D' ? 'Democrat' : seat.party === 'R' ? 'Republican' : 'Independent';
-  tooltip.textContent = `${seat.name} · ${seat.state} · ${partyLabel} · ${seat.vote}`;
+  tooltip.textContent = `${seat.name} · ${seat.state} · ${partyLabel} · ${seat.vote} — click to view profile`;
   tooltip.classList.add('visible');
   moveTooltip(e);
 }
@@ -181,6 +181,56 @@ function moveTooltip(e) {
   tooltip.style.top  = (e.clientY - 28) + 'px';
 }
 function hideTooltip() { tooltip.classList.remove('visible'); }
+
+let memberLoadingInProgress = false;
+
+async function openMemberFromVote(seat) {
+  if (memberLoadingInProgress) return;
+  memberLoadingInProgress = true;
+  hideTooltip();
+
+  const loadingEl = document.getElementById('member-loading');
+  const contentEl = document.getElementById('member-page-content');
+  const steps = ['mstep-1', 'mstep-2', 'mstep-3'].map(id => document.getElementById(id));
+
+  steps.forEach(s => s.classList.remove('visible', 'done'));
+  loadingEl.style.display = 'block';
+  contentEl.style.display = 'none';
+  previousPage = document.querySelector('.page.active').id;
+  showPage('page-member');
+
+  steps[0].classList.add('visible');
+  const t1 = setTimeout(() => steps[1].classList.add('visible'), 400);
+  const t2 = setTimeout(() => steps[2].classList.add('visible'), 900);
+
+  try {
+    const res = await fetch('/member/search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: seat.name })
+    });
+    const data = await res.json();
+    clearTimeout(t1); clearTimeout(t2);
+    steps.forEach(s => s.classList.add('done'));
+
+    if (data.found) {
+      renderMemberPage(data);
+    } else {
+      loadingEl.style.display = 'none';
+      contentEl.style.display = 'block';
+      setStatus(`No profile found for ${seat.name}`);
+      setTimeout(clearStatus, 2500);
+    }
+  } catch {
+    clearTimeout(t1); clearTimeout(t2);
+    loadingEl.style.display = 'none';
+    contentEl.style.display = 'block';
+    setStatus('Could not load member profile');
+    setTimeout(clearStatus, 2500);
+  } finally {
+    memberLoadingInProgress = false;
+  }
+}
 
 // ── Chamber SVG ──
 function renderChamber(title, data, svgW, svgH) {
@@ -215,6 +265,7 @@ function renderChamber(title, data, svgW, svgH) {
     circle.addEventListener('mouseenter', e => showTooltip(e, seat));
     circle.addEventListener('mousemove',  e => moveTooltip(e));
     circle.addEventListener('mouseleave', hideTooltip);
+    circle.addEventListener('click', () => openMemberFromVote(seat));
     svg.appendChild(circle);
   });
   block.appendChild(svg);
@@ -313,6 +364,10 @@ function openDetailFromBill(bill) {
 function renderMemberPage(data) {
   const activeMemberPage = document.querySelector('.page.active').id;
   if (activeMemberPage !== 'page-member') previousPage = activeMemberPage;
+  document.getElementById('member-loading').style.display = 'none';
+  document.getElementById('member-page-content').style.display = 'block';
+  const backBtn = document.querySelector('#member-page-content .detail-back');
+  backBtn.textContent = previousPage === 'page-detail' ? '← Back to bill' : '← Back to search';
   const m = data.member;
   const leg = data.legislation;
 

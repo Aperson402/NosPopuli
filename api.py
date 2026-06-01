@@ -589,11 +589,9 @@ async def handle_state_search(structured, question, loop):
         if enacted:
             results = enacted
 
-    validated = await loop.run_in_executor(
-        None, validate_results, question, results, get_client()
+    results = await loop.run_in_executor(
+        None, validate_results, question, results, get_client(), 7, False
     )
-    if validated:
-        results = validated
 
     log_search(
         query=question,

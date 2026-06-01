@@ -25,7 +25,7 @@ Stage 4 — Chunking
     Output: chunks with metadata
 
 Stage 5 — Embedding
-    Batch embed chunks via OpenAI text-embedding-3-small
+    Batch embed chunks via VoyageAI 2-law
     Store in Supabase pgvector
     Output: vector table populated
 
@@ -97,7 +97,6 @@ def discover_bills(congress=119, limit=None):
         "congress": congress
     }
 
-    # Use date range for 119th Congress
     base_url = f"https://api.govinfo.gov/collections/BILLS/2025-01-01T00:00:00Z"
 
     packages = []
@@ -105,7 +104,7 @@ def discover_bills(congress=119, limit=None):
     page = 0
 
     while True:
-        url = f"{base_url}?api_key={GOVINFO_KEY}&pageSize=100&offsetMark={offset}"
+        url = f"{base_url}?api_key={GOVINFO_KEY}&pageSize=100&offsetMark={offset}&congress={congress}"
         
         try:
             r = _get_with_retry(url, timeout=30)
@@ -152,7 +151,7 @@ def discover_bills(congress=119, limit=None):
                 break
             offset = offset_match.group(1)
             
-            time.sleep(0.5)  # be nice to the API
+            time.sleep(0.1)
             
         except Exception as e:
             print(f"[INGEST] Discovery error: {e}")
@@ -211,7 +210,7 @@ def store_bill_metadata(pkg, metadata):
     }
     
     try:
-        result = supabase.table("bills").upsert(record).execute()
+        result = supabase.table("bills").upsert(record, on_conflict="package_id").execute()
         return result.data[0]["id"] if result.data else None
     except Exception as e:
         print(f"[INGEST] Store metadata error: {e}")

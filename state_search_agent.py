@@ -153,8 +153,8 @@ def search_state_bills(query, state_code, session=None, limit=5):
 
     params = {
         "jurisdiction": jurisdiction,
-        "query": query,
-        "pageSize": limit * 3,  # fetch extra to filter ceremonial
+        "q": query,
+        "per_page": limit * 3,  # fetch extra to filter ceremonial
         "include": ["abstracts", "sponsorships"],
     }
 
@@ -201,10 +201,15 @@ def search_state_bills(query, state_code, session=None, limit=5):
                 sponsor = s.get("name")
                 break
 
+        abstracts = bill.get("abstracts") or []
+        abstract_text = abstracts[0].get("abstract", "") if abstracts else ""
+
         results.append({
             "ocd_id": bill.get("id"),
             "identifier": bill.get("identifier", ""),
             "title": bill.get("title", ""),
+            "abstract": abstract_text,
+            "subjects": bill.get("subject", []),
             "state": state_code,
             "jurisdiction": jurisdiction,
             "session": bill.get("session", ""),
@@ -246,7 +251,7 @@ def get_recent_state_bills(state_code, limit=10, session=None):
     params = {
         "jurisdiction": jurisdiction,
         "classification": "bill",
-        "pageSize": limit * 3,
+        "per_page": limit * 3,
         "sort": "updated_desc",
     }
 

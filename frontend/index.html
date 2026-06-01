@@ -202,8 +202,16 @@
 
 <!-- ── MEMBER PAGE ── -->
 <div class="page" id="page-member">
-  <div class="member-page">
-    <button class="detail-back" onclick="goHome()">← Back to search</button>
+  <div class="detail-loading" id="member-loading" style="display:none">
+    <div class="loading-spinner">Looking up member...</div>
+    <div class="loading-steps">
+      <div class="loading-step" id="mstep-1">› Searching member records</div>
+      <div class="loading-step" id="mstep-2">› Fetching profile &amp; terms</div>
+      <div class="loading-step" id="mstep-3">› Loading sponsored legislation</div>
+    </div>
+  </div>
+  <div class="member-page" id="member-page-content">
+    <button class="detail-back" onclick="goBack()">← Back to search</button>
     <div class="member-header">
       <div class="member-photo-wrap">
         <img id="member-photo" alt="" onerror="this.style.display='none'"/>
@@ -226,6 +234,7 @@
     </div>
   </div>
 </div>
+
 
 <!-- Flag modal -->
 <div id="flag-modal" style="
