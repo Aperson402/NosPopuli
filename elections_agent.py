@@ -1,0 +1,413 @@
+import os
+import re
+import json
+import asyncio
+import datetime
+import httpx
+from threading import RLock
+from cachetools import TTLCache
+from dotenv import load_dotenv
+from anthropic import AsyncAnthropic
+from documentor_agent import log_action
+from correspondence.db import get_elections_cache, set_elections_cache
+
+load_dotenv()
+
+CIVIC_API_KEY = os.getenv("GOOGLE_CIVIC_API_KEY", "")
+CIVIC_BASE = "https://www.googleapis.com/civicinfo/v2"
+
+_elections_cache = TTLCache(maxsize=200, ttl=21600)   # 6hr per zip
+_web_search_cache = TTLCache(maxsize=60, ttl=172800)  # 48hr per state — Claude web search
+_cache_lock = RLock()
+
+PARTY_NORMALIZE = {
+    "democratic": "Democratic",
+    "democrat": "Democratic",
+    "dem": "Democratic",
+    "republican": "Republican",
+    "rep": "Republican",
+    "gop": "Republican",
+    "independent": "Independent",
+    "ind": "Independent",
+    "libertarian": "Libertarian",
+    "green": "Green",
+    "nonpartisan": "Nonpartisan",
+}
+
+CHANNEL_ICONS = {
+    "Twitter": "𝕏",
+    "X": "𝕏",
+    "Facebook": "fb",
+    "YouTube": "yt",
+    "GooglePlus": "g+",
+}
+
+
+def _normalize_party(raw):
+    if not raw:
+        return None
+    return PARTY_NORMALIZE.get(raw.lower().strip(), raw.strip())
+
+
+def _party_color(party):
+    p = (party or "").lower()
+    if "democrat" in p:
+        return "dem"
+    if "republican" in p or "gop" in p:
+        return "rep"
+    if "libertarian" in p:
+        return "lib"
+    if "green" in p:
+        return "grn"
+    return "ind"
+
+
+def _format_candidate(c):
+    channels = []
+    for ch in c.get("channels", []):
+        t = ch.get("type", "")
+        channels.append({"type": t, "id": ch.get("id", ""), "icon": CHANNEL_ICONS.get(t, t[:2])})
+    party = _normalize_party(c.get("party"))
+    return {
+        "name": c.get("name", ""),
+        "party": party,
+        "party_color": _party_color(party),
+        "photo_url": c.get("photoUrl"),
+        "candidate_url": c.get("candidateUrl"),
+        "email": c.get("email"),
+        "phone": c.get("phone"),
+        "channels": channels,
+    }
+
+
+def _format_contest(contest):
+    candidates = [_format_candidate(c) for c in contest.get("candidates", [])]
+    return {
+        "type": contest.get("type", ""),
+        "office": contest.get("office", ""),
+        "district": (contest.get("district") or {}).get("name"),
+        "level": contest.get("level", []),
+        "candidates": candidates,
+    }
+
+
+def _days_until(date_str):
+    """Return days from today to date_str (YYYY-MM-DD). Negative = past."""
+    try:
+        target = datetime.date.fromisoformat(date_str)
+        today = datetime.date.today()
+        return (target - today).days
+    except Exception:
+        return None
+
+
+def _ballotpedia_url(election_name, date_str):
+    year = date_str[:4] if date_str else ""
+    slug = election_name.replace(" ", "_")
+    return f"https://ballotpedia.org/{slug},_{year}"
+
+
+async def _search_elections_with_claude(state_name, state_code):
+    """
+    Use Claude with web search to find upcoming elections not covered by Google Civic.
+    Result cached 24hr per state — called at most once per state per day.
+    """
+    today = datetime.date.today()
+    try:
+        anthropic_client = AsyncAnthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+        response = await anthropic_client.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=512,
+            tools=[{"type": "web_search_20260209", "name": "web_search"}],
+            messages=[{
+                "role": "user",
+                "content": (
+                    f"Search for all upcoming elections scheduled in {state_name} in 2026 and 2027. "
+                    f"Today is {today}. Include state primaries, general elections, special elections, and runoffs. "
+                    f"After searching, respond with ONLY a raw JSON array (no markdown fences, no explanation). "
+                    f'Format: [{{"name": "Virginia Primary Election", "date": "2026-08-04", "type": "primary"}}, ...] '
+                    f"Use YYYY-MM-DD for dates. If nothing found, respond with exactly: []"
+                ),
+            }],
+        )
+        text = "".join(b.text for b in response.content if hasattr(b, "text"))
+        print(f"[ELECTIONS] Claude raw response for {state_code}: {text[:300]}")
+
+        # Try parsing whole text as JSON first
+        stripped = text.strip()
+        try:
+            parsed = json.loads(stripped)
+            if isinstance(parsed, list):
+                print(f"[ELECTIONS] Claude found {len(parsed)} elections for {state_code}")
+                return parsed
+        except json.JSONDecodeError:
+            pass
+
+        # Greedy regex — `.*?` (non-greedy) would stop at first `]` inside a nested object
+        match = re.search(r"\[.*\]", stripped, re.DOTALL)
+        if match:
+            parsed = json.loads(match.group())
+            print(f"[ELECTIONS] Claude found {len(parsed)} elections for {state_code} (regex)")
+            return parsed
+
+        print(f"[ELECTIONS] Claude returned no parseable JSON for {state_code}")
+    except Exception as e:
+        print(f"[ELECTIONS] Claude search error for {state_code}: {e}")
+    return []
+
+
+async def _fetch_all_elections(client):
+    """Fetch the full list of elections from Google Civic."""
+    if not CIVIC_API_KEY:
+        return []
+    try:
+        r = await client.get(
+            f"{CIVIC_BASE}/elections",
+            params={"key": CIVIC_API_KEY},
+            timeout=10,
+        )
+        if r.status_code != 200:
+            print(f"[ELECTIONS] /elections error {r.status_code}: {r.text[:200]}")
+            return []
+        return r.json().get("elections", [])
+    except Exception as e:
+        print(f"[ELECTIONS] /elections exception: {e}")
+        return []
+
+
+async def _fetch_voter_info(client, election_id, address, semaphore):
+    """Fetch ballot contests and voter info for one election."""
+    async with semaphore:
+        try:
+            r = await client.get(
+                f"{CIVIC_BASE}/voterinfo",
+                params={
+                    "key": CIVIC_API_KEY,
+                    "address": address,
+                    "electionId": election_id,
+                },
+                timeout=10,
+            )
+            if r.status_code == 200:
+                return r.json()
+            # 400 is common when the election has no data for that zip
+            return None
+        except Exception:
+            return None
+
+
+STATE_NAMES = {
+    "AL": "Alabama", "AK": "Alaska", "AZ": "Arizona", "AR": "Arkansas",
+    "CA": "California", "CO": "Colorado", "CT": "Connecticut", "DE": "Delaware",
+    "FL": "Florida", "GA": "Georgia", "HI": "Hawaii", "ID": "Idaho",
+    "IL": "Illinois", "IN": "Indiana", "IA": "Iowa", "KS": "Kansas",
+    "KY": "Kentucky", "LA": "Louisiana", "ME": "Maine", "MD": "Maryland",
+    "MA": "Massachusetts", "MI": "Michigan", "MN": "Minnesota", "MS": "Mississippi",
+    "MO": "Missouri", "MT": "Montana", "NE": "Nebraska", "NV": "Nevada",
+    "NH": "New Hampshire", "NJ": "New Jersey", "NM": "New Mexico", "NY": "New York",
+    "NC": "North Carolina", "ND": "North Dakota", "OH": "Ohio", "OK": "Oklahoma",
+    "OR": "Oregon", "PA": "Pennsylvania", "RI": "Rhode Island", "SC": "South Carolina",
+    "SD": "South Dakota", "TN": "Tennessee", "TX": "Texas", "UT": "Utah",
+    "VT": "Vermont", "VA": "Virginia", "WA": "Washington", "WV": "West Virginia",
+    "WI": "Wisconsin", "WY": "Wyoming", "DC": "District of Columbia",
+}
+
+
+def _election_affects_user(election_name, contests, state_code):
+    """
+    Return True if this election is relevant to the user's state,
+    or if it's a presidential / national election.
+    """
+    if not state_code:
+        return False
+    name_lower = (election_name or "").lower()
+    if "presidential" in name_lower or "president" in name_lower:
+        return True
+
+    # Check if any returned contest is at federal/national level
+    for c in contests:
+        levels = c.get("level", [])
+        if "federal" in levels or "country" in levels:
+            return True
+
+    # Match by state full name in election title (most reliable)
+    state_name = STATE_NAMES.get(state_code.upper(), "")
+    if state_name and state_name.lower() in name_lower:
+        return True
+
+    # Match by voterinfo contests scoped to user's state
+    for c in contests:
+        office = (c.get("office", "") + " " + (c.get("district") or "")).lower()
+        if state_name.lower() in office or state_code.lower() in office:
+            return True
+
+    return False
+
+
+async def fetch_elections(zip_code, state_code=None):
+    """
+    Main entry point. Returns {upcoming: [...], recent: [...]}.
+    Results cached per zip for 6 hours.
+    """
+    cache_key = (zip_code or "national", state_code or "")
+    with _cache_lock:
+        if cache_key in _elections_cache:
+            print(f"[ELECTIONS] Returning cached result for {cache_key}")
+            return _elections_cache[cache_key]
+    print(f"[ELECTIONS] Cache miss for {cache_key} — fetching fresh")
+
+    if not CIVIC_API_KEY:
+        result = {"upcoming": [], "recent": [], "error": "Elections data not configured."}
+        return result
+
+    address = f"{zip_code} USA" if zip_code else "Washington DC USA"
+    today = datetime.date.today()
+    cutoff_past = today - datetime.timedelta(days=60)
+    cutoff_future = today + datetime.timedelta(days=548)  # ~18 months out
+
+    async with httpx.AsyncClient() as client:
+        all_elections = await _fetch_all_elections(client)
+
+        # Filter to relevant time window, excluding test/placeholder entries
+        relevant = []
+        for e in all_elections:
+            name = e.get("name", "")
+            if "test" in name.lower() or "vip test" in name.lower():
+                continue
+            date_str = e.get("electionDay", "")
+            if not date_str:
+                continue
+            try:
+                edate = datetime.date.fromisoformat(date_str)
+            except Exception:
+                continue
+            if edate >= cutoff_past and edate <= cutoff_future:
+                relevant.append((e, edate))
+
+        # Fetch voter info for all relevant elections concurrently (max 5 at once)
+        semaphore = asyncio.Semaphore(5)
+        voter_info_tasks = [
+            _fetch_voter_info(client, e["id"], address, semaphore)
+            for e, _ in relevant
+        ]
+        voter_infos = await asyncio.gather(*voter_info_tasks)
+
+    upcoming = []
+    recent = []
+
+    for (election, edate), vinfo in zip(relevant, voter_infos):
+        name = election.get("name", "")
+        date_str = election.get("electionDay", "")
+        days = _days_until(date_str)
+        contests = []
+        registration_deadline = None
+        voter_info_url = None
+
+        if vinfo:
+            contests = [_format_contest(c) for c in vinfo.get("contests", [])]
+            # Registration info
+            state_info = vinfo.get("state", [])
+            if state_info:
+                si = state_info[0]
+                el_admin = (si.get("electionAdministrationBody") or {})
+                registration_deadline = el_admin.get("electionRegistrationDeadlineText")
+                voter_info_url = el_admin.get("electionInfoUrl") or el_admin.get("absenteeVotingInfoUrl")
+
+        affects_user = _election_affects_user(name, contests, state_code)
+
+        entry = {
+            "id": election.get("id"),
+            "name": name,
+            "date": date_str,
+            "affects_user": affects_user,
+            "contests": contests,
+            "registration_deadline": registration_deadline,
+            "voter_info_url": voter_info_url,
+            "ballotpedia_url": _ballotpedia_url(name, date_str),
+        }
+
+        if days is not None and days >= 0:
+            entry["countdown_days"] = days
+            upcoming.append(entry)
+        else:
+            entry["days_ago"] = abs(days) if days is not None else None
+            recent.append(entry)
+
+    # ── Supplement with Claude web search (once per state per day) ──
+    if state_code:
+        state_name_full = STATE_NAMES.get(state_code.upper(), state_code)
+
+        # Check in-memory cache first (avoids DB round-trip on hot path)
+        with _cache_lock:
+            claude_results = _web_search_cache.get(state_code)
+
+        if claude_results is None:
+            # Fall back to DB (survives restarts, shared across workers)
+            claude_results = get_elections_cache(state_code)
+            if claude_results is not None:
+                print(f"[ELECTIONS] DB cache hit for {state_code} ({len(claude_results)} elections)")
+                with _cache_lock:
+                    _web_search_cache[state_code] = claude_results
+            else:
+                # Full miss — call Claude
+                claude_results = await _search_elections_with_claude(state_name_full, state_code)
+                set_elections_cache(state_code, claude_results)
+                with _cache_lock:
+                    _web_search_cache[state_code] = claude_results
+
+        # Merge — skip any date already covered by Google Civic (within 1 day)
+        existing_dates = {e["date"] for e in upcoming + recent}
+        today = datetime.date.today()
+        cutoff_future = today + datetime.timedelta(days=548)
+
+        for ce in claude_results:
+            date_str = ce.get("date", "")
+            if not date_str or date_str in existing_dates:
+                continue
+            try:
+                edate = datetime.date.fromisoformat(date_str)
+            except ValueError:
+                continue
+            if not (today - datetime.timedelta(days=60) <= edate <= cutoff_future):
+                continue
+            days = _days_until(date_str)
+            entry = {
+                "id": f"web_{state_code}_{date_str}",
+                "name": ce.get("name", ""),
+                "date": date_str,
+                "affects_user": True,
+                "contests": [],
+                "registration_deadline": None,
+                "voter_info_url": None,
+                "ballotpedia_url": _ballotpedia_url(ce.get("name", ""), date_str),
+                "source": "web_search",
+            }
+            if days is not None and days >= 0:
+                entry["countdown_days"] = days
+                upcoming.append(entry)
+            else:
+                entry["days_ago"] = abs(days) if days is not None else None
+                recent.append(entry)
+
+    # Sort: affects_user first, then soonest
+    upcoming.sort(key=lambda e: (not e["affects_user"], e.get("countdown_days", 9999)))
+    recent.sort(key=lambda e: (not e["affects_user"], e.get("days_ago", 9999)))
+
+    result = {
+        "zip": zip_code,
+        "state": state_code,
+        "upcoming": upcoming,
+        "recent": recent,
+    }
+
+    log_action(
+        agent_name="elections",
+        action="fetch_elections",
+        input_data={"zip": zip_code, "state": state_code},
+        output_data={"upcoming": len(upcoming), "recent": len(recent)},
+    )
+
+    with _cache_lock:
+        _elections_cache[cache_key] = result
+
+    return result

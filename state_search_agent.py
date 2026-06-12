@@ -1,6 +1,8 @@
 import requests
 import os
+from threading import RLock
 from dotenv import load_dotenv
+from cachetools import TTLCache
 from documentor_agent import log_action
 
 load_dotenv()
@@ -8,6 +10,9 @@ load_dotenv()
 OPENSTATES_API_KEY = os.getenv("OPENSTATES_API_KEY")
 OPENSTATES_BASE = "https://v3.openstates.org"
 _session = requests.Session()
+
+_session_lookup_cache = TTLCache(maxsize=60, ttl=86400)  # 24hr — sessions rarely change mid-year
+_session_lookup_lock = RLock()
 
 STATE_JURISDICTIONS = {
     "AL": "Alabama", "AK": "Alaska", "AZ": "Arizona", "AR": "Arkansas",
@@ -65,8 +70,41 @@ def get_jurisdiction(state_code):
     return STATE_JURISDICTIONS.get(state_code.upper())
 
 
+def _lookup_current_session_from_api(state_code):
+    """Query OpenStates jurisdictions API for the current session identifier."""
+    ocd_id = f"ocd-jurisdiction/country:us/state:{state_code.lower()}/government"
+    try:
+        r = _session.get(
+            f"{OPENSTATES_BASE}/jurisdictions/{ocd_id}",
+            headers={"X-API-KEY": OPENSTATES_API_KEY},
+            params={"include": ["legislative_sessions"]},
+            timeout=10,
+        )
+        if r.status_code != 200:
+            print(f"[STATE SEARCH] Session lookup {r.status_code} for {state_code}")
+            return None
+        sessions = r.json().get("legislative_sessions", [])
+        in_progress = [s for s in sessions if s.get("status") == "in_progress"]
+        candidates = in_progress or sessions
+        if candidates:
+            latest = max(candidates, key=lambda s: s.get("start_date", ""))
+            print(f"[STATE SEARCH] Resolved session for {state_code}: {latest['identifier']}")
+            return latest["identifier"]
+    except Exception as e:
+        print(f"[STATE SEARCH] Session lookup error for {state_code}: {e}")
+    return None
+
+
 def get_session(state_code):
-    return STATE_SESSIONS.get(state_code.upper())
+    code = state_code.upper()
+    if code in STATE_SESSIONS:
+        return STATE_SESSIONS[code]
+    with _session_lookup_lock:
+        if code in _session_lookup_cache:
+            return _session_lookup_cache[code]
+        session_id = _lookup_current_session_from_api(code)
+        _session_lookup_cache[code] = session_id
+        return session_id
 
 
 def filter_enacted(bills):
@@ -147,7 +185,7 @@ def fetch_state_bill_by_identifier(identifier, state_code, session=None):
         return []
 
 
-def search_state_bills(query, state_code, session=None, limit=5):
+def search_state_bills(query, state_code, session=None, limit=10):
     """
     Search OpenStates for bills in a given state.
     Returns normalized bill objects compatible with the frontend.
@@ -168,12 +206,16 @@ def search_state_bills(query, state_code, session=None, limit=5):
     params = {
         "jurisdiction": jurisdiction,
         "q": query,
-        "per_page": min(limit * 3, 20),  # OpenStates max is 20
+        "per_page": 20,  # Always fetch max; caller slices
+        "sort": "updated_desc",
         "include": ["abstracts", "sponsorships"],
     }
 
     if session:
         params["session"] = session
+    else:
+        # No session found — restrict to recent bills so we don't surface stale results
+        params["updated_since"] = "2025-01-01"
 
     headers = {"X-API-KEY": OPENSTATES_API_KEY}
 

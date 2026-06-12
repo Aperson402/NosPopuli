@@ -3,9 +3,6 @@ import hashlib
 import secrets
 from datetime import datetime, timedelta
 
-# Allow OAuth over plain HTTP for localhost dev
-os.environ.setdefault("OAUTHLIB_INSECURE_TRANSPORT", "1")
-
 from google_auth_oauthlib.flow import Flow
 from jose import jwt, JWTError
 
@@ -15,6 +12,12 @@ JWT_SECRET           = os.getenv("JWT_SECRET") or secrets.token_hex(32)
 JWT_ALGORITHM        = "HS256"
 JWT_EXPIRE_DAYS      = 30
 BASE_URL             = os.getenv("BASE_URL", "http://localhost:8000")
+
+# Only allow OAuth over plain HTTP in local dev — never in production
+if BASE_URL.startswith("http://localhost") or BASE_URL.startswith("http://127."):
+    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+else:
+    os.environ.pop("OAUTHLIB_INSECURE_TRANSPORT", None)
 REDIRECT_URI         = f"{BASE_URL}/auth/google/callback"
 
 SCOPES = [

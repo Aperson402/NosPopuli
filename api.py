@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.exceptions import RequestValidationError
@@ -8,6 +8,7 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 import json
 import re
+import secrets
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
@@ -68,6 +69,7 @@ from state_member_search_agent import (
 )
 
 from correspondence.router import router as correspondence_router
+from elections_agent import fetch_elections
 
 app = FastAPI(title="NosPopuli API")
 
@@ -112,6 +114,20 @@ def get_client():
     if client is None:
         client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
     return client
+
+
+_MONITOR_SECRET = os.getenv("MONITOR_SECRET", "")
+
+def _require_monitor_auth(request: Request):
+    """Raises 403 if the request lacks a valid monitor secret."""
+    if not _MONITOR_SECRET:
+        raise HTTPException(status_code=503, detail="Monitor not configured — set MONITOR_SECRET in .env")
+    provided = (
+        request.query_params.get("secret") or
+        request.headers.get("X-Monitor-Secret", "")
+    )
+    if not secrets.compare_digest(provided, _MONITOR_SECRET):
+        raise HTTPException(status_code=403, detail="Forbidden")
 
 
 def _build_connections(related: dict, amendments: list, bill_title: str, translation: str) -> dict:
@@ -670,20 +686,21 @@ async def handle_state_search(structured, question, loop):
     seen = set()
     results = []
     search_terms = [primary_term] + (expanded[:2] if expanded else [])
+    target_count = max(structured.get("result_count", 5), 10)
 
     for term in search_terms:
         term_results = await loop.run_in_executor(
-            None, search_state_bills, term, state_code, None, 5
+            None, search_state_bills, term, state_code, None, 20
         )
         for r in term_results:
             key = r.get("ocd_id")
             if key not in seen:
                 seen.add(key)
                 results.append(r)
-        if len(results) >= structured.get("result_count", 5):
+        if len(results) >= target_count:
             break
 
-    results = results[: structured.get("result_count", 5)]
+    results = results[:target_count]
 
     # ── Enacted filter ──
     if structured.get("status") == "enacted":
@@ -1242,6 +1259,23 @@ async def member_photo(bioguide_id: str):
         raise HTTPException(status_code=404, detail="Photo not found")
 
 
+@app.get("/api/elections")
+@limiter.limit("10/minute")
+async def elections_endpoint(request: Request, zip: Optional[str] = None, state: Optional[str] = None):
+    """Returns upcoming and recent elections, optionally personalized by zip/state."""
+    try:
+        data = await fetch_elections(zip_code=zip, state_code=state)
+        return data
+    except Exception as e:
+        print(f"[API] Elections error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch elections data.")
+
+
+@app.get("/elections")
+async def elections_page():
+    return FileResponse("frontend/elections.html")
+
+
 @app.get("/")
 async def root():
     return FileResponse("frontend/index.html")
@@ -1278,23 +1312,25 @@ async def flag_bill(request: BillFlagRequest):
 
 
 @app.get("/monitor/flags")
-async def get_all_flags():
+async def get_all_flags(request: Request):
+    _require_monitor_auth(request)
     return get_flags()
 
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "service": "NosPopuli"}
+    return {"status": "ok"}
 
 
 @app.get("/monitor", response_class=HTMLResponse)
-async def monitor():
+async def monitor(request: Request):
+    _require_monitor_auth(request)
     return FileResponse("frontend/monitor.html")
 
 
 @app.get("/monitor/stream")
-async def monitor_stream():
-    """Returns current log as JSON"""
+async def monitor_stream(request: Request):
+    _require_monitor_auth(request)
     try:
         with open("agent_log.json", "r") as f:
             log = json.load(f)
@@ -1304,14 +1340,16 @@ async def monitor_stream():
 
 
 @app.post("/monitor/clear-search-log")
-async def clear_search_log():
+async def clear_search_log(request: Request):
+    _require_monitor_auth(request)
     with open("search_log.json", "w") as f:
         json.dump([], f)
     return {"status": "cleared"}
 
 
 @app.get("/monitor/analysis")
-async def get_analysis():
+async def get_analysis(request: Request):
+    _require_monitor_auth(request)
     loop = asyncio.get_event_loop()
     result = await loop.run_in_executor(None, analyze, get_client())
     return result

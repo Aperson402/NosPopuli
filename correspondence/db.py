@@ -1,6 +1,7 @@
 import sqlite3
 import uuid
 import os
+import json
 
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "correspondence.db")
 
@@ -62,6 +63,12 @@ def init_db():
             gmail_message_id TEXT UNIQUE,
             received_at TEXT,
             preview_text TEXT
+        );
+
+        CREATE TABLE IF NOT EXISTS elections_search_cache (
+            state_code TEXT PRIMARY KEY,
+            results TEXT NOT NULL,
+            cached_at REAL NOT NULL
         );
     """)
     conn.commit()
@@ -194,6 +201,33 @@ def save_reply(corr_id, gmail_message_id, received_at, preview_text):
     conn.execute(
         "UPDATE correspondence SET status='replied' WHERE id=?", (corr_id,)
     )
+    conn.commit()
+    conn.close()
+
+
+def get_elections_cache(state_code, max_age_seconds=172800):  # 48hr
+    """Return cached Claude election results for a state, or None if missing/stale."""
+    import time
+    conn = get_conn()
+    row = conn.execute(
+        "SELECT results, cached_at FROM elections_search_cache WHERE state_code=?",
+        (state_code,)
+    ).fetchone()
+    conn.close()
+    if row and (time.time() - row["cached_at"]) < max_age_seconds:
+        return json.loads(row["results"])
+    return None
+
+
+def set_elections_cache(state_code, results):
+    """Persist Claude election results for a state."""
+    import time
+    conn = get_conn()
+    conn.execute("""
+        INSERT INTO elections_search_cache (state_code, results, cached_at)
+        VALUES (?, ?, ?)
+        ON CONFLICT(state_code) DO UPDATE SET results=excluded.results, cached_at=excluded.cached_at
+    """, (state_code, json.dumps(results), time.time()))
     conn.commit()
     conn.close()
 

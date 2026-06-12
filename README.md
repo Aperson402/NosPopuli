@@ -363,6 +363,24 @@ LOCAL / MUNICIPAL
    Note: No equivalent of Congress.gov or OpenStates exists for local government.
          This is a genuine gap in civic infrastructure — building it is a multi-year effort.
 
+COLLECTIVE ACTION (V2 CORE)
+  The thesis: NosPopuli makes it so easy for a group to be heard that people
+  will use it. The friction between "I care about this" and "my representative
+  knows I care about this" is enormous for most people. NosPopuli collapses it.
+
+  The unit of impact is the group, not the individual user.
+  One letter is noise. A thousand letters from identifiable constituents in
+  a single week on a bill in committee is signal a staffer briefs their boss on.
+
+→ District signal: show how many users in a zip/district care about a bill
+→ Fence-sitter map: identify representatives whose votes are genuinely persuadable
+→ Committee timing: surface bills in committee now (when pressure matters most)
+→ Momentum tracker: bills gaining constituent attention across districts
+→ Coordinated send: synchronized letter campaigns on a bill + date window
+→ Coalition view: same position across 40 districts carries structural weight
+  Note: this is not ideology — it is infrastructure. A conservative and a
+        progressive both benefit from a government that responds to constituents.
+
 SELF-IMPROVEMENT PIPELINE
 → Prompt versioning + performance monitoring
 → Prompt improver agent (Opus)

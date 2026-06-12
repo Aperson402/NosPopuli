@@ -1,3 +1,6 @@
+const _monitorSecret = new URLSearchParams(window.location.search).get('secret') || '';
+const _mfetch = (url, opts = {}) => fetch(`${url}?secret=${encodeURIComponent(_monitorSecret)}`, opts);
+
 const AGENTS = [
   { id: 'router',        label: 'Router',        icon: '⇄' },
   { id: 'search',        label: 'Search',        icon: '⌕' },
@@ -158,7 +161,7 @@ async function poll() {
   if (paused) return;
 
   try {
-    const res = await fetch('/monitor/stream');
+    const res = await _mfetch('/monitor/stream');
     const log = await res.json();
 
     if (log.length > seenCount) {
@@ -260,7 +263,7 @@ function switchTab(tab) {
 // ── Flags loading ──
 async function loadFlags() {
   try {
-    const res = await fetch('/monitor/flags');
+    const res = await _mfetch('/monitor/flags');
     const flags = await res.json();
 
     const searchFlags = flags.filter(f => f.event === 'search_flag');
@@ -304,7 +307,7 @@ async function loadAnalytics() {
   document.getElementById('analysis-report').textContent = 'Analyzing...';
 
   try {
-    const res = await fetch('/monitor/analysis');
+    const res = await _mfetch('/monitor/analysis');
     const data = await res.json();
     const stats = data.stats || {};
 
@@ -349,7 +352,7 @@ async function loadAnalytics() {
 async function clearSearchLog() {
   if (!confirm('Clear all search log data? This cannot be undone.')) return;
   try {
-    await fetch('/monitor/clear-search-log', { method: 'POST' });
+    await _mfetch('/monitor/clear-search-log', { method: 'POST' });
     document.getElementById('stat-searches').textContent = '0';
     document.getElementById('stat-bills').textContent = '0';
     document.getElementById('stat-members').textContent = '0';
