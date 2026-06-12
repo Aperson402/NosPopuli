@@ -351,10 +351,17 @@ VISUALIZATIONS
 STATE EXPANSION
 ✓ OpenStates v3 integration — state bills, state member search
 ✓ State bill search, detail, translation endpoints
-✓ Virginia (VA) live
-→ Expand ENABLED_STATES as each state is tested and validated
+✓ All 50 states enabled
 → State vote data + chamber visualizations
-→ Local/municipal (demand-driven, long term)
+→ Session identifier coverage for remaining ~30 states
+
+LOCAL / MUNICIPAL
+→ Phase 1: Legistar API — covers 100+ major cities (NYC, Chicago, LA, Seattle, Boston, SF)
+           Legistar is the dominant council management platform; unofficial API at webapi.legistar.com
+→ Phase 2: Municode / American Legal Publishing — municipal code search for ordinances
+→ Phase 3: Direct scraping for non-Legistar cities (high maintenance, low priority)
+   Note: No equivalent of Congress.gov or OpenStates exists for local government.
+         This is a genuine gap in civic infrastructure — building it is a multi-year effort.
 
 SELF-IMPROVEMENT PIPELINE
 → Prompt versioning + performance monitoring

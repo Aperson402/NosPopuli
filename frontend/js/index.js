@@ -1,9 +1,11 @@
 // ── State ──
 let currentResults = [];
 let currentSearchContext = {};
+let _searchState = { question: '', maxResults: 10, endpoint: '/search', isState: false };
 let previousPage = 'page-home';
 let currentJurisdiction = 'federal';
 let currentStateCode = null;
+let _feedItems = [];
 const tooltip = document.getElementById('tooltip');
 
 // ── localStorage keys ──
@@ -29,6 +31,7 @@ function goHome() {
   showPage('page-home');
   document.getElementById('results-section').innerHTML = '';
   clearStatus();
+  if (typeof setCurrentBillContext === 'function') setCurrentBillContext(null);
 }
 
 function goBack() {
@@ -171,8 +174,17 @@ function renderMarkdown(text) {
 
 // ── Tooltip ──
 function showTooltip(e, seat) {
-  const partyLabel = seat.party === 'D' ? 'Democrat' : seat.party === 'R' ? 'Republican' : 'Independent';
-  tooltip.textContent = `${seat.name} · ${seat.state} · ${partyLabel} · ${seat.vote} — click to view profile`;
+  let label;
+  if (seat.source === 'state') {
+    const voteStr = seat.vote ? seat.vote.charAt(0).toUpperCase() + seat.vote.slice(1) : 'Unknown';
+    label = seat.name
+      ? `${seat.name} · ${voteStr} — click to view profile`
+      : voteStr;
+  } else {
+    const partyLabel = seat.party === 'D' ? 'Democrat' : seat.party === 'R' ? 'Republican' : 'Independent';
+    label = `${seat.name} · ${seat.state} · ${partyLabel} · ${seat.vote} — click to view profile`;
+  }
+  tooltip.textContent = label;
   tooltip.classList.add('visible');
   moveTooltip(e);
 }
@@ -183,6 +195,54 @@ function moveTooltip(e) {
 function hideTooltip() { tooltip.classList.remove('visible'); }
 
 let memberLoadingInProgress = false;
+
+async function openStateMemberFromVote(seat) {
+  if (memberLoadingInProgress || !seat.name) return;
+  memberLoadingInProgress = true;
+  hideTooltip();
+
+  const loadingEl = document.getElementById('member-loading');
+  const contentEl = document.getElementById('member-page-content');
+  const steps = ['mstep-1', 'mstep-2', 'mstep-3'].map(id => document.getElementById(id));
+
+  steps.forEach(s => s.classList.remove('visible', 'done'));
+  loadingEl.style.display = 'block';
+  contentEl.style.display = 'none';
+  previousPage = document.querySelector('.page.active').id;
+  showPage('page-member');
+
+  steps[0].classList.add('visible');
+  const t1 = setTimeout(() => steps[1].classList.add('visible'), 400);
+  const t2 = setTimeout(() => steps[2].classList.add('visible'), 900);
+
+  try {
+    const res = await fetch('/state/member/search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: seat.name, state_code: seat.state })
+    });
+    const data = await res.json();
+    clearTimeout(t1); clearTimeout(t2);
+    steps.forEach(s => s.classList.add('done'));
+
+    if (data.found) {
+      renderMemberPage(data);
+    } else {
+      loadingEl.style.display = 'none';
+      contentEl.style.display = 'block';
+      setStatus(`No profile found for ${seat.name}`);
+      setTimeout(clearStatus, 2500);
+    }
+  } catch {
+    clearTimeout(t1); clearTimeout(t2);
+    loadingEl.style.display = 'none';
+    contentEl.style.display = 'block';
+    setStatus('Could not load member profile');
+    setTimeout(clearStatus, 2500);
+  } finally {
+    memberLoadingInProgress = false;
+  }
+}
 
 async function openMemberFromVote(seat) {
   if (memberLoadingInProgress) return;
@@ -233,55 +293,270 @@ async function openMemberFromVote(seat) {
 }
 
 // ── Chamber SVG ──
-function renderChamber(title, data, svgW, svgH) {
+function renderChamber(title, data, defaultSvgW, defaultSvgH, repNames = { full: new Set(), last: new Set() }) {
   if (!data || !data.seats || !data.seats.length) return null;
   const s = data.summary;
+  const isState = data.seats.some(seat => seat.source === 'state');
+  const svgW   = data.svgW   || defaultSvgW;
+  const svgH   = data.svgH   || defaultSvgH;
+  const dot_r  = data.dot_r  || (title.includes('House') ? 4.5 : 6);
+
+  const yesLabel = isState ? 'YES' : 'YEA';
+  const noLabel  = isState ? 'NO'  : 'NAY';
+
   const block = document.createElement('div');
   block.className = 'chamber-block';
+
   const titleEl = document.createElement('div');
   titleEl.className = 'chamber-title';
   titleEl.textContent = title;
   block.appendChild(titleEl);
+
   const summary = document.createElement('div');
   summary.className = 'vote-summary';
   summary.innerHTML = `
-    <span class="vote-count-yea">YEA ${s.yea}</span>
-    <span class="vote-count-nay">NAY ${s.nay}</span>
-    ${s.present > 0 ? `<span class="vote-count-other">PRESENT ${s.present}</span>` : ''}
-    ${s.not_voting > 0 ? `<span class="vote-count-other">NOT VOTING ${s.not_voting}</span>` : ''}
+    <span class="vote-count-yea">${yesLabel} ${s.yea}</span>
+    <span class="vote-count-nay">${noLabel} ${s.nay}</span>
+    ${s.present    > 0 ? `<span class="vote-count-other">ABSTAIN ${s.present}</span>`    : ''}
+    ${s.not_voting > 0 ? `<span class="vote-count-other">ABSENT ${s.not_voting}</span>` : ''}
   `;
   block.appendChild(summary);
+
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', `0 0 ${svgW} ${svgH}`);
   svg.setAttribute('class', 'chamber-svg');
+
+  // Render non-rep seats first so rep dots layer on top
+  const repSeats = [];
   data.seats.forEach(seat => {
+    const seatNorm = (seat.name || '').toLowerCase().trim();
+    const isSingleWord = seatNorm && !seatNorm.includes(' ');
+    const isRep = repNames.full.size > 0 && (
+      repNames.full.has(seatNorm) ||
+      (isSingleWord && repNames.last.has(seatNorm))
+    );
+    if (isRep) { repSeats.push(seat); return; }
+
     const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
     circle.setAttribute('cx', seat.x);
     circle.setAttribute('cy', seat.y);
-    circle.setAttribute('r', title.includes('House') ? 4.5 : 6);
+    circle.setAttribute('r', dot_r);
     circle.setAttribute('fill', seat.color);
     circle.setAttribute('opacity', '0.9');
-    circle.style.cursor = 'pointer';
+
+    const clickable = !!seat.name;
+    if (clickable) {
+      circle.style.cursor = 'pointer';
+      circle.addEventListener('click', () =>
+        seat.source === 'state' ? openStateMemberFromVote(seat) : openMemberFromVote(seat)
+      );
+    }
     circle.addEventListener('mouseenter', e => showTooltip(e, seat));
     circle.addEventListener('mousemove',  e => moveTooltip(e));
     circle.addEventListener('mouseleave', hideTooltip);
-    circle.addEventListener('click', () => openMemberFromVote(seat));
     svg.appendChild(circle);
   });
+
+  // Render user's reps on top with highlight color + larger radius
+  repSeats.forEach(seat => {
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', seat.x);
+    circle.setAttribute('cy', seat.y);
+    circle.setAttribute('r', dot_r * 1.6);
+    circle.setAttribute('fill', USER_REP_HIGHLIGHT[seat.vote] || seat.color);
+    circle.setAttribute('opacity', '1');
+    circle.setAttribute('stroke', '#f5f0e8');
+    circle.setAttribute('stroke-width', '1.2');
+    circle.style.cursor = 'pointer';
+    circle.addEventListener('click', () =>
+      seat.source === 'state' ? openStateMemberFromVote(seat) : openMemberFromVote(seat)
+    );
+    circle.addEventListener('mouseenter', e => showTooltip(e, seat));
+    circle.addEventListener('mousemove',  e => moveTooltip(e));
+    circle.addEventListener('mouseleave', hideTooltip);
+    svg.appendChild(circle);
+  });
+
   block.appendChild(svg);
   return block;
 }
 
-function renderVotes(votes) {
+const _connAmendedByFull = { items: [], shown: 5 };
+
+function _billRow(b) {
+  const billId = `${(b.type || '').toUpperCase()} ${b.number}`;
+  const title = (b.title || billId).slice(0, 100) + ((b.title || '').length > 100 ? '…' : '');
+  return `<div class="member-bill-row" onclick='openDetail(${JSON.stringify(b).replace(/'/g, "&#39;")})'>
+    <div class="member-bill-id">${billId} · ${b.congress}th Congress</div>
+    <div class="member-bill-title">${title}</div>
+    <div class="member-bill-date">${b.latest_action_date || ''}</div>
+  </div>`;
+}
+
+const _amendmentTypeMap = {
+  samdt: 'senate-amendment',
+  hamdt: 'house-amendment',
+  sa:    'senate-amendment',
+  ha:    'house-amendment',
+};
+
+function _amendmentCongUrl(a) {
+  const typeSlug = _amendmentTypeMap[(a.type || '').toLowerCase()] || (a.type || '').toLowerCase();
+  const ordinal = `${a.congress}th-congress`;
+  return `https://www.congress.gov/amendment/${ordinal}/${typeSlug}/${a.number}`;
+}
+
+function _amendmentRow(a) {
+  const aId = `${(a.type || '').toUpperCase()} ${a.number}`;
+  const title = (a.title || '').slice(0, 120) + ((a.title || '').length > 120 ? '…' : '');
+  const url = _amendmentCongUrl(a);
+  return `<div class="member-bill-row" onclick="window.open('${url}','_blank')" title="View on Congress.gov">
+    <div class="member-bill-id">${aId} · ${a.congress}th Congress ↗</div>
+    <div class="member-bill-title">${title}</div>
+    <div class="member-bill-date">${a.latest_action_date || ''}</div>
+  </div>`;
+}
+
+function _showCategory(id, html) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.querySelector('.conn-category-body').innerHTML = html;
+  el.style.display = 'block';
+}
+
+function connectionsShowAll(cat) {
+  if (cat === 'amended-by') {
+    const el = document.getElementById('connections-amended-by');
+    el.querySelector('.conn-category-body').innerHTML =
+      _connAmendedByFull.items.map(_amendmentRow).join('');
+    document.getElementById('conn-amended-show-all').style.display = 'none';
+  }
+}
+
+function renderConnections(conn) {
+  const section = document.getElementById('connections-section');
+
+  // Reset all categories
+  ['connections-amends','connections-identical','connections-amended-by',
+   'connections-related','connections-superseded'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.style.display = 'none'; el.querySelector('.conn-category-body').innerHTML = ''; }
+  });
+  document.getElementById('conn-amended-show-all').style.display = 'none';
+
+  if (!conn) { section.style.display = 'none'; return; }
+
+  let anyVisible = false;
+
+  // Amends / Reauthorizes
+  if (conn.amends) {
+    const el = document.getElementById('connections-amends');
+    el.querySelector('.conn-category-label').textContent = conn.amends.label;
+    el.querySelector('.conn-category-body').innerHTML =
+      `<div class="conn-amends-row">${conn.amends.act_name}</div>`;
+    el.style.display = 'block';
+    anyVisible = true;
+  }
+
+  // Identical bill
+  if (conn.identical && conn.identical.length) {
+    _showCategory('connections-identical', conn.identical.map(_billRow).join(''));
+    anyVisible = true;
+  }
+
+  // Amended by (with show-all)
+  if (conn.amended_by && conn.amended_by.length) {
+    const LIMIT = 5;
+    _connAmendedByFull.items = conn.amended_by;
+    const visible = conn.amended_by.slice(0, LIMIT);
+    _showCategory('connections-amended-by', visible.map(_amendmentRow).join(''));
+    if (conn.amended_by.length > LIMIT) {
+      document.getElementById('conn-amended-show-all').style.display = 'block';
+      document.getElementById('conn-amended-show-all').textContent =
+        `Show all ${conn.amended_by.length}`;
+    }
+    anyVisible = true;
+  }
+
+  // Related legislation
+  if (conn.related && conn.related.length) {
+    _showCategory('connections-related', conn.related.map(_billRow).join(''));
+    anyVisible = true;
+  }
+
+  // Superseded by
+  if (conn.superseded && conn.superseded.length) {
+    _showCategory('connections-superseded', conn.superseded.map(_billRow).join(''));
+    anyVisible = true;
+  }
+
+  section.style.display = anyVisible ? 'block' : 'none';
+}
+
+function renderFullText(text) {
+  const section = document.getElementById('full-text-section');
+  const content = document.getElementById('full-text-content');
+  if (!text || text.trim().length < 100) {
+    section.style.display = 'none';
+    return;
+  }
+  content.textContent = text;
+  section.style.display = 'block';
+}
+
+function toggleFullText() {
+  const body = document.getElementById('full-text-body');
+  const chevron = document.getElementById('full-text-chevron');
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : 'block';
+  chevron.classList.toggle('open', !isOpen);
+}
+
+const USER_REP_HIGHLIGHT = {
+  "Yea":       "#52b788",
+  "Nay":       "#c44b4b",
+  "Present":   "#aaaaaa",
+  "Not Voting":"#bbbbbb",
+};
+
+function _userRepNames() {
+  const prefs = getPrefs();
+  if (!prefs) return { full: new Set(), last: new Set() };
+  const norm = n => (n || '').toLowerCase().trim();
+  const full = new Set();
+  const last = new Set();
+  const addRep = r => {
+    if (!r) return;
+    const n = norm(r.name);
+    full.add(n);
+    last.add(n.split(' ').pop());
+  };
+  (prefs.senators || []).forEach(addRep);
+  addRep(prefs.representative);
+  return { full, last };
+}
+
+function renderVotes(votes, isStateBill = false) {
   const section = document.getElementById('votes-section');
-  const grid = document.getElementById('chambers-grid');
+  const grid    = document.getElementById('chambers-grid');
   grid.innerHTML = '';
   const hasHouse  = votes && votes.house  && votes.house.seats  && votes.house.seats.length;
   const hasSenate = votes && votes.senate && votes.senate.seats && votes.senate.seats.length;
-  if (!hasHouse && !hasSenate) { section.style.display = 'none'; return; }
+
+  if (!hasHouse && !hasSenate) {
+    if (isStateBill) {
+      section.style.display = 'block';
+      grid.innerHTML = '<div class="no-vote-notice">No recorded roll call vote available for this bill.</div>';
+    } else {
+      section.style.display = 'none';
+    }
+    return;
+  }
+
+  const repNames = _userRepNames();
   section.style.display = 'block';
-  if (hasHouse) { const b = renderChamber('House of Representatives', votes.house, 500, 260); if (b) grid.appendChild(b); }
-  if (hasSenate) { const b = renderChamber('Senate', votes.senate, 300, 200); if (b) grid.appendChild(b); }
+  if (hasHouse)  { const b = renderChamber('House',  votes.house,  500, 260, repNames); if (b) grid.appendChild(b); }
+  if (hasSenate) { const b = renderChamber('Senate', votes.senate, 300, 200, repNames); if (b) grid.appendChild(b); }
   grid.style.gridTemplateColumns = (hasHouse && hasSenate) ? '1fr 1fr' : '1fr';
 }
 
@@ -336,7 +611,18 @@ async function openDetail(bill) {
       document.getElementById('detail-explanation').innerHTML = renderMarkdown(data.translation);
       renderTimeline(data.timeline_events, data.timeline);
       renderVotes(data.votes);
+      renderFullText(data.bill_text);
+      renderConnections(data.connections);
       document.getElementById('detail-content').style.display = 'block';
+      if (typeof setCurrentBillContext === 'function') {
+        setCurrentBillContext({
+          bill_id:      billId,
+          bill_title:   bill.title || billId,
+          bill_summary: data.translation || '',
+          latest_action: bill.latest_action || '',
+          _reopen: { type: 'federal', congress: bill.congress, billType: bill.type, number: bill.number, title: bill.title },
+        });
+      }
     }, 400);
 
   } catch (err) {
@@ -369,7 +655,7 @@ function renderMemberPage(data) {
   const backBtn = document.querySelector('#member-page-content .detail-back');
   backBtn.textContent = previousPage === 'page-detail' ? '← Back to bill' : '← Back to search';
   const m = data.member;
-  const leg = data.legislation;
+  const leg = data.legislation || { sponsored: data.sponsored_bills || [] };
 
   document.getElementById('member-party-tag').textContent =
     [m.party || 'Independent', m.chambers ? m.chambers.join(' & ') : m.chamber || ''].filter(Boolean).join('  ·  ');
@@ -382,10 +668,34 @@ function renderMemberPage(data) {
   document.getElementById('member-status').textContent = m.current ? 'Currently serving' : 'Former member';
 
   const photo = document.getElementById('member-photo');
-  if (m.bioguide_id) { photo.style.display = 'block'; photo.src = `/member/photo/${m.bioguide_id.toLowerCase()}`; photo.alt = m.name; }
+  if (m.bioguide_id) {
+    photo.style.display = 'block';
+    photo.src = `/member/photo/${m.bioguide_id.toLowerCase()}`;
+    photo.alt = m.name;
+  } else if (m.photo_url) {
+    photo.style.display = 'block';
+    photo.src = m.photo_url;
+    photo.alt = m.name;
+  } else {
+    photo.style.display = 'none';
+  }
+
+  const isState = !!m.is_state_legislator;
+
+  document.getElementById('member-meta-line').textContent = [
+    m.state,
+    m.district ? `District ${m.district}` : '',
+    m.start_year ? `${m.start_year}–${m.end_year || 'present'}` : '',
+    m.birth_year ? `b. ${m.birth_year}` : ''
+  ].filter(Boolean).join('  ·  ');
 
   const statsGrid = document.getElementById('member-stats-grid');
-  const stats = [
+  const sponsoredBills = isState ? (data.sponsored_bills || []) : (leg.sponsored || []);
+  const stats = isState ? [
+    { number: sponsoredBills.length, label: 'Bills Sponsored' },
+    { number: m.chamber || '—', label: 'Chamber' },
+    { number: m.district || '—', label: 'District' },
+  ] : [
     { number: m.years_served || '—', label: 'Years Served' },
     { number: (leg.sponsored_count || 0).toLocaleString(), label: 'Bills Sponsored' },
     { number: (leg.cosponsored_count || 0).toLocaleString(), label: 'Cosponsored' },
@@ -399,31 +709,120 @@ function renderMemberPage(data) {
   `).join('');
 
   const policyChart = document.getElementById('policy-chart');
-  const areas = Object.entries(leg.policy_areas || {})
-    .filter(([k]) => k && k !== 'None' && k !== 'Other' && k !== 'null')
-    .sort((a, b) => b[1] - a[1]);
-  if (areas.length) {
-    const max = areas[0][1];
-    policyChart.innerHTML = areas.map(([label, count]) => `
-      <div class="policy-bar-row">
-        <div class="policy-bar-label">${label}</div>
-        <div class="policy-bar-track"><div class="policy-bar-fill" style="width:${(count/max*100).toFixed(1)}%"></div></div>
-        <div class="policy-bar-count">${count}</div>
-      </div>
-    `).join('');
+  if (!isState) {
+    const areas = Object.entries(leg.policy_areas || {})
+      .filter(([k]) => k && k !== 'None' && k !== 'Other' && k !== 'null')
+      .sort((a, b) => b[1] - a[1]);
+    if (areas.length) {
+      const max = areas[0][1];
+      policyChart.innerHTML = areas.map(([label, count]) => `
+        <div class="policy-bar-row">
+          <div class="policy-bar-label">${label}</div>
+          <div class="policy-bar-track"><div class="policy-bar-fill" style="width:${(count/max*100).toFixed(1)}%"></div></div>
+          <div class="policy-bar-count">${count}</div>
+        </div>
+      `).join('');
+    }
+  } else {
+    policyChart.innerHTML = '';
   }
 
   const billsEl = document.getElementById('member-bills');
-  const validBills = (leg.sponsored || []).filter(b => b.title && b.number);
-  billsEl.innerHTML = validBills.map(b => `
-    <div class="member-bill-row" onclick='openDetailFromBill(${JSON.stringify(b)})'>
-      <div class="member-bill-id">${(b.type || '').toUpperCase()} ${b.number}</div>
-      <div class="member-bill-title">${(b.title || '').slice(0, 100)}${(b.title || '').length > 100 ? '…' : ''}</div>
-      <div class="member-bill-date">${b.date || ''}</div>
-    </div>
-  `).join('') || '<p style="font-family:\'IBM Plex Mono\',monospace;font-size:0.7rem;color:var(--muted)">No recent bills found</p>';
+  if (isState) {
+    billsEl.innerHTML = sponsoredBills.map(b => `
+      <div class="member-bill-row" onclick='openStateBill(${JSON.stringify(b).replace(/'/g, "&#39;")})'>
+        <div class="member-bill-id">${b.identifier || ''}</div>
+        <div class="member-bill-title">${(b.title || '').slice(0, 100)}${(b.title || '').length > 100 ? '…' : ''}</div>
+        <div class="member-bill-date">${b.date || ''}</div>
+      </div>
+    `).join('') || '<p style="font-family:\'IBM Plex Mono\',monospace;font-size:0.7rem;color:var(--muted)">No recent bills found</p>';
+  } else {
+    const validBills = (leg.sponsored || []).filter(b => b.title && b.number);
+    billsEl.innerHTML = validBills.map(b => `
+      <div class="member-bill-row" onclick='openDetailFromBill(${JSON.stringify(b)})'>
+        <div class="member-bill-id">${(b.type || '').toUpperCase()} ${b.number}</div>
+        <div class="member-bill-title">${(b.title || '').slice(0, 100)}${(b.title || '').length > 100 ? '…' : ''}</div>
+        <div class="member-bill-date">${b.date || ''}</div>
+      </div>
+    `).join('') || '<p style="font-family:\'IBM Plex Mono\',monospace;font-size:0.7rem;color:var(--muted)">No recent bills found</p>';
+  }
 
   showPage('page-member');
+}
+
+// ── Feed helpers ──
+function billKey(item) {
+  return item.is_state_bill ? (item.ocd_id || '') : `${item.type || ''}${item.number || ''}`;
+}
+
+function getStatusLabel(action) {
+  if (!action) return 'ACTIVE';
+  const a = action.toLowerCase();
+  if (a.includes('became public law') || a.includes('signed by president') || a.includes('enacted') || a.includes('became law')) return 'ENACTED';
+  if (a.includes('signed by governor') || a.includes('chaptered') || a.includes('signed into law')) return 'SIGNED';
+  if (a.includes('passed house') || a.includes('passed senate') || a.includes('agreed to in') || a.includes('concurred in')) return 'PASSED';
+  if (a.includes('committee') || a.includes('reported by') || a.includes('ordered to be reported')) return 'COMMITTEE';
+  if (a.includes('referred')) return 'REFERRED';
+  if (a.includes('introduced')) return 'INTRODUCED';
+  return 'ACTIVE';
+}
+
+function getStatusClass(label) {
+  if (label === 'ENACTED' || label === 'SIGNED') return 'status-enacted';
+  if (label === 'PASSED') return 'status-passed';
+  return 'status-muted';
+}
+
+function getStatusRank(label) {
+  return { ENACTED: 5, SIGNED: 4, PASSED: 3, COMMITTEE: 2, REFERRED: 1, INTRODUCED: 0, ACTIVE: 0 }[label] || 0;
+}
+
+function formatDeck(action) {
+  if (!action) return '';
+  let t = action
+    .replace(/^Referred to the (House |Senate )?(Committee on )/, 'In committee — ')
+    .replace(/^(Read twice and referred|Read the first time) to.+?Committee on (.+?)\./, 'Referred to Senate Committee on $2.')
+    .replace(/^Introduced in (House|Senate)\.?$/, 'Recently introduced.')
+    .replace(/Became Public Law No[\. ]+[\d-]+\.?/, 'Signed into law.')
+    .replace(/^Signed by (the )?[Pp]resident\.?/, 'Signed into law by the President.')
+    .replace(/^(Passed|Agreed to in) (House|Senate)/, 'Passed the $2.');
+  return t.length > 150 ? t.slice(0, 147) + '…' : t;
+}
+
+function _leadCardHtml(item, idx) {
+  const status = getStatusLabel(item.latest_action);
+  const billId = item.is_state_bill
+    ? `${item.identifier || ''} · ${item.state || ''}`
+    : `${(item.type || '').toUpperCase()} ${item.number || ''}`;
+  const deck = formatDeck(item.latest_action);
+  return `<div class="story-lead" data-fi="${idx}">
+    <div class="lead-eyebrow">
+      <span class="lead-bill-id">${billId}</span>
+      <span class="story-status ${getStatusClass(status)}">${status}</span>
+    </div>
+    <div class="lead-headline">${item.title || billId}</div>
+    ${deck ? `<div class="lead-deck">${deck}</div>` : ''}
+    <div class="lead-dateline">${item.date || ''}</div>
+  </div>`;
+}
+
+function _storyCardHtml(item, idx) {
+  const status = getStatusLabel(item.latest_action);
+  const billId = item.is_state_bill
+    ? (item.identifier || '')
+    : `${(item.type || '').toUpperCase()} ${item.number || ''}`;
+  const title = item.title || billId;
+  const dual = item._matchesBoth ? '<span class="dual-match-tag">· your rep</span>' : '';
+  return `<div class="story-card" data-fi="${idx}">
+    <div class="story-card-top">
+      <div class="story-card-body">
+        <div class="story-bill-id">${billId}${dual}</div>
+        <div class="story-title">${title.length > 90 ? title.slice(0, 87) + '…' : title}</div>
+      </div>
+      <div class="story-status ${getStatusClass(status)}">${status}</div>
+    </div>
+    <div class="story-date">${item.date || ''}</div>
+  </div>`;
 }
 
 // ── Feed rendering ──
@@ -432,11 +831,9 @@ function renderFeedSection(items, prefs) {
 
   if (!items || !items.length) {
     feedSection.innerHTML = `
-      <div class="feed-header">
-        <h2>Your Feed</h2>
-        <div class="feed-header-right">
-          <button class="feed-settings-btn" onclick="showPage('page-onboarding');showStep(1)">Edit preferences</button>
-        </div>
+      <div class="feed-toolbar">
+        <span class="feed-location-tag">${prefs.stateName || prefs.state || ''}</span>
+        <button class="feed-settings-btn" onclick="showPage('page-onboarding');showStep(1)">Edit preferences</button>
       </div>
       <div class="empty-state">
         <p>No recent legislation found for your interests.</p>
@@ -445,59 +842,93 @@ function renderFeedSection(items, prefs) {
     return;
   }
 
+  _feedItems = items;
+
+  // Separate by type, preserving original index for click handlers
+  const indexed = items.map((item, i) => ({ item, i }));
+  const repItems   = indexed.filter(({ item }) => item.feed_reason === 'your_rep');
+  const stateItems = indexed.filter(({ item }) => item.feed_reason === 'state_legislature');
+  const topicItems = indexed.filter(({ item }) => item.feed_reason !== 'your_rep' && item.feed_reason !== 'state_legislature');
+
+  // Build rep key set for cross-reference
+  const repKeys = new Set(repItems.map(({ item }) => billKey(item)));
+
+  // Group topics, flag crossover bills, sort: crossover first then by status
+  const byTopic = {};
+  for (const { item, i } of topicItems) {
+    const topic = item.feed_reason || 'Other';
+    if (!byTopic[topic]) byTopic[topic] = [];
+    item._matchesBoth = repKeys.has(billKey(item));
+    byTopic[topic].push({ item, i });
+  }
+  for (const topic of Object.keys(byTopic)) {
+    byTopic[topic].sort((a, b) =>
+      (b.item._matchesBoth - a.item._matchesBoth) ||
+      (getStatusRank(getStatusLabel(b.item.latest_action)) - getStatusRank(getStatusLabel(a.item.latest_action)))
+    );
+  }
+
+  // Pick lead rep bill by status priority
+  const sortedReps = [...repItems].sort((a, b) =>
+    getStatusRank(getStatusLabel(b.item.latest_action)) - getStatusRank(getStatusLabel(a.item.latest_action))
+  );
+  const lead     = sortedReps[0];
+  const restReps = sortedReps.slice(1);
+
+  // ── Left column: representatives
+  const leftHtml = `
+    <div class="section-rule"><span>Your Representatives</span></div>
+    ${lead ? _leadCardHtml(lead.item, lead.i) : ''}
+    ${restReps.map(({ item, i }) => _storyCardHtml(item, i)).join('')}
+    ${repItems.length === 0 ? '<div class="feed-empty-col">No recent activity from your representatives.</div>' : ''}
+  `;
+
+  // ── Right column: state + topics
+  const stateSection = stateItems.length > 0 ? `
+    <div class="section-rule"><span>${prefs.stateName || 'State'} Legislature</span></div>
+    <div class="topic-grid">
+      ${stateItems.map(({ item, i }) => _storyCardHtml(item, i)).join('')}
+    </div>
+  ` : '';
+
+  const topicSections = Object.entries(byTopic).map(([topic, entries]) => `
+    <div class="section-rule"><span>${capitalize(topic.replace(/_/g, ' '))}</span></div>
+    <div class="topic-grid">
+      ${entries.map(({ item, i }) => _storyCardHtml(item, i)).join('')}
+    </div>
+  `).join('');
+
+  const rightHtml = stateSection + topicSections
+    || '<div class="feed-empty-col">Select topics in preferences to see more legislation.</div>';
+
   feedSection.innerHTML = `
-    <div class="feed-header">
-      <h2>Your Feed</h2>
-      <div class="feed-header-right">
-        <span class="feed-location">${prefs.state}</span>
-        <button class="feed-settings-btn" onclick="showPage('page-onboarding');showStep(1)">Edit</button>
-      </div>
+    <div class="feed-toolbar">
+      <span class="feed-location-tag">${prefs.stateName || prefs.state || ''}</span>
+      <button class="feed-settings-btn" onclick="showPage('page-onboarding');showStep(1)">Edit preferences</button>
+    </div>
+    <div class="feed-columns">
+      <div class="feed-col-left">${leftHtml}</div>
+      <div class="feed-col-right">${rightHtml}</div>
     </div>
   `;
 
-  items.forEach((item, i) => {
-    const card = document.createElement('div');
-    card.className = 'feed-card';
-    card.style.animationDelay = (i * 0.06) + 's';
-    if (item.is_state_bill) {
-      card.onclick = () => openStateBill(item);
-    } else {
-      card.onclick = () => openDetail({
-        congress: parseInt(item.congress),
-        type: item.type,
-        number: parseInt(item.number),
-        title: item.title
-      });
-    }
-
-    const isRep = item.feed_reason === 'your_rep';
-    const isState = item.feed_reason === 'state_legislature';
-    const reasonText = isRep
-      ? `Your representative sponsored this`
-      : isState
-      ? `Virginia Legislature`
-      : `${item.feed_interest ? item.feed_interest.replace('_', ' ') : item.feed_reason}`;
-
-    const billId = item.is_state_bill
-      ? `${item.identifier} · Virginia`
-      : `${(item.type || '').toUpperCase()} ${item.number}`;
-
-    card.innerHTML = `
-      <div class="feed-card-inner">
-        <div class="feed-reason ${isRep ? 'reason-rep' : 'reason-topic'}">
-          ${isRep ? '⚡ ' : ''}${reasonText}
-        </div>
-        <div class="feed-bill-id">${billId}</div>
-        <div class="feed-bill-title">${item.title || billId}</div>
-        ${item.latest_action ? `<div class="feed-bill-action">${item.latest_action}</div>` : ''}
-      </div>
-      <div class="feed-card-footer">
-        <div class="feed-date">${item.date || ''}</div>
-        <div class="feed-arrow">Read more →</div>
-      </div>
-    `;
-
-    feedSection.appendChild(card);
+  // Attach click handlers after DOM is set
+  feedSection.querySelectorAll('[data-fi]').forEach(el => {
+    const item = _feedItems[parseInt(el.dataset.fi)];
+    el.onclick = () => {
+      if (item.is_state_bill) {
+        openStateBill(item);
+      } else {
+        openDetail({
+          congress: parseInt(item.congress),
+          type: item.type,
+          number: parseInt(item.number),
+          title: item.title,
+          is_law: item.is_law || false,
+          law_number: item.law_number ? parseInt(item.law_number) : null
+        });
+      }
+    };
   });
 }
 
@@ -594,12 +1025,110 @@ function renderCommitteePage(data) {
 }
 
 // ── Search results ──
+function _makeResultCard(bill, animIndex) {
+  const card = document.createElement('div');
+  card.className = 'result-card';
+  card.style.animationDelay = (animIndex * 0.05) + 's';
+  card.onclick = () => openDetail({
+    congress: parseInt(bill.congress),
+    type: bill.type,
+    number: parseInt(bill.number),
+    title: bill.title,
+    is_law: bill.is_law,
+    law_number: bill.law_number ? parseInt(bill.law_number) : null
+  });
+  const billId = bill.is_law
+    ? `Public Law ${bill.congress}-${bill.law_number}`
+    : billIdFromParts(bill.type || '', bill.number || '');
+  const congress = bill.congress ? `${formatCongress(bill.congress)} Congress` : '';
+  const date = bill.date_issued ? bill.date_issued.slice(0, 4) : '';
+  card.innerHTML = `
+    <div class="result-card-inner">
+      <div class="result-card-left">
+        <div class="result-bill-id">${billId}</div>
+        <div class="result-bill-title">${bill.title || billId}</div>
+      </div>
+      <div class="result-card-arrow">Read more →</div>
+    </div>
+    <div class="result-meta">
+      <div class="meta-item"><strong>${congress}</strong></div>
+      <div class="meta-item"><strong>${date}</strong></div>
+      <div class="meta-item">Click for full analysis</div>
+    </div>`;
+  return card;
+}
+
+function _appendShowMoreFooter() {
+  const footer = document.createElement('div');
+  footer.id = 'results-footer';
+  footer.style.cssText = 'margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--rule);display:flex;flex-direction:column;align-items:center;gap:0.75rem';
+  footer.innerHTML = `
+    <button id="show-more-btn" class="show-more-btn" onclick="loadMoreResults()">Show more</button>
+    <button class="feed-settings-btn" onclick="showSearchFlag()">
+      Didn't find what you were looking for? Flag this search
+    </button>`;
+  resultsSection.appendChild(footer);
+}
+
+async function loadMoreResults() {
+  const btn = document.getElementById('show-more-btn');
+  if (btn) { btn.textContent = 'Loading…'; btn.disabled = true; }
+
+  _searchState.maxResults += 10;
+  const prevCount = currentResults.length;
+
+  try {
+    const body = _searchState.isState
+      ? { question: _searchState.question, state_code: _searchState.stateCode, max_results: _searchState.maxResults }
+      : { question: _searchState.question, max_results: _searchState.maxResults };
+
+    const res = await fetch(_searchState.endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+
+    const allResults = data.results || [];
+    const newResults = allResults.slice(prevCount);
+    currentResults = allResults;
+
+    const footer = document.getElementById('results-footer');
+    if (footer) footer.remove();
+
+    const countEl = resultsSection.querySelector('.results-count');
+    if (countEl) countEl.textContent = `${currentResults.length} result${currentResults.length !== 1 ? 's' : ''} found`;
+
+    newResults.forEach((bill, i) => {
+      const card = _searchState.isState ? _makeStateCard(bill, i) : _makeResultCard(bill, i);
+      resultsSection.appendChild(card);
+    });
+
+    if (newResults.length === 0 || allResults.length < _searchState.maxResults) {
+      const footer2 = document.createElement('div');
+      footer2.style.cssText = 'margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--rule);text-align:center';
+      footer2.innerHTML = `<button class="feed-settings-btn" onclick="showSearchFlag()">Didn't find what you were looking for? Flag this search</button>`;
+      resultsSection.appendChild(footer2);
+    } else {
+      _appendShowMoreFooter();
+    }
+  } catch {
+    if (btn) { btn.textContent = 'Show more'; btn.disabled = false; }
+  }
+}
+
 function renderResults(data) {
   resultsSection.innerHTML = '';
   currentResults = data.results || [];
 
+  _searchState.question  = input.value.trim();
+  _searchState.maxResults = 10;
+  _searchState.endpoint   = '/search';
+  _searchState.isState    = false;
+
   currentSearchContext = {
-    query: input.value.trim(),
+    query: _searchState.question,
     expanded_terms: data.query?.expanded_terms || [],
     congress_numbers: data.query?.congress_numbers || [],
     confidence: data.confidence || 1.0,
@@ -623,52 +1152,12 @@ function renderResults(data) {
   header.className = 'results-header';
   header.innerHTML = `
     <h2>Search Results</h2>
-    <span class="results-count">${currentResults.length} bill${currentResults.length !== 1 ? 's' : ''} found</span>`;
+    <span class="results-count">${currentResults.length} result${currentResults.length !== 1 ? 's' : ''} found</span>`;
   resultsSection.appendChild(header);
 
-  currentResults.forEach((bill, i) => {
-    const card = document.createElement('div');
-    card.className = 'result-card';
-    card.style.animationDelay = (i * 0.05) + 's';
-    card.onclick = () => openDetail({
-      congress: parseInt(bill.congress),
-      type: bill.type,
-      number: parseInt(bill.number),
-      title: bill.title,
-      is_law: bill.is_law,
-      law_number: bill.law_number ? parseInt(bill.law_number) : null
-    });
+  currentResults.forEach((bill, i) => resultsSection.appendChild(_makeResultCard(bill, i)));
 
-    const billId = bill.is_law
-      ? `Public Law ${bill.congress}-${bill.law_number}`
-      : billIdFromParts(bill.type || '', bill.number || '');
-    const congress = bill.congress ? `${formatCongress(bill.congress)} Congress` : '';
-    const date = bill.date_issued ? bill.date_issued.slice(0, 4) : '';
-
-    card.innerHTML = `
-      <div class="result-card-inner">
-        <div class="result-card-left">
-          <div class="result-bill-id">${billId}</div>
-          <div class="result-bill-title">${bill.title || billId}</div>
-        </div>
-        <div class="result-card-arrow">Read more →</div>
-      </div>
-      <div class="result-meta">
-        <div class="meta-item"><strong>${congress}</strong></div>
-        <div class="meta-item"><strong>${date}</strong></div>
-        <div class="meta-item">Click for full analysis</div>
-      </div>`;
-
-    resultsSection.appendChild(card);
-  });
-
-  const flagRow = document.createElement('div');
-  flagRow.style.cssText = 'margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--rule);text-align:center';
-  flagRow.innerHTML = `
-    <button class="feed-settings-btn" onclick="showSearchFlag()">
-      Didn't find what you were looking for? Flag this search
-    </button>`;
-  resultsSection.appendChild(flagRow);
+  _appendShowMoreFooter();
 }
 
 // ── Clarification bar ──
@@ -716,14 +1205,9 @@ function setJurisdiction(j, el) {
 function updateJurisdictionToggle(prefs) {
   const stateBtn = document.getElementById('state-toggle-btn');
   if (!prefs || !prefs.state) { stateBtn.style.display = 'none'; return; }
-  const ENABLED = ['VA'];
-  if (ENABLED.includes(prefs.state)) {
-    currentStateCode = prefs.state;
-    stateBtn.textContent = prefs.state === 'VA' ? 'Virginia' : prefs.state;
-    stateBtn.style.display = 'block';
-  } else {
-    stateBtn.style.display = 'none';
-  }
+  currentStateCode = prefs.state;
+  stateBtn.textContent = prefs.stateName || prefs.state;
+  stateBtn.style.display = 'block';
 }
 
 // ── State search ──
@@ -732,10 +1216,11 @@ async function runStateSearch(question, stateCode) {
   resultsSection.innerHTML = '';
   clearStatus();
   showPage('page-home');
-  setStatus('Searching Virginia legislation...');
+  const stateName = getPrefs()?.stateName || currentStateCode || 'State';
+  setStatus(`Searching ${stateName}...`);
 
   try {
-    const response = await fetch('/state/search', {
+    const response = await fetch('/search', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ question, state_code: stateCode, max_results: 10 })
@@ -743,8 +1228,19 @@ async function runStateSearch(question, stateCode) {
     if (!response.ok) throw new Error(`Server error: ${response.status}`);
     const data = await response.json();
     clearStatus();
-    renderStateResults(data);
-    resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (data.query_type === 'state_member' && data.member) {
+      renderMemberPage(data);
+      showPage('page-member');
+    } else if (data.query_type === 'state_member' && !data.member) {
+      resultsSection.innerHTML = `
+        <div class="empty-state">
+          <p>No legislator found by that name.</p>
+          <p style="margin-top:0.5rem">Try searching for a state lawmaker — governors and other officials aren't included.</p>
+        </div>`;
+    } else {
+      renderStateResults(data);
+      resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   } catch (err) {
     clearStatus();
     resultsSection.innerHTML = `
@@ -756,14 +1252,41 @@ async function runStateSearch(question, stateCode) {
   }
 }
 
+function _makeStateCard(bill, animIndex) {
+  const card = document.createElement('div');
+  card.className = 'result-card';
+  card.style.animationDelay = (animIndex * 0.05) + 's';
+  card.onclick = () => openStateBill(bill);
+  card.innerHTML = `
+    <div class="result-card-inner">
+      <div class="result-card-left">
+        <div class="result-bill-id">${bill.identifier} · ${getPrefs()?.stateName || bill.state || ''} ${(bill.session || '').replace(/^(\d+)\d$/, '$1th Legislature')}</div>
+        <div class="result-bill-title">${bill.title}</div>
+      </div>
+      <div class="result-card-arrow">Read more →</div>
+    </div>
+    <div class="result-meta">
+      <div class="meta-item"><strong>${bill.chamber === 'lower' ? 'House' : 'Senate'}</strong></div>
+      <div class="meta-item"><strong>${bill.latest_action_date || ''}</strong></div>
+      <div class="meta-item">${(bill.latest_action || '').slice(0, 50)}</div>
+    </div>`;
+  return card;
+}
+
 function renderStateResults(data) {
   resultsSection.innerHTML = '';
-  const results = data.results || [];
+  currentResults = data.results || [];
 
-  if (!results.length) {
+  _searchState.question   = input.value.trim();
+  _searchState.maxResults = 10;
+  _searchState.endpoint   = '/search';
+  _searchState.isState    = true;
+  _searchState.stateCode  = currentStateCode;
+
+  if (!currentResults.length) {
     resultsSection.innerHTML = `
       <div class="empty-state">
-        <p>No Virginia bills found.</p>
+        <p>No ${getPrefs()?.stateName || 'state'} bills found.</p>
         <p style="margin-top:0.5rem">Try different keywords.</p>
       </div>`;
     return;
@@ -772,38 +1295,19 @@ function renderStateResults(data) {
   const header = document.createElement('div');
   header.className = 'results-header';
   header.innerHTML = `
-    <h2>Virginia Results</h2>
-    <span class="results-count">${results.length} bill${results.length !== 1 ? 's' : ''} found</span>`;
+    <h2>${getPrefs()?.stateName || currentStateCode || 'State'} Results</h2>
+    <span class="results-count">${currentResults.length} result${currentResults.length !== 1 ? 's' : ''} found</span>`;
   resultsSection.appendChild(header);
 
-  results.forEach((bill, i) => {
-    const card = document.createElement('div');
-    card.className = 'result-card';
-    card.style.animationDelay = (i * 0.05) + 's';
-    card.onclick = () => openStateBill(bill);
+  currentResults.forEach((bill, i) => resultsSection.appendChild(_makeStateCard(bill, i)));
 
-    card.innerHTML = `
-      <div class="result-card-inner">
-        <div class="result-card-left">
-          <div class="result-bill-id">${bill.identifier} · Virginia ${bill.session}</div>
-          <div class="result-bill-title">${bill.title}</div>
-        </div>
-        <div class="result-card-arrow">Read more →</div>
-      </div>
-      <div class="result-meta">
-        <div class="meta-item"><strong>${bill.chamber === 'lower' ? 'House' : 'Senate'}</strong></div>
-        <div class="meta-item"><strong>${bill.latest_action_date || ''}</strong></div>
-        <div class="meta-item">${(bill.latest_action || '').slice(0, 50)}</div>
-      </div>`;
-
-    resultsSection.appendChild(card);
-  });
+  _appendShowMoreFooter();
 }
 
 async function openStateBill(bill) {
   previousPage = document.querySelector('.page.active').id;
 
-  document.getElementById('detail-bill-id').textContent = `${bill.identifier} · Virginia`;
+  document.getElementById('detail-bill-id').textContent = `${bill.identifier} · ${getPrefs()?.stateName || bill.state || ''}`;
   document.getElementById('detail-bill-title').textContent = bill.title || bill.identifier;
   document.getElementById('detail-loading').style.display = 'block';
   document.getElementById('detail-content').style.display = 'none';
@@ -836,8 +1340,19 @@ async function openStateBill(bill) {
       document.getElementById('detail-loading').style.display = 'none';
       document.getElementById('detail-explanation').innerHTML = renderMarkdown(data.translation);
       renderTimeline(data.timeline_events, data.timeline);
-      document.getElementById('votes-section').style.display = 'none';
+      renderVotes(data.votes, true);
+      renderFullText(data.bill_text);
+      renderConnections(null);
       document.getElementById('detail-content').style.display = 'block';
+      if (typeof setCurrentBillContext === 'function') {
+        setCurrentBillContext({
+          bill_id:      `${bill.identifier} · ${bill.state || ''}`,
+          bill_title:   bill.title || bill.identifier,
+          bill_summary: data.translation || '',
+          latest_action: bill.latest_action || '',
+          _reopen: { type: 'state', ocd_id: bill.ocd_id, identifier: bill.identifier, title: bill.title, state: bill.state },
+        });
+      }
     }, 400);
 
   } catch (err) {
@@ -992,9 +1507,22 @@ function finishOnboarding() {
   const selected = [...document.querySelectorAll('.interest-pill.selected')]
     .map(el => el.dataset.interest);
 
+  const STATE_NAMES = {
+    AL:"Alabama",AK:"Alaska",AZ:"Arizona",AR:"Arkansas",CA:"California",
+    CO:"Colorado",CT:"Connecticut",DE:"Delaware",FL:"Florida",GA:"Georgia",
+    HI:"Hawaii",ID:"Idaho",IL:"Illinois",IN:"Indiana",IA:"Iowa",KS:"Kansas",
+    KY:"Kentucky",LA:"Louisiana",ME:"Maine",MD:"Maryland",MA:"Massachusetts",
+    MI:"Michigan",MN:"Minnesota",MS:"Mississippi",MO:"Missouri",MT:"Montana",
+    NE:"Nebraska",NV:"Nevada",NH:"New Hampshire",NJ:"New Jersey",NM:"New Mexico",
+    NY:"New York",NC:"North Carolina",ND:"North Dakota",OH:"Ohio",OK:"Oklahoma",
+    OR:"Oregon",PA:"Pennsylvania",RI:"Rhode Island",SC:"South Carolina",
+    SD:"South Dakota",TN:"Tennessee",TX:"Texas",UT:"Utah",VT:"Vermont",
+    VA:"Virginia",WA:"Washington",WV:"West Virginia",WI:"Wisconsin",WY:"Wyoming"
+  };
   const prefs = {
     zip: onboardingData.zip,
     state: onboardingData.state,
+    stateName: STATE_NAMES[onboardingData.state] || onboardingData.state,
     senators: onboardingData.senators,
     representative: onboardingData.representative,
     interests: selected,

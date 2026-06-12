@@ -1,3 +1,4 @@
+import re
 import requests
 import os
 from dotenv import load_dotenv
@@ -250,7 +251,9 @@ def search_laws(keywords, congress_numbers, max_results=5):
 
         for law in laws:
             title = (law.get("title") or "").lower()
-            law_number = (law.get("laws") or [{}])[0].get("number", "")
+            raw_law_num = str((law.get("laws") or [{}])[0].get("number", ""))
+            # API returns "119-98" format — extract just the sequential number
+            law_number = raw_law_num.split("-")[-1] if "-" in raw_law_num else raw_law_num
 
             if keywords_lower and not any(k in title for k in keywords_lower):
                 continue
@@ -278,7 +281,78 @@ def search_laws(keywords, congress_numbers, max_results=5):
             if len(results) >= max_results:
                 return results
 
+    if not results and keywords_lower:
+        print(f"[SEARCH] search_laws: no title matches — falling back to GovInfo PLAW full-text")
+        results = _govinfo_plaw_search(keywords_lower, congress_numbers, max_results)
+
     return results
+
+
+def _govinfo_plaw_search(keywords_lower, congress_numbers, max_results=5):
+    """
+    GovInfo full-text fallback for enacted law searches when Congress.gov title
+    matching returns nothing. Searches the PLAW collection by content keywords.
+    """
+    terms = [f'"{k}"' if " " in k else k for k in keywords_lower[:4]]
+    terms_query = " OR ".join(terms)
+    congress_filter = " OR ".join(f"congress:{c}" for c in congress_numbers)
+    full_query = f"({terms_query}) collection:PLAW ({congress_filter})"
+
+    payload = {
+        "query": full_query,
+        "pageSize": max_results * 3,
+        "offsetMark": "*",
+        "sorts": [{"field": "publishdate", "sortOrder": "DESC"}],
+    }
+
+    try:
+        r = requests.post(
+            "https://api.govinfo.gov/search",
+            json=payload,
+            params={"api_key": GOVINFO_API_KEY},
+            timeout=15,
+        )
+    except Exception as e:
+        print(f"[SEARCH] GovInfo PLAW fallback error: {e}")
+        return []
+
+    if r.status_code != 200:
+        print(f"[SEARCH] GovInfo PLAW fallback: HTTP {r.status_code}")
+        return []
+
+    try:
+        raw = r.json().get("results", [])
+    except Exception:
+        return []
+
+    results = []
+    seen = set()
+    for item in raw:
+        pkg = item.get("packageId", "")
+        m = re.match(r"PLAW-(\d+)publ(\d+)", pkg)
+        if not m:
+            continue
+        congress = int(m.group(1))
+        law_number = int(m.group(2))
+        key = f"{congress}pub{law_number}"
+        if key in seen:
+            continue
+        seen.add(key)
+        results.append({
+            "package_id": pkg,
+            "title": item.get("title", ""),
+            "date_issued": item.get("dateIssued", ""),
+            "congress": congress,
+            "type": None,
+            "number": None,
+            "is_law": True,
+            "law_number": law_number,
+        })
+        if len(results) >= max_results:
+            break
+
+    return results
+
 
 if __name__ == "__main__":
     test_query = {

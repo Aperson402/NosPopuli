@@ -3,6 +3,8 @@ import re
 import os
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
+from cachetools import TTLCache, cached
+from threading import RLock
 from documentor_agent import log_action
 
 load_dotenv()
@@ -10,7 +12,13 @@ load_dotenv()
 OPENSTATES_API_KEY = os.getenv("OPENSTATES_API_KEY")
 OPENSTATES_BASE = "https://v3.openstates.org"
 
+_session = requests.Session()
+_bill_cache = TTLCache(maxsize=256, ttl=1800)   # 30 min — state bills update more frequently
+_text_cache = TTLCache(maxsize=128, ttl=7200)   # 2 hours — bill text is stable
+_text_lock  = RLock()
 
+
+@cached(cache=_bill_cache, lock=RLock())
 def fetch_state_bill(ocd_id):
     """
     Fetch full bill detail from OpenStates by OCD ID.
@@ -26,7 +34,7 @@ def fetch_state_bill(ocd_id):
     headers = {"X-API-KEY": OPENSTATES_API_KEY}
 
     try:
-        r = requests.get(url, params=params, headers=headers, timeout=10)
+        r = _session.get(url, params=params, headers=headers, timeout=30)
     except Exception as e:
         print(f"[STATE FETCHER] Request error: {e}")
         return None
@@ -41,6 +49,87 @@ def fetch_state_bill(ocd_id):
         return None
 
 
+def _normalize_bill_text(text):
+    """
+    Clean and reformat raw legislative bill text for readable display.
+
+    Formatting rules:
+    1. Strip unicode whitespace artifacts (non-breaking spaces, etc.)
+    2. Remove lines that are purely whitespace
+    3. Join structural fragment lines — bare parentheticals "(2)" and section
+       labels "Sec." that were split into their own elements by the HTML source
+    4. Join prose lines that were wrapped at ~60 chars in the source HTML
+    5. Preserve intentional structure: SECTION N, Sec., (N), (a) always start
+       their own line; ALL-CAPS headers that end with . or : are treated as complete
+    6. Add a single blank line before each major SECTION to aid scanning
+    """
+    # 1. Normalize unicode whitespace artifacts
+    text = text.replace('\xa0', ' ').replace(' ', ' ').replace(' ', ' ')
+
+    # 2. Strip each line; drop lines that are pure whitespace after stripping
+    lines = [l.strip() for l in text.split('\n')]
+    lines = [l for l in lines if l]
+
+    # 3. Join structural fragment lines with the line that follows them.
+    #    Fragments: bare parentheticals "(2)", bare "Sec.", bare section numbers "240.912."
+    merged = []
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        nxt  = lines[i + 1] if i + 1 < len(lines) else None
+
+        is_bare_paren = bool(re.match(r'^\([0-9a-zA-Z]+\)$', line))
+        is_bare_sec   = bool(re.match(r'^Sec\.$', line, re.IGNORECASE))
+        is_bare_num   = bool(re.match(r'^\d+\.\d[\d\.]*\.$', line))
+
+        if nxt and (is_bare_paren or is_bare_sec or is_bare_num):
+            merged.append(line + '  ' + nxt)
+            i += 2
+        else:
+            merged.append(line)
+            i += 1
+    lines = merged
+
+    # Patterns for structure detection
+    SECTION_START = re.compile(
+        r'^(SECTION\s+\d|SEC\.\s+\d|BE IT\s|AN ACT|A BILL\s|By:|'
+        r'H\.[BCJ-SJ]\.(\s+No\.)?|S\.[BCJ]\.(\s+No\.)?|'
+        r'TITLE\s+[IVX\d]|SUBTITLE\s+[A-Z]|'
+        r'CHAPTER\s+\d|SUBCHAPTER\s+[A-Z]|ARTICLE\s+\d)',
+        re.IGNORECASE
+    )
+    SUBSEC_START = re.compile(r'^\([0-9a-zA-Z]+\)\s')
+    TERMINAL     = re.compile(r'[.;:?!]$')
+    # All-caps header that is itself a complete line (ends with . or :)
+    CAPS_HEADER  = re.compile(r'^[A-Z][A-Z0-9\s\-\.]+[.:]$')
+
+    # 4. Join prose lines that were wrapped at the source
+    result = []
+    for line in lines:
+        if not result:
+            result.append(line)
+            continue
+
+        prev = result[-1]
+        prev_complete  = bool(TERMINAL.search(prev)) or bool(CAPS_HEADER.match(prev))
+        line_new_block = bool(SECTION_START.match(line)) or bool(SUBSEC_START.match(line))
+
+        if not prev_complete and not line_new_block:
+            result[-1] = prev + ' ' + line
+        else:
+            result.append(line)
+
+    # 5. Add a blank line before each major SECTION N for visual separation
+    MAJOR_SECTION = re.compile(r'^SECTION\s+\d', re.IGNORECASE)
+    spaced = []
+    for i, line in enumerate(result):
+        if i > 0 and MAJOR_SECTION.match(line):
+            spaced.append('')
+        spaced.append(line)
+
+    return '\n'.join(spaced).strip()
+
+
 def fetch_state_bill_text(bill_data):
     """
     Fetch HTML text of the bill from the version links.
@@ -48,6 +137,12 @@ def fetch_state_bill_text(bill_data):
     """
     if not bill_data:
         return None
+
+    ocd_id = bill_data.get("id")
+    if ocd_id:
+        with _text_lock:
+            if ocd_id in _text_cache:
+                return _text_cache[ocd_id]
 
     versions = bill_data.get("versions", [])
     if not versions:
@@ -89,18 +184,18 @@ def fetch_state_bill_text(bill_data):
         return None
 
     try:
-        r = requests.get(selected_url, timeout=15)
+        r = _session.get(selected_url, timeout=15)
         if r.status_code != 200:
             return None
 
         soup = BeautifulSoup(r.text, "html.parser")
-        text = soup.get_text(separator="\n")
+        raw  = soup.get_text(separator="\n")
+        result = _normalize_bill_text(raw)
 
-        # Clean whitespace
-        text = re.sub(r'\n{3,}', '\n\n', text)
-        text = re.sub(r' {2,}', ' ', text)
-
-        return text.strip()
+        if ocd_id and result:
+            with _text_lock:
+                _text_cache[ocd_id] = result
+        return result
 
     except Exception as e:
         print(f"[STATE FETCHER] Text fetch error: {e}")

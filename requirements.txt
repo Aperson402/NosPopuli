@@ -35,3 +35,7 @@ uvicorn==0.46.0
 wrapt==2.1.2
 supabase
 beautifulsoup4
+cachetools
+google-auth-oauthlib
+google-api-python-client
+python-jose[cryptography]

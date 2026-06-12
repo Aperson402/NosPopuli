@@ -138,7 +138,7 @@ Explain:
     return translation
 
 
-def translate_bill(bill_data, client, user_context=None):
+def translate_bill(bill_data, client, user_context=None, bill_text=None):
     bill = bill_data["bill"]
 
     congress = bill.get("congress")
@@ -163,16 +163,22 @@ def translate_bill(bill_data, client, user_context=None):
     status = bill.get("latestAction", {}).get("text", "Unknown")
     policy_area = bill.get("policyArea", {}).get("name", "")
 
+    text_section = ""
+    if bill_text and len(bill_text) > 200:
+        text_section = f"\nActual bill text (excerpt):\n{bill_text[:8000]}"
+
     prompt = f"""
 You are a plain English translator for legislation.
 Your only job is to explain a bill clearly to an average person.
 No legal jargon. No assumptions about their background.
 Be concise but complete.
+Base your explanation on the actual bill text when provided — do not infer or guess.
 
 Bill Title: {title}
 Sponsor: {sponsor}
 Current Status: {status}
 Policy Area: {policy_area}
+{text_section}
 
 Explain:
 1. What this bill does in one sentence

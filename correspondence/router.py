@@ -1,0 +1,317 @@
+import os
+import uuid
+import asyncio
+from datetime import datetime
+from typing import Optional
+
+import anthropic
+from fastapi import APIRouter, HTTPException, Request
+from fastapi.responses import RedirectResponse
+from pydantic import BaseModel
+
+from .db import (
+    init_db, upsert_user, get_user,
+    update_user_gmail, update_user_zip,
+    check_rate_limit, increment_rate_limit, check_bill_rep_cooldown,
+    save_correspondence, get_user_correspondence,
+    get_correspondence_by_id, save_reply, get_replies,
+)
+from .auth import get_auth_url, exchange_code, make_user_id, issue_jwt, verify_jwt
+from .gmail import screen_email_username, send_email, check_thread_replies, FOOTER
+from .draft import generate_draft, moderate_email, generate_followup
+
+router = APIRouter()
+init_db()
+
+BASE_URL = os.getenv("BASE_URL", "http://localhost:8000")
+
+
+def _claude():
+    return anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+
+
+def _current_user(request: Request) -> dict:
+    auth = request.headers.get("Authorization", "")
+    if not auth.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    try:
+        user_id = verify_jwt(auth[7:])
+    except ValueError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    user = get_user(user_id)
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
+    return user
+
+
+# ── OAuth ──
+
+@router.get("/auth/google")
+async def auth_google():
+    if not os.getenv("GOOGLE_CLIENT_ID"):
+        raise HTTPException(
+            status_code=503,
+            detail="Google OAuth not configured. Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to .env"
+        )
+    auth_url, _ = get_auth_url()
+    return RedirectResponse(auth_url)
+
+
+@router.get("/auth/google/callback")
+async def auth_google_callback(code: str, state: str):
+    loop = asyncio.get_event_loop()
+
+    try:
+        id_info, refresh_token = await loop.run_in_executor(
+            None, exchange_code, code, state
+        )
+    except Exception as e:
+        print(f"[AUTH] Exchange failed: {e}")
+        return RedirectResponse(f"{BASE_URL}/?auth_error=oauth")
+
+    google_sub = id_info["sub"]
+    email      = id_info.get("email", "")
+    name       = id_info.get("name", "")
+
+    user_id = make_user_id(google_sub)
+    upsert_user(user_id, email, name)
+
+    screened = False
+    if refresh_token:
+        try:
+            approved, _ = await loop.run_in_executor(
+                None, screen_email_username, email, _claude()
+            )
+            screened = approved
+            update_user_gmail(user_id, email, refresh_token, screened)
+        except Exception as e:
+            print(f"[AUTH] Screening failed: {e}")
+
+    token = issue_jwt(user_id)
+    flag = "1" if screened else "0"
+    return RedirectResponse(f"{BASE_URL}/?np_token={token}&email_ok={flag}")
+
+
+@router.get("/auth/me")
+async def auth_me(request: Request):
+    user = _current_user(request)
+    return {
+        "id":              user["id"],
+        "email":           user["email"],
+        "name":            user["name"],
+        "zip_code":        user["zip_code"],
+        "state":           user["state"],
+        "gmail_address":   user["gmail_address"],
+        "email_screened":  bool(user["email_screened"]),
+        "gmail_connected": bool(user["gmail_refresh_token"]),
+    }
+
+
+# ── User zip ──
+
+class ZipUpdateRequest(BaseModel):
+    zip_code: str
+    state: str
+    city: Optional[str] = ""
+
+
+@router.post("/user/zip")
+async def save_user_zip(body: ZipUpdateRequest, request: Request):
+    user = _current_user(request)
+    loop = asyncio.get_event_loop()
+    await loop.run_in_executor(
+        None, update_user_zip, user["id"], body.zip_code, body.state, body.city or ""
+    )
+    return {"ok": True}
+
+
+# ── Draft ──
+
+class DraftRequest(BaseModel):
+    bill_id: str
+    bill_title: str
+    bill_summary: str
+    latest_action: Optional[str] = ""
+    legislator_name: str
+    legislator_office: str
+    user_statement: str
+    full_name: Optional[str] = ""
+
+
+@router.post("/correspondence/draft")
+async def draft_correspondence(body: DraftRequest, request: Request):
+    user = _current_user(request)
+
+    if not user["email_screened"]:
+        raise HTTPException(status_code=403, detail="Gmail address not approved for correspondence")
+
+    if not check_rate_limit(user["id"], "draft", 10):
+        raise HTTPException(status_code=429, detail="Draft limit reached for today (10/day)")
+
+    loop = asyncio.get_event_loop()
+    draft = await loop.run_in_executor(
+        None, generate_draft,
+        body.bill_id, body.bill_title, body.bill_summary, body.latest_action,
+        body.legislator_name, body.legislator_office,
+        user.get("city") or "", user.get("state") or "",
+        body.user_statement, body.full_name or "", _claude()
+    )
+
+    increment_rate_limit(user["id"], "draft")
+
+    subject = f"{body.bill_id} — {body.bill_title[:60]}"
+    return {"draft": draft, "subject": subject, "footer": FOOTER}
+
+
+# ── Send ──
+
+class SendRequest(BaseModel):
+    bill_id: str
+    bill_title: str
+    legislator_name: str
+    legislator_office: str
+    legislator_state: Optional[str] = ""
+    to_email: Optional[str] = None
+    contact_form_url: Optional[str] = None
+    subject: str
+    body: str
+
+
+@router.post("/correspondence/send")
+async def send_correspondence(body: SendRequest, request: Request):
+    user = _current_user(request)
+
+    if not user["email_screened"]:
+        raise HTTPException(status_code=403, detail="Gmail address not approved")
+    if not user["gmail_refresh_token"]:
+        raise HTTPException(status_code=403, detail="Gmail not connected")
+
+    if not check_rate_limit(user["id"], "send", 5):
+        raise HTTPException(status_code=429, detail="Send limit reached for today (5/day)")
+
+    if check_bill_rep_cooldown(user["id"], body.bill_id, body.legislator_name):
+        raise HTTPException(
+            status_code=429,
+            detail=f"You already contacted {body.legislator_name} about this bill within the last 30 days"
+        )
+
+    loop = asyncio.get_event_loop()
+
+    ok, reason = await loop.run_in_executor(
+        None, moderate_email, body.body, body.bill_id, _claude()
+    )
+    if not ok:
+        raise HTTPException(status_code=400, detail=f"Message blocked: {reason}")
+
+    corr_id    = str(uuid.uuid4())
+    thread_id  = None
+    message_id = None
+    delivery   = "form"
+
+    if body.to_email:
+        try:
+            thread_id, message_id = await loop.run_in_executor(
+                None, send_email,
+                user["gmail_refresh_token"], body.to_email, body.subject, body.body
+            )
+            delivery = "email"
+        except Exception as e:
+            print(f"[SEND] Gmail error: {e}")
+            raise HTTPException(status_code=500, detail="Failed to send via Gmail. Please try again.")
+
+    save_correspondence({
+        "id":               corr_id,
+        "user_id":          user["id"],
+        "bill_id":          body.bill_id,
+        "bill_title":       body.bill_title,
+        "legislator_name":  body.legislator_name,
+        "legislator_office": body.legislator_office,
+        "legislator_state": body.legislator_state or "",
+        "to_email":         body.to_email,
+        "contact_form_url": body.contact_form_url,
+        "subject":          body.subject,
+        "body":             body.body,
+        "sent_at":          datetime.utcnow().isoformat(),
+        "delivery_method":  delivery,
+        "gmail_thread_id":  thread_id,
+        "gmail_message_id": message_id,
+    })
+
+    increment_rate_limit(user["id"], "send")
+
+    return {
+        "ok":               True,
+        "correspondence_id": corr_id,
+        "delivery_method":  delivery,
+        "contact_form_url": body.contact_form_url if delivery == "form" else None,
+    }
+
+
+# ── List & replies ──
+
+@router.get("/correspondence")
+async def list_correspondence(request: Request):
+    user = _current_user(request)
+    items = get_user_correspondence(user["id"])
+    return {"items": items}
+
+
+@router.get("/correspondence/{corr_id}/replies")
+async def check_replies(corr_id: str, request: Request):
+    user = _current_user(request)
+    corr = get_correspondence_by_id(corr_id, user["id"])
+    if not corr:
+        raise HTTPException(status_code=404, detail="Not found")
+
+    if corr["delivery_method"] != "email" or not corr.get("gmail_thread_id"):
+        return {"replies": get_replies(corr_id)}
+
+    if not user["gmail_refresh_token"]:
+        return {"replies": get_replies(corr_id)}
+
+    loop = asyncio.get_event_loop()
+    try:
+        new_msgs = await loop.run_in_executor(
+            None, check_thread_replies,
+            user["gmail_refresh_token"],
+            corr["gmail_thread_id"],
+            corr.get("gmail_message_id"),
+        )
+        for m in new_msgs:
+            save_reply(corr_id, m["id"], m.get("date", ""), m.get("preview", ""))
+    except Exception as e:
+        print(f"[REPLIES] Gmail fetch error: {e}")
+
+    return {"replies": get_replies(corr_id)}
+
+
+# ── Follow-up draft ──
+
+class FollowupRequest(BaseModel):
+    correspondence_id: str
+    reply_text: str
+
+
+@router.post("/correspondence/followup/draft")
+async def draft_followup(body: FollowupRequest, request: Request):
+    user = _current_user(request)
+    corr = get_correspondence_by_id(body.correspondence_id, user["id"])
+    if not corr:
+        raise HTTPException(status_code=404, detail="Correspondence not found")
+
+    if not check_rate_limit(user["id"], "draft", 10):
+        raise HTTPException(status_code=429, detail="Draft limit reached for today")
+
+    loop = asyncio.get_event_loop()
+    draft = await loop.run_in_executor(
+        None, generate_followup,
+        corr["body"], body.reply_text, corr["legislator_name"], _claude()
+    )
+
+    increment_rate_limit(user["id"], "draft")
+
+    return {
+        "draft": draft,
+        "subject": f"Re: {corr['subject']}",
+        "footer": FOOTER,
+    }

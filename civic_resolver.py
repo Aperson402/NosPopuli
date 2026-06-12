@@ -59,7 +59,9 @@ def resolve_zip(zip_code):
             "bioguide_id": bioguide,
             "party": party,
             "state": state,
-            "chamber": "Senate" if member_type == "sen" else "House"
+            "chamber": "Senate" if member_type == "sen" else "House",
+            "contact_form": last_term.get("contact_form", ""),
+            "url": last_term.get("url", ""),
         }
         
         if member_type == "sen":

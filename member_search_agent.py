@@ -6,6 +6,7 @@ from documentor_agent import log_action
 load_dotenv()
 
 CONGRESS_API_KEY = os.getenv("CONGRESS_API_KEY")
+_session = requests.Session()
 GOVINFO_API_KEY = os.getenv("GovInfo_API_KEY")
 
 NICKNAMES = {
@@ -56,9 +57,9 @@ def search_member(name):
     
     while pages_checked < max_pages:
         if next_url and pages_checked > 0:
-            response = requests.get(next_url, timeout=10)
+            response = _session.get(next_url, timeout=10)
         else:
-            response = requests.get(url, params=params, timeout=10)
+            response = _session.get(url, params=params, timeout=10)
         
         if response.status_code != 200:
             break
@@ -138,7 +139,7 @@ def fetch_member_profile(bioguide_id):
     url = f"https://api.congress.gov/v3/member/{bioguide_id}"
     params = {"api_key": CONGRESS_API_KEY, "format": "json"}
     
-    response = requests.get(url, params=params, timeout=10)
+    response = _session.get(url, params=params, timeout=10)
     if response.status_code != 200:
         return None
     
@@ -198,7 +199,7 @@ def fetch_member_legislation(bioguide_id, limit=20):
 
     # Fetch 250 bills for accurate policy area distribution
     try:
-        r = requests.get(sponsored_url, params={
+        r = _session.get(sponsored_url, params={
             "api_key": CONGRESS_API_KEY, "format": "json", "limit": 250
         }, timeout=30)
         bills_raw = r.json().get("sponsoredLegislation", []) if r.status_code == 200 else []
@@ -226,7 +227,7 @@ def fetch_member_legislation(bioguide_id, limit=20):
 
     # Total counts
     try:
-        r2 = requests.get(sponsored_url, params={
+        r2 = _session.get(sponsored_url, params={
             "api_key": CONGRESS_API_KEY, "format": "json", "limit": 1
         }, timeout=10)
         sponsored_count = r2.json().get("pagination", {}).get("count", 0) if r2.status_code == 200 else 0
@@ -234,7 +235,7 @@ def fetch_member_legislation(bioguide_id, limit=20):
         sponsored_count = 0
 
     try:
-        r3 = requests.get(cosponsored_url, params={
+        r3 = _session.get(cosponsored_url, params={
             "api_key": CONGRESS_API_KEY, "format": "json", "limit": 1
         }, timeout=10)
         cosponsored_count = r3.json().get("pagination", {}).get("count", 0) if r3.status_code == 200 else 0

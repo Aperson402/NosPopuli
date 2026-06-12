@@ -1,12 +1,18 @@
 import requests
 import os
 from dotenv import load_dotenv
+from cachetools import TTLCache, cached
+from threading import RLock
 from documentor_agent import log_action
 
 load_dotenv()
 
 CONGRESS_API_KEY = os.getenv("CONGRESS_API_KEY")
 
+_session = requests.Session()
+_actions_cache = TTLCache(maxsize=256, ttl=1800)
+
+@cached(cache=_actions_cache, lock=RLock())
 def fetch_bill_actions(congress_number, bill_type, bill_number):
     """Gets the full action history of a bill - every step it took through Congress"""
 
@@ -14,7 +20,7 @@ def fetch_bill_actions(congress_number, bill_type, bill_number):
     params = {"api_key": CONGRESS_API_KEY, "format": "json", "limit": 20}
 
     try:
-        response = requests.get(url, params=params, timeout=10)
+        response = _session.get(url, params=params, timeout=10)
     except requests.exceptions.Timeout:
         print(f"[HISTORIAN] Timeout fetching actions for {bill_type}{bill_number}")
         return None
@@ -52,7 +58,7 @@ def fetch_related_bills(congress_number, bill_type, bill_number):
     params = {"api_key": CONGRESS_API_KEY, "format": "json", "limit": 5}
 
     try:
-        response = requests.get(url, params=params, timeout=10)
+        response = _session.get(url, params=params, timeout=10)
     except requests.exceptions.Timeout:
         print(f"[HISTORIAN] Timeout fetching related bills")
         return None

@@ -7,6 +7,7 @@ from documentor_agent import log_action
 load_dotenv()
 
 CONGRESS_API_KEY = os.getenv("CONGRESS_API_KEY")
+_session = requests.Session()
 
 # ── House fetcher ──
 
@@ -50,7 +51,7 @@ def _fetch_house_congress_api(congress, session, roll):
     try:
         url = f"https://api.congress.gov/v3/house-vote/{congress}/{session}/{roll}/members"
         params = {"api_key": CONGRESS_API_KEY, "format": "json", "limit": 250}
-        response = requests.get(url, params=params, timeout=10)
+        response = _session.get(url, params=params, timeout=10)
 
         if response.status_code != 200:
             return None
@@ -75,7 +76,7 @@ def _fetch_house_congress_api(congress, session, roll):
 def _fetch_house_clerk_xml(url):
     """Fetch from clerk.house.gov XML feed."""
     try:
-        response = requests.get(url, timeout=10)
+        response = _session.get(url, timeout=10)
         if response.status_code != 200:
             return None
 
@@ -124,7 +125,7 @@ def fetch_senate_votes(vote_ref):
 
     try:
         url = f"https://www.senate.gov/legislative/LIS/roll_call_votes/vote{congress}{session}/vote_{congress}_{session}_{str(roll).zfill(5)}.xml"
-        response = requests.get(url, timeout=10)
+        response = _session.get(url, timeout=10)
 
         if response.status_code != 200:
             print(f"[VOTE FETCHER] Senate XML not found: {url}")

@@ -17,6 +17,9 @@
   <div class="tagline">Law for the People &nbsp;·&nbsp; Federal Legislation in Plain English</div>
 </header>
 
+<!-- Auth bar — visible only when signed in -->
+<div id="auth-bar" class="auth-bar" style="display:none"></div>
+
 <!-- ── PERSISTENT SEARCH BAR (always visible) ── -->
 <div class="search-bar-wrap" id="search-bar-wrap">
   <div style="display:flex;align-items:center;gap:1rem;margin-bottom:0.75rem">
@@ -166,10 +169,23 @@
       </div>
     </div>
     <div id="detail-content" style="display:none">
+      <div class="detail-section" id="full-text-section" style="display:none">
+        <button class="full-text-toggle" id="full-text-toggle" onclick="toggleFullText()">
+          <span class="section-label" style="margin:0;flex:1">Full Text</span>
+          <span class="full-text-chevron" id="full-text-chevron">▼</span>
+        </button>
+        <div id="full-text-body" style="display:none">
+          <pre id="full-text-content" class="full-text-content"></pre>
+        </div>
+      </div>
       <div class="detail-section">
         <div class="section-label">Plain English Explanation</div>
         <div class="detail-explanation" id="detail-explanation"></div>
-        <div style="margin-top:0.75rem;text-align:right">
+        <div style="margin-top:0.75rem;display:flex;justify-content:space-between;align-items:center">
+          <button class="write-reps-btn" id="write-reps-btn"
+              style="display:none" onclick="openWritePanel()">
+            ✉ Write to Your Reps
+          </button>
           <button class="feed-settings-btn" id="flag-translation-btn"
               onclick="showBillFlag('translation')">
             Flag inaccuracy
@@ -184,6 +200,30 @@
               onclick="showBillFlag('timeline')">
             Flag inaccuracy
           </button>
+        </div>
+      </div>
+      <div class="detail-section" id="connections-section" style="display:none">
+        <div class="section-label">Connections</div>
+        <div id="connections-amends" class="conn-category" style="display:none">
+          <div class="conn-category-label"></div>
+          <div class="conn-category-body"></div>
+        </div>
+        <div id="connections-identical" class="conn-category" style="display:none">
+          <div class="conn-category-label">Identical Bill</div>
+          <div class="conn-category-body"></div>
+        </div>
+        <div id="connections-amended-by" class="conn-category" style="display:none">
+          <div class="conn-category-label">Amended By</div>
+          <div class="conn-category-body"></div>
+          <button class="conn-show-all" id="conn-amended-show-all" style="display:none" onclick="connectionsShowAll('amended-by')">Show all</button>
+        </div>
+        <div id="connections-related" class="conn-category" style="display:none">
+          <div class="conn-category-label">Related Legislation</div>
+          <div class="conn-category-body"></div>
+        </div>
+        <div id="connections-superseded" class="conn-category" style="display:none">
+          <div class="conn-category-label">Superseded By</div>
+          <div class="conn-category-body"></div>
         </div>
       </div>
       <div class="detail-section" id="votes-section" style="display:none">
@@ -292,6 +332,124 @@
   <span style="cursor:pointer;text-decoration:underline" onclick="showPage('page-onboarding');showStep(1)">Personalize my feed</span>
 </footer>
 
+<!-- ── CORRESPONDENCE PAGE ── -->
+<div class="page" id="page-correspondence">
+  <div class="detail-page">
+    <button class="detail-back" onclick="goBack()">← Back</button>
+    <div class="detail-header">
+      <div class="detail-bill-id">Civic Correspondence</div>
+      <div class="detail-bill-title">Your letters to representatives</div>
+    </div>
+    <div id="corr-list"></div>
+  </div>
+</div>
+
+<!-- ── WRITE-TO-REPS PANEL ── -->
+<div id="write-panel" class="write-panel">
+  <div class="wp-header">
+    <span class="wp-title">Write to Your Representatives</span>
+    <button class="wp-close" onclick="closeWritePanel()">✕</button>
+  </div>
+
+  <!-- Not signed in -->
+  <div class="wp-state" id="wp-auth" style="display:none">
+    <div class="wp-section-label">Sign in to send letters</div>
+    <p class="wp-body-text">
+      NosPopuli sends letters directly from your Gmail address — so replies land in your inbox.
+      We never send anything without your review.
+    </p>
+    <button class="wp-google-btn" onclick="signInWithGoogle()">Sign in with Google</button>
+    <p class="wp-fine-print">
+      We request Gmail send &amp; read permissions to send your letter and surface replies.
+      Your email is only used to contact your representatives.
+    </p>
+  </div>
+
+  <!-- Email flagged -->
+  <div class="wp-state" id="wp-flagged" style="display:none">
+    <div class="wp-section-label">Email address not suitable</div>
+    <p class="wp-body-text">
+      Your Gmail address wasn't approved for civic correspondence with elected officials.
+      Please sign in with a more professional email address.
+    </p>
+    <a href="/auth/google" class="wp-google-btn">Use a different account</a>
+  </div>
+
+  <!-- Daily limit hit -->
+  <div class="wp-state" id="wp-limit" style="display:none">
+    <div class="wp-section-label">Daily limit reached</div>
+    <p class="wp-body-text">You've reached today's limit of 5 sent letters. Come back tomorrow.</p>
+    <button class="wp-secondary-btn" onclick="closeWritePanel()">Close</button>
+  </div>
+
+  <!-- Pick rep -->
+  <div class="wp-state" id="wp-pick" style="display:none">
+    <div class="wp-section-label">Who would you like to write to?</div>
+    <div id="wp-reps-list"></div>
+    <button class="wp-primary-btn" id="wp-pick-btn" disabled onclick="goToImpact()">
+      Continue →
+    </button>
+  </div>
+
+  <!-- Impact statement -->
+  <div class="wp-state" id="wp-impact" style="display:none">
+    <div class="wp-section-label" id="wp-impact-heading">How does this bill affect you?</div>
+    <p class="wp-body-text">Write 2–4 sentences in your own words. This makes your letter authentic — we won't embellish or change your meaning.</p>
+    <textarea id="wp-statement" class="wp-textarea"
+      placeholder="E.g. This bill would directly affect me because..." rows="5"></textarea>
+    <label class="wp-field-label" for="wp-fullname">Your full name</label>
+    <input id="wp-fullname" class="wp-input" type="text" placeholder="Jane Smith" autocomplete="name"/>
+    <p class="wp-privacy-note">Your name is used only to write your letter. NosPopuli does not store it on our servers.</p>
+    <button class="wp-primary-btn" onclick="goToDraft()">Generate Draft →</button>
+    <button class="wp-secondary-btn" onclick="_showPanelState('wp-pick')">← Back</button>
+  </div>
+
+  <!-- Generating -->
+  <div class="wp-state" id="wp-drafting" style="display:none">
+    <div class="wp-section-label">Drafting your letter…</div>
+    <div class="wp-spinner"></div>
+    <p class="wp-body-text">Claude is writing a draft based on your words. This takes a few seconds.</p>
+  </div>
+
+  <!-- Review draft -->
+  <div class="wp-state" id="wp-draft" style="display:none">
+    <div class="wp-section-label">Review and edit your letter</div>
+    <div class="wp-subject-row">
+      <span class="wp-subject-label">Subject</span>
+      <span id="wp-subject-display" class="wp-subject-val"></span>
+    </div>
+    <div id="wp-draft-error" class="wp-error" style="display:none"></div>
+    <textarea id="wp-draft-body" class="wp-textarea wp-draft-textarea" rows="12"></textarea>
+    <div id="wp-footer-display" class="wp-footer-text"></div>
+    <div class="wp-send-row">
+      <button class="wp-primary-btn" id="wp-send-btn" onclick="sendLetter()">Send Letter</button>
+      <button class="wp-secondary-btn" onclick="_showPanelState('wp-impact')">← Edit</button>
+    </div>
+    <p class="wp-fine-print">The footer above will be appended automatically and cannot be removed. It identifies NosPopuli to the legislator's office.</p>
+  </div>
+
+  <!-- Sent confirmation -->
+  <div class="wp-state" id="wp-sent" style="display:none">
+    <div class="wp-sent-check">✓</div>
+    <div class="wp-section-label">Letter sent to <span id="wp-sent-name"></span></div>
+    <p class="wp-body-text">Your letter is on its way. Replies will appear in your Gmail inbox — check "My Correspondence" to track them.</p>
+    <div id="wp-sent-form-section" style="display:none">
+      <p class="wp-body-text" style="color:var(--accent)">
+        This representative uses a web contact form. Your draft has been copied to your clipboard.
+      </p>
+      <button class="wp-primary-btn" id="wp-open-form-btn">Open Contact Form →</button>
+    </div>
+    <div style="display:flex;gap:0.75rem;margin-top:1rem">
+      <button class="wp-secondary-btn" onclick="writeAnotherRep()">Write another rep</button>
+      <button class="wp-secondary-btn" onclick="closeWritePanel()">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- Panel backdrop -->
+<div id="write-panel-backdrop" class="write-panel-backdrop" onclick="closeWritePanel()"></div>
+
 <script src="/static/js/index.js"></script>
+<script src="/static/js/correspondence.js"></script>
 </body>
 </html>

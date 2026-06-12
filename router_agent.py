@@ -69,6 +69,10 @@ def years_to_congress_numbers(year_range_str, all_congresses=False):
 
 KNOWN_BILLS = {
     # Current major legislation
+    "one big beautiful bill": {"congress": 119, "type": "hr", "number": 1},
+    "big beautiful bill": {"congress": 119, "type": "hr", "number": 1},
+    "save act": {"congress": 119, "type": "hr", "number": 22},
+    "safeguard american voter eligibility": {"congress": 119, "type": "hr", "number": 22},
     "genius act": {"congress": 119, "type": "s", "number": 1582},
     "genius": {"congress": 119, "type": "s", "number": 1582},
     "inflation reduction act": {"congress": 117, "type": "hr", "number": 5376},
@@ -176,7 +180,11 @@ Rules for time_filter:
 - false otherwise
 
 Rules for named_entity:
-- If query_subtype is named_entity or named_entity_with_date: extract the law name exactly as written
+- If query_subtype is named_entity or named_entity_with_date: extract the official/formal name if you know it, otherwise extract as written
+- "big beautiful bill" or "one big beautiful bill" → "One Big Beautiful Bill Act"
+- "obamacare" → "Affordable Care Act"
+- "chips act" → "CHIPS and Science Act"
+- "save act" → "Safeguard American Voter Eligibility (SAVE) Act"
 - Otherwise: null
 
 Rules for confidence (0.0 to 1.0):

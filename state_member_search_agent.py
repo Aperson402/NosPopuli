@@ -8,6 +8,7 @@ load_dotenv()
 
 OPENSTATES_API_KEY = os.getenv("OPENSTATES_API_KEY")
 OPENSTATES_BASE = "https://v3.openstates.org"
+_session = requests.Session()
 
 
 def search_state_member(name, state_code):
@@ -26,11 +27,11 @@ def search_state_member(name, state_code):
     headers = {"X-API-KEY": OPENSTATES_API_KEY}
 
     try:
-        r = requests.get(
+        r = _session.get(
             f"{OPENSTATES_BASE}/people",
             params=params,
             headers=headers,
-            timeout=10
+            timeout=30
         )
         if r.status_code != 200:
             return None
@@ -57,7 +58,7 @@ def fetch_state_member_profile(ocd_person_id):
     headers = {"X-API-KEY": OPENSTATES_API_KEY}
 
     try:
-        r = requests.get(url, params=params, headers=headers, timeout=10)
+        r = _session.get(url, params=params, headers=headers, timeout=30)
         if r.status_code != 200:
             return None
         return normalize_state_member(r.json(), None)
@@ -86,11 +87,11 @@ def fetch_state_member_bills(ocd_person_id, state_code, limit=10):
     headers = {"X-API-KEY": OPENSTATES_API_KEY}
 
     try:
-        r = requests.get(
+        r = _session.get(
             f"{OPENSTATES_BASE}/bills",
             params=params,
             headers=headers,
-            timeout=10
+            timeout=30
         )
         if r.status_code != 200:
             return []
@@ -115,21 +116,30 @@ def fetch_state_member_bills(ocd_person_id, state_code, limit=10):
 
 def normalize_state_member(p, state_code):
     """Normalize OpenStates person object to NosPopuli member shape."""
-    current_role = {}
     roles = p.get("current_role") or {}
+    org_class = roles.get("org_classification", "")
+    chamber_label = "House" if org_class == "lower" else "Senate" if org_class == "upper" else org_class.title()
+    district = roles.get("district", "")
+    title = roles.get("title", "")
 
     return {
         "ocd_person_id": p.get("id"),
         "name": p.get("name", ""),
         "party": p.get("party", ""),
-        "state": state_code or p.get("jurisdiction", {}).get("name", ""),
-        "chamber": roles.get("org_classification", ""),
-        "district": roles.get("district", ""),
-        "title": roles.get("title", ""),
+        "state": state_code or (p.get("jurisdiction") or {}).get("name", ""),
+        "chamber": chamber_label,
+        "chambers": [chamber_label] if chamber_label else [],
+        "district": district,
+        "title": title,
         "email": p.get("email", ""),
         "photo_url": p.get("image", ""),
         "links": [l.get("url") for l in p.get("links", [])],
         "current": True,
         "is_state_legislator": True,
         "source": "openstates",
+        # Compatibility fields for renderMemberPage
+        "bioguide_id": None,
+        "start_year": None,
+        "end_year": None,
+        "birth_year": None,
     }

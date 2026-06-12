@@ -7,6 +7,7 @@ load_dotenv()
 
 OPENSTATES_API_KEY = os.getenv("OPENSTATES_API_KEY")
 OPENSTATES_BASE = "https://v3.openstates.org"
+_session = requests.Session()
 
 STATE_JURISDICTIONS = {
     "AL": "Alabama", "AK": "Alaska", "AZ": "Arizona", "AR": "Arkansas",
@@ -26,11 +27,24 @@ STATE_JURISDICTIONS = {
 
 # Current sessions — update as sessions change
 STATE_SESSIONS = {
-    "VA": "2025",
+    "TX": "891",
     "CA": "20252026",
-    "TX": "89",
-    "NY": "2025",
-    "FL": "2025",
+    "NY": "2025-2026",
+    "FL": "2026F",
+    "PA": "2025-2026",
+    "IL": "104th",
+    "OH": "136",
+    "GA": "2025_26",
+    "NC": "2025",
+    "MI": "2025-2026",
+    "NJ": "222",
+    "VA": "2026",
+    "WA": "2025-2026",
+    "AZ": "57th-2nd-regular",
+    "TN": "114",
+    "MA": "194th",
+    "IN": "2026",
+    # Remaining states — session lookup was rate-limited; will search across all sessions
 }
 
 SKIP_PATTERNS = [
@@ -39,7 +53,7 @@ SKIP_PATTERNS = [
     "commemorating", "proclaiming", "expressing support for the designation"
 ]
 
-ENABLED_STATES = {"VA"}  # add as each state is built and tested
+ENABLED_STATES = set(STATE_JURISDICTIONS.keys())
 
 ENACTED_ACTION_KEYWORDS = [
     "signed by governor", "enacted", "chaptered", "became law",
@@ -86,11 +100,11 @@ def fetch_state_bill_by_identifier(identifier, state_code, session=None):
     headers = {"X-API-KEY": OPENSTATES_API_KEY}
 
     try:
-        r = requests.get(
+        r = _session.get(
             f"{OPENSTATES_BASE}/bills",
             params=params,
             headers=headers,
-            timeout=10
+            timeout=30
         )
         if r.status_code != 200:
             print(f"[STATE SEARCH] Identifier lookup error {r.status_code}")
@@ -154,7 +168,7 @@ def search_state_bills(query, state_code, session=None, limit=5):
     params = {
         "jurisdiction": jurisdiction,
         "q": query,
-        "per_page": limit * 3,  # fetch extra to filter ceremonial
+        "per_page": min(limit * 3, 20),  # OpenStates max is 20
         "include": ["abstracts", "sponsorships"],
     }
 
@@ -164,11 +178,11 @@ def search_state_bills(query, state_code, session=None, limit=5):
     headers = {"X-API-KEY": OPENSTATES_API_KEY}
 
     try:
-        r = requests.get(
+        r = _session.get(
             f"{OPENSTATES_BASE}/bills",
             params=params,
             headers=headers,
-            timeout=10
+            timeout=30
         )
     except Exception as e:
         print(f"[STATE SEARCH] Request error: {e}")
@@ -178,7 +192,7 @@ def search_state_bills(query, state_code, session=None, limit=5):
         print(f"[STATE SEARCH] Rate limited")
         return []
     if r.status_code != 200:
-        print(f"[STATE SEARCH] Error {r.status_code}: {r.text}")
+        print(f"[STATE SEARCH] Error {r.status_code}: {r.text[:300]}")
         return []
 
     try:
@@ -251,7 +265,7 @@ def get_recent_state_bills(state_code, limit=10, session=None):
     params = {
         "jurisdiction": jurisdiction,
         "classification": "bill",
-        "per_page": limit * 3,
+        "per_page": min(limit * 3, 20),  # OpenStates max is 20
         "sort": "updated_desc",
     }
 
@@ -261,11 +275,11 @@ def get_recent_state_bills(state_code, limit=10, session=None):
     headers = {"X-API-KEY": OPENSTATES_API_KEY}
 
     try:
-        r = requests.get(
+        r = _session.get(
             f"{OPENSTATES_BASE}/bills",
             params=params,
             headers=headers,
-            timeout=10
+            timeout=30
         )
         if r.status_code != 200:
             return []
