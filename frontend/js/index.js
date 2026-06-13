@@ -1003,6 +1003,7 @@ async function loadFeed() {
     const upcomingForUser = ((electionsData && electionsData.upcoming) || [])
       .slice(0, 3);
 
+    _updateSidebarElections(upcomingForUser);
     renderFeedSection(data.items, prefs, upcomingForUser);
 
   } catch(err) {
@@ -1575,6 +1576,7 @@ function finishOnboarding() {
   savePrefs(prefs);
   updateJurisdictionToggle(prefs);
   showPage('page-home');
+  _renderSidebar();
   loadFeed();
 }
 
@@ -1920,8 +1922,68 @@ function openElections() {
   showPage('page-elections');
   loadElections();
 }
+
+// ── Sidebar ──
+function _renderSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  if (!sidebar) return;
+  const prefs = getPrefs();
+  if (!prefs) { sidebar.innerHTML = ''; return; }
+
+  const senators = (prefs.senators || []).map(r => ({ ...r, _isSen: true }));
+  const rep = prefs.representative ? { ...prefs.representative, _isSen: false } : null;
+  const reps = [...senators, rep].filter(Boolean);
+
+  const repRows = reps.map(r => {
+    const party = r.party || '';
+    const cls = party.toLowerCase().includes('dem') ? 'dem'
+              : party.toLowerCase().includes('rep') ? 'rep' : 'ind';
+    const title = r._isSen ? 'Sen.' : 'Rep.';
+    const loc = r.district ? `${r.state}-${r.district}` : (r.state || '');
+    return `<div class="sidebar-rep" onclick="openMemberFromVote(${JSON.stringify({ name: r.name })})">
+      <span class="party-dot ${cls}" style="margin-top:0.3rem;flex-shrink:0"></span>
+      <div class="sidebar-rep-info">
+        <div class="sidebar-rep-name">${title} ${r.name}</div>
+        <div class="sidebar-rep-meta">${party}${loc ? ' · ' + loc : ''}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  sidebar.innerHTML = `
+    <div class="sidebar-section">
+      <div class="section-rule"><span>Your Reps</span></div>
+      ${repRows || '<div class="sidebar-rep-meta" style="padding:0.5rem 0;color:var(--muted)">Set your zip to see your reps</div>'}
+    </div>
+    <div class="sidebar-section" id="sidebar-elections-section" style="display:none">
+      <div class="section-rule"><span>Elections</span></div>
+      <div id="sidebar-elections-list"></div>
+      <a class="sidebar-more-link" href="/elections">All elections →</a>
+    </div>`;
+}
+
+function _updateSidebarElections(elections) {
+  const section = document.getElementById('sidebar-elections-section');
+  const list = document.getElementById('sidebar-elections-list');
+  if (!section || !list || !elections || !elections.length) return;
+  section.style.display = 'block';
+  list.innerHTML = elections.slice(0, 2).map(e => {
+    const days = e.countdown_days ?? null;
+    const cls = days !== null && days <= 30 ? 'urgent' : days !== null && days <= 90 ? 'near' : 'far';
+    const date = (() => { try { return new Date(e.date + 'T12:00:00').toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}); } catch { return e.date; } })();
+    return `<div class="sidebar-election" onclick="window.location='/elections'">
+      <span class="sidebar-election-days ${cls}">${days !== null ? days + 'd' : '?'}</span>
+      <div class="sidebar-election-info">
+        <div class="sidebar-election-name">${e.name}</div>
+        <div class="sidebar-election-date">${date}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+
 if (new URLSearchParams(window.location.search).get('tab') === 'letters') {
   showPage('page-correspondence');
   if (typeof loadCorrespondencePage === 'function') loadCorrespondencePage();
 }
+_renderSidebar();
 loadFeed();

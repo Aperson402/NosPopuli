@@ -21,6 +21,8 @@
   <a class="top-nav-btn" href="#" onclick="showPage('page-correspondence');loadCorrespondencePage();return false">My Letters</a>
 </nav>
 
+<div class="app-layout"><div class="main-col">
+
 <!-- Auth bar — visible only when signed in -->
 <div id="auth-bar" class="auth-bar" style="display:none"></div>
 
@@ -331,11 +333,6 @@
   </div>
 </div>
 
-<footer>
-  NosPopuli &nbsp;·&nbsp; Data via Congress.gov &amp; GovInfo &amp; Senate.gov &nbsp;·&nbsp; Not legal advice &nbsp;·&nbsp;
-  <span style="cursor:pointer;text-decoration:underline" onclick="showPage('page-onboarding');showStep(1)">Personalize my feed</span>
-</footer>
-
 <!-- ── CORRESPONDENCE PAGE ── -->
 <div class="page" id="page-correspondence">
   <div class="detail-page">
@@ -347,6 +344,15 @@
     <div id="corr-list"></div>
   </div>
 </div>
+
+</div><!-- /main-col -->
+<aside class="sidebar" id="sidebar"></aside>
+</div><!-- /app-layout -->
+
+<footer>
+  NosPopuli &nbsp;·&nbsp; Data via Congress.gov &amp; GovInfo &amp; Senate.gov &nbsp;·&nbsp; Not legal advice &nbsp;·&nbsp;
+  <span style="cursor:pointer;text-decoration:underline" onclick="showPage('page-onboarding');showStep(1)">Personalize my feed</span>
+</footer>
 
 <!-- ── WRITE-TO-REPS PANEL ── -->
 <div id="write-panel" class="write-panel">
