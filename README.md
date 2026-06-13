@@ -58,10 +58,7 @@ Search agent          GovInfo API → full text search (BILLS or PLAW collection
                       Deduplicates by bill number across versions
       ↓
 Result Validator      Haiku → scores each result 0–10 for query relevance
-                      Drops results scoring below 5 before sending to orchestrator
-      ↓
-Orchestrator          Spins up parallel instances per bill (asyncio)
-                      Semaphore caps concurrency
+                      Drops results scoring below 5
       ↓
 [These run simultaneously per bill]
 Bill fetcher          Congress.gov API → raw bill data
@@ -140,7 +137,6 @@ Rate limiting: slowapi (20/min search, 30/min bill, 10/min feed)
 ```
 /NosPopuli
   api.py                      FastAPI app — all endpoints, dispatcher pattern
-  main.py                     CLI REPL — interactive terminal interface for testing
   router_agent.py             Intent classification, confidence scoring,
                               presidential term handling, known bill lookup
   query_expander_agent.py     Keyword expansion to legislative vocabulary
@@ -163,7 +159,6 @@ Rate limiting: slowapi (20/min search, 30/min bill, 10/min feed)
                               ENABLED_STATES gates rollout per state (VA first)
   state_bill_fetcher.py       OpenStates bill detail + HTML text extraction
   state_member_search_agent.py  State legislator lookup via OpenStates /people
-  orchestrator.py             Batch processing / CLI testing (reference)
   documentor_agent.py         Thread-safe agent action logging
   search_logger.py            User-facing event logging with confidence scores
   flag_logger.py              User feedback logging (search + bill flags)
@@ -311,9 +306,6 @@ uvicorn api:app --reload
 # Open
 http://localhost:8000          Main app
 http://localhost:8000/monitor  Agent monitor
-
-# CLI REPL (for testing without a browser)
-python main.py
 
 # Terminal agent monitor (live log tail with color coding)
 python watch_agents.py

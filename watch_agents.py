@@ -19,7 +19,6 @@ AGENT_COLORS = {
     "vote_parser":  "\033[91m",   # Red
     "vote_fetcher": "\033[91m",   # Red
     "vote_mapper":  "\033[91m",   # Red
-    "orchestrator": "\033[97m",   # White
     "documentor":   "\033[90m",   # Grey
     "member_search":"\033[93m",   # Yellow
     "api":          "\033[97m",   # White
