@@ -18,6 +18,7 @@ CIVIC_BASE = "https://www.googleapis.com/civicinfo/v2"
 
 _elections_cache = TTLCache(maxsize=200, ttl=21600)   # 6hr per zip
 _web_search_cache = TTLCache(maxsize=60, ttl=172800)  # 48hr per state — Claude web search
+_polling_cache = TTLCache(maxsize=100, ttl=21600)     # 6hr per election — polling data
 _cache_lock = RLock()
 
 PARTY_NORMALIZE = {
@@ -351,9 +352,10 @@ async def fetch_elections(zip_code, state_code=None):
             else:
                 # Full miss — call Claude
                 claude_results = await _search_elections_with_claude(state_name_full, state_code)
-                set_elections_cache(state_code, claude_results)
-                with _cache_lock:
-                    _web_search_cache[state_code] = claude_results
+                set_elections_cache(state_code, claude_results)  # always save (smart TTL: 2hr if empty, 48hr if not)
+                if claude_results:  # only keep non-empty results in memory
+                    with _cache_lock:
+                        _web_search_cache[state_code] = claude_results
 
         # Merge — skip any date already covered by Google Civic (within 1 day)
         existing_dates = {e["date"] for e in upcoming + recent}
@@ -411,3 +413,132 @@ async def fetch_elections(zip_code, state_code=None):
         _elections_cache[cache_key] = result
 
     return result
+
+
+async def _fetch_polling_with_claude(election_name, state_name, election_id):
+    """
+    Fetch polling data for a specific election via Claude web search → RealClearPolling.
+    Cached 6hr per election in DB (shared across workers) and in-memory.
+    Returns {} if no polling data found or on error.
+    """
+    db_key = f"poll_{election_id}"
+
+    with _cache_lock:
+        cached = _polling_cache.get(db_key)
+    if cached is not None:
+        return cached
+
+    cached = get_elections_cache(db_key, max_age_seconds=21600)
+    if cached is not None:
+        print(f"[POLLING] DB cache hit for {election_id}")
+        with _cache_lock:
+            _polling_cache[db_key] = cached
+        return cached
+
+    print(f"[POLLING] Fetching polling for: {election_name}")
+    try:
+        client = AsyncAnthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+        response = await client.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=600,
+            tools=[{"type": "web_search_20260209", "name": "web_search"}],
+            messages=[{"role": "user", "content": (
+                f"Find the latest polling data for the {election_name}"
+                f"{' in ' + state_name if state_name else ''} on realclearpolling.com. "
+                f"Return ONLY a raw JSON object, no markdown, no explanation: "
+                f'{{"leader": "Candidate name or null", '
+                f'"margin": "X.X points or Too close to call or null", '
+                f'"polls": [{{"candidate": "Name", "pct": 45.2, "source": "Pollster", "date": "YYYY-MM-DD"}}], '
+                f'"summary": "One sentence on the state of the race"}} '
+                f"If no polls found for this specific race, return exactly: {{}}"
+            )}],
+        )
+        text = "".join(b.text for b in response.content if hasattr(b, "text")).strip()
+        print(f"[POLLING] Claude raw response for {election_id}: {text[:200]}")
+
+        try:
+            parsed = json.loads(text)
+            if isinstance(parsed, dict):
+                set_elections_cache(db_key, parsed)
+                with _cache_lock:
+                    _polling_cache[db_key] = parsed
+                return parsed
+        except json.JSONDecodeError:
+            pass
+
+        match = re.search(r"\{.*\}", text, re.DOTALL)
+        if match:
+            parsed = json.loads(match.group())
+            if isinstance(parsed, dict):
+                set_elections_cache(db_key, parsed)
+                with _cache_lock:
+                    _polling_cache[db_key] = parsed
+                return parsed
+
+        print(f"[POLLING] No parseable JSON for {election_id}")
+    except Exception as e:
+        print(f"[POLLING] Error for {election_id}: {e}")
+
+    return {}
+
+
+def _determine_stage(election):
+    name = (election.get("name", "") + " " + election.get("type", "")).lower()
+    if "runoff" in name:
+        return "runoff"
+    if "special" in name:
+        return "special"
+    if "primary" in name:
+        return "primary"
+    return "general"
+
+
+async def fetch_election_detail(election_id, zip_code=None, state_code=None):
+    """
+    Return full detail for a single election: base data + stage + polling.
+    Reuses the fetch_elections cache wherever possible.
+    """
+    data = await fetch_elections(zip_code, state_code)
+    all_elections = data.get("upcoming", []) + data.get("recent", [])
+
+    election = next(
+        (e for e in all_elections if str(e.get("id")) == str(election_id)),
+        None,
+    )
+    if not election:
+        return None
+
+    import copy
+    detail = copy.deepcopy(election)
+    detail["stage"] = _determine_stage(detail)
+    detail["is_past"] = "days_ago" in detail
+    detail["polling"] = None  # fetched on demand via /api/elections/{id}/polling
+    return detail
+
+
+async def fetch_election_polling(election_id, state_code=None):
+    """
+    Fetch polling on demand — only for Google Civic elections.
+    Web-search sourced elections (local races) won't appear on RCP; skip them.
+    """
+    # Fix 3: skip web_search sourced elections entirely
+    if str(election_id).startswith("web_"):
+        return {}
+
+    state_name = STATE_NAMES.get((state_code or "").upper(), state_code or "")
+
+    # Need the election name for the Claude prompt — look it up from any warm cache
+    election_name = None
+    with _cache_lock:
+        for cached in _elections_cache.values():
+            for e in cached.get("upcoming", []) + cached.get("recent", []):
+                if str(e.get("id")) == str(election_id):
+                    election_name = e.get("name", "")
+                    break
+            if election_name:
+                break
+
+    if not election_name:
+        return {}
+
+    return await _fetch_polling_with_claude(election_name, state_name, election_id)

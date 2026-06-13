@@ -69,7 +69,7 @@ from state_member_search_agent import (
 )
 
 from correspondence.router import router as correspondence_router
-from elections_agent import fetch_elections
+from elections_agent import fetch_elections, fetch_election_detail, fetch_election_polling
 
 app = FastAPI(title="NosPopuli API")
 
@@ -1274,6 +1274,46 @@ async def elections_endpoint(request: Request, zip: Optional[str] = None, state:
 @app.get("/elections")
 async def elections_page():
     return FileResponse("frontend/elections.html")
+
+
+@app.get("/api/elections/{election_id}")
+@limiter.limit("20/minute")
+async def election_detail_endpoint(
+    request: Request,
+    election_id: str,
+    zip: Optional[str] = None,
+    state: Optional[str] = None,
+):
+    try:
+        detail = await fetch_election_detail(election_id, zip_code=zip, state_code=state)
+        if not detail:
+            raise HTTPException(status_code=404, detail="Election not found.")
+        return detail
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"[API] Election detail error for {election_id}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch election detail.")
+
+
+@app.get("/api/elections/{election_id}/polling")
+@limiter.limit("10/minute")
+async def election_polling_endpoint(
+    request: Request,
+    election_id: str,
+    state: Optional[str] = None,
+):
+    try:
+        data = await fetch_election_polling(election_id, state_code=state)
+        return data
+    except Exception as e:
+        print(f"[API] Polling error for {election_id}: {e}")
+        return {}
+
+
+@app.get("/elections/{election_id}")
+async def election_detail_page(election_id: str):
+    return FileResponse("frontend/election_detail.html")
 
 
 @app.get("/")

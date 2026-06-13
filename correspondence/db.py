@@ -205,8 +205,12 @@ def save_reply(corr_id, gmail_message_id, received_at, preview_text):
     conn.close()
 
 
-def get_elections_cache(state_code, max_age_seconds=172800):  # 48hr
-    """Return cached Claude election results for a state, or None if missing/stale."""
+def get_elections_cache(state_code, max_age_seconds=None):
+    """
+    Return cached results for state_code, or None if missing/stale.
+    TTL is automatic: 2hr if result is empty, 48hr if non-empty.
+    Pass max_age_seconds to override.
+    """
     import time
     conn = get_conn()
     row = conn.execute(
@@ -214,9 +218,12 @@ def get_elections_cache(state_code, max_age_seconds=172800):  # 48hr
         (state_code,)
     ).fetchone()
     conn.close()
-    if row and (time.time() - row["cached_at"]) < max_age_seconds:
-        return json.loads(row["results"])
-    return None
+    if not row:
+        return None
+    results = json.loads(row["results"])
+    age = time.time() - row["cached_at"]
+    ttl = max_age_seconds if max_age_seconds is not None else (7200 if not results else 172800)
+    return results if age < ttl else None
 
 
 def set_elections_cache(state_code, results):

@@ -217,7 +217,11 @@ function _makeElectionCard(election, isPast) {
     <div class="election-contests">${_renderContests(election.contests)}</div>`;
 
   card.querySelector('.election-card-top').addEventListener('click', () => {
-    card.querySelector('.election-contests').classList.toggle('open');
+    const prefs = getPrefs();
+    const params = new URLSearchParams();
+    if (prefs?.zip)   params.set('zip', prefs.zip);
+    if (prefs?.state) params.set('state', prefs.state);
+    window.location = `/elections/${election.id}?${params}`;
   });
 
   return card;

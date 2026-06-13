@@ -833,9 +833,13 @@ function _feedElectionsHtml(elections) {
     const days = e.countdown_days ?? null;
     const cls = days !== null && days <= 30 ? 'urgent' : days !== null && days <= 90 ? 'near' : 'far';
     const date = (() => { try { return new Date(e.date + 'T12:00:00').toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}); } catch { return e.date; } })();
+    const detailParams = new URLSearchParams();
+    const _p = getPrefs();
+    if (_p?.zip)   detailParams.set('zip', _p.zip);
+    if (_p?.state) detailParams.set('state', _p.state);
     return `
-      <div class="feed-election-card" onclick="window.location='/elections'">
-        <span class="feed-election-countdown ${cls}">${days}d</span>
+      <div class="feed-election-card" onclick="window.location='/elections/${e.id}?${detailParams}'">
+        <span class="feed-election-countdown ${cls}">${days !== null ? days + 'd' : '?'}</span>
         <div class="feed-election-info">
           <div class="feed-election-name">${e.name}</div>
           <div class="feed-election-date">${date}</div>
