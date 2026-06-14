@@ -2096,6 +2096,70 @@ async function submitSubscribeEmail() {
   await _doSubscribe(email);
 }
 
+function loadNotificationsPage() {
+  const container = document.getElementById('notifications-list');
+  if (!container) return;
+  const subs = _getSubs();
+  const active = Object.entries(subs).filter(([, v]) => v.active);
+
+  if (!active.length) {
+    container.innerHTML = `
+      <div class="empty-state" style="margin-top:2rem">
+        <p>You haven't subscribed to any bills yet.</p>
+        <p style="margin-top:0.5rem;color:var(--muted)">
+          Open any bill and click "Notify me when this moves."
+        </p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = active.map(([billId, sub]) => `
+    <div class="notif-item" id="notif-${CSS.escape(billId)}">
+      <div class="notif-item-info">
+        <div class="notif-bill-id">${billId}</div>
+        ${sub.title ? `<div class="notif-bill-title">${sub.title}</div>` : ''}
+      </div>
+      <button class="feed-settings-btn notif-stop-btn"
+        onclick="stopNotifying(${JSON.stringify(billId)}, ${JSON.stringify(sub.email)})">
+        Stop notifying me
+      </button>
+    </div>
+  `).join('');
+}
+
+async function stopNotifying(billId, email) {
+  const row = document.getElementById(`notif-${CSS.escape(billId)}`);
+  if (row) row.style.opacity = '0.4';
+
+  try {
+    await fetch('/correspondence/unsubscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bill_id: billId, email })
+    });
+  } catch {}
+
+  const subs = _getSubs();
+  delete subs[billId];
+  _saveSubs(subs);
+
+  if (row) row.remove();
+
+  const container = document.getElementById('notifications-list');
+  if (container && !container.querySelector('.notif-item')) {
+    container.innerHTML = `
+      <div class="empty-state" style="margin-top:2rem">
+        <p>No active notifications.</p>
+      </div>`;
+  }
+
+  // Update notify button if we're on that bill's detail page
+  const notifyBtn = document.getElementById('notify-btn');
+  if (notifyBtn && notifyBtn._billId === billId) {
+    _setNotifyBtnState('idle');
+  }
+}
+
 async function _doSubscribe(email) {
   const btn    = document.getElementById('notify-btn');
   const billId = btn._billId;
@@ -2120,7 +2184,8 @@ async function _doSubscribe(email) {
       })
     });
     const subs = _getSubs();
-    subs[billId] = { email, active: true };
+    const title = document.getElementById('detail-bill-title')?.textContent || '';
+    subs[billId] = { email, active: true, title };
     _saveSubs(subs);
     _setNotifyBtnState('subscribed');
   } catch {

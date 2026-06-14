@@ -19,6 +19,7 @@
 <nav class="top-nav">
   <a class="top-nav-btn" href="/elections">Elections</a>
   <a class="top-nav-btn" href="#" onclick="showPage('page-correspondence');loadCorrespondencePage();return false">My Letters</a>
+  <a class="top-nav-btn" href="#" onclick="showPage('page-notifications');loadNotificationsPage();return false">My Notifications</a>
 </nav>
 
 <div class="app-layout"><div class="main-col">
@@ -353,6 +354,17 @@
       <div class="detail-bill-title">Your letters to representatives</div>
     </div>
     <div id="corr-list"></div>
+  </div>
+</div>
+
+<div class="page" id="page-notifications">
+  <div class="detail-page">
+    <button class="detail-back" onclick="goBack()">← Back</button>
+    <div class="detail-header">
+      <div class="detail-bill-id">My Notifications</div>
+      <div class="detail-bill-title">Bills you're watching for updates</div>
+    </div>
+    <div id="notifications-list"></div>
   </div>
 </div>
 
