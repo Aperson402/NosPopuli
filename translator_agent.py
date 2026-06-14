@@ -113,15 +113,16 @@ Sponsor: {sponsor}
 Current Status: {status}
 {text_section}
 
-Explain:
+Explain in these four sections:
 1. What this bill does in one sentence
-2. Who it affects and how
-3. What its current status means
+2. Who it affects and how (specific groups: taxpayers, agencies, industries, individuals)
+3. Costs, trade-offs, and obligations — what does this cost, who pays, what is required or restricted, and what is given up. If unknown, say so briefly.
+4. What its current status means
 """
 
     message = client.messages.create(
         model="claude-haiku-4-5-20251001",
-        max_tokens=1024,
+        max_tokens=1500,
         messages=[{"role": "user", "content": prompt}]
     )
 
@@ -180,15 +181,16 @@ Current Status: {status}
 Policy Area: {policy_area}
 {text_section}
 
-Explain:
+Explain in these four sections:
 1. What this bill does in one sentence
-2. Who it affects and how
-3. What its current status means
+2. Who it affects and how (specific groups: taxpayers, agencies, industries, individuals)
+3. Costs, trade-offs, and obligations — what does this cost, who pays, what is required or restricted, and what is given up (e.g. federal spending, new mandates, regulatory burdens, loss of existing rights or programs). If costs or trade-offs are unknown or not specified in the bill, say so briefly.
+4. What its current status means
 """
 
     message = client.messages.create(
         model="claude-haiku-4-5-20251001",
-        max_tokens=1024,
+        max_tokens=1500,
         messages=[{"role": "user", "content": prompt}]
     )
 
