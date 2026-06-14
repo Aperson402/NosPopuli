@@ -44,8 +44,35 @@ header::before {
   font-family: 'Playfair Display', Georgia, serif;
   font-size: clamp(2.5rem, 6vw, 4.5rem);
   font-weight: 700; letter-spacing: -0.02em; line-height: 1;
+  display: inline-block; cursor: default; position: relative;
 }
 .masthead span { color: var(--accent); font-style: italic; }
+
+@keyframes masthead-spring {
+  0%   { transform: scale(1) rotate(0deg); }
+  15%  { transform: scale(0.92) rotate(-2deg); }
+  35%  { transform: scale(1.08) rotate(1.5deg); }
+  55%  { transform: scale(0.97) rotate(-0.8deg); }
+  75%  { transform: scale(1.03) rotate(0.4deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+@keyframes extra-pop {
+  0%   { opacity: 0; transform: translateY(4px) scale(0.8); }
+  20%  { opacity: 1; transform: translateY(0) scale(1); }
+  70%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-6px) scale(0.9); }
+}
+.masthead.jiggle { animation: masthead-spring 0.55s cubic-bezier(.36,.07,.19,.97); }
+.masthead-extra {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  bottom: calc(100% + 0.4rem);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--paper); background: var(--accent);
+  padding: 0.2rem 0.6rem; white-space: nowrap; pointer-events: none;
+  animation: extra-pop 1.1s ease forwards;
+}
+
 .tagline {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.7rem; letter-spacing: 0.25em;

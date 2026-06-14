@@ -2325,3 +2325,22 @@ async function _doSubscribe(email) {
   }
 }
 loadFeed();
+
+// ── Masthead easter egg ──
+(function() {
+  const m = document.querySelector('.masthead');
+  if (!m) return;
+  m.style.cursor = 'default';
+  m.addEventListener('click', () => {
+    m.classList.remove('jiggle');
+    void m.offsetWidth;
+    m.classList.add('jiggle');
+    m.addEventListener('animationend', () => m.classList.remove('jiggle'), { once: true });
+
+    const tag = document.createElement('div');
+    tag.className = 'masthead-extra';
+    tag.textContent = 'Extra! Extra!';
+    m.appendChild(tag);
+    setTimeout(() => tag.remove(), 1150);
+  });
+})();
