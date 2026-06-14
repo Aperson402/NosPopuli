@@ -6,6 +6,7 @@ let previousPage = 'page-home';
 let currentJurisdiction = 'federal';
 let currentStateCode = null;
 let _feedItems = [];
+let _trackedElections = new Set(JSON.parse(localStorage.getItem('np_tracked_elections') || '[]'));
 const tooltip = document.getElementById('tooltip');
 
 // ── localStorage keys ──
@@ -827,7 +828,32 @@ function _storyCardHtml(item, idx) {
 }
 
 // ── Feed rendering ──
-function renderFeedSection(items, prefs) {
+function _feedElectionsHtml(elections) {
+  if (!elections || !elections.length) return '';
+  const cards = elections.map(e => {
+    const days = e.countdown_days ?? null;
+    const cls = days !== null && days <= 30 ? 'urgent' : days !== null && days <= 90 ? 'near' : 'far';
+    const date = (() => { try { return new Date(e.date + 'T12:00:00').toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}); } catch { return e.date; } })();
+    const detailParams = new URLSearchParams();
+    const _p = getPrefs();
+    if (_p?.zip)   detailParams.set('zip', _p.zip);
+    if (_p?.state) detailParams.set('state', _p.state);
+    return `
+      <div class="feed-election-card" onclick="window.location='/elections/${e.id}?${detailParams}'">
+        <span class="feed-election-countdown ${cls}">${days !== null ? days + 'd' : '?'}</span>
+        <div class="feed-election-info">
+          <div class="feed-election-name">${e.name}</div>
+          <div class="feed-election-date">${date}</div>
+        </div>
+      </div>`;
+  }).join('');
+  return `
+    <div class="section-rule" style="margin-top:1.5rem"><span>Upcoming Elections</span></div>
+    ${cards}
+    <a class="feed-elections-more" href="/elections">All elections →</a>`;
+}
+
+function renderFeedSection(items, prefs, upcomingElections = []) {
   const feedSection = document.getElementById('feed-section');
 
   if (!items || !items.length) {
@@ -876,12 +902,13 @@ function renderFeedSection(items, prefs) {
   const lead     = sortedReps[0];
   const restReps = sortedReps.slice(1);
 
-  // ── Left column: representatives
+  // ── Left column: representatives + upcoming elections
   const leftHtml = `
     <div class="section-rule"><span>Your Representatives</span></div>
     ${lead ? _leadCardHtml(lead.item, lead.i) : ''}
     ${restReps.map(({ item, i }) => _storyCardHtml(item, i)).join('')}
     ${repItems.length === 0 ? '<div class="feed-empty-col">No recent activity from your representatives.</div>' : ''}
+    ${_feedElectionsHtml(upcomingElections)}
   `;
 
   // ── Right column: state + topics
@@ -956,18 +983,33 @@ async function loadFeed() {
   feedSection.innerHTML = `<div style="padding:2rem 0;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:var(--muted)">Loading your feed...</div>`;
 
   try {
-    const feedResp = await fetch('/feed', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        interests: prefs.interests,
-        senator_bioguides: prefs.senators.map(s => s.bioguide_id),
-        rep_bioguide: prefs.representative ? prefs.representative.bioguide_id : null,
-        state_code: prefs.state || null
-      })
-    });
+    const electionParams = new URLSearchParams();
+    if (prefs.zip)   electionParams.set('zip',   prefs.zip);
+    if (prefs.state) electionParams.set('state', prefs.state);
+
+    const [feedResp, electionsResp] = await Promise.all([
+      fetch('/feed', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          interests: prefs.interests,
+          senator_bioguides: prefs.senators.map(s => s.bioguide_id),
+          rep_bioguide: prefs.representative ? prefs.representative.bioguide_id : null,
+          state_code: prefs.state || null
+        })
+      }),
+      fetch(`/api/elections?${electionParams}`).catch(() => null),
+    ]);
+
     const data = await feedResp.json();
-    renderFeedSection(data.items, prefs);
+    const electionsData = electionsResp ? await electionsResp.json().catch(() => null) : null;
+
+    // Top 3 upcoming elections — backend already sorts affects_user first, then soonest
+    const upcomingForUser = ((electionsData && electionsData.upcoming) || [])
+      .slice(0, 3);
+
+    _updateSidebarElections(upcomingForUser);
+    renderFeedSection(data.items, prefs, upcomingForUser);
 
   } catch(err) {
     feedSection.innerHTML = `<div class="empty-state"><p>Could not load feed.</p></div>`;
@@ -1668,6 +1710,224 @@ document.getElementById('flag-modal').addEventListener('click', function(e) {
 checkServer();
 updateJurisdictionToggle(getPrefs());
 
+// ─────────────────────────────────────────────
+// ELECTIONS
+// ─────────────────────────────────────────────
+
+function _saveTracked() {
+  localStorage.setItem('np_tracked_elections', JSON.stringify([..._trackedElections]));
+}
+
+function toggleTrackElection(id, btn) {
+  if (_trackedElections.has(id)) {
+    _trackedElections.delete(id);
+    btn.textContent = 'Track';
+    btn.classList.remove('tracked');
+  } else {
+    _trackedElections.add(id);
+    btn.textContent = 'Tracking ✓';
+    btn.classList.add('tracked');
+  }
+  _saveTracked();
+  // Refresh section visibility
+  const trackedSection = document.getElementById('elections-tracked-section');
+  if (trackedSection) {
+    const anyTracked = document.querySelectorAll('.election-card.tracking').length > 0;
+    trackedSection.style.display = _trackedElections.size > 0 ? 'block' : 'none';
+  }
+}
+
+function _countdownDisplay(days) {
+  if (days === null || days === undefined) return { num: '?', label: 'days', cls: 'far' };
+  if (days >= 0) {
+    const cls = days <= 30 ? 'urgent' : days <= 90 ? 'near' : 'far';
+    return { num: days, label: days === 1 ? 'day' : 'days', cls };
+  }
+  return { num: Math.abs(days), label: Math.abs(days) === 1 ? 'day ago' : 'days ago', cls: 'past' };
+}
+
+function _formatElectionDate(dateStr) {
+  try {
+    const d = new Date(dateStr + 'T12:00:00');
+    return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  } catch { return dateStr; }
+}
+
+function _candidateInitials(name) {
+  return (name || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+}
+
+function _renderCandidate(c) {
+  const photoEl = c.photo_url
+    ? `<img class="candidate-photo" src="${c.photo_url}" alt="${c.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+    : '';
+  const initialsEl = `<div class="candidate-initials" style="${c.photo_url ? 'display:none' : ''}">${_candidateInitials(c.name)}</div>`;
+
+  const links = [];
+  if (c.candidate_url) links.push(`<a href="${c.candidate_url}" target="_blank" rel="noopener">Website ↗</a>`);
+  if (c.email) links.push(`<a href="mailto:${c.email}">${c.email}</a>`);
+  if (c.phone) links.push(`<span>${c.phone}</span>`);
+  for (const ch of (c.channels || [])) {
+    links.push(`<a href="#" onclick="return false" title="${ch.type}: ${ch.id}">${ch.icon} ${ch.id}</a>`);
+  }
+
+  return `
+    <div class="candidate-row">
+      ${photoEl}${initialsEl}
+      <div class="candidate-info">
+        <div class="candidate-name">${c.name}</div>
+        ${c.party ? `<div class="candidate-party"><span class="party-dot ${c.party_color}"></span>${c.party}</div>` : ''}
+        ${links.length ? `<div class="candidate-links">${links.join('')}</div>` : ''}
+      </div>
+    </div>`;
+}
+
+function _renderContests(contests) {
+  if (!contests || !contests.length) return '<div class="no-candidates">Contest information not yet available.</div>';
+  return contests.map(c => {
+    const office = c.office || c.type || 'Contest';
+    const district = c.district ? ` — ${c.district}` : '';
+    const candidatesHtml = c.candidates && c.candidates.length
+      ? `<div class="candidates-grid">${c.candidates.map(_renderCandidate).join('')}</div>`
+      : '<div class="no-candidates">Candidate information not yet available.</div>';
+    return `
+      <div class="contest-block">
+        <div class="contest-office"><span>${office}</span>${district}</div>
+        ${candidatesHtml}
+      </div>`;
+  }).join('');
+}
+
+function _makeElectionCard(election, isPast) {
+  const days = isPast ? -(election.days_ago || 0) : (election.countdown_days ?? null);
+  const cd = _countdownDisplay(days);
+  const isTracked = _trackedElections.has(election.id);
+  const affectsUser = election.affects_user;
+
+  const races = (election.contests || []).map(c => c.office || c.type).filter(Boolean);
+  const racesText = races.length ? races.slice(0, 4).join(' · ') + (races.length > 4 ? ' · …' : '') : '';
+
+  const badges = [];
+  if (isTracked) badges.push(`<span class="election-badge badge-tracking">Tracking</span>`);
+  if (affectsUser && !isPast) badges.push(`<span class="election-badge badge-yours">★ Your election</span>`);
+
+  const deadlineHtml = (!isPast && election.registration_deadline)
+    ? `<div class="election-deadline">Reg. deadline: <strong>${election.registration_deadline}</strong></div>`
+    : '<div class="election-deadline"></div>';
+
+  const trackBtnHtml = `<button class="election-action-btn election-track-btn ${isTracked ? 'tracked' : ''}"
+    onclick="event.stopPropagation();toggleTrackElection('${election.id}',this)">
+    ${isTracked ? 'Tracking ✓' : 'Track'}
+  </button>`;
+
+  const infoUrl = isPast ? election.ballotpedia_url : (election.voter_info_url || election.ballotpedia_url);
+  const infoLabel = isPast ? 'View results →' : 'Voter info →';
+  const infoBtn = infoUrl
+    ? `<a class="election-action-btn election-info-btn" href="${infoUrl}" target="_blank" rel="noopener">${infoLabel}</a>`
+    : '';
+
+  const card = document.createElement('div');
+  card.className = `election-card${affectsUser ? ' affects-user' : ''}${isTracked ? ' tracking' : ''}`;
+  card.dataset.electionId = election.id;
+
+  card.innerHTML = `
+    <div class="election-card-top">
+      <div class="election-countdown">
+        <span class="election-countdown-num ${cd.cls}">${cd.num}</span>
+        <span class="election-countdown-label">${cd.label}</span>
+      </div>
+      <div class="election-card-main">
+        <div class="election-name">${election.name}</div>
+        <div class="election-date">${_formatElectionDate(election.date)}</div>
+        ${racesText ? `<div class="election-races">${racesText}</div>` : ''}
+        ${badges.length ? `<div class="election-badges">${badges.join('')}</div>` : ''}
+      </div>
+    </div>
+    <div class="election-card-actions">
+      ${deadlineHtml}
+      ${trackBtnHtml}
+      ${infoBtn}
+    </div>
+    <div class="election-contests">${_renderContests(election.contests)}</div>`;
+
+  // Toggle contests on click
+  card.querySelector('.election-card-top').addEventListener('click', () => {
+    const c = card.querySelector('.election-contests');
+    c.classList.toggle('open');
+  });
+
+  return card;
+}
+
+function _renderElectionSection(sectionId, listId, elections, isPast) {
+  const section = document.getElementById(sectionId);
+  const list = document.getElementById(listId);
+  if (!elections || !elections.length) { section.style.display = 'none'; return; }
+  section.style.display = 'block';
+  list.innerHTML = '';
+  elections.forEach(e => list.appendChild(_makeElectionCard(e, isPast)));
+}
+
+async function loadElections() {
+  const prefs = getPrefs();
+  const zip = prefs?.zip || null;
+  const state = prefs?.state || null;
+
+  document.getElementById('elections-loading').style.display = 'block';
+  document.getElementById('elections-content').style.display = 'none';
+  document.getElementById('elections-error').style.display = 'none';
+  document.getElementById('elections-no-zip-banner').style.display = zip ? 'none' : 'block';
+
+  const subtitle = document.getElementById('elections-subtitle');
+  subtitle.textContent = zip
+    ? `Based on zip ${zip}${state ? ' · ' + (STATE_NAMES[state] || state) : ''}`
+    : 'National view — set your zip to personalize';
+
+  try {
+    const params = new URLSearchParams();
+    if (zip) params.set('zip', zip);
+    if (state) params.set('state', state);
+    const res = await fetch(`/api/elections?${params}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    document.getElementById('elections-loading').style.display = 'none';
+    document.getElementById('elections-content').style.display = 'block';
+
+    if (data.error) {
+      document.getElementById('elections-error').textContent = data.error;
+      document.getElementById('elections-error').style.display = 'block';
+      return;
+    }
+
+    const upcoming = data.upcoming || [];
+    const recent = data.recent || [];
+
+    const tracked = upcoming.filter(e => _trackedElections.has(e.id));
+    const yours = upcoming.filter(e => e.affects_user && !_trackedElections.has(e.id));
+    const other = upcoming.filter(e => !e.affects_user && !_trackedElections.has(e.id));
+
+    _renderElectionSection('elections-tracked-section', 'elections-tracked-list', tracked, false);
+    _renderElectionSection('elections-yours-section', 'elections-yours-list', yours, false);
+    _renderElectionSection('elections-other-section', 'elections-other-list', other, false);
+    _renderElectionSection('elections-recent-section', 'elections-recent-list', recent, true);
+
+    if (!upcoming.length && !recent.length) {
+      document.getElementById('elections-error').textContent = 'No election data available right now.';
+      document.getElementById('elections-error').style.display = 'block';
+    }
+  } catch (e) {
+    document.getElementById('elections-loading').style.display = 'none';
+    document.getElementById('elections-error').textContent = 'Could not load elections. Please try again.';
+    document.getElementById('elections-error').style.display = 'block';
+  }
+}
+
+function openElections() {
+  previousPage = document.querySelector('.page.active').id;
+  showPage('page-elections');
+  loadElections();
+}
 
 // ── Sidebar ──
 function _renderSidebar() {
@@ -1700,7 +1960,30 @@ function _renderSidebar() {
       <div class="section-rule"><span>Your Reps</span></div>
       ${repRows || '<div class="sidebar-rep-meta" style="padding:0.5rem 0;color:var(--muted)">Set your zip to see your reps</div>'}
     </div>
-    `;
+    <div class="sidebar-section" id="sidebar-elections-section" style="display:none">
+      <div class="section-rule"><span>Elections</span></div>
+      <div id="sidebar-elections-list"></div>
+      <a class="sidebar-more-link" href="/elections">All elections →</a>
+    </div>`;
+}
+
+function _updateSidebarElections(elections) {
+  const section = document.getElementById('sidebar-elections-section');
+  const list = document.getElementById('sidebar-elections-list');
+  if (!section || !list || !elections || !elections.length) return;
+  section.style.display = 'block';
+  list.innerHTML = elections.slice(0, 2).map(e => {
+    const days = e.countdown_days ?? null;
+    const cls = days !== null && days <= 30 ? 'urgent' : days !== null && days <= 90 ? 'near' : 'far';
+    const date = (() => { try { return new Date(e.date + 'T12:00:00').toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}); } catch { return e.date; } })();
+    return `<div class="sidebar-election" onclick="window.location='/elections'">
+      <span class="sidebar-election-days ${cls}">${days !== null ? days + 'd' : '?'}</span>
+      <div class="sidebar-election-info">
+        <div class="sidebar-election-name">${e.name}</div>
+        <div class="sidebar-election-date">${date}</div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 

@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Election — NosPopuli</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/index.css">
+  <style>
+    .ed-wrap { max-width: 760px; margin: 0 auto; padding: 0 1.5rem 5rem; }
+    .ed-back { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem;
+      letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent);
+      background: none; border: none; cursor: pointer; padding: 1.5rem 0 0;
+      display: block; }
+    .ed-back:hover { color: var(--ink); }
+
+    /* Header */
+    .ed-header { border-top: 2px solid var(--ink); margin-top: 1rem; padding-top: 1.2rem; }
+    .ed-eyebrow { display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.5rem; }
+    .ed-type-badge { font-family: 'IBM Plex Mono', monospace; font-size: 0.52rem;
+      letter-spacing: 0.15em; text-transform: uppercase; color: var(--paper);
+      background: var(--ink); padding: 0.15rem 0.5rem; }
+    .ed-source-badge { font-family: 'IBM Plex Mono', monospace; font-size: 0.5rem;
+      letter-spacing: 0.08em; color: var(--muted); }
+    .ed-name { font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 700; line-height: 1.2;
+      margin-bottom: 0.6rem; }
+    .ed-date { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem;
+      color: var(--muted); letter-spacing: 0.05em; margin-bottom: 0.75rem; }
+    .ed-countdown { display: inline-flex; align-items: baseline; gap: 0.35rem;
+      font-family: 'IBM Plex Mono', monospace; }
+    .ed-countdown-num { font-size: 1.6rem; font-weight: 500; line-height: 1; }
+    .ed-countdown-num.urgent { color: var(--accent); }
+    .ed-countdown-num.near   { color: #8b6a1a; }
+    .ed-countdown-num.far    { color: var(--muted); }
+    .ed-countdown-label { font-size: 0.6rem; color: var(--muted); letter-spacing: 0.05em; }
+
+    /* Stage rail */
+    .ed-section { margin-top: 2rem; border-top: 1px solid var(--rule); padding-top: 1.25rem; }
+    .ed-section-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted);
+      margin-bottom: 1rem; }
+    .stage-rail { display: flex; align-items: center; gap: 0; }
+    .stage-step { font-family: 'IBM Plex Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+      padding: 0.4rem 0.75rem; border: 1px solid var(--rule); }
+    .stage-step.active { color: var(--paper); background: var(--ink);
+      border-color: var(--ink); }
+    .stage-step.special { color: var(--paper); background: var(--accent);
+      border-color: var(--accent); }
+    .stage-arrow { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem;
+      color: var(--rule); padding: 0 0.25rem; }
+
+    /* Polling */
+    .poll-leader-bars { margin-bottom: 1.25rem; display: flex; flex-direction: column; gap: 0.6rem; }
+    .poll-bar-row { display: flex; align-items: center; gap: 0.75rem; }
+    .poll-bar-name { font-family: 'Source Serif 4', serif; font-size: 0.82rem;
+      min-width: 140px; flex-shrink: 0; }
+    .poll-bar-track { flex: 1; height: 6px; background: var(--aged); }
+    .poll-bar-fill { height: 100%; }
+    .poll-bar-fill.dem { background: #2457a0; }
+    .poll-bar-fill.rep { background: #a02424; }
+    .poll-bar-fill.ind { background: #888; }
+    .poll-bar-pct { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem;
+      font-weight: 500; min-width: 2.5rem; text-align: right; }
+    .poll-margin { font-family: 'IBM Plex Mono', monospace; font-size: 0.55rem;
+      color: var(--muted); letter-spacing: 0.05em; margin-bottom: 1rem; }
+    .poll-summary { font-family: 'Source Serif 4', serif; font-style: italic;
+      font-size: 0.85rem; color: var(--muted); margin-bottom: 1.25rem; line-height: 1.5; }
+    .poll-table { width: 100%; border-collapse: collapse; }
+    .poll-table th { font-family: 'IBM Plex Mono', monospace; font-size: 0.48rem;
+      letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+      text-align: left; padding: 0.3rem 0.5rem 0.3rem 0; border-bottom: 1px solid var(--rule); }
+    .poll-table td { font-family: 'Source Serif 4', serif; font-size: 0.78rem;
+      padding: 0.45rem 0.5rem 0.45rem 0; border-bottom: 1px solid var(--rule);
+      color: var(--ink); }
+    .poll-table tr:last-child td { border-bottom: none; }
+
+    /* Candidates */
+    .contest-block { margin-bottom: 1.5rem; }
+    .contest-office { font-family: 'IBM Plex Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted);
+      margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
+    .contest-level-badge { font-size: 0.46rem; padding: 0.1rem 0.4rem;
+      border: 1px solid var(--rule); color: var(--muted); }
+    .candidates-list { display: flex; flex-direction: column; gap: 0; }
+    .candidate-row { display: flex; align-items: flex-start; gap: 0.75rem;
+      padding: 0.75rem 0; border-bottom: 1px solid var(--rule); }
+    .candidate-row:last-child { border-bottom: none; }
+    .candidate-photo { width: 40px; height: 40px; object-fit: cover; flex-shrink: 0; }
+    .candidate-initials { width: 40px; height: 40px; background: var(--aged);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: var(--muted); }
+    .candidate-info { flex: 1; min-width: 0; }
+    .candidate-name { font-family: 'Source Serif 4', serif; font-size: 0.9rem;
+      font-weight: 400; margin-bottom: 0.2rem; }
+    .candidate-party { display: flex; align-items: center; gap: 0.4rem;
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.5rem;
+      color: var(--muted); letter-spacing: 0.05em; margin-bottom: 0.3rem; }
+    .candidate-links { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.25rem; }
+    .candidate-links a { font-family: 'IBM Plex Mono', monospace; font-size: 0.5rem;
+      color: var(--accent); text-decoration: none; letter-spacing: 0.05em; }
+    .candidate-links a:hover { color: var(--ink); }
+    .no-candidates { font-family: 'IBM Plex Mono', monospace; font-size: 0.55rem;
+      color: var(--muted); padding: 0.75rem 0; }
+
+    /* Participation */
+    .participation-grid { display: flex; flex-direction: column; gap: 0.75rem; }
+    .participation-row { display: flex; align-items: baseline; gap: 1rem;
+      border-bottom: 1px solid var(--rule); padding-bottom: 0.75rem; }
+    .participation-row:last-child { border-bottom: none; }
+    .participation-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.52rem;
+      letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+      min-width: 140px; flex-shrink: 0; }
+    .participation-value { font-family: 'Source Serif 4', serif; font-size: 0.85rem; }
+    .participation-value a { color: var(--accent); text-decoration: none; }
+    .participation-value a:hover { color: var(--ink); }
+
+    /* Track button */
+    .ed-track-btn { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      border: 1px solid var(--ink); background: none; color: var(--ink);
+      padding: 0.5rem 1.25rem; cursor: pointer; transition: all 0.15s; margin-top: 0.5rem; }
+    .ed-track-btn:hover { background: var(--ink); color: var(--paper); }
+    .ed-track-btn.tracked { background: var(--ink); color: var(--paper); }
+
+    .poll-load-btn { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      border: 1px solid var(--rule); background: none; color: var(--muted);
+      padding: 0.45rem 1rem; cursor: pointer; transition: all 0.15s; }
+    .poll-load-btn:hover { border-color: var(--ink); color: var(--ink); }
+    .poll-load-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .ed-loading { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem;
+      color: var(--muted); padding: 3rem 0; text-align: center; }
+    .ed-error { font-family: 'Source Serif 4', serif; color: var(--accent);
+      padding: 2rem 0; }
+  </style>
+</head>
+<body>
+
+<header onclick="window.location='/'">
+  <div class="masthead">Nos<span>Populi</span></div>
+  <div class="tagline">Law for the People &nbsp;·&nbsp; Federal Legislation in Plain English</div>
+</header>
+<nav class="top-nav">
+  <a class="top-nav-btn active" href="/elections">Elections</a>
+  <a class="top-nav-btn" href="/?tab=letters">My Letters</a>
+</nav>
+
+<div class="ed-wrap">
+  <button class="ed-back" onclick="window.history.back()">← Back to elections</button>
+
+  <div id="ed-loading" class="ed-loading">Loading election data…</div>
+  <div id="ed-error" class="ed-error" style="display:none"></div>
+  <div id="ed-content" style="display:none"></div>
+</div>
+
+<script>
+const PREFS_KEY = 'np_preferences';
+const TRACKED_KEY = 'np_tracked_elections';
+
+function getPrefs() {
+  try { return JSON.parse(localStorage.getItem(PREFS_KEY)) || null; } catch { return null; }
+}
+let _tracked = new Set(JSON.parse(localStorage.getItem(TRACKED_KEY) || '[]'));
+function _saveTracked() { localStorage.setItem(TRACKED_KEY, JSON.stringify([..._tracked])); }
+
+function _partyClass(party) {
+  const p = (party || '').toLowerCase();
+  if (p.includes('democrat')) return 'dem';
+  if (p.includes('republican') || p.includes('gop')) return 'rep';
+  return 'ind';
+}
+
+function _fmtDate(dateStr) {
+  try {
+    return new Date(dateStr + 'T12:00:00').toLocaleDateString('en-US',
+      { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+  } catch { return dateStr; }
+}
+
+function _initials(name) {
+  return (name || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+}
+
+function _renderStageRail(stage, isPast) {
+  if (isPast) return `<div class="stage-rail"><div class="stage-step active">Results</div></div>`;
+  const stages = ['primary','general','runoff'];
+  if (stage === 'special') {
+    return `<div class="stage-rail"><div class="stage-step special">Special Election</div></div>`;
+  }
+  const labels = { primary: 'Primary', general: 'General', runoff: 'Runoff' };
+  return `<div class="stage-rail">${stages.map((s, i) => {
+    const cls = s === stage ? 'active' : '';
+    return (i > 0 ? `<div class="stage-arrow">→</div>` : '') +
+      `<div class="stage-step ${cls}">${labels[s]}</div>`;
+  }).join('')}</div>`;
+}
+
+function _renderPollingData(polling) {
+  if (!polling || !Object.keys(polling).length) {
+    return '<div class="no-candidates">No polling data found for this race on RealClearPolling.</div>';
+  }
+  const candidateTotals = {};
+  (polling.polls || []).forEach(p => {
+    if (!candidateTotals[p.candidate]) candidateTotals[p.candidate] = [];
+    candidateTotals[p.candidate].push(p.pct);
+  });
+  const avgBars = Object.entries(candidateTotals).slice(0, 3).map(([name, pcts]) => {
+    const avg = pcts.reduce((a, b) => a + b, 0) / pcts.length;
+    return `<div class="poll-bar-row">
+      <span class="poll-bar-name">${name}</span>
+      <div class="poll-bar-track"><div class="poll-bar-fill ${_partyClass(name)}" style="width:${Math.min(avg,100)}%"></div></div>
+      <span class="poll-bar-pct">${avg.toFixed(1)}%</span>
+    </div>`;
+  }).join('');
+  const marginHtml = polling.leader && polling.margin
+    ? `<div class="poll-margin">${polling.leader} +${polling.margin}</div>` : '';
+  const summaryHtml = polling.summary
+    ? `<div class="poll-summary">${polling.summary}</div>` : '';
+  const tableRows = (polling.polls || []).slice(0, 5).map(p =>
+    `<tr><td>${p.source || '—'}</td><td>${p.date || '—'}</td><td>${p.candidate}</td><td>${p.pct}%</td></tr>`
+  ).join('');
+  const tableHtml = tableRows ? `
+    <table class="poll-table">
+      <thead><tr><th>Pollster</th><th>Date</th><th>Candidate</th><th>%</th></tr></thead>
+      <tbody>${tableRows}</tbody>
+    </table>` : '';
+  return `<div class="poll-leader-bars">${avgBars}</div>${marginHtml}${summaryHtml}${tableHtml}`;
+}
+
+function _pollingSectionHtml(electionId, source, state) {
+  if (source === 'web_search') return ''; // local race, skip
+  return `
+    <div class="ed-section" id="polling-section">
+      <div class="ed-section-label">Polling</div>
+      <div id="polling-body">
+        <button class="poll-load-btn" id="poll-load-btn"
+          onclick="loadPolling('${electionId}','${state || ''}')">
+          Load polling data →
+        </button>
+      </div>
+    </div>`;
+}
+
+async function loadPolling(electionId, state) {
+  const btn = document.getElementById('poll-load-btn');
+  const body = document.getElementById('polling-body');
+  if (!btn || !body) return;
+  btn.disabled = true;
+  btn.textContent = 'Searching RealClearPolling…';
+  try {
+    const params = new URLSearchParams();
+    if (state) params.set('state', state);
+    const res = await fetch(`/api/elections/${electionId}/polling?${params}`);
+    const data = await res.json();
+    body.innerHTML = _renderPollingData(data);
+  } catch {
+    body.innerHTML = '<div class="no-candidates">Could not load polling data.</div>';
+  }
+}
+
+function _renderCandidates(contests) {
+  if (!contests || !contests.length) return '';
+  const html = contests.map(c => {
+    const office = c.office || c.type || 'Contest';
+    const district = c.district ? ` — ${c.district}` : '';
+    const levels = (c.level || []).join(', ');
+    const levelBadge = levels ? `<span class="contest-level-badge">${levels}</span>` : '';
+    const candidatesHtml = (c.candidates || []).length
+      ? c.candidates.map(cand => {
+          const photoEl = cand.photo_url
+            ? `<img class="candidate-photo" src="${cand.photo_url}" alt="${cand.name}"
+                onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+            : '';
+          const initialsEl = `<div class="candidate-initials" style="${cand.photo_url ? 'display:none' : ''}">${_initials(cand.name)}</div>`;
+          const links = [];
+          if (cand.candidate_url) links.push(`<a href="${cand.candidate_url}" target="_blank" rel="noopener">Website ↗</a>`);
+          if (cand.email) links.push(`<a href="mailto:${cand.email}">${cand.email}</a>`);
+          if (cand.phone) links.push(`<span style="font-family:'IBM Plex Mono',monospace;font-size:0.5rem;color:var(--muted)">${cand.phone}</span>`);
+          return `<div class="candidate-row">
+            ${photoEl}${initialsEl}
+            <div class="candidate-info">
+              <div class="candidate-name">${cand.name}</div>
+              ${cand.party ? `<div class="candidate-party"><span class="party-dot ${cand.party_color || 'ind'}"></span>${cand.party}</div>` : ''}
+              ${links.length ? `<div class="candidate-links">${links.join('')}</div>` : ''}
+            </div>
+          </div>`;
+        }).join('')
+      : '<div class="no-candidates">Candidate information not yet available.</div>';
+    return `<div class="contest-block">
+      <div class="contest-office">${office}${district} ${levelBadge}</div>
+      <div class="candidates-list">${candidatesHtml}</div>
+    </div>`;
+  }).join('');
+  return `<div class="ed-section"><div class="ed-section-label">On the Ballot</div>${html}</div>`;
+}
+
+function _renderParticipation(data) {
+  const rows = [];
+  if (data.registration_deadline) {
+    rows.push(`<div class="participation-row">
+      <span class="participation-label">Reg. Deadline</span>
+      <span class="participation-value">${data.registration_deadline}</span>
+    </div>`);
+  }
+  if (data.voter_info_url) {
+    rows.push(`<div class="participation-row">
+      <span class="participation-label">Voter Info</span>
+      <span class="participation-value"><a href="${data.voter_info_url}" target="_blank" rel="noopener">Official voter information ↗</a></span>
+    </div>`);
+  }
+  rows.push(`<div class="participation-row">
+    <span class="participation-label">Ballotpedia</span>
+    <span class="participation-value"><a href="${data.ballotpedia_url}" target="_blank" rel="noopener">View on Ballotpedia ↗</a></span>
+  </div>`);
+  if (!rows.length) return '';
+  return `<div class="ed-section"><div class="ed-section-label">How to Participate</div>
+    <div class="participation-grid">${rows.join('')}</div>
+  </div>`;
+}
+
+function toggleTrack(id, btn) {
+  if (_tracked.has(id)) {
+    _tracked.delete(id);
+    btn.textContent = 'Track this election';
+    btn.classList.remove('tracked');
+  } else {
+    _tracked.add(id);
+    btn.textContent = 'Tracking ✓';
+    btn.classList.add('tracked');
+  }
+  _saveTracked();
+}
+
+function renderDetail(data, prefs) {
+  const days = data.countdown_days ?? null;
+  const isPast = data.is_past || false;
+  const cls = days !== null && days <= 30 ? 'urgent' : days !== null && days <= 90 ? 'near' : 'far';
+  const countdownHtml = isPast
+    ? `<span class="ed-countdown"><span class="ed-countdown-num far">${data.days_ago}</span><span class="ed-countdown-label">days ago</span></span>`
+    : days !== null
+      ? `<span class="ed-countdown"><span class="ed-countdown-num ${cls}">${days}</span><span class="ed-countdown-label">${days === 1 ? 'day away' : 'days away'}</span></span>`
+      : '';
+
+  const typeBadge = data.type || data.stage || '';
+  const sourceBadge = data.source === 'web_search' ? `<span class="ed-source-badge">Web search supplement</span>` : '';
+  const isTracked = _tracked.has(data.id);
+
+  document.title = `${data.name} — NosPopuli`;
+
+  document.getElementById('ed-content').innerHTML = `
+    <div class="ed-header">
+      <div class="ed-eyebrow">
+        ${typeBadge ? `<span class="ed-type-badge">${typeBadge}</span>` : ''}
+        ${sourceBadge}
+      </div>
+      <div class="ed-name">${data.name}</div>
+      <div class="ed-date">${_fmtDate(data.date)}</div>
+      ${countdownHtml}
+      <div style="margin-top:0.75rem">
+        <button class="ed-track-btn ${isTracked ? 'tracked' : ''}"
+          onclick="toggleTrack('${data.id}', this)">
+          ${isTracked ? 'Tracking ✓' : 'Track this election'}
+        </button>
+      </div>
+    </div>
+
+    <div class="ed-section">
+      <div class="ed-section-label">Election Stage</div>
+      ${_renderStageRail(data.stage, isPast)}
+    </div>
+
+    ${_pollingSectionHtml(data.id, data.source, prefs?.state)}
+    ${_renderCandidates(data.contests)}
+    ${_renderParticipation(data)}
+  `;
+}
+
+async function loadDetail() {
+  const id = window.location.pathname.split('/').pop();
+  const prefs = getPrefs();
+  const params = new URLSearchParams();
+  if (prefs?.zip)   params.set('zip', prefs.zip);
+  if (prefs?.state) params.set('state', prefs.state);
+
+  try {
+    const res = await fetch(`/api/elections/${id}?${params}`);
+    if (res.status === 404) throw new Error('not_found');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    document.getElementById('ed-loading').style.display = 'none';
+    document.getElementById('ed-content').style.display = 'block';
+    renderDetail(data, prefs);
+  } catch(e) {
+    document.getElementById('ed-loading').style.display = 'none';
+    const errEl = document.getElementById('ed-error');
+    errEl.textContent = e.message === 'not_found'
+      ? 'Election not found. It may no longer be in the active window.'
+      : 'Could not load election data. Please try again.';
+    errEl.style.display = 'block';
+  }
+}
+
+loadDetail();
+</script>
+</body>
+</html>
