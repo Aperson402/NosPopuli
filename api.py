@@ -1362,6 +1362,39 @@ async def health():
     return {"status": "ok"}
 
 
+# ── Event watcher ──
+
+WATCHER_SECRET = os.getenv("WATCHER_SECRET", "")
+
+
+@app.post("/watcher/run")
+async def watcher_run(request: Request):
+    secret = request.headers.get("X-Watcher-Secret", "")
+    if not WATCHER_SECRET or secret != WATCHER_SECRET:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    from event_watcher import run_watcher
+    loop = asyncio.get_event_loop()
+    result = await loop.run_in_executor(None, run_watcher)
+    return result
+
+
+@app.get("/correspondence/unsubscribe-link")
+async def unsubscribe_link(email: str, bill_id: str):
+    """One-click unsubscribe from email notifications."""
+    from correspondence.db import deactivate_subscription
+    deactivate_subscription(email, bill_id)
+    return HTMLResponse(
+        "<html><body style='font-family:Georgia,serif;max-width:480px;margin:4rem auto;"
+        "color:#0e0e0e;padding:2rem'>"
+        f"<p style='color:#6b6355;font-size:0.75rem;text-transform:uppercase;"
+        "letter-spacing:0.08em'>NosPopuli</p>"
+        f"<h2>Unsubscribed</h2>"
+        f"<p>You'll no longer receive updates on <strong>{bill_id}</strong>.</p>"
+        "<p><a href='/' style='color:#8b1a1a'>Return to NosPopuli</a></p>"
+        "</body></html>"
+    )
+
+
 @app.get("/monitor", response_class=HTMLResponse)
 async def monitor(request: Request):
     _require_monitor_auth(request)

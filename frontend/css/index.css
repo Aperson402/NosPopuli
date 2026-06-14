@@ -992,6 +992,37 @@ footer {
 }
 .write-reps-btn:hover { background: var(--accent-light); }
 
+/* ── NOTIFY BUTTON ── */
+.notify-btn {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 0.5rem 1.1rem; background: transparent; color: var(--ink);
+  border: 1px solid var(--rule); cursor: pointer; display: inline-flex;
+  align-items: center; gap: 0.4rem; transition: border-color 0.15s, color 0.15s;
+}
+.notify-btn:hover { border-color: var(--ink); }
+.notify-btn.subscribed { color: var(--muted); border-color: var(--rule); }
+.notify-btn:disabled { opacity: 0.5; cursor: default; }
+
+.notify-email-row {
+  display: flex; gap: 0.5rem; margin-top: 0.75rem; align-items: center;
+}
+.notify-email-input {
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem;
+  padding: 0.4rem 0.6rem; border: 1px solid var(--rule);
+  background: var(--paper); color: var(--ink); flex: 1; min-width: 0;
+  outline: none;
+}
+.notify-email-input:focus { border-color: var(--ink); }
+.notify-email-submit {
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 0.4rem 0.9rem; background: var(--ink); color: var(--paper);
+  border: none; cursor: pointer; white-space: nowrap;
+  transition: opacity 0.15s;
+}
+.notify-email-submit:hover { opacity: 0.8; }
+
 /* ── WRITE PANEL ── */
 .write-panel {
   position: fixed; top: 0; right: -500px; width: 460px;

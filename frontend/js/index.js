@@ -624,6 +624,7 @@ async function openDetail(bill) {
           _reopen: { type: 'federal', congress: bill.congress, billType: bill.type, number: bill.number, title: bill.title },
         });
       }
+      _initNotifyBtn(billId, bill.congress, bill.type, bill.number, null);
     }, 400);
 
   } catch (err) {
@@ -1401,6 +1402,7 @@ async function openStateBill(bill) {
           _reopen: { type: 'state', ocd_id: bill.ocd_id, identifier: bill.identifier, title: bill.title, state: bill.state },
         });
       }
+      _initNotifyBtn(`${bill.identifier} · ${bill.state || ''}`, null, null, null, bill.ocd_id);
     }, 400);
 
   } catch (err) {
@@ -1990,4 +1992,139 @@ if (new URLSearchParams(window.location.search).get('tab') === 'letters') {
   if (typeof loadCorrespondencePage === 'function') loadCorrespondencePage();
 }
 _renderSidebar();
+
+// ── Bill subscription / notify button ──
+
+const SUBS_KEY = 'np_subscriptions';
+
+function _getSubs() {
+  try { return JSON.parse(localStorage.getItem(SUBS_KEY)) || {}; }
+  catch { return {}; }
+}
+
+function _saveSubs(subs) {
+  localStorage.setItem(SUBS_KEY, JSON.stringify(subs));
+}
+
+function _getNotifyEmail() {
+  // Prefer logged-in account email; fall back to stored anonymous email
+  if (typeof _authUser !== 'undefined' && _authUser?.email) return _authUser.email;
+  return localStorage.getItem('np_notify_email') || null;
+}
+
+// Called by openDetail / openStateBill after bill loads
+function _initNotifyBtn(billId, congress, billType, billNumber, ocdId) {
+  const btn   = document.getElementById('notify-btn');
+  const cap   = document.getElementById('notify-email-capture');
+  if (!btn) return;
+
+  btn._billId     = billId;
+  btn._congress   = congress   || null;
+  btn._billType   = billType   || null;
+  btn._billNumber = billNumber || null;
+  btn._ocdId      = ocdId     || null;
+
+  btn.style.display = 'inline-flex';
+  cap.style.display = 'none';
+  document.getElementById('notify-email-input').value = '';
+
+  const subs = _getSubs();
+  _setNotifyBtnState(subs[billId]?.active ? 'subscribed' : 'idle');
+}
+
+function _setNotifyBtnState(state) {
+  const btn = document.getElementById('notify-btn');
+  if (!btn) return;
+  if (state === 'subscribed') {
+    btn.textContent = 'Notifying you ✓';
+    btn.classList.add('subscribed');
+    btn.disabled = false;
+  } else if (state === 'loading') {
+    btn.textContent = '…';
+    btn.disabled = true;
+    btn.classList.remove('subscribed');
+  } else {
+    btn.textContent = 'Notify me when this moves';
+    btn.classList.remove('subscribed');
+    btn.disabled = false;
+  }
+}
+
+async function toggleSubscribe() {
+  const btn   = document.getElementById('notify-btn');
+  const cap   = document.getElementById('notify-email-capture');
+  const billId = btn._billId;
+  if (!billId) return;
+
+  const subs = _getSubs();
+  const isSubscribed = subs[billId]?.active;
+
+  if (isSubscribed) {
+    // Unsubscribe
+    const email = subs[billId].email;
+    _setNotifyBtnState('loading');
+    try {
+      await fetch('/correspondence/unsubscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bill_id: billId, email })
+      });
+    } catch {}
+    delete subs[billId];
+    _saveSubs(subs);
+    _setNotifyBtnState('idle');
+    cap.style.display = 'none';
+    return;
+  }
+
+  // Subscribe — check if we already have an email
+  const email = _getNotifyEmail();
+  if (email) {
+    await _doSubscribe(email);
+  } else {
+    cap.style.display = 'block';
+    document.getElementById('notify-email-input').focus();
+  }
+}
+
+async function submitSubscribeEmail() {
+  const input = document.getElementById('notify-email-input');
+  const email = input.value.trim();
+  if (!email || !email.includes('@')) return;
+  localStorage.setItem('np_notify_email', email);
+  document.getElementById('notify-email-capture').style.display = 'none';
+  await _doSubscribe(email);
+}
+
+async function _doSubscribe(email) {
+  const btn    = document.getElementById('notify-btn');
+  const billId = btn._billId;
+  _setNotifyBtnState('loading');
+
+  const token  = typeof getAuthToken === 'function' ? getAuthToken() : null;
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  try {
+    await fetch('/correspondence/subscribe', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        bill_id:    billId,
+        bill_title: document.getElementById('detail-bill-title').textContent || billId,
+        email,
+        congress:    btn._congress,
+        bill_type:   btn._billType,
+        bill_number: btn._billNumber,
+        ocd_id:      btn._ocdId,
+      })
+    });
+    const subs = _getSubs();
+    subs[billId] = { email, active: true };
+    _saveSubs(subs);
+    _setNotifyBtnState('subscribed');
+  } catch {
+    _setNotifyBtnState('idle');
+  }
+}
 loadFeed();

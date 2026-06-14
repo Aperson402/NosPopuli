@@ -70,6 +70,23 @@ def init_db():
             results TEXT NOT NULL,
             cached_at REAL NOT NULL
         );
+
+        CREATE TABLE IF NOT EXISTS subscriptions (
+            id TEXT PRIMARY KEY,
+            user_id TEXT,
+            email TEXT NOT NULL,
+            bill_id TEXT NOT NULL,
+            bill_title TEXT,
+            congress INTEGER,
+            bill_type TEXT,
+            bill_number INTEGER,
+            ocd_id TEXT,
+            subscribed_at TEXT DEFAULT (datetime('now')),
+            last_notified_state TEXT,
+            source TEXT DEFAULT 'manual',
+            active INTEGER DEFAULT 1,
+            UNIQUE(email, bill_id)
+        );
     """)
     conn.commit()
     conn.close()
@@ -200,6 +217,78 @@ def save_reply(corr_id, gmail_message_id, received_at, preview_text):
     """, (str(uuid.uuid4()), corr_id, gmail_message_id, received_at, preview_text))
     conn.execute(
         "UPDATE correspondence SET status='replied' WHERE id=?", (corr_id,)
+    )
+    conn.commit()
+    conn.close()
+
+
+def upsert_subscription(email, bill_id, bill_title, source='manual',
+                        user_id=None, congress=None, bill_type=None,
+                        bill_number=None, ocd_id=None):
+    conn = get_conn()
+    conn.execute("""
+        INSERT INTO subscriptions
+            (id, user_id, email, bill_id, bill_title, congress, bill_type,
+             bill_number, ocd_id, source, active)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+        ON CONFLICT(email, bill_id) DO UPDATE SET
+            active=1,
+            source=CASE WHEN excluded.source='letter' THEN 'letter' ELSE source END,
+            bill_title=COALESCE(excluded.bill_title, bill_title)
+    """, (str(uuid.uuid4()), user_id, email, bill_id, bill_title,
+          congress, bill_type, bill_number, ocd_id, source))
+    conn.commit()
+    conn.close()
+
+
+def get_subscription(email, bill_id):
+    conn = get_conn()
+    row = conn.execute(
+        "SELECT * FROM subscriptions WHERE email=? AND bill_id=?",
+        (email, bill_id)
+    ).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def deactivate_subscription(email, bill_id):
+    conn = get_conn()
+    conn.execute(
+        "UPDATE subscriptions SET active=0 WHERE email=? AND bill_id=?",
+        (email, bill_id)
+    )
+    conn.commit()
+    conn.close()
+
+
+def get_active_subscribed_bills():
+    """Returns distinct federal bills with at least one active subscription."""
+    conn = get_conn()
+    rows = conn.execute("""
+        SELECT DISTINCT congress, bill_type, bill_number, bill_id, bill_title
+        FROM subscriptions
+        WHERE active=1 AND congress IS NOT NULL
+    """).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_subscriptions_for_bill(bill_id):
+    """All active subscribers for a given bill_id."""
+    conn = get_conn()
+    rows = conn.execute(
+        "SELECT * FROM subscriptions WHERE bill_id=? AND active=1",
+        (bill_id,)
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def update_subscription_state(email, bill_id, new_state):
+    conn = get_conn()
+    conn.execute(
+        "UPDATE subscriptions SET last_notified_state=? WHERE email=? AND bill_id=?",
+        (new_state, email, bill_id)
     )
     conn.commit()
     conn.close()

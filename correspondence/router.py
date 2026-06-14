@@ -15,6 +15,7 @@ from .db import (
     check_rate_limit, increment_rate_limit, check_bill_rep_cooldown,
     save_correspondence, get_user_correspondence,
     get_correspondence_by_id, save_reply, get_replies,
+    upsert_subscription, get_subscription, deactivate_subscription,
 )
 from .auth import get_auth_url, exchange_code, make_user_id, issue_jwt, verify_jwt
 from .gmail import screen_email_username, send_email, check_thread_replies, FOOTER
@@ -237,6 +238,18 @@ async def send_correspondence(body: SendRequest, request: Request):
         "gmail_message_id": message_id,
     })
 
+    # Implicit subscription: sending a letter auto-subscribes the user
+    upsert_subscription(
+        email=user["email"],
+        bill_id=body.bill_id,
+        bill_title=body.bill_title,
+        source='letter',
+        user_id=user["id"],
+        congress=getattr(body, 'congress', None),
+        bill_type=getattr(body, 'bill_type', None),
+        bill_number=getattr(body, 'bill_number', None),
+    )
+
     increment_rate_limit(user["id"], "send")
 
     return {
@@ -283,6 +296,60 @@ async def check_replies(corr_id: str, request: Request):
         print(f"[REPLIES] Gmail fetch error: {e}")
 
     return {"replies": get_replies(corr_id)}
+
+
+# ── Subscriptions ──
+
+class SubscribeRequest(BaseModel):
+    bill_id: str
+    bill_title: Optional[str] = ""
+    email: Optional[str] = None        # required for anonymous callers
+    congress: Optional[int] = None
+    bill_type: Optional[str] = None
+    bill_number: Optional[int] = None
+    ocd_id: Optional[str] = None
+
+
+@router.post("/correspondence/subscribe")
+async def subscribe(body: SubscribeRequest, request: Request):
+    token = request.headers.get("Authorization", "")
+    user = None
+    if token.startswith("Bearer "):
+        try:
+            user_id = verify_jwt(token[7:])
+            user = get_user(user_id)
+        except Exception:
+            pass
+
+    email = (user["email"] if user else None) or body.email
+    if not email:
+        raise HTTPException(status_code=400, detail="email required")
+
+    loop = asyncio.get_event_loop()
+    await loop.run_in_executor(None, upsert_subscription,
+        email, body.bill_id, body.bill_title or "", "manual",
+        user["id"] if user else None,
+        body.congress, body.bill_type, body.bill_number, body.ocd_id)
+
+    return {"ok": True, "subscribed": True}
+
+
+class UnsubscribeRequest(BaseModel):
+    bill_id: str
+    email: str
+
+
+@router.post("/correspondence/unsubscribe")
+async def unsubscribe(body: UnsubscribeRequest, request: Request):
+    loop = asyncio.get_event_loop()
+    await loop.run_in_executor(None, deactivate_subscription, body.email, body.bill_id)
+    return {"ok": True, "subscribed": False}
+
+
+@router.get("/correspondence/subscription")
+async def subscription_status(bill_id: str, email: str):
+    sub = get_subscription(email, bill_id)
+    return {"subscribed": bool(sub and sub["active"])}
 
 
 # ── Follow-up draft ──

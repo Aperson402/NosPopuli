@@ -62,9 +62,14 @@ function _renderAuthBar() {
 // ── Bill context (captured when a bill page opens) ──
 function setCurrentBillContext(ctx) {
   _currentBillContext = ctx;
-  // Update button visibility
-  const btn = document.getElementById('write-reps-btn');
-  if (btn) btn.style.display = ctx ? 'inline-flex' : 'none';
+  const writeBtn = document.getElementById('write-reps-btn');
+  if (writeBtn) writeBtn.style.display = ctx ? 'inline-flex' : 'none';
+  if (!ctx) {
+    const notifyBtn = document.getElementById('notify-btn');
+    if (notifyBtn) notifyBtn.style.display = 'none';
+    const cap = document.getElementById('notify-email-capture');
+    if (cap) cap.style.display = 'none';
+  }
 }
 
 // ── Write panel open / close ──

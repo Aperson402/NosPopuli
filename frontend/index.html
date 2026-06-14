@@ -187,15 +187,26 @@
       <div class="detail-section">
         <div class="section-label">Plain English Explanation</div>
         <div class="detail-explanation" id="detail-explanation"></div>
-        <div style="margin-top:0.75rem;display:flex;justify-content:space-between;align-items:center">
+        <div style="margin-top:0.75rem;display:flex;justify-content:space-between;align-items:center;gap:0.75rem;flex-wrap:wrap">
           <button class="write-reps-btn" id="write-reps-btn"
               style="display:none" onclick="openWritePanel()">
             ✉ Write to Your Reps
+          </button>
+          <button class="notify-btn" id="notify-btn"
+              style="display:none" onclick="toggleSubscribe()">
+            Notify me when this moves
           </button>
           <button class="feed-settings-btn" id="flag-translation-btn"
               onclick="showBillFlag('translation')">
             Flag inaccuracy
           </button>
+        </div>
+        <div id="notify-email-capture" style="display:none">
+          <div class="notify-email-row">
+            <input type="email" id="notify-email-input"
+              class="notify-email-input" placeholder="your@email.com" />
+            <button class="notify-email-submit" onclick="submitSubscribeEmail()">Subscribe</button>
+          </div>
         </div>
       </div>
       <div class="detail-section">
