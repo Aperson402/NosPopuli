@@ -418,19 +418,38 @@ async def handle_named_entity_search(structured, question, loop):
     )
     final = validated if validated else title_results
 
+    # Common-name disambiguation: when the same act name exists across 3+ different
+    # congresses, surface the ambiguity rather than silently leading with the most recent.
+    distinct_congresses = list({r.get("congress") for r in final if r.get("congress")})
+    confidence = structured.get("confidence", 1.0)
+    ambiguity_reason = structured.get("ambiguity_reason")
+    if len(distinct_congresses) >= 3:
+        from router_agent import congress_to_years
+        years = sorted(
+            [congress_to_years(c)[0] for c in distinct_congresses if c],
+            reverse=True
+        )[:4]
+        year_list = ", ".join(str(y) for y in years)
+        ambiguity_reason = (
+            f"Multiple bills share this name across different Congresses "
+            f"({year_list}). Showing the most relevant — add a year to your "
+            f"search (e.g. \"{named_entity} {years[0]}\") to target a specific version."
+        )
+        confidence = min(confidence, 0.55)
+
     log_search(
         query=question,
         query_type="named_entity",
         expanded_terms=[],
         results_count=len(final),
         result_ids=[f"{r.get('type', '')}{r.get('number', '')}" for r in final],
-        confidence=structured.get("confidence", 1.0),
+        confidence=confidence,
     )
 
     return {
         "query_type": "legislation",
-        "confidence": structured.get("confidence", 1.0),
-        "ambiguity_reason": structured.get("ambiguity_reason"),
+        "confidence": confidence,
+        "ambiguity_reason": ambiguity_reason,
         "query": structured,
         "results": final,
     }
@@ -493,6 +512,23 @@ async def handle_legislation_search(structured, question, loop):
             seen.add(key)
             r["source"] = "govinfo"
             merged.append(r)
+
+    # If a known-bill hint exists, prepend it to candidates so the validator
+    # ranks it fairly — it gets a head start but can still lose to a better match.
+    hint = structured.get("known_bill_hint")
+    if hint and not full_history:
+        hint_key = f"{hint.get('congress')}{hint.get('type')}{hint.get('number')}"
+        if hint_key not in seen:
+            hint_candidate = {
+                "package_id": f"BILLS-{hint['congress']}{hint['type']}{hint['number']}",
+                "title": f"{hint['type'].upper()} {hint['number']}",
+                "date_issued": "",
+                "congress": hint["congress"],
+                "type": hint["type"],
+                "number": hint["number"],
+                "source": "hint",
+            }
+            merged.insert(0, hint_candidate)
 
     if full_history:
         raw_results = merged

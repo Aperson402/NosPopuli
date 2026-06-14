@@ -109,11 +109,29 @@ KNOWN_BILLS = {
     "civil rights act": {"congress": 88, "type": "hr", "number": 7152},
 }
 
+_KNOWN_BILL_DISQUALIFIERS = [
+    "repeal", "amend", "replace", "successor", "alternative",
+    "against", "oppose", "modify", "reform", "not", "anti-",
+    "instead of", "similar to", "like the", "unlike",
+]
+
 def check_known_bills(question):
-    question_lower = question.lower()
+    import re as _re
+    q = question.lower().strip()
     for name, bill in KNOWN_BILLS.items():
-        if name in question_lower:
-            return bill
+        if name not in q:
+            continue
+        # Reject if the query contains disqualifying context around the act name
+        if any(d in q for d in _KNOWN_BILL_DISQUALIFIERS):
+            continue
+        # Reject if there's substantial additional context (the act name is a
+        # substring of a longer, different request rather than the primary subject)
+        remainder = q.replace(name, "").strip()
+        remainder = _re.sub(r"^(show me|find|what is|tell me about|give me|search for|the|a|an)\s+", "", remainder)
+        remainder = _re.sub(r"\s*(act|law|bill|legislation)$", "", remainder.strip())
+        if len(remainder) > 20:
+            continue
+        return bill
     return None
 
 def extract_president_congress(question):
@@ -312,12 +330,13 @@ Return ONLY this JSON structure:
             "named_entity": None,
         }
     
-    # Check for known bills before anything else
+    # Known bills table: tight match only → hint, not bypass.
+    # Sets known_bill_hint so the hinted bill is prepended to candidates
+    # and ranked by the validator alongside search results.
     known = check_known_bills(user_question)
     if known:
-        structured["specific_bill"] = known
+        structured["known_bill_hint"] = known
         structured["query_type"] = "legislation"
-        structured["result_count"] = 1
 
     # Add congress numbers based on time range
     structured["congress_numbers"] = years_to_congress_numbers(structured.get("time_range", "last 5 years"), all_congresses=full_history)
