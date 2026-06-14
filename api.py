@@ -460,8 +460,10 @@ async def handle_legislation_search(structured, question, loop):
         govinfo_results = await loop.run_in_executor(None, search_bills, structured)
         summary_results = []
     else:
+        # Fetch 2× target so the validator has enough headroom without dropping below target
+        fetch_count = min(structured.get("result_count", 5) * 2, 20)
         govinfo_results, summary_results = await asyncio.gather(
-            loop.run_in_executor(None, search_bills, structured),
+            loop.run_in_executor(None, search_bills, structured, fetch_count),
             loop.run_in_executor(
                 None,
                 search_summaries,
@@ -488,10 +490,13 @@ async def handle_legislation_search(structured, question, loop):
     if full_history:
         raw_results = merged
     else:
-        raw_results = merged[: structured.get("result_count", 5)]
-        raw_results = await loop.run_in_executor(
-            None, validate_results, question, raw_results, get_client()
+        target = structured.get("result_count", 5)
+        # Feed more candidates to the validator so filtering doesn't drop us below target
+        candidates = merged[: target * 2]
+        validated = await loop.run_in_executor(
+            None, validate_results, question, candidates, get_client()
         )
+        raw_results = validated[:target]
 
     log_search(
         query=question,
