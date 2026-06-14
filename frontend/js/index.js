@@ -828,6 +828,23 @@ function _storyCardHtml(item, idx) {
 }
 
 // ── Feed rendering ──
+function _feedFollowingHtml() {
+  const subs = _getSubs();
+  const active = Object.entries(subs).filter(([, v]) => v.active);
+  if (!active.length) return '';
+
+  const rows = active.map(([billId, sub]) => `
+    <div class="feed-following-row" onclick="reopenBillFromNotif(${JSON.stringify(billId)}, ${JSON.stringify(sub)})">
+      <div class="feed-following-id">${billId}</div>
+      ${sub.title ? `<div class="feed-following-title">${sub.title}</div>` : ''}
+    </div>`).join('');
+
+  return `
+    <div class="section-rule" style="margin-top:1.5rem"><span>Bills You're Following</span></div>
+    ${rows}
+    <a class="feed-elections-more" href="#" onclick="showPage('page-notifications');loadNotificationsPage();return false">Manage →</a>`;
+}
+
 function _feedElectionsHtml(elections) {
   if (!elections || !elections.length) return '';
   const cards = elections.map(e => {
@@ -902,12 +919,13 @@ function renderFeedSection(items, prefs, upcomingElections = []) {
   const lead     = sortedReps[0];
   const restReps = sortedReps.slice(1);
 
-  // ── Left column: representatives + upcoming elections
+  // ── Left column: representatives + following
   const leftHtml = `
     <div class="section-rule"><span>Your Representatives</span></div>
     ${lead ? _leadCardHtml(lead.item, lead.i) : ''}
     ${restReps.map(({ item, i }) => _storyCardHtml(item, i)).join('')}
     ${repItems.length === 0 ? '<div class="feed-empty-col">No recent activity from your representatives.</div>' : ''}
+    ${_feedFollowingHtml()}
     ${_feedElectionsHtml(upcomingElections)}
   `;
 
