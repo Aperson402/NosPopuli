@@ -883,6 +883,10 @@ async def search(request: Request, body: SearchRequest):
             output_data={},
         )
 
+        # Full-history show-more bypasses specialized handlers — they don't support it
+        if structured.get("full_history"):
+            return await handle_legislation_search(structured, question, loop)
+
         if subtype == "named_entity":
             return await handle_named_entity_search(structured, question, loop)
 
