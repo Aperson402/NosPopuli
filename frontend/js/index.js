@@ -2337,9 +2337,24 @@ loadFeed();
     m.classList.add('jiggle');
     m.addEventListener('animationend', () => m.classList.remove('jiggle'), { once: true });
 
+    const shouts = [
+      'Extra! Extra!',
+      'Read all about it!',
+      'Breaking news!',
+      'Hot off the press!',
+      'Stop the presses!',
+      'Hear ye, hear ye!',
+      'Latest dispatch!',
+      'Special edition!',
+      'This just in!',
+      'By order of Congress!',
+      'The people demand it!',
+      'Democracy in action!',
+      'Your reps are watching!',
+    ];
     const tag = document.createElement('div');
     tag.className = 'masthead-extra';
-    tag.textContent = 'Extra! Extra!';
+    tag.textContent = shouts[Math.floor(Math.random() * shouts.length)];
     // Random horizontal position: anywhere from 5% to 85% of the masthead width
     tag.style.left = (5 + Math.random() * 80) + '%';
     m.appendChild(tag);
