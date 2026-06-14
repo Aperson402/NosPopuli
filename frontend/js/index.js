@@ -1868,7 +1868,10 @@ function _renderElectionSection(sectionId, listId, elections, isPast) {
   elections.forEach(e => list.appendChild(_makeElectionCard(e, isPast)));
 }
 
+let _electionsLoaded = false;
+
 async function loadElections() {
+  if (_electionsLoaded) return;
   const prefs = getPrefs();
   const zip = prefs?.zip || null;
   const state = prefs?.state || null;
@@ -1893,6 +1896,7 @@ async function loadElections() {
 
     document.getElementById('elections-loading').style.display = 'none';
     document.getElementById('elections-content').style.display = 'block';
+    _electionsLoaded = true;
 
     if (data.error) {
       document.getElementById('elections-error').textContent = data.error;
