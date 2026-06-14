@@ -726,6 +726,26 @@ header::before {
 .detail-explanation strong { font-weight: 600; }
 .detail-explanation li { margin-left: 1.25rem; margin-bottom: 0.25rem; }
 
+.detail-explanation.explanation-collapsed {
+  max-height: 11rem;
+  overflow: hidden;
+  position: relative;
+}
+.detail-explanation.explanation-collapsed::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 4.5rem;
+  background: linear-gradient(transparent, var(--card-bg, #f5f0e8));
+  pointer-events: none;
+}
+.explanation-expand-btn {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase;
+  background: none; border: none; color: var(--accent);
+  cursor: pointer; padding: 0.4rem 0 0; display: block;
+}
+.explanation-expand-btn:hover { text-decoration: underline; }
+
 .timeline-text { font-size: 0.92rem; line-height: 1.85; color: var(--ink); }
 .timeline-text h1, .timeline-text h2, .timeline-text h3 {
   font-family: 'Playfair Display', Georgia, serif;

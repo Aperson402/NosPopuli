@@ -494,6 +494,26 @@ function renderConnections(conn) {
   section.style.display = anyVisible ? 'block' : 'none';
 }
 
+const EXPLANATION_COLLAPSE_CHARS = 700;
+
+function renderExplanation(markdown) {
+  const el = document.getElementById('detail-explanation');
+  el.innerHTML = renderMarkdown(markdown);
+  // Remove any stale expand button from a previous bill
+  const old = el.parentNode.querySelector('.explanation-expand-btn');
+  if (old) old.remove();
+  el.classList.remove('explanation-collapsed');
+
+  if ((markdown || '').length > EXPLANATION_COLLAPSE_CHARS) {
+    el.classList.add('explanation-collapsed');
+    const btn = document.createElement('button');
+    btn.className = 'explanation-expand-btn';
+    btn.textContent = 'Read full text ↓';
+    btn.onclick = () => { el.classList.remove('explanation-collapsed'); btn.remove(); };
+    el.insertAdjacentElement('afterend', btn);
+  }
+}
+
 function renderFullText(text) {
   const section = document.getElementById('full-text-section');
   const content = document.getElementById('full-text-content');
@@ -609,7 +629,7 @@ async function openDetail(bill) {
 
     setTimeout(() => {
       document.getElementById('detail-loading').style.display = 'none';
-      document.getElementById('detail-explanation').innerHTML = renderMarkdown(data.translation);
+      renderExplanation(data.translation || '');
       renderTimeline(data.timeline_events, data.timeline);
       renderVotes(data.votes);
       renderFullText(data.bill_text);
@@ -1457,7 +1477,7 @@ async function openStateBill(bill) {
 
     setTimeout(() => {
       document.getElementById('detail-loading').style.display = 'none';
-      document.getElementById('detail-explanation').innerHTML = renderMarkdown(data.translation);
+      renderExplanation(data.translation || '');
       renderTimeline(data.timeline_events, data.timeline);
       renderVotes(data.votes, true);
       renderFullText(data.bill_text);
