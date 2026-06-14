@@ -2115,7 +2115,8 @@ function loadNotificationsPage() {
 
   container.innerHTML = active.map(([billId, sub]) => `
     <div class="notif-item" id="notif-${CSS.escape(billId)}">
-      <div class="notif-item-info">
+      <div class="notif-item-info notif-item-link"
+        onclick="reopenBillFromNotif(${JSON.stringify(billId)}, ${JSON.stringify(sub)})">
         <div class="notif-bill-id">${billId}</div>
         ${sub.title ? `<div class="notif-bill-title">${sub.title}</div>` : ''}
       </div>
@@ -2125,6 +2126,14 @@ function loadNotificationsPage() {
       </button>
     </div>
   `).join('');
+}
+
+function reopenBillFromNotif(billId, sub) {
+  if (sub.ocdId) {
+    openStateBill({ ocd_id: sub.ocdId, identifier: billId, title: sub.title });
+  } else if (sub.congress && sub.billType && sub.billNumber) {
+    openDetail({ congress: sub.congress, type: sub.billType, number: sub.billNumber, title: sub.title });
+  }
 }
 
 async function stopNotifying(billId, email) {
@@ -2185,7 +2194,13 @@ async function _doSubscribe(email) {
     });
     const subs = _getSubs();
     const title = document.getElementById('detail-bill-title')?.textContent || '';
-    subs[billId] = { email, active: true, title };
+    subs[billId] = {
+      email, active: true, title,
+      congress:   btn._congress,
+      billType:   btn._billType,
+      billNumber: btn._billNumber,
+      ocdId:      btn._ocdId,
+    };
     _saveSubs(subs);
     _setNotifyBtnState('subscribed');
   } catch {

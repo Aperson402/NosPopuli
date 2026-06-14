@@ -990,6 +990,8 @@ footer {
 }
 .notif-item:first-child { border-top: 1px solid var(--rule); }
 .notif-item-info { flex: 1; min-width: 0; }
+.notif-item-link { cursor: pointer; }
+.notif-item-link:hover .notif-bill-title { color: var(--accent); }
 .notif-bill-id {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase;
