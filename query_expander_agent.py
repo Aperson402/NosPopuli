@@ -44,26 +44,28 @@ def expand_query(keywords, topic, client):
     prompt = f"""
     You are a legislative search specialist.
     Your only job is to expand plain English search terms into official legislative vocabulary.
-    
+
     User is searching for: {topic}
     Initial keywords: {keywords}
-    
+
     Return ONLY valid JSON, no markdown, no explanation.
-    
+
     Rules:
     - Generate 5-7 specific legislative terms
     - Include official bill names, acronyms, and technical terms used in legislation
     - Include related medical, legal, or policy terminology Congress actually uses
     - NEVER include generic words like: bill, law, act, congress, legislation, federal, policy
     - Terms should be specific enough to find relevant bills but not so narrow they miss things
-    
+    - CRITICAL: If the user explicitly names multiple distinct mechanisms or approaches (e.g. "negotiation, price caps, importation, 340B"), your expanded terms MUST span all of them — do not collapse onto just one mechanism. Each named mechanism should contribute at least one term.
+
     Examples:
     "opioid epidemic" → ["opioid", "fentanyl", "naloxone", "substance use disorder", "overdose", "CARA", "addiction treatment"]
     "climate change" → ["greenhouse gas", "carbon emissions", "clean energy", "climate", "renewable", "Paris Agreement", "EPA"]
     "student loans" → ["student loan", "higher education", "loan forgiveness", "FAFSA", "Pell Grant", "tuition", "college debt"]
     "gun control" → ["firearm", "background check", "assault weapon", "gun violence", "Second Amendment", "ATF", "concealed carry"]
     "healthcare" → ["Affordable Care Act", "Medicaid", "Medicare", "insurance coverage", "preexisting condition", "ACA", "public option"]
-    
+    "drug price negotiation, importation, 340B, price caps" → ["Medicare drug price negotiation", "drug importation", "340B program", "price cap", "out-of-pocket cap", "IRA drug pricing", "prescription price transparency"]
+
     Return ONLY this JSON:
     {{
         "expanded_terms": ["term1", "term2", "term3", "term4", "term5"]

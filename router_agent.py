@@ -230,6 +230,7 @@ Rules for keywords (legislation only):
 
 Rules for time_range:
 - "in [year]", "from [year]", "[year] bill" → "year:YYYY"
+- "this Congress", "current Congress", "this session" → "year:2025"
 - "recent", "recently" → "last 2 years"
 - "last 5 years" or nothing → "last 5 years"
 - "last 10 years" → "last 10 years"
@@ -321,11 +322,33 @@ Return ONLY this JSON structure:
     # Add congress numbers based on time range
     structured["congress_numbers"] = years_to_congress_numbers(structured.get("time_range", "last 5 years"), all_congresses=full_history)
 
+    # Override: "this Congress" / "current Congress" → lock to 119th only
+    import datetime as _dt
+    _current_congress = year_to_congress(_dt.datetime.now().year)
+    _THIS_CONGRESS_PATTERNS = [
+        "this congress", "current congress", "119th congress",
+        "this session", "current session", "this legislative session",
+    ]
+    if any(p in user_question.lower() for p in _THIS_CONGRESS_PATTERNS):
+        structured["congress_numbers"] = [_current_congress]
+        structured["time_range"] = f"year:{_dt.datetime.now().year}"
+
     # Override congress_numbers if a president was mentioned
     president_congresses = extract_president_congress(user_question)
     if president_congresses:
         structured["congress_numbers"] = president_congresses
         structured["time_range"] = "presidential term"
+
+    # When user lists multiple explicit mechanisms/topics, boost result_count
+    # so we can surface bills across all of them rather than collapsing to one.
+    _MECHANISM_SIGNALS = [
+        "negotiation", "price cap", "importation", "import", "transparency",
+        "340b", "rebate", "formulary", "out-of-pocket", "out of pocket",
+        "copay", "deductible", "competitive", "generic", "biosimilar",
+    ]
+    _mechanism_count = sum(1 for s in _MECHANISM_SIGNALS if s in user_question.lower())
+    if _mechanism_count >= 3 and structured.get("result_count", 5) < 10:
+        structured["result_count"] = 10
 
     PRESIDENTS = ["trump", "biden", "obama", "bush", "clinton", "reagan", "carter"]
 
