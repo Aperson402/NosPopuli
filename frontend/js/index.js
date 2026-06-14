@@ -886,7 +886,7 @@ function _feedElectionsHtml(elections) {
     if (_p?.zip)   detailParams.set('zip', _p.zip);
     if (_p?.state) detailParams.set('state', _p.state);
     return `
-      <div class="feed-election-card" onclick="window.location='/elections/${e.id}?${detailParams}'">
+      <div class="feed-election-card" onclick="showPage('page-elections');loadElections()"  style="cursor:pointer">
         <span class="feed-election-countdown ${cls}">${days !== null ? days + 'd' : '?'}</span>
         <div class="feed-election-info">
           <div class="feed-election-name">${e.name}</div>
