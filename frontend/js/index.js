@@ -1004,9 +1004,7 @@ async function loadFeed() {
     const data = await feedResp.json();
     const electionsData = electionsResp ? await electionsResp.json().catch(() => null) : null;
 
-    const upcomingForUser = ((electionsData && electionsData.upcoming) || []).slice(0, 3);
-    _updateSidebarElections(upcomingForUser);
-    renderFeedSection(data.items, prefs, upcomingForUser);
+    renderFeedSection(data.items, prefs, ((electionsData && electionsData.upcoming) || []).slice(0, 3));
 
     // Pre-populate the elections page so clicking the tab is instant
     if (electionsData) _renderElectionsPage(electionsData, prefs?.zip);
@@ -1970,31 +1968,9 @@ function _renderSidebar() {
       <div class="section-rule"><span>Your Reps</span></div>
       ${repRows || '<div class="sidebar-rep-meta" style="padding:0.5rem 0;color:var(--muted)">Set your zip to see your reps</div>'}
     </div>
-    <div class="sidebar-section" id="sidebar-elections-section" style="display:none">
-      <div class="section-rule"><span>Elections</span></div>
-      <div id="sidebar-elections-list"></div>
-      <a class="sidebar-more-link" href="#" onclick="showPage('page-elections');loadElections();return false">All elections →</a>
-    </div>`;
+    `;
 }
 
-function _updateSidebarElections(elections) {
-  const section = document.getElementById('sidebar-elections-section');
-  const list = document.getElementById('sidebar-elections-list');
-  if (!section || !list || !elections || !elections.length) return;
-  section.style.display = 'block';
-  list.innerHTML = elections.slice(0, 2).map(e => {
-    const days = e.countdown_days ?? null;
-    const cls = days !== null && days <= 30 ? 'urgent' : days !== null && days <= 90 ? 'near' : 'far';
-    const date = (() => { try { return new Date(e.date + 'T12:00:00').toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}); } catch { return e.date; } })();
-    return `<div class="sidebar-election" onclick="showPage('page-elections');loadElections()">
-      <span class="sidebar-election-days ${cls}">${days !== null ? days + 'd' : '?'}</span>
-      <div class="sidebar-election-info">
-        <div class="sidebar-election-name">${e.name}</div>
-        <div class="sidebar-election-date">${date}</div>
-      </div>
-    </div>`;
-  }).join('');
-}
 
 
 if (new URLSearchParams(window.location.search).get('tab') === 'letters') {
