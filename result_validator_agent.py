@@ -54,25 +54,35 @@ Return ONLY this JSON:
     try:
         message = client.messages.create(
             model="claude-haiku-4-5-20251001",
-            max_tokens=512,
+            max_tokens=800,
             messages=[{"role": "user", "content": prompt}]
         )
         raw = message.content[0].text.strip().replace("```json", "").replace("```", "")
         scored = json.loads(raw)
 
-        keep = {s["index"] for s in scored["scores"] if s["score"] >= min_score}
-        filtered = [r for i, r in enumerate(results) if i in keep]
+        kept = [(s["index"], s["score"]) for s in scored["scores"] if s["score"] >= min_score]
+        kept.sort(key=lambda x: x[1], reverse=True)  # highest relevance first
+        filtered = [results[i] for i, _ in kept]
 
         log_action(
             agent_name="result_validator",
             action="validate_results",
             input_data={"query": query, "result_count": len(results), "min_score": min_score},
-            output_data={"kept": len(filtered), "dropped": len(results) - len(filtered)}
+            output_data={
+                "kept": len(filtered),
+                "dropped": len(results) - len(filtered),
+                "top_score": kept[0][1] if kept else None,
+            }
         )
 
         if filtered:
             return filtered
-        return results if fail_open else []
+        # fail-open: return originals sorted by whatever scores were given
+        if fail_open:
+            all_scored = [(s["index"], s["score"]) for s in scored["scores"]]
+            all_scored.sort(key=lambda x: x[1], reverse=True)
+            return [results[i] for i, _ in all_scored]
+        return []
 
     except Exception as e:
         print(f"[VALIDATOR] Error: {e}")
