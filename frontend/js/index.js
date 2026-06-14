@@ -2202,22 +2202,27 @@ function loadNotificationsPage() {
     return;
   }
 
-  container.innerHTML = active.map(([billId, sub]) => `
-    <div class="notif-item" id="notif-${CSS.escape(billId)}">
-      <div class="notif-item-info notif-item-link"
-        onclick="reopenBillFromNotif(${JSON.stringify(billId)}, ${JSON.stringify(sub)})">
-        <div class="notif-bill-id">${billId}</div>
-        ${sub.title ? `<div class="notif-bill-title">${sub.title}</div>` : ''}
-      </div>
-      <button class="feed-settings-btn notif-stop-btn"
-        onclick="stopNotifying(${JSON.stringify(billId)}, ${JSON.stringify(sub.email)})">
-        Stop notifying me
-      </button>
-    </div>
-  `).join('');
+  container.innerHTML = active.map(([billId, sub]) => {
+    const safeId  = billId.replace(/\W/g, '_');
+    const escaped = billId.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+    return `
+      <div class="notif-item" id="notif-${safeId}" data-bill-id="${escaped}">
+        <div class="notif-item-info notif-item-link"
+          data-bill-id="${escaped}" onclick="reopenBillFromNotif(this.dataset.billId)">
+          <div class="notif-bill-id">${billId}</div>
+          ${sub.title ? `<div class="notif-bill-title">${sub.title}</div>` : ''}
+        </div>
+        <button class="feed-settings-btn notif-stop-btn"
+          data-bill-id="${escaped}" onclick="stopNotifying(this.dataset.billId)">
+          Stop notifying me
+        </button>
+      </div>`;
+  }).join('');
 }
 
-function reopenBillFromNotif(billId, sub) {
+function reopenBillFromNotif(billId) {
+  const sub = _getSubs()[billId];
+  if (!sub) return;
   if (sub.ocdId) {
     openStateBill({ ocd_id: sub.ocdId, identifier: billId, title: sub.title });
   } else if (sub.congress && sub.billType && sub.billNumber) {
@@ -2225,9 +2230,15 @@ function reopenBillFromNotif(billId, sub) {
   }
 }
 
-async function stopNotifying(billId, email) {
-  const row = document.getElementById(`notif-${CSS.escape(billId)}`);
-  if (row) row.style.opacity = '0.4';
+async function stopNotifying(billId) {
+  const safeId = billId.replace(/\W/g, '_');
+  const row    = document.getElementById(`notif-${safeId}`);
+  const email  = _getSubs()[billId]?.email || null;
+
+  if (row) {
+    row.style.opacity = '0.4';
+    row.style.pointerEvents = 'none';
+  }
 
   try {
     await fetch('/correspondence/unsubscribe', {
@@ -2241,15 +2252,22 @@ async function stopNotifying(billId, email) {
   delete subs[billId];
   _saveSubs(subs);
 
-  if (row) row.remove();
-
-  const container = document.getElementById('notifications-list');
-  if (container && !container.querySelector('.notif-item')) {
-    container.innerHTML = `
-      <div class="empty-state" style="margin-top:2rem">
-        <p>No active notifications.</p>
-      </div>`;
+  if (row) {
+    row.style.transition = 'opacity 0.2s';
+    row.style.opacity = '0';
+    setTimeout(() => row.remove(), 200);
   }
+
+  // Check after the fade-out completes
+  setTimeout(() => {
+    const container = document.getElementById('notifications-list');
+    if (container && !container.querySelector('.notif-item')) {
+      container.innerHTML = `
+        <div class="empty-state" style="margin-top:2rem">
+          <p>No active notifications.</p>
+        </div>`;
+    }
+  }, 220);
 
   // Update notify button if we're on that bill's detail page
   const notifyBtn = document.getElementById('notify-btn');
