@@ -35,6 +35,11 @@ def search_bills(structured_query, max_results=None):
     is_named_act = "act" in original or "act" in keywords_str or "law" in original
     sort_field = "publishdate" if full_history else ("score" if is_named_act else "publishdate")
 
+    # Extract any explicit program identifiers from the original question
+    # (e.g. "340B", "CHIP", "ACA") so they can't be dropped by the 3-term cap
+    import re as _re2
+    _explicit_ids = _re2.findall(r'\b340[Bb]\b|\bCHIP\b|\bACA\b|\bIRA\b|\bPDPAPA\b', original)
+
     if is_named_act and keywords:
         original_phrase = " ".join(keywords)
         if len(keywords) <= 3:
@@ -42,7 +47,13 @@ def search_bills(structured_query, max_results=None):
         else:
             all_terms = [original_phrase] + expanded[:2]
     else:
-        all_terms = terms[:3]
+        # Use up to 6 expanded terms so multi-mechanism queries aren't truncated to 3
+        all_terms = terms[:6]
+
+    # Inject any explicit identifiers the user named that aren't already covered
+    for eid in _explicit_ids:
+        if not any(eid.lower() in t.lower() for t in all_terms):
+            all_terms.append(eid)
 
     terms_query = " OR ".join(f'"{t}"' if " " in t else t for t in all_terms)
     keywords_lower = " ".join(terms).lower()

@@ -462,15 +462,22 @@ async def handle_legislation_search(structured, question, loop):
     else:
         # Fetch 2× target so the validator has enough headroom without dropping below target
         fetch_count = min(structured.get("result_count", 5) * 2, 20)
-        govinfo_results, summary_results = await asyncio.gather(
+        # Run a second keyword pass using the original (pre-expansion) keywords so that
+        # explicitly named terms (like "340B") can't be lost if the expander drifts.
+        orig_keywords = structured.get("keywords", [])
+        keyword_structured = {**structured, "expanded_terms": orig_keywords}
+        govinfo_results, govinfo_keyword, summary_results = await asyncio.gather(
             loop.run_in_executor(None, search_bills, structured, fetch_count),
+            loop.run_in_executor(None, search_bills, keyword_structured, fetch_count // 2 or 3),
             loop.run_in_executor(
                 None,
                 search_summaries,
-                " ".join(structured.get("keywords", [])),
+                " ".join(orig_keywords),
                 structured.get("congress_numbers", [119, 118]),
             ),
         )
+        # merge keyword pass into govinfo_results
+        govinfo_results = govinfo_results + govinfo_keyword
 
     seen = set()
     merged = []
