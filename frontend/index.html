@@ -17,7 +17,7 @@
   <div class="tagline">Law for the People &nbsp;·&nbsp; Federal Legislation in Plain English</div>
 </header>
 <nav class="top-nav">
-  <a class="top-nav-btn" href="/elections">Elections</a>
+  <a class="top-nav-btn" href="#" onclick="showPage('page-elections');loadElections();return false">Elections</a>
   <a class="top-nav-btn" href="#" onclick="showPage('page-correspondence');loadCorrespondencePage();return false">My Letters</a>
   <a class="top-nav-btn" href="#" onclick="showPage('page-notifications');loadNotificationsPage();return false">My Notifications</a>
 </nav>
@@ -354,6 +354,42 @@
       <div class="detail-bill-title">Your letters to representatives</div>
     </div>
     <div id="corr-list"></div>
+  </div>
+</div>
+
+<div class="page" id="page-elections">
+  <div class="detail-page">
+    <button class="detail-back" onclick="goBack()">← Back</button>
+    <div class="detail-header">
+      <div class="detail-bill-id">Elections</div>
+      <div class="detail-bill-title" id="elections-subtitle"></div>
+    </div>
+    <div id="elections-no-zip-banner" class="elections-no-zip" style="display:none">
+      <p>Set your zip code to see which elections affect you.</p>
+      <button class="elections-set-zip-btn" onclick="showPage('page-onboarding');showStep(1)">Set zip code →</button>
+    </div>
+    <div id="elections-loading" class="elections-loading">
+      <div class="loading-spinner">Loading elections…</div>
+    </div>
+    <div id="elections-error" class="elections-error" style="display:none"></div>
+    <div id="elections-content" style="display:none">
+      <div id="elections-tracked-section" style="display:none">
+        <div class="elections-section-label">TRACKING</div>
+        <div id="elections-tracked-list"></div>
+      </div>
+      <div id="elections-yours-section" style="display:none">
+        <div class="elections-section-label">YOUR ELECTIONS</div>
+        <div id="elections-yours-list"></div>
+      </div>
+      <div id="elections-other-section" style="display:none">
+        <div class="elections-section-label">OTHER ELECTIONS</div>
+        <div id="elections-other-list"></div>
+      </div>
+      <div id="elections-recent-section" style="display:none">
+        <div class="elections-section-label">RECENT RESULTS</div>
+        <div id="elections-recent-list"></div>
+      </div>
+    </div>
   </div>
 </div>
 

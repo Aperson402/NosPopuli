@@ -850,7 +850,7 @@ function _feedElectionsHtml(elections) {
   return `
     <div class="section-rule" style="margin-top:1.5rem"><span>Upcoming Elections</span></div>
     ${cards}
-    <a class="feed-elections-more" href="/elections">All elections →</a>`;
+    <a class="feed-elections-more" href="#" onclick="showPage('page-elections');loadElections();return false">All elections →</a>`;
 }
 
 function renderFeedSection(items, prefs, upcomingElections = []) {
@@ -1963,7 +1963,7 @@ function _renderSidebar() {
     <div class="sidebar-section" id="sidebar-elections-section" style="display:none">
       <div class="section-rule"><span>Elections</span></div>
       <div id="sidebar-elections-list"></div>
-      <a class="sidebar-more-link" href="/elections">All elections →</a>
+      <a class="sidebar-more-link" href="#" onclick="showPage('page-elections');loadElections();return false">All elections →</a>
     </div>`;
 }
 
@@ -1976,7 +1976,7 @@ function _updateSidebarElections(elections) {
     const days = e.countdown_days ?? null;
     const cls = days !== null && days <= 30 ? 'urgent' : days !== null && days <= 90 ? 'near' : 'far';
     const date = (() => { try { return new Date(e.date + 'T12:00:00').toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}); } catch { return e.date; } })();
-    return `<div class="sidebar-election" onclick="window.location='/elections'">
+    return `<div class="sidebar-election" onclick="showPage('page-elections');loadElections()">
       <span class="sidebar-election-days ${cls}">${days !== null ? days + 'd' : '?'}</span>
       <div class="sidebar-election-info">
         <div class="sidebar-election-name">${e.name}</div>
