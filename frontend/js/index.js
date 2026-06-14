@@ -1004,12 +1004,12 @@ async function loadFeed() {
     const data = await feedResp.json();
     const electionsData = electionsResp ? await electionsResp.json().catch(() => null) : null;
 
-    // Top 3 upcoming elections — backend already sorts affects_user first, then soonest
-    const upcomingForUser = ((electionsData && electionsData.upcoming) || [])
-      .slice(0, 3);
-
+    const upcomingForUser = ((electionsData && electionsData.upcoming) || []).slice(0, 3);
     _updateSidebarElections(upcomingForUser);
     renderFeedSection(data.items, prefs, upcomingForUser);
+
+    // Pre-populate the elections page so clicking the tab is instant
+    if (electionsData) _renderElectionsPage(electionsData, prefs?.zip);
 
   } catch(err) {
     feedSection.innerHTML = `<div class="empty-state"><p>Could not load feed.</p></div>`;
@@ -1870,57 +1870,63 @@ function _renderElectionSection(sectionId, listId, elections, isPast) {
 
 let _electionsLoaded = false;
 
+function _renderElectionsPage(data, zip) {
+  const subtitle = document.getElementById('elections-subtitle');
+  if (subtitle) subtitle.textContent = zip
+    ? `Based on zip ${zip}`
+    : 'National view — set your zip to personalize';
+
+  document.getElementById('elections-no-zip-banner').style.display = zip ? 'none' : 'block';
+  document.getElementById('elections-loading').style.display = 'none';
+  document.getElementById('elections-error').style.display = 'none';
+
+  if (data.error) {
+    document.getElementById('elections-error').textContent = data.error;
+    document.getElementById('elections-error').style.display = 'block';
+    return;
+  }
+
+  const upcoming = data.upcoming || [];
+  const recent   = data.recent   || [];
+
+  const tracked = upcoming.filter(e => _trackedElections.has(e.id));
+  const yours   = upcoming.filter(e => e.affects_user && !_trackedElections.has(e.id));
+  const other   = upcoming.filter(e => !e.affects_user && !_trackedElections.has(e.id));
+
+  _renderElectionSection('elections-tracked-section', 'elections-tracked-list', tracked, false);
+  _renderElectionSection('elections-yours-section',   'elections-yours-list',   yours,   false);
+  _renderElectionSection('elections-other-section',   'elections-other-list',   other,   false);
+  _renderElectionSection('elections-recent-section',  'elections-recent-list',  recent,  true);
+
+  document.getElementById('elections-content').style.display =
+    (upcoming.length || recent.length) ? 'block' : 'none';
+
+  if (!upcoming.length && !recent.length) {
+    document.getElementById('elections-error').textContent = 'No election data available right now.';
+    document.getElementById('elections-error').style.display = 'block';
+  }
+
+  _electionsLoaded = true;
+}
+
 async function loadElections() {
   if (_electionsLoaded) return;
   const prefs = getPrefs();
-  const zip = prefs?.zip || null;
+  const zip   = prefs?.zip   || null;
   const state = prefs?.state || null;
 
   document.getElementById('elections-loading').style.display = 'block';
   document.getElementById('elections-content').style.display = 'none';
-  document.getElementById('elections-error').style.display = 'none';
-  document.getElementById('elections-no-zip-banner').style.display = zip ? 'none' : 'block';
-
-  const subtitle = document.getElementById('elections-subtitle');
-  subtitle.textContent = zip
-    ? `Based on zip ${zip}${state ? ' · ' + (STATE_NAMES[state] || state) : ''}`
-    : 'National view — set your zip to personalize';
 
   try {
     const params = new URLSearchParams();
-    if (zip) params.set('zip', zip);
+    if (zip)   params.set('zip',   zip);
     if (state) params.set('state', state);
-    const res = await fetch(`/api/elections?${params}`);
+    const res  = await fetch(`/api/elections?${params}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-
-    document.getElementById('elections-loading').style.display = 'none';
-    document.getElementById('elections-content').style.display = 'block';
-    _electionsLoaded = true;
-
-    if (data.error) {
-      document.getElementById('elections-error').textContent = data.error;
-      document.getElementById('elections-error').style.display = 'block';
-      return;
-    }
-
-    const upcoming = data.upcoming || [];
-    const recent = data.recent || [];
-
-    const tracked = upcoming.filter(e => _trackedElections.has(e.id));
-    const yours = upcoming.filter(e => e.affects_user && !_trackedElections.has(e.id));
-    const other = upcoming.filter(e => !e.affects_user && !_trackedElections.has(e.id));
-
-    _renderElectionSection('elections-tracked-section', 'elections-tracked-list', tracked, false);
-    _renderElectionSection('elections-yours-section', 'elections-yours-list', yours, false);
-    _renderElectionSection('elections-other-section', 'elections-other-list', other, false);
-    _renderElectionSection('elections-recent-section', 'elections-recent-list', recent, true);
-
-    if (!upcoming.length && !recent.length) {
-      document.getElementById('elections-error').textContent = 'No election data available right now.';
-      document.getElementById('elections-error').style.display = 'block';
-    }
-  } catch (e) {
+    _renderElectionsPage(data, zip);
+  } catch {
     document.getElementById('elections-loading').style.display = 'none';
     document.getElementById('elections-error').textContent = 'Could not load elections. Please try again.';
     document.getElementById('elections-error').style.display = 'block';
