@@ -146,6 +146,7 @@ class SearchRequest(BaseModel):
     max_results: int = 10
     full_history: bool = False
     state_code: Optional[str] = None
+    before_congress: Optional[int] = None  # history starts before this congress number
 
 
 class BillRequest(BaseModel):
@@ -794,6 +795,8 @@ async def search(request: Request, body: SearchRequest):
         )
         structured["full_history"] = body.full_history
         structured["max_results_override"] = body.max_results if body.full_history else None
+        if body.full_history and body.before_congress:
+            structured["before_congress"] = body.before_congress
         loop = asyncio.get_event_loop()
         question = body.question
 

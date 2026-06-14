@@ -1,7 +1,7 @@
 // ── State ──
 let currentResults = [];
 let currentSearchContext = {};
-let _searchState = { question: '', maxResults: 10, endpoint: '/search', isState: false, fullHistory: false };
+let _searchState = { question: '', maxResults: 10, endpoint: '/search', isState: false, fullHistory: false, beforeCongress: null };
 let previousPage = 'page-home';
 let currentJurisdiction = 'federal';
 let currentStateCode = null;
@@ -1184,14 +1184,17 @@ async function loadMoreResults() {
     _searchState.maxResults += 20;
   }
 
-  const prevCount = currentResults.length;
-
   try {
     let body;
     if (_searchState.isState) {
       body = { question: _searchState.question, state_code: _searchState.stateCode, max_results: _searchState.maxResults };
     } else {
-      body = { question: _searchState.question, max_results: _searchState.maxResults, full_history: _searchState.fullHistory };
+      body = {
+        question: _searchState.question,
+        max_results: _searchState.maxResults,
+        full_history: _searchState.fullHistory,
+        ...((_searchState.beforeCongress != null) ? { before_congress: _searchState.beforeCongress } : {})
+      };
     }
 
     const res = await fetch(_searchState.endpoint, {
@@ -1202,9 +1205,14 @@ async function loadMoreResults() {
     if (!res.ok) throw new Error();
     const data = await res.json();
 
-    const allResults = data.results || [];
-    const newResults = allResults.slice(prevCount);
-    currentResults = allResults;
+    // History is a fresh independent fetch — deduplicate against already-shown results
+    const seenIds = new Set(currentResults.map(r => `${r.congress}${r.type}${r.number}`));
+    const freshResults = _searchState.fullHistory && !_searchState.isState
+      ? (data.results || []).filter(r => !seenIds.has(`${r.congress}${r.type}${r.number}`))
+      : (data.results || []).slice(currentResults.length);
+
+    currentResults = [...currentResults, ...freshResults];
+    const newResults = freshResults;
 
     const footer = document.getElementById('results-footer');
     if (footer) footer.remove();
@@ -1235,7 +1243,7 @@ async function loadMoreResults() {
       });
     }
 
-    if (newResults.length === 0 || allResults.length < _searchState.maxResults) {
+    if (newResults.length === 0 || (data.results || []).length < _searchState.maxResults) {
       const footer2 = document.createElement('div');
       footer2.style.cssText = 'margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--rule);text-align:center';
       footer2.innerHTML = `<button class="feed-settings-btn" onclick="showSearchFlag()">Didn't find what you were looking for? Flag this search</button>`;
@@ -1253,10 +1261,13 @@ function renderResults(data) {
   currentResults = data.results || [];
 
   _searchState.question    = input.value.trim();
-  _searchState.maxResults  = 10;
-  _searchState.endpoint    = '/search';
-  _searchState.isState     = false;
-  _searchState.fullHistory = false;
+  _searchState.maxResults      = 10;
+  _searchState.endpoint        = '/search';
+  _searchState.isState         = false;
+  _searchState.fullHistory     = false;
+  // Store smallest congress from initial search so history starts before it
+  const initialCongresses = data.query?.congress_numbers || [];
+  _searchState.beforeCongress  = initialCongresses.length ? Math.min(...initialCongresses) : null;
 
   currentSearchContext = {
     query: _searchState.question,
