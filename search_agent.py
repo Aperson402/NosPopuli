@@ -47,22 +47,32 @@ def search_bills(structured_query, max_results=None):
     terms_query = " OR ".join(f'"{t}"' if " " in t else t for t in all_terms)
     keywords_lower = " ".join(terms).lower()
 
-    # Extract year anchor from time_range (e.g. "year:1999") for date-bounded full_history
+    # For full_history with a year anchor, use a bounded congress filter (up to 20 congresses
+    # going backwards from the anchor year). This is more reliable than Solr date range syntax.
+    # For full_history with no anchor, drop the congress filter and search all time.
     import re as _re
     _year_match = _re.match(r"year:(\d{4})", structured_query.get("time_range", "") or "")
-    anchor_year = int(_year_match.group(1)) if _year_match else None
+    has_anchor = bool(_year_match)
 
-    if full_history:
-        # Search all history; add date ceiling if a year was specified
-        date_filter = f" publishdate:[1800-01-01 TO {anchor_year}-12-31]" if anchor_year else ""
-        if any(word in keywords_lower for word in ["act", "law", "stablecoin", "guiding"]):
-            base = f"({terms_query}) (collection:BILLS OR collection:PLAW)" if terms_query else "(collection:BILLS OR collection:PLAW)"
+    is_act_query = any(word in keywords_lower for word in ["act", "law", "stablecoin", "guiding"])
+
+    if full_history and has_anchor:
+        # congress_numbers is already [anchor_congress, anchor-1, ..., 1] — cap at 20 (40 yrs)
+        bounded = congress_numbers[:20]
+        congress_filter = " OR ".join([f"congress:{c}" for c in bounded])
+        if is_act_query:
+            full_query = f"({terms_query}) (collection:BILLS OR collection:PLAW) ({congress_filter})" if terms_query else f"(collection:BILLS OR collection:PLAW) ({congress_filter})"
         else:
-            base = f"({terms_query}) collection:BILLS" if terms_query else "collection:BILLS"
-        full_query = base + date_filter
+            full_query = f"({terms_query}) collection:BILLS ({congress_filter})" if terms_query else f"collection:BILLS ({congress_filter})"
+    elif full_history:
+        # No year anchor — drop congress filter, search all time
+        if is_act_query:
+            full_query = f"({terms_query}) (collection:BILLS OR collection:PLAW)" if terms_query else "(collection:BILLS OR collection:PLAW)"
+        else:
+            full_query = f"({terms_query}) collection:BILLS" if terms_query else "collection:BILLS"
     else:
         congress_filter = " OR ".join([f"congress:{c}" for c in congress_numbers])
-        if any(word in keywords_lower for word in ["act", "law", "stablecoin", "guiding"]):
+        if is_act_query:
             if terms_query:
                 full_query = f"({terms_query}) (collection:BILLS OR collection:PLAW) ({congress_filter})"
             else:
