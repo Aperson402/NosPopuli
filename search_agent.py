@@ -47,12 +47,19 @@ def search_bills(structured_query, max_results=None):
     terms_query = " OR ".join(f'"{t}"' if " " in t else t for t in all_terms)
     keywords_lower = " ".join(terms).lower()
 
+    # Extract year anchor from time_range (e.g. "year:1999") for date-bounded full_history
+    import re as _re
+    _year_match = _re.match(r"year:(\d{4})", structured_query.get("time_range", "") or "")
+    anchor_year = int(_year_match.group(1)) if _year_match else None
+
     if full_history:
-        # Drop congress filter — search all history
+        # Search all history; add date ceiling if a year was specified
+        date_filter = f" publishdate:[1800-01-01 TO {anchor_year}-12-31]" if anchor_year else ""
         if any(word in keywords_lower for word in ["act", "law", "stablecoin", "guiding"]):
-            full_query = f"({terms_query}) (collection:BILLS OR collection:PLAW)" if terms_query else "(collection:BILLS OR collection:PLAW)"
+            base = f"({terms_query}) (collection:BILLS OR collection:PLAW)" if terms_query else "(collection:BILLS OR collection:PLAW)"
         else:
-            full_query = f"({terms_query}) collection:BILLS" if terms_query else "collection:BILLS"
+            base = f"({terms_query}) collection:BILLS" if terms_query else "collection:BILLS"
+        full_query = base + date_filter
     else:
         congress_filter = " OR ".join([f"congress:{c}" for c in congress_numbers])
         if any(word in keywords_lower for word in ["act", "law", "stablecoin", "guiding"]):

@@ -47,12 +47,16 @@ def years_to_congress_numbers(year_range_str, all_congresses=False):
     current_year = datetime.datetime.now().year
     current_congress = year_to_congress(current_year)
 
-    # Specific year always wins — even over full_history
     year_match = re.match(r"year:(\d{4})", year_range_str or "")
     if year_match:
         year = int(year_match.group(1))
         congress = year_to_congress(year)
-        return [congress] if congress else [current_congress]
+        if not congress:
+            return [current_congress]
+        # full_history + specific year → all congresses up to and including that year
+        if all_congresses:
+            return list(range(congress, 0, -1))
+        return [congress]
 
     if all_congresses:
         return list(range(current_congress, 0, -1))
@@ -290,7 +294,7 @@ Return ONLY this JSON structure:
             {"role": "user", "content": prompt}
         ]
     )
-    
+
     raw = message.content[0].text.strip()
     raw = raw.replace("```json", "").replace("```", "").strip()
     
