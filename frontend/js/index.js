@@ -496,13 +496,23 @@ function renderConnections(conn) {
 
 const EXPLANATION_COLLAPSE_CHARS = 700;
 
-function renderExplanation(markdown) {
+function renderExplanation(markdown, becameLaw) {
   const el = document.getElementById('detail-explanation');
-  el.innerHTML = renderMarkdown(markdown);
-  // Remove any stale expand button from a previous bill
-  const old = el.parentNode.querySelector('.explanation-expand-btn');
-  if (old) old.remove();
+
+  // Remove stale law banner / expand button from a previous bill
+  el.parentNode.querySelectorAll('.became-law-banner, .explanation-expand-btn').forEach(n => n.remove());
   el.classList.remove('explanation-collapsed');
+
+  // Show enacted banner above the explanation when the bill became law
+  if (becameLaw) {
+    const lawLabel = `${becameLaw.type || 'Public Law'} ${becameLaw.number}`;
+    const banner = document.createElement('div');
+    banner.className = 'became-law-banner';
+    banner.innerHTML = `✓ Signed into law &nbsp;·&nbsp; <strong>${lawLabel}</strong>`;
+    el.insertAdjacentElement('beforebegin', banner);
+  }
+
+  el.innerHTML = renderMarkdown(markdown);
 
   if ((markdown || '').length > EXPLANATION_COLLAPSE_CHARS) {
     el.classList.add('explanation-collapsed');
@@ -629,7 +639,7 @@ async function openDetail(bill) {
 
     setTimeout(() => {
       document.getElementById('detail-loading').style.display = 'none';
-      renderExplanation(data.translation || '');
+      renderExplanation(data.translation || '', data.became_law);
       renderTimeline(data.timeline_events, data.timeline);
       renderVotes(data.votes);
       renderFullText(data.bill_text);

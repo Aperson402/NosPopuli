@@ -987,6 +987,9 @@ async def get_bill(request: Request, body: BillRequest):
             from_query="",
         )
 
+        laws = bill_data.get("bill", {}).get("laws") or []
+        became_law = laws[0] if laws else None  # e.g. {"number": "119-61", "type": "Public Law"}
+
         return {
             "congress": body.congress,
             "type": body.bill_type,
@@ -997,6 +1000,7 @@ async def get_bill(request: Request, body: BillRequest):
             "votes": {"house": house_mapped, "senate": senate_mapped},
             "bill_text": bill_text or None,
             "connections": connections,
+            "became_law": became_law,
         }
 
     except HTTPException:
