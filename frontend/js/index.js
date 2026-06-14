@@ -1116,6 +1116,30 @@ function _makeResultCard(bill, animIndex) {
   return card;
 }
 
+function _makeCompactResultCard(bill, animIndex) {
+  const card = document.createElement('div');
+  card.className = 'result-card--compact';
+  card.style.animationDelay = (animIndex * 0.03) + 's';
+  card.onclick = () => openDetail({
+    congress: parseInt(bill.congress),
+    type: bill.type,
+    number: parseInt(bill.number),
+    title: bill.title,
+    is_law: bill.is_law,
+    law_number: bill.law_number ? parseInt(bill.law_number) : null
+  });
+  const billId = bill.is_law
+    ? `Public Law ${bill.congress}-${bill.law_number}`
+    : billIdFromParts(bill.type || '', bill.number || '');
+  const year = bill.date_issued ? bill.date_issued.slice(0, 4) : '';
+  const congress = bill.congress ? `${formatCongress(bill.congress)} Congress` : '';
+  card.innerHTML = `
+    <div class="result-bill-id">${billId}</div>
+    <div class="result-bill-title">${bill.title || billId}</div>
+    <div class="compact-year">${congress}${year ? ' · ' + year : ''}</div>`;
+  return card;
+}
+
 function _appendShowMoreFooter() {
   const footer = document.createElement('div');
   footer.id = 'results-footer';
@@ -1168,17 +1192,28 @@ async function loadMoreResults() {
     const countEl = resultsSection.querySelector('.results-count');
     if (countEl) countEl.textContent = `${currentResults.length} result${currentResults.length !== 1 ? 's' : ''} found`;
 
-    if (enteringHistory && newResults.length > 0) {
-      const divider = document.createElement('div');
-      divider.className = 'history-divider';
-      divider.innerHTML = `<span>More results through history</span>`;
-      resultsSection.appendChild(divider);
+    if (_searchState.fullHistory && !_searchState.isState) {
+      if (enteringHistory && newResults.length > 0) {
+        const divider = document.createElement('div');
+        divider.className = 'history-divider';
+        divider.innerHTML = `<span>More results through history</span>`;
+        resultsSection.appendChild(divider);
+        const grid = document.createElement('div');
+        grid.className = 'history-grid';
+        grid.id = 'history-grid';
+        resultsSection.appendChild(grid);
+      }
+      const grid = document.getElementById('history-grid');
+      newResults.forEach((bill, i) => {
+        const card = _makeCompactResultCard(bill, i);
+        (grid || resultsSection).appendChild(card);
+      });
+    } else {
+      newResults.forEach((bill, i) => {
+        const card = _searchState.isState ? _makeStateCard(bill, i) : _makeResultCard(bill, i);
+        resultsSection.appendChild(card);
+      });
     }
-
-    newResults.forEach((bill, i) => {
-      const card = _searchState.isState ? _makeStateCard(bill, i) : _makeResultCard(bill, i);
-      resultsSection.appendChild(card);
-    });
 
     if (newResults.length === 0 || allResults.length < _searchState.maxResults) {
       const footer2 = document.createElement('div');
