@@ -48,7 +48,7 @@ from historian_agent import (
     structure_history,
 )
 from documentor_agent import log_action
-from result_validator_agent import validate_results
+from result_validator_agent import validate_results, validate_results_batch
 from state_search_agent import (
     search_state_bills,
     get_recent_state_bills,
@@ -531,7 +531,12 @@ async def handle_legislation_search(structured, question, loop):
             merged.insert(0, hint_candidate)
 
     if full_history:
-        raw_results = merged
+        # Run validator on history batch too — relaxed threshold (4 vs 5) so
+        # "somewhat related" older bills pass, but tuna acts and impeachment
+        # resolutions don't. Batched in groups of 20 to stay within token limits.
+        raw_results = await loop.run_in_executor(
+            None, validate_results_batch, question, merged, get_client(), 4
+        )
     else:
         target = structured.get("result_count", 5)
         # Feed more candidates to the validator so filtering doesn't drop us below target

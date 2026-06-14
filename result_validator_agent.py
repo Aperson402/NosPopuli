@@ -1,6 +1,26 @@
 import json
 from documentor_agent import log_action
 
+def validate_results_batch(query, results, client, min_score=5, batch_size=20):
+    """
+    Like validate_results but handles large result sets by batching.
+    Returns results sorted by score descending with junk filtered out.
+    Fail-open: if a batch errors, those results pass through unscored.
+    """
+    if not results:
+        return results
+
+    scored_all = []
+    for start in range(0, len(results), batch_size):
+        batch = results[start:start + batch_size]
+        validated = validate_results(query, batch, client, min_score=min_score, fail_open=True)
+        # validate_results already sorts by score — preserve that order
+        for r in validated:
+            if r not in scored_all:
+                scored_all.append(r)
+    return scored_all
+
+
 def validate_results(query, results, client, min_score=5, fail_open=True):
     """
     Scores each result for relevance to the query.
