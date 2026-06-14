@@ -229,6 +229,18 @@ header::before {
 .show-more-btn:hover { background: #1a1a1a; }
 .show-more-btn:disabled { opacity: 0.5; cursor: default; }
 
+.history-divider {
+  display: flex; align-items: center; gap: 1rem;
+  margin: 2rem 0 1.25rem;
+  color: var(--muted);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase;
+}
+.history-divider::before,
+.history-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--rule);
+}
+
 /* ── Feed newspaper layout ── */
 .feed-toolbar {
   display: flex; justify-content: space-between; align-items: center;

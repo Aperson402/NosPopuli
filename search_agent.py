@@ -10,9 +10,10 @@ GOVINFO_API_KEY = os.getenv("GovInfo_API_KEY")
 CONGRESS_API_KEY = os.getenv("CONGRESS_API_KEY")
 
 def search_bills(structured_query, max_results=None):
+    full_history = structured_query.get("full_history", False)
     if max_results is None:
         max_results = structured_query.get("result_count", 5)
-    max_results = min(max_results, 20)
+    max_results = min(max_results, 100 if full_history else 20)
 
     congress_numbers = structured_query["congress_numbers"]
     status = structured_query.get("status", "any")
@@ -27,11 +28,12 @@ def search_bills(structured_query, max_results=None):
     keywords = structured_query.get("keywords") or []
     terms = expanded or keywords
 
-    # Detect named act queries — use relevance scoring for precision
+    # full_history mode: sort chronologically across all congresses
+    # Normal mode: relevance for named acts, recency otherwise
     original = (structured_query.get("original_question") or "").lower()
     keywords_str = " ".join(keywords).lower()
     is_named_act = "act" in original or "act" in keywords_str or "law" in original
-    sort_field = "score" if is_named_act else "publishdate"
+    sort_field = "publishdate" if full_history else ("score" if is_named_act else "publishdate")
 
     if is_named_act and keywords:
         original_phrase = " ".join(keywords)
@@ -43,20 +45,26 @@ def search_bills(structured_query, max_results=None):
         all_terms = terms[:3]
 
     terms_query = " OR ".join(f'"{t}"' if " " in t else t for t in all_terms)
-    congress_filter = " OR ".join([f"congress:{c}" for c in congress_numbers])
-
     keywords_lower = " ".join(terms).lower()
 
-    if any(word in keywords_lower for word in ["act", "law", "stablecoin", "guiding"]):
-        if terms_query:
-            full_query = f"({terms_query}) (collection:BILLS OR collection:PLAW) ({congress_filter})"
+    if full_history:
+        # Drop congress filter — search all history
+        if any(word in keywords_lower for word in ["act", "law", "stablecoin", "guiding"]):
+            full_query = f"({terms_query}) (collection:BILLS OR collection:PLAW)" if terms_query else "(collection:BILLS OR collection:PLAW)"
         else:
-            full_query = f"(collection:BILLS OR collection:PLAW) ({congress_filter})"
+            full_query = f"({terms_query}) collection:BILLS" if terms_query else "collection:BILLS"
     else:
-        if terms_query:
-            full_query = f"({terms_query}) collection:BILLS ({congress_filter})"
+        congress_filter = " OR ".join([f"congress:{c}" for c in congress_numbers])
+        if any(word in keywords_lower for word in ["act", "law", "stablecoin", "guiding"]):
+            if terms_query:
+                full_query = f"({terms_query}) (collection:BILLS OR collection:PLAW) ({congress_filter})"
+            else:
+                full_query = f"(collection:BILLS OR collection:PLAW) ({congress_filter})"
         else:
-            full_query = f"collection:BILLS ({congress_filter})"
+            if terms_query:
+                full_query = f"({terms_query}) collection:BILLS ({congress_filter})"
+            else:
+                full_query = f"collection:BILLS ({congress_filter})"
 
     sort_order = "DESC"
     payload = {

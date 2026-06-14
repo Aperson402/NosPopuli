@@ -1,7 +1,7 @@
 // ── State ──
 let currentResults = [];
 let currentSearchContext = {};
-let _searchState = { question: '', maxResults: 10, endpoint: '/search', isState: false };
+let _searchState = { question: '', maxResults: 10, endpoint: '/search', isState: false, fullHistory: false };
 let previousPage = 'page-home';
 let currentJurisdiction = 'federal';
 let currentStateCode = null;
@@ -1132,13 +1132,23 @@ async function loadMoreResults() {
   const btn = document.getElementById('show-more-btn');
   if (btn) { btn.textContent = 'Loading…'; btn.disabled = true; }
 
-  _searchState.maxResults += 10;
+  const enteringHistory = !_searchState.fullHistory && !_searchState.isState;
+  if (enteringHistory) {
+    _searchState.fullHistory = true;
+    _searchState.maxResults  = 50;
+  } else {
+    _searchState.maxResults += 20;
+  }
+
   const prevCount = currentResults.length;
 
   try {
-    const body = _searchState.isState
-      ? { question: _searchState.question, state_code: _searchState.stateCode, max_results: _searchState.maxResults }
-      : { question: _searchState.question, max_results: _searchState.maxResults };
+    let body;
+    if (_searchState.isState) {
+      body = { question: _searchState.question, state_code: _searchState.stateCode, max_results: _searchState.maxResults };
+    } else {
+      body = { question: _searchState.question, max_results: _searchState.maxResults, full_history: _searchState.fullHistory };
+    }
 
     const res = await fetch(_searchState.endpoint, {
       method: 'POST',
@@ -1157,6 +1167,13 @@ async function loadMoreResults() {
 
     const countEl = resultsSection.querySelector('.results-count');
     if (countEl) countEl.textContent = `${currentResults.length} result${currentResults.length !== 1 ? 's' : ''} found`;
+
+    if (enteringHistory && newResults.length > 0) {
+      const divider = document.createElement('div');
+      divider.className = 'history-divider';
+      divider.innerHTML = `<span>More results through history</span>`;
+      resultsSection.appendChild(divider);
+    }
 
     newResults.forEach((bill, i) => {
       const card = _searchState.isState ? _makeStateCard(bill, i) : _makeResultCard(bill, i);
@@ -1180,10 +1197,11 @@ function renderResults(data) {
   resultsSection.innerHTML = '';
   currentResults = data.results || [];
 
-  _searchState.question  = input.value.trim();
-  _searchState.maxResults = 10;
-  _searchState.endpoint   = '/search';
-  _searchState.isState    = false;
+  _searchState.question    = input.value.trim();
+  _searchState.maxResults  = 10;
+  _searchState.endpoint    = '/search';
+  _searchState.isState     = false;
+  _searchState.fullHistory = false;
 
   currentSearchContext = {
     query: _searchState.question,
@@ -1342,11 +1360,12 @@ function renderStateResults(data) {
   resultsSection.innerHTML = '';
   currentResults = data.results || [];
 
-  _searchState.question   = input.value.trim();
-  _searchState.maxResults = 10;
-  _searchState.endpoint   = '/search';
-  _searchState.isState    = true;
-  _searchState.stateCode  = currentStateCode;
+  _searchState.question    = input.value.trim();
+  _searchState.maxResults  = 10;
+  _searchState.endpoint    = '/search';
+  _searchState.isState     = true;
+  _searchState.stateCode   = currentStateCode;
+  _searchState.fullHistory = false;
 
   if (!currentResults.length) {
     resultsSection.innerHTML = `

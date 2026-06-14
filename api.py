@@ -446,7 +446,16 @@ async def handle_legislation_search(structured, question, loop):
     structured["expanded_terms"] = expanded or []
     structured["original_question"] = question
 
-    if structured.get("status") == "enacted":
+    full_history = structured.get("full_history", False)
+    max_results_override = structured.get("max_results_override")
+
+    if full_history:
+        max_results = max_results_override or 50
+        govinfo_results = await loop.run_in_executor(
+            None, search_bills, structured, max_results
+        )
+        summary_results = []
+    elif structured.get("status") == "enacted":
         govinfo_results = await loop.run_in_executor(None, search_bills, structured)
         summary_results = []
     else:
@@ -475,10 +484,13 @@ async def handle_legislation_search(structured, question, loop):
             r["source"] = "govinfo"
             merged.append(r)
 
-    raw_results = merged[: structured.get("result_count", 5)]
-    raw_results = await loop.run_in_executor(
-        None, validate_results, question, raw_results, get_client()
-    )
+    if full_history:
+        raw_results = merged
+    else:
+        raw_results = merged[: structured.get("result_count", 5)]
+        raw_results = await loop.run_in_executor(
+            None, validate_results, question, raw_results, get_client()
+        )
 
     log_search(
         query=question,
@@ -780,6 +792,8 @@ async def search(request: Request, body: SearchRequest):
         structured = route_query(
             body.question, get_client(), full_history=body.full_history
         )
+        structured["full_history"] = body.full_history
+        structured["max_results_override"] = body.max_results if body.full_history else None
         loop = asyncio.get_event_loop()
         question = body.question
 
