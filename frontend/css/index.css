@@ -64,7 +64,7 @@ header::before {
 }
 .masthead.jiggle { animation: masthead-spring 0.55s cubic-bezier(.36,.07,.19,.97); }
 .masthead-extra {
-  position: absolute; left: 50%; transform: translateX(-50%);
+  position: absolute;
   bottom: calc(100% + 0.4rem);
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase;

@@ -2340,6 +2340,8 @@ loadFeed();
     const tag = document.createElement('div');
     tag.className = 'masthead-extra';
     tag.textContent = 'Extra! Extra!';
+    // Random horizontal position: anywhere from 5% to 85% of the masthead width
+    tag.style.left = (5 + Math.random() * 80) + '%';
     m.appendChild(tag);
     setTimeout(() => tag.remove(), 1150);
   });
