@@ -369,6 +369,37 @@ Return ONLY this JSON structure:
     if _mechanism_count >= 3 and structured.get("result_count", 5) < 10:
         structured["result_count"] = 10
 
+    # Detect invalid Roman numeral in "Title X" citations and suggest corrections.
+    # "IIX" is not a real Roman numeral — user likely meant VIII or IX.
+    import re as _re_roman
+    _VALID_ROMAN = {
+        "I","II","III","IV","V","VI","VII","VIII","IX","X",
+        "XI","XII","XIII","XIV","XV","XVI","XVII","XVIII","XIX","XX",
+    }
+    _title_match = _re_roman.search(r'\bTitle\s+([IVXivx]+)\b', user_question)
+    if _title_match:
+        cited = _title_match.group(1).upper()
+        if cited not in _VALID_ROMAN:
+            # Find closest valid alternatives
+            _COMMON_TITLES = {
+                "VIII": "Title VIII — Fair Housing Act",
+                "IX":   "Title IX — Education Amendments (sex discrimination)",
+                "VII":  "Title VII — Civil Rights Act (employment discrimination)",
+                "XI":   "Title XI",
+            }
+            suggestions = []
+            for roman, desc in _COMMON_TITLES.items():
+                if cited.replace("I","").replace("X","").replace("V","") == "" :
+                    # crude proximity — both share characters
+                    if set(cited) & set(roman):
+                        suggestions.append(desc)
+            suggestion_str = " or ".join(suggestions[:2]) if suggestions else "Title VIII or Title IX"
+            structured["confidence"] = min(structured.get("confidence", 1.0), 0.4)
+            structured["ambiguity_reason"] = (
+                f'"{_title_match.group(0)}" doesn\'t match a standard Title citation '
+                f'("{cited}" is not a valid Roman numeral). Did you mean {suggestion_str}?'
+            )
+
     PRESIDENTS = ["trump", "biden", "obama", "bush", "clinton", "reagan", "carter"]
 
     question_lower = user_question.lower()
