@@ -8,7 +8,7 @@ from documentor_agent import log_action
 from state_search_agent import get_recent_state_bills, ENABLED_STATES
 from correspondence.db import get_disk_cache, set_disk_cache
 
-_FEED_TTL_SECONDS = 21600  # 6 hours
+_FEED_TTL_SECONDS = 3600  # 1 hour
 
 load_dotenv()
 
