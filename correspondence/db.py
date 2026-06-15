@@ -71,6 +71,12 @@ def init_db():
             cached_at REAL NOT NULL
         );
 
+        CREATE TABLE IF NOT EXISTS disk_cache (
+            key TEXT PRIMARY KEY,
+            value TEXT NOT NULL,
+            cached_at REAL NOT NULL
+        );
+
         CREATE TABLE IF NOT EXISTS subscriptions (
             id TEXT PRIMARY KEY,
             user_id TEXT,
@@ -324,6 +330,33 @@ def set_elections_cache(state_code, results):
         VALUES (?, ?, ?)
         ON CONFLICT(state_code) DO UPDATE SET results=excluded.results, cached_at=excluded.cached_at
     """, (state_code, json.dumps(results), time.time()))
+    conn.commit()
+    conn.close()
+
+
+def get_disk_cache(key, max_age_seconds):
+    """Return cached value for key if it exists and is within max_age_seconds, else None."""
+    import time
+    conn = get_conn()
+    row = conn.execute(
+        "SELECT value, cached_at FROM disk_cache WHERE key=?", (key,)
+    ).fetchone()
+    conn.close()
+    if not row:
+        return None
+    if time.time() - row["cached_at"] > max_age_seconds:
+        return None
+    return json.loads(row["value"])
+
+
+def set_disk_cache(key, value):
+    """Persist value under key with the current timestamp."""
+    import time
+    conn = get_conn()
+    conn.execute("""
+        INSERT INTO disk_cache (key, value, cached_at) VALUES (?, ?, ?)
+        ON CONFLICT(key) DO UPDATE SET value=excluded.value, cached_at=excluded.cached_at
+    """, (key, json.dumps(value), time.time()))
     conn.commit()
     conn.close()
 

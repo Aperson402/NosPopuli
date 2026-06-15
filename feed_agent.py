@@ -1,10 +1,14 @@
 import requests
 import os
 import json
+import hashlib
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from documentor_agent import log_action
 from state_search_agent import get_recent_state_bills, ENABLED_STATES
+from correspondence.db import get_disk_cache, set_disk_cache
+
+_FEED_TTL_SECONDS = 21600  # 6 hours
 
 load_dotenv()
 
@@ -97,15 +101,30 @@ INTEREST_TERMS = {
     ],
 }
 
+def _feed_cache_key(interests, senator_bioguides, rep_bioguide, state_code):
+    payload = json.dumps({
+        "i": sorted(interests or []),
+        "s": sorted(senator_bioguides or []),
+        "r": rep_bioguide or "",
+        "st": state_code or "",
+    }, sort_keys=True)
+    return "feed:" + hashlib.sha1(payload.encode()).hexdigest()
+
+
 def fetch_feed(interests, senator_bioguides, rep_bioguide, days_back=30, max_per_interest=3, state_code=None):
     """
     Generates a personalized feed based on user interests and representatives.
-    
+
     interests: list of interest keys e.g. ["healthcare", "climate"]
     senator_bioguides: list of senator bioguide IDs
     rep_bioguide: house rep bioguide ID
     """
-    
+    db_key = _feed_cache_key(interests, senator_bioguides, rep_bioguide, state_code)
+    cached = get_disk_cache(db_key, max_age_seconds=_FEED_TTL_SECONDS)
+    if cached is not None:
+        print(f"[FEED] Disk cache hit — {len(cached)} items")
+        return cached
+
     feed_items = []
     seen_bills = set()
     
@@ -156,7 +175,10 @@ def fetch_feed(interests, senator_bioguides, rep_bioguide, days_back=30, max_per
         },
         output_data={"total_items": len(feed_items)}
     )
-    
+
+    if feed_items:
+        set_disk_cache(db_key, feed_items)
+
     return feed_items
 
 def _fetch_rep_bills(bioguide_ids, days_back=180):

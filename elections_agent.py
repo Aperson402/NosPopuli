@@ -9,7 +9,7 @@ from cachetools import TTLCache
 from dotenv import load_dotenv
 from anthropic import AsyncAnthropic
 from documentor_agent import log_action
-from correspondence.db import get_elections_cache, set_elections_cache
+from correspondence.db import get_elections_cache, set_elections_cache, get_disk_cache, set_disk_cache
 
 load_dotenv()
 
@@ -251,10 +251,20 @@ async def fetch_elections(zip_code, state_code=None):
     Results cached per zip for 6 hours.
     """
     cache_key = (zip_code or "national", state_code or "")
+    db_key = f"elections:{zip_code or 'national'}:{state_code or ''}"
     with _cache_lock:
         if cache_key in _elections_cache:
             print(f"[ELECTIONS] Returning cached result for {cache_key}")
             return _elections_cache[cache_key]
+
+    # Check disk cache — survives server restarts
+    disk_result = get_disk_cache(db_key, max_age_seconds=21600)  # 6 hours
+    if disk_result is not None:
+        print(f"[ELECTIONS] Disk cache hit for {cache_key}")
+        with _cache_lock:
+            _elections_cache[cache_key] = disk_result
+        return disk_result
+
     print(f"[ELECTIONS] Cache miss for {cache_key} — fetching fresh")
 
     if not CIVIC_API_KEY:
@@ -412,6 +422,7 @@ async def fetch_elections(zip_code, state_code=None):
     with _cache_lock:
         _elections_cache[cache_key] = result
 
+    set_disk_cache(db_key, result)
     return result
 
 
