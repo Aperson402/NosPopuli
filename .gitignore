@@ -9,3 +9,5 @@ test_*.py
 .discovery_cache_*.json
 .claude/
 .pytest_cache/
+CLAUDE.md
+specs/
