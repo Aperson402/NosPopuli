@@ -14,17 +14,32 @@ GOVINFO_API_KEY = os.getenv("GovInfo_API_KEY")
 
 CACHE_PATH = os.path.join(os.path.dirname(__file__), "popular_names_cache.json")
 CACHE_MAX_AGE_DAYS = 7
+SCRAPE_COOLDOWN_HOURS = 6  # don't retry a failed scrape for this long
+SCRAPE_FAILURE_SENTINEL = "__scrape_failed__"
 
 # Small hardcoded table for acts where Congress.gov title search is unreliable
-# (popular name differs significantly from official title)
+# (popular name differs significantly from official title, or the source bill is
+# very old and poorly indexed)
 POPULAR_NAMES = {
-    "title ix":           {"congress": 92,  "type": "s",  "number": 659,  "title": "Education Amendments of 1972"},
-    "title 9":            {"congress": 92,  "type": "s",  "number": 659,  "title": "Education Amendments of 1972"},
-    "title vi":           {"congress": 88,  "type": "hr", "number": 7152, "title": "Civil Rights Act of 1964"},
-    "title vii":          {"congress": 88,  "type": "hr", "number": 7152, "title": "Civil Rights Act of 1964"},
-    "voting rights act":  {"congress": 89,  "type": "hr", "number": 6400, "title": "Voting Rights Act of 1965"},
-    "civil rights act":   {"congress": 88,  "type": "hr", "number": 7152, "title": "Civil Rights Act of 1964"},
-    "equal pay act":      {"congress": 88,  "type": "hr", "number": 6060, "title": "Equal Pay Act of 1963"},
+    # Education
+    "title ix":                {"congress": 92,  "type": "s",  "number": 659,  "title": "Education Amendments of 1972"},
+    "title 9":                 {"congress": 92,  "type": "s",  "number": 659,  "title": "Education Amendments of 1972"},
+    # Civil Rights Act of 1964 titles
+    "title vi":                {"congress": 88,  "type": "hr", "number": 7152, "title": "Civil Rights Act of 1964"},
+    "title vii":               {"congress": 88,  "type": "hr", "number": 7152, "title": "Civil Rights Act of 1964"},
+    "title 6":                 {"congress": 88,  "type": "hr", "number": 7152, "title": "Civil Rights Act of 1964"},
+    "title 7":                 {"congress": 88,  "type": "hr", "number": 7152, "title": "Civil Rights Act of 1964"},
+    # Fair Housing Act (Title VIII of Civil Rights Act of 1968)
+    "title viii":              {"congress": 90,  "type": "hr", "number": 2516, "title": "Civil Rights Act of 1968 (Fair Housing Act)"},
+    "title 8":                 {"congress": 90,  "type": "hr", "number": 2516, "title": "Civil Rights Act of 1968 (Fair Housing Act)"},
+    "fair housing act":        {"congress": 90,  "type": "hr", "number": 2516, "title": "Civil Rights Act of 1968 (Fair Housing Act)"},
+    # Other landmarks
+    "voting rights act":       {"congress": 89,  "type": "hr", "number": 6400, "title": "Voting Rights Act of 1965"},
+    "civil rights act":        {"congress": 88,  "type": "hr", "number": 7152, "title": "Civil Rights Act of 1964"},
+    "civil rights act of 1968":{"congress": 90,  "type": "hr", "number": 2516, "title": "Civil Rights Act of 1968"},
+    "equal pay act":           {"congress": 88,  "type": "hr", "number": 6060, "title": "Equal Pay Act of 1963"},
+    "ada":                     {"congress": 101, "type": "s",  "number": 933,  "title": "Americans with Disabilities Act of 1990"},
+    "americans with disabilities act": {"congress": 101, "type": "s", "number": 933, "title": "Americans with Disabilities Act of 1990"},
 }
 
 # ---------------------------------------------------------------------------
@@ -100,6 +115,20 @@ def _scrape_popular_names():
 
 def _load_popular_names_cache():
     if _cache_is_stale():
+        # Check if we recently failed — avoid hammering a 403 source
+        if os.path.exists(CACHE_PATH):
+            try:
+                with open(CACHE_PATH) as f:
+                    existing = json.load(f)
+                if existing.get(SCRAPE_FAILURE_SENTINEL):
+                    failed_at = existing[SCRAPE_FAILURE_SENTINEL]
+                    age_hours = (datetime.now() - datetime.fromisoformat(failed_at)).total_seconds() / 3600
+                    if age_hours < SCRAPE_COOLDOWN_HOURS:
+                        print(f"[POPULAR NAMES] Scrape failed {age_hours:.1f}h ago — skipping retry")
+                        return {}
+            except Exception:
+                pass
+
         print("[POPULAR NAMES] Cache stale or missing — refreshing")
         data = _scrape_popular_names()
         if data:
@@ -108,13 +137,23 @@ def _load_popular_names_cache():
                     json.dump(data, f)
             except Exception as e:
                 print(f"[POPULAR NAMES] Failed to write cache: {e}")
+        else:
+            # Write a failure sentinel so we don't retry for SCRAPE_COOLDOWN_HOURS
+            try:
+                with open(CACHE_PATH, "w") as f:
+                    json.dump({SCRAPE_FAILURE_SENTINEL: datetime.now().isoformat()}, f)
+            except Exception:
+                pass
+            return {}
 
     if not os.path.exists(CACHE_PATH):
         return {}
 
     try:
         with open(CACHE_PATH) as f:
-            return json.load(f)
+            data = json.load(f)
+        # Don't expose the sentinel key as real cache entries
+        return {k: v for k, v in data.items() if k != SCRAPE_FAILURE_SENTINEL}
     except Exception:
         return {}
 
