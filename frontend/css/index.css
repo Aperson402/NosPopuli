@@ -932,6 +932,76 @@ header::before {
 }
 .conn-show-all:hover { text-decoration: underline; }
 
+/* ── Sponsors section ── */
+.sponsor-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.sponsor-row:last-child { margin-bottom: 0; }
+.sponsor-role-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.58rem; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--muted);
+  white-space: nowrap; padding-top: 0.45rem;
+  min-width: 5.5rem;
+}
+.sponsor-count {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.58rem; color: var(--accent);
+  margin-left: 0.25rem;
+}
+.sponsor-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  flex: 1;
+}
+.sponsor-overflow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  width: 100%;
+  margin-top: 0.4rem;
+}
+.sponsor-chip {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  background: none;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  color: var(--ink);
+  transition: background 0.12s, border-color 0.12s;
+}
+.sponsor-chip:hover { background: var(--hover-bg, #e8e3d8); border-color: var(--muted); }
+.sponsor-party {
+  font-weight: 700; font-size: 0.62rem;
+  opacity: 0.75;
+}
+.sponsor-chip.party-d .sponsor-party { color: #1a4fa0; }
+.sponsor-chip.party-r .sponsor-party { color: #a01a1a; }
+.sponsor-chip.party-i .sponsor-party { color: #4a7a4a; }
+.sponsor-name { color: var(--ink); }
+.sponsor-by-request {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.58rem; color: var(--muted);
+  font-weight: 400;
+}
+.sponsor-show-more {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.58rem; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--accent);
+  background: none; border: none; cursor: pointer;
+  padding: 0.3rem 0; margin-top: 0.15rem;
+  width: 100%;
+  text-align: left;
+}
+.sponsor-show-more:hover { text-decoration: underline; }
+
 /* ── EMPTY / ERROR ── */
 .empty-state { text-align: center; padding: 3rem 0; color: var(--muted); }
 .empty-state p { font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; letter-spacing: 0.1em; }

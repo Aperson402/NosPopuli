@@ -543,6 +543,58 @@ function toggleFullText() {
   chevron.classList.toggle('open', !isOpen);
 }
 
+function renderSponsors(sponsors, cosponsors) {
+  const section = document.getElementById('sponsors-section');
+  const body = document.getElementById('sponsors-body');
+
+  const allEmpty = (!sponsors || !sponsors.length) && (!cosponsors || !cosponsors.length);
+  if (allEmpty) {
+    section.style.display = 'none';
+    return;
+  }
+
+  const PARTY_LABEL = { D: 'D', R: 'R', I: 'I', ID: 'I' };
+
+  function memberChip(person, role) {
+    const party = PARTY_LABEL[person.party] || person.party || '';
+    const partyClass = person.party === 'D' ? 'party-d' : person.party === 'R' ? 'party-r' : 'party-i';
+    const label = [person.name || person.last_name, person.state].filter(Boolean).join(', ');
+    const byRequest = role === 'sponsor' && person.is_by_request ? ' <span class="sponsor-by-request">(by request)</span>' : '';
+    return `<button class="sponsor-chip ${partyClass}" onclick="openMemberFromVote(${JSON.stringify({ name: person.name })})">
+      ${party ? `<span class="sponsor-party">${party}</span>` : ''}
+      <span class="sponsor-name">${label}</span>${byRequest}
+    </button>`;
+  }
+
+  let html = '';
+
+  if (sponsors && sponsors.length) {
+    html += `<div class="sponsor-row">
+      <span class="sponsor-role-label">Sponsor</span>
+      <div class="sponsor-chips">${sponsors.map(s => memberChip(s, 'sponsor')).join('')}</div>
+    </div>`;
+  }
+
+  if (cosponsors && cosponsors.length) {
+    const SHOW_LIMIT = 10;
+    const visible = cosponsors.slice(0, SHOW_LIMIT);
+    const hidden = cosponsors.slice(SHOW_LIMIT);
+    const hiddenHtml = hidden.length
+      ? `<div class="sponsor-overflow" id="sponsor-overflow" style="display:none">${hidden.map(c => memberChip(c, 'cosponsor')).join('')}</div>
+         <button class="sponsor-show-more" id="sponsor-show-more" onclick="document.getElementById('sponsor-overflow').style.display='flex';this.style.display='none'">
+           + ${hidden.length} more cosponsor${hidden.length !== 1 ? 's' : ''}
+         </button>`
+      : '';
+    html += `<div class="sponsor-row">
+      <span class="sponsor-role-label">Cosponsors <span class="sponsor-count">${cosponsors.length}</span></span>
+      <div class="sponsor-chips">${visible.map(c => memberChip(c, 'cosponsor')).join('')}${hiddenHtml}</div>
+    </div>`;
+  }
+
+  body.innerHTML = html;
+  section.style.display = 'block';
+}
+
 const USER_REP_HIGHLIGHT = {
   "Yea":       "#52b788",
   "Nay":       "#c44b4b",
@@ -640,6 +692,7 @@ async function openDetail(bill) {
     setTimeout(() => {
       document.getElementById('detail-loading').style.display = 'none';
       renderExplanation(data.translation || '', data.became_law);
+      renderSponsors(data.sponsors || [], data.cosponsors || []);
       renderTimeline(data.timeline_events, data.timeline);
       renderVotes(data.votes);
       renderFullText(data.bill_text);

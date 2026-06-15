@@ -16,7 +16,7 @@ from typing import Optional
 from vote_parser_agent import parse_vote_references
 from vote_fetcher_agent import fetch_house_votes, fetch_senate_votes
 from vote_mapper_agent import map_house_votes, map_senate_votes
-from bill_fetcher import fetch_bill, fetch_law, fetch_bill_text, fetch_related_bills, fetch_amendments, parse_amends_from_title
+from bill_fetcher import fetch_bill, fetch_law, fetch_bill_text, fetch_related_bills, fetch_amendments, parse_amends_from_title, fetch_cosponsors
 from member_search_agent import (
     search_member,
     fetch_member_profile,
@@ -981,10 +981,11 @@ async def get_bill(request: Request, body: BillRequest):
                 status_code=404, detail="Bill not found or unavailable."
             )
 
-        bill_text, related, amendments = await asyncio.gather(
+        bill_text, related, amendments, cosponsors = await asyncio.gather(
             loop.run_in_executor(None, fetch_bill_text, body.congress, body.bill_type, body.number),
             loop.run_in_executor(None, fetch_related_bills, body.congress, body.bill_type, body.number),
             loop.run_in_executor(None, fetch_amendments, body.congress, body.bill_type, body.number),
+            loop.run_in_executor(None, fetch_cosponsors, body.congress, body.bill_type, body.number),
         )
 
         translation, actions = await asyncio.gather(
@@ -1041,7 +1042,21 @@ async def get_bill(request: Request, body: BillRequest):
         )
 
         laws = bill_data.get("bill", {}).get("laws") or []
-        became_law = laws[0] if laws else None  # e.g. {"number": "119-61", "type": "Public Law"}
+        became_law = laws[0] if laws else None
+
+        raw_sponsors = bill_data.get("bill", {}).get("sponsors") or []
+        sponsors = [
+            {
+                "name": s.get("fullName", ""),
+                "first_name": s.get("firstName", ""),
+                "last_name": s.get("lastName", ""),
+                "party": s.get("party", ""),
+                "state": s.get("state", ""),
+                "bioguide_id": s.get("bioguideId", ""),
+                "is_by_request": s.get("isByRequest", "N") == "Y",
+            }
+            for s in raw_sponsors
+        ]
 
         return {
             "congress": body.congress,
@@ -1054,6 +1069,8 @@ async def get_bill(request: Request, body: BillRequest):
             "bill_text": bill_text or None,
             "connections": connections,
             "became_law": became_law,
+            "sponsors": sponsors,
+            "cosponsors": cosponsors or [],
         }
 
     except HTTPException:

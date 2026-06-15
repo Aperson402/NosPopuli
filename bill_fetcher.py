@@ -13,11 +13,12 @@ CONGRESS_API_KEY = os.getenv("CONGRESS_API_KEY")
 
 _session = requests.Session()
 
-_bill_cache       = TTLCache(maxsize=256, ttl=3600)   # 1 hour — bill metadata
-_actions_cache    = TTLCache(maxsize=256, ttl=1800)   # 30 min — actions change during active bills
-_text_cache       = TTLCache(maxsize=128, ttl=7200)   # 2 hours — text almost never changes
-_related_cache    = TTLCache(maxsize=256, ttl=3600)   # 1 hour
-_amendments_cache = TTLCache(maxsize=256, ttl=3600)   # 1 hour
+_bill_cache         = TTLCache(maxsize=256, ttl=3600)
+_actions_cache      = TTLCache(maxsize=256, ttl=1800)
+_text_cache         = TTLCache(maxsize=128, ttl=7200)
+_related_cache      = TTLCache(maxsize=256, ttl=3600)
+_amendments_cache   = TTLCache(maxsize=256, ttl=3600)
+_cosponsors_cache   = TTLCache(maxsize=256, ttl=3600)
 
 @cached(cache=_bill_cache, lock=RLock())
 def fetch_bill(congress_number, bill_type, bill_number):
@@ -374,6 +375,45 @@ def fetch_bill_text(congress, bill_type, bill_number, max_chars=8000):
     except Exception as e:
         print(f"[BILL FETCHER] Text fetch error: {e}")
         return None
+
+
+@cached(cache=_cosponsors_cache, lock=RLock())
+def fetch_cosponsors(congress, bill_type, bill_number, limit=250):
+    """
+    Fetches cosponsors for a bill from Congress.gov.
+    Returns list of cosponsor dicts with name, party, state, bioguide_id.
+    """
+    url = f"https://api.congress.gov/v3/bill/{congress}/{bill_type}/{bill_number}/cosponsors"
+    params = {"api_key": CONGRESS_API_KEY, "format": "json", "limit": limit}
+
+    try:
+        r = _session.get(url, params=params, timeout=10)
+    except Exception as e:
+        print(f"[BILL FETCHER] Cosponsors error: {e}")
+        return []
+
+    if r.status_code != 200:
+        print(f"[BILL FETCHER] Cosponsors: HTTP {r.status_code}")
+        return []
+
+    try:
+        raw = r.json().get("cosponsors", [])
+    except Exception:
+        return []
+
+    result = []
+    for c in raw:
+        result.append({
+            "name": c.get("fullName", ""),
+            "first_name": c.get("firstName", ""),
+            "last_name": c.get("lastName", ""),
+            "party": c.get("party", ""),
+            "state": c.get("state", ""),
+            "bioguide_id": c.get("bioguideId", ""),
+            "sponsorship_date": c.get("sponsorshipDate", ""),
+            "is_original": c.get("isOriginalCosponsor", False),
+        })
+    return result
 
 
 if __name__ == "__main__":
