@@ -9,7 +9,7 @@ from cachetools import TTLCache
 from dotenv import load_dotenv
 from anthropic import AsyncAnthropic
 from documentor_agent import log_action
-from correspondence.db import get_elections_cache, set_elections_cache, get_disk_cache, set_disk_cache
+from correspondence.db import get_elections_cache, set_elections_cache, get_disk_cache, set_disk_cache, get_known_elections
 
 load_dotenv()
 
@@ -344,28 +344,32 @@ async def fetch_elections(zip_code, state_code=None):
             entry["days_ago"] = abs(days) if days is not None else None
             recent.append(entry)
 
-    # ── Supplement with Claude web search (once per state per day) ──
+    # ── Supplement with known_elections (admin-curated) or Claude web search ──
     if state_code:
         state_name_full = STATE_NAMES.get(state_code.upper(), state_code)
 
-        # Check in-memory cache first (avoids DB round-trip on hot path)
-        with _cache_lock:
-            claude_results = _web_search_cache.get(state_code)
+        # Check the curated known_elections table first — admin-maintained, no API calls
+        curated = get_known_elections(state_code)
+        if curated:
+            print(f"[ELECTIONS] Using curated known_elections for {state_code} ({len(curated)} entries)")
+            claude_results = curated
+        else:
+            # No curated entries — fall back to the existing in-memory → DB → Claude chain
+            with _cache_lock:
+                claude_results = _web_search_cache.get(state_code)
 
-        if claude_results is None:
-            # Fall back to DB (survives restarts, shared across workers)
-            claude_results = get_elections_cache(state_code)
-            if claude_results is not None:
-                print(f"[ELECTIONS] DB cache hit for {state_code} ({len(claude_results)} elections)")
-                with _cache_lock:
-                    _web_search_cache[state_code] = claude_results
-            else:
-                # Full miss — call Claude
-                claude_results = await _search_elections_with_claude(state_name_full, state_code)
-                set_elections_cache(state_code, claude_results)  # always save (smart TTL: 2hr if empty, 48hr if not)
-                if claude_results:  # only keep non-empty results in memory
+            if claude_results is None:
+                claude_results = get_elections_cache(state_code)
+                if claude_results is not None:
+                    print(f"[ELECTIONS] DB cache hit for {state_code} ({len(claude_results)} elections)")
                     with _cache_lock:
                         _web_search_cache[state_code] = claude_results
+                else:
+                    claude_results = await _search_elections_with_claude(state_name_full, state_code)
+                    set_elections_cache(state_code, claude_results)
+                    if claude_results:
+                        with _cache_lock:
+                            _web_search_cache[state_code] = claude_results
 
         # Merge — skip any date already covered by Google Civic (within 1 day)
         existing_dates = {e["date"] for e in upcoming + recent}

@@ -77,6 +77,19 @@ def init_db():
             cached_at REAL NOT NULL
         );
 
+        CREATE TABLE IF NOT EXISTS known_elections (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            state_code TEXT NOT NULL,
+            name TEXT NOT NULL,
+            date TEXT NOT NULL,
+            type TEXT,
+            source_url TEXT,
+            notes TEXT,
+            created_at TEXT DEFAULT (datetime('now')),
+            UNIQUE(state_code, date, name)
+        );
+        CREATE INDEX IF NOT EXISTS idx_known_elections_state ON known_elections(state_code);
+
         CREATE TABLE IF NOT EXISTS subscriptions (
             id TEXT PRIMARY KEY,
             user_id TEXT,
@@ -330,6 +343,57 @@ def set_elections_cache(state_code, results):
         VALUES (?, ?, ?)
         ON CONFLICT(state_code) DO UPDATE SET results=excluded.results, cached_at=excluded.cached_at
     """, (state_code, json.dumps(results), time.time()))
+    conn.commit()
+    conn.close()
+
+
+def get_known_elections(state_code):
+    """Return list of known elections for a state in the shape returned by Claude web search."""
+    conn = get_conn()
+    rows = conn.execute("""
+        SELECT name, date, type FROM known_elections
+        WHERE state_code = ? AND date >= date('now', '-60 days')
+        ORDER BY date ASC
+    """, (state_code.upper(),)).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def list_known_elections(state_code=None):
+    """Admin: list all known elections, optionally filtered by state."""
+    conn = get_conn()
+    if state_code:
+        rows = conn.execute("""
+            SELECT * FROM known_elections WHERE state_code = ? ORDER BY date ASC
+        """, (state_code.upper(),)).fetchall()
+    else:
+        rows = conn.execute("""
+            SELECT * FROM known_elections ORDER BY state_code ASC, date ASC
+        """).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def add_known_election(state_code, name, date, election_type=None, source_url=None, notes=None):
+    """Insert a known election. Returns the new row's id."""
+    conn = get_conn()
+    cur = conn.execute("""
+        INSERT INTO known_elections (state_code, name, date, type, source_url, notes)
+        VALUES (?, ?, ?, ?, ?, ?)
+        ON CONFLICT(state_code, date, name) DO UPDATE SET
+            type = excluded.type,
+            source_url = excluded.source_url,
+            notes = excluded.notes
+    """, (state_code.upper(), name, date, election_type, source_url, notes))
+    new_id = cur.lastrowid
+    conn.commit()
+    conn.close()
+    return new_id
+
+
+def delete_known_election(election_id):
+    conn = get_conn()
+    conn.execute("DELETE FROM known_elections WHERE id = ?", (election_id,))
     conn.commit()
     conn.close()
 

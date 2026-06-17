@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NosPopuli — Known Elections Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,300;0,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #0e0e0e; --paper: #f5f0e8; --card-bg: #faf7f2;
+      --accent: #8b1a1a; --muted: #6b6355; --rule: #c8bfaa;
+    }
+    body {
+      background: var(--paper); color: var(--ink);
+      font-family: 'Source Serif 4', Georgia, serif; font-weight: 300;
+      padding: 2rem; min-height: 100vh;
+    }
+    .wrap { max-width: 1000px; margin: 0 auto; }
+    h1 {
+      font-family: 'Playfair Display', serif; font-size: 2.2rem;
+      border-bottom: 2px solid var(--ink); padding-bottom: 0.5rem; margin-bottom: 0.4rem;
+    }
+    h1 span { color: var(--accent); font-style: italic; }
+    .sub {
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 2rem;
+    }
+    .section-label {
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem;
+      letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted);
+      margin: 2rem 0 0.75rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--rule);
+    }
+    .auth-row { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 1.5rem; }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 80px 2fr 130px 130px 1fr;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .form-grid input, .form-grid select, .auth-row input {
+      font-family: 'Source Serif 4', serif; font-size: 0.9rem;
+      padding: 0.55rem 0.75rem; border: 1.5px solid var(--ink); background: white;
+      outline: none;
+    }
+    .form-grid input::placeholder { color: var(--muted); font-style: italic; }
+    .form-grid input:focus, .form-grid select:focus, .auth-row input:focus { border-color: var(--accent); }
+    .form-extras {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.75rem;
+    }
+    .form-extras input {
+      font-family: 'Source Serif 4', serif; font-size: 0.88rem;
+      padding: 0.55rem 0.75rem; border: 1.5px solid var(--ink); background: white; outline: none;
+    }
+    button {
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      padding: 0.6rem 1.1rem; cursor: pointer; transition: all 0.15s;
+      border: 1.5px solid var(--ink); background: var(--ink); color: var(--paper);
+    }
+    button:hover { background: var(--accent); border-color: var(--accent); }
+    button.ghost { background: transparent; color: var(--ink); }
+    button.ghost:hover { background: var(--ink); color: var(--paper); }
+    button.danger { background: transparent; color: var(--accent); border-color: var(--accent); padding: 0.35rem 0.7rem; font-size: 0.6rem; }
+    button.danger:hover { background: var(--accent); color: var(--paper); }
+    table {
+      width: 100%; border-collapse: collapse;
+      font-family: 'Source Serif 4', serif; font-size: 0.88rem;
+    }
+    th {
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem;
+      letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted);
+      text-align: left; padding: 0.5rem 0.65rem; border-bottom: 2px solid var(--ink);
+      font-weight: 500;
+    }
+    td {
+      padding: 0.6rem 0.65rem; border-bottom: 1px solid var(--rule); vertical-align: top;
+    }
+    .state-pill {
+      display: inline-block; padding: 0.15rem 0.45rem;
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem;
+      letter-spacing: 0.1em; background: var(--ink); color: var(--paper);
+    }
+    .type-tag {
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem;
+      letter-spacing: 0.1em; color: var(--accent); text-transform: uppercase;
+    }
+    .empty {
+      padding: 2rem; text-align: center; color: var(--muted);
+      font-style: italic; border: 1px dashed var(--rule);
+    }
+    .status {
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem;
+      letter-spacing: 0.05em; padding: 0.5rem 0.75rem; margin: 0.75rem 0;
+      border-left: 2px solid var(--accent);
+    }
+    .status.ok { color: #2a6e2a; border-color: #2a6e2a; }
+    .status.err { color: var(--accent); }
+    .filter-row { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
+    .filter-row select, .filter-row input {
+      font-family: 'Source Serif 4', serif; font-size: 0.88rem;
+      padding: 0.45rem 0.65rem; border: 1.5px solid var(--ink); background: white; outline: none;
+    }
+    a.back {
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem;
+      letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent);
+      text-decoration: none; display: inline-block; margin-bottom: 1rem;
+    }
+    a.back:hover { color: var(--ink); }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back" href="/" >← Back to NosPopuli</a>
+  <h1>Known Elections <span>Admin</span></h1>
+  <div class="sub">Curated election data — read before any Claude web search</div>
+
+  <div class="auth-row">
+    <label style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted)">Secret:</label>
+    <input type="password" id="secret" placeholder="MONITOR_SECRET" style="flex:1" />
+    <button onclick="loadList()">Connect</button>
+  </div>
+
+  <div id="status"></div>
+
+  <div class="section-label">Add Election</div>
+  <div class="form-grid">
+    <input type="text" id="f-state"   placeholder="VA"          maxlength="2" />
+    <input type="text" id="f-name"    placeholder="Virginia Primary Election" />
+    <input type="date" id="f-date" />
+    <select id="f-type">
+      <option value="">type…</option>
+      <option value="primary">primary</option>
+      <option value="general">general</option>
+      <option value="special">special</option>
+      <option value="runoff">runoff</option>
+      <option value="local">local</option>
+    </select>
+    <button onclick="addElection()">Add →</button>
+  </div>
+  <div class="form-extras">
+    <input type="text" id="f-source" placeholder="Source URL (optional)" />
+    <input type="text" id="f-notes"  placeholder="Notes (optional)" />
+  </div>
+
+  <div class="section-label">All Known Elections</div>
+  <div class="filter-row">
+    <select id="filter-state">
+      <option value="">All states</option>
+    </select>
+    <button class="ghost" onclick="loadList()">Refresh</button>
+  </div>
+  <div id="table-host">
+    <div class="empty">Enter your secret above and click Connect.</div>
+  </div>
+
+</div>
+
+<script>
+const STATES = ["AL","AK","AZ","AR","CA","CO","CT","DE","DC","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"];
+
+const filterSel = document.getElementById('filter-state');
+STATES.forEach(s => {
+  const opt = document.createElement('option'); opt.value = s; opt.textContent = s;
+  filterSel.appendChild(opt);
+});
+
+function setStatus(msg, ok) {
+  const el = document.getElementById('status');
+  if (!msg) { el.innerHTML = ''; return; }
+  el.innerHTML = `<div class="status ${ok ? 'ok' : 'err'}">${msg}</div>`;
+}
+
+function getSecret() {
+  return document.getElementById('secret').value.trim();
+}
+
+async function loadList() {
+  const secret = getSecret();
+  if (!secret) { setStatus('Secret required', false); return; }
+  const state = filterSel.value;
+  try {
+    const url = '/admin/elections' + (state ? `?state=${state}` : '');
+    const res = await fetch(url, { headers: { 'X-Monitor-Secret': secret } });
+    if (!res.ok) {
+      setStatus(`Failed: ${res.status} ${await res.text()}`, false);
+      return;
+    }
+    const data = await res.json();
+    setStatus('', true);
+    renderTable(data.elections || []);
+  } catch (e) {
+    setStatus('Network error: ' + e.message, false);
+  }
+}
+
+function renderTable(items) {
+  const host = document.getElementById('table-host');
+  if (!items.length) {
+    host.innerHTML = '<div class="empty">No known elections yet. Add one above.</div>';
+    return;
+  }
+  host.innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>State</th><th>Date</th><th>Name</th><th>Type</th><th>Source</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        ${items.map(e => `
+          <tr>
+            <td><span class="state-pill">${e.state_code}</span></td>
+            <td>${e.date}</td>
+            <td>${escapeHtml(e.name)}${e.notes ? `<div style="font-size:0.72rem;color:var(--muted);font-style:italic;margin-top:0.15rem">${escapeHtml(e.notes)}</div>` : ''}</td>
+            <td><span class="type-tag">${e.type || '—'}</span></td>
+            <td>${e.source_url ? `<a href="${e.source_url}" target="_blank" rel="noopener" style="font-size:0.72rem;color:var(--accent)">link ↗</a>` : '—'}</td>
+            <td><button class="danger" onclick="deleteRow(${e.id})">Delete</button></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' })[c]);
+}
+
+async function addElection() {
+  const secret = getSecret();
+  if (!secret) { setStatus('Secret required', false); return; }
+  const body = {
+    state_code: document.getElementById('f-state').value.trim().toUpperCase(),
+    name:       document.getElementById('f-name').value.trim(),
+    date:       document.getElementById('f-date').value,
+    type:       document.getElementById('f-type').value || null,
+    source_url: document.getElementById('f-source').value.trim() || null,
+    notes:      document.getElementById('f-notes').value.trim() || null,
+  };
+  if (!body.state_code || !body.name || !body.date) {
+    setStatus('State, name, and date are required', false);
+    return;
+  }
+  try {
+    const res = await fetch('/admin/elections', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Monitor-Secret': secret },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      setStatus(`Failed: ${res.status} ${await res.text()}`, false);
+      return;
+    }
+    setStatus(`Added (id ${(await res.json()).id})`, true);
+    document.getElementById('f-name').value = '';
+    document.getElementById('f-date').value = '';
+    document.getElementById('f-source').value = '';
+    document.getElementById('f-notes').value = '';
+    loadList();
+  } catch (e) {
+    setStatus('Network error: ' + e.message, false);
+  }
+}
+
+async function deleteRow(id) {
+  if (!confirm('Delete this election?')) return;
+  const secret = getSecret();
+  try {
+    const res = await fetch(`/admin/elections/${id}`, {
+      method: 'DELETE',
+      headers: { 'X-Monitor-Secret': secret },
+    });
+    if (!res.ok) { setStatus(`Failed: ${res.status}`, false); return; }
+    setStatus('Deleted', true);
+    loadList();
+  } catch (e) {
+    setStatus('Network error: ' + e.message, false);
+  }
+}
+
+filterSel.addEventListener('change', loadList);
+</script>
+</body>
+</html>

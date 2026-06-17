@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NosPopuli — Home Redesign Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/test.css">
+</head>
+<body>
+
+<!-- ── DATELINE STRIP ── -->
+<div class="dateline-strip">
+  <span class="dateline-vol">Vol. CXVIII · No. 168</span>
+  <span class="dateline-date" id="dateline-date">Wednesday, June 17, 2026</span>
+  <span class="dateline-price">Free for the People</span>
+</div>
+
+<!-- ── MASTHEAD ── -->
+<header class="masthead-wrap">
+  <div class="masthead-rule top"></div>
+  <h1 class="masthead">Nos<span>Populi</span></h1>
+  <div class="tagline">Law for the People · Federal Legislation in Plain English</div>
+  <div class="masthead-rule bottom"></div>
+</header>
+
+<!-- ── NAV ── -->
+<nav class="top-nav">
+  <a class="nav-link active" href="#" data-active>Front Page</a>
+  <a class="nav-link" href="#">Elections</a>
+  <a class="nav-link" href="#">My Letters</a>
+  <a class="nav-link" href="#">My Notifications</a>
+  <a class="nav-link" href="#">My Feed</a>
+</nav>
+
+<!-- ── COMMAND BAR (sticky) ── -->
+<div class="command-bar">
+  <div class="command-inner">
+    <span class="command-label">Ask the Record</span>
+    <div class="command-row">
+      <input class="command-input" type="text"
+        placeholder="Try: 'housing affordability bills', 'Ted Kennedy', 'what passed this week?'" />
+      <button class="command-jurisdiction">Federal</button>
+      <button class="command-go">Search →</button>
+    </div>
+    <div class="command-pills">
+      <span class="pills-label">Suggestions</span>
+      <button class="pill">Housing affordability</button>
+      <button class="pill">A passed law</button>
+      <button class="pill">Ted Kennedy</button>
+      <button class="pill">Bernie Sanders</button>
+      <button class="pill">340B drug pricing</button>
+      <button class="pill">Title VIII</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAGE ── -->
+<main class="page">
+
+  <!-- ── ABOVE-THE-FOLD HEADLINE ── -->
+  <section class="lede">
+    <div class="lede-kicker">
+      <span class="kicker-tag">Front Page</span>
+      <span class="kicker-update">Updated 22 minutes ago</span>
+    </div>
+    <h2 class="lede-title">
+      A Quiet Vote Reshapes Medicaid Eligibility — and Almost No One Read the Bill
+    </h2>
+    <p class="lede-deck">
+      H.R. 4838 cleared the House this morning by a 9-vote margin.
+      Three plain paragraphs explain who is now covered, who is not,
+      and what the Senate is expected to do tomorrow.
+    </p>
+    <div class="lede-meta">
+      <span class="lede-stage stage-passed">Passed House</span>
+      <span class="lede-meta-sep">·</span>
+      <span>119th Congress · H.R. 4838</span>
+      <span class="lede-meta-sep">·</span>
+      <span>Sponsored by Rep. Castor (D-FL)</span>
+    </div>
+    <div class="lede-actions">
+      <button class="btn-primary">Read the explanation →</button>
+      <button class="btn-ghost">Notify me when this moves</button>
+      <button class="btn-ghost">Write to my reps</button>
+    </div>
+  </section>
+
+  <!-- ── THREE-UP STORY GRID ── -->
+  <section class="grid-3up">
+    <article class="story">
+      <div class="story-section-tag">Federal · Senate</div>
+      <h3 class="story-title">
+        Senate Returns to Pharmacy Reform After 14-Year Pause
+      </h3>
+      <p class="story-deck">
+        S. 1402 would let pharmacists fill prescriptions across state lines.
+        Two pages, one carve-out, broad bipartisan support.
+      </p>
+      <div class="story-meta">
+        <span class="story-status status-active">In Committee</span>
+        <span>·</span>
+        <span>3 days ago</span>
+      </div>
+    </article>
+
+    <article class="story">
+      <div class="story-section-tag">Federal · Joint Resolution</div>
+      <h3 class="story-title">
+        Bill to Cap Insulin at $35 Returns for Fifth Time
+      </h3>
+      <p class="story-deck">
+        H.R. 992 mirrors a 2022 version that stalled. Sponsor says the
+        difference this time is the cosponsor list — 41 names, 12 of them new.
+      </p>
+      <div class="story-meta">
+        <span class="story-status status-introduced">Introduced</span>
+        <span>·</span>
+        <span>Yesterday</span>
+      </div>
+    </article>
+
+    <article class="story">
+      <div class="story-section-tag">Federal · Enacted</div>
+      <h3 class="story-title">
+        How Public Law 119-61 Changes Veteran Disability Backlog
+      </h3>
+      <p class="story-deck">
+        Signed into law last Friday. The VA gets 18 months and a new appeals
+        track. Bill text, timeline, and what your representative voted.
+      </p>
+      <div class="story-meta">
+        <span class="story-status status-enacted">Signed into law</span>
+        <span>·</span>
+        <span>1 week ago</span>
+      </div>
+    </article>
+  </section>
+
+  <!-- ── EDITORIAL DIVIDER ── -->
+  <div class="section-divider">
+    <span>The Briefing</span>
+  </div>
+
+  <!-- ── TWO-COLUMN: REPRESENTATIVES + ELECTIONS ── -->
+  <section class="two-col">
+    <div class="col-reps">
+      <div class="col-head">
+        <span class="col-label">Your Delegation</span>
+        <a class="col-action">Change zip →</a>
+      </div>
+
+      <div class="rep-card">
+        <div class="rep-portrait">TK</div>
+        <div class="rep-body">
+          <div class="rep-name">Tim Kaine</div>
+          <div class="rep-role">U.S. Senate · Virginia</div>
+          <div class="rep-line">Party: Democratic · Term: 2024–2030</div>
+          <div class="rep-recent">Last vote: <strong>Yea</strong> on H.R. 4838 (Medicaid eligibility)</div>
+        </div>
+      </div>
+
+      <div class="rep-card">
+        <div class="rep-portrait">MW</div>
+        <div class="rep-body">
+          <div class="rep-name">Mark Warner</div>
+          <div class="rep-role">U.S. Senate · Virginia</div>
+          <div class="rep-line">Party: Democratic · Term: 2020–2026</div>
+          <div class="rep-recent">Last sponsored: S. 1402 (Cross-state pharmacy)</div>
+        </div>
+      </div>
+
+      <div class="rep-card">
+        <div class="rep-portrait">AS</div>
+        <div class="rep-body">
+          <div class="rep-name">Abigail Spanberger</div>
+          <div class="rep-role">U.S. House · VA-7</div>
+          <div class="rep-line">Party: Democratic · Term: 2024–2026</div>
+          <div class="rep-recent">No floor activity this week</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-elections">
+      <div class="col-head">
+        <span class="col-label">Upcoming Elections</span>
+        <a class="col-action">All elections →</a>
+      </div>
+
+      <div class="election-row urgent">
+        <div class="election-countdown">
+          <div class="count-num">48</div>
+          <div class="count-unit">days</div>
+        </div>
+        <div class="election-body">
+          <div class="election-name">Virginia Primary Election</div>
+          <div class="election-date">Tuesday, August 4, 2026 · State, Federal</div>
+          <div class="election-line">Register by July 12 · 1 contest on ballot</div>
+        </div>
+      </div>
+
+      <div class="election-row near">
+        <div class="election-countdown">
+          <div class="count-num">141</div>
+          <div class="count-unit">days</div>
+        </div>
+        <div class="election-body">
+          <div class="election-name">Virginia General Election</div>
+          <div class="election-date">Tuesday, November 3, 2026 · Federal, Local</div>
+          <div class="election-line">Governor, House district 7, 4 ballot measures</div>
+        </div>
+      </div>
+
+      <div class="election-row far">
+        <div class="election-countdown">
+          <div class="count-num">505</div>
+          <div class="count-unit">days</div>
+        </div>
+        <div class="election-body">
+          <div class="election-name">Presidential General</div>
+          <div class="election-date">Tuesday, November 7, 2028 · National</div>
+          <div class="election-line">Polls open ~14 months</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── EDITORIAL DIVIDER ── -->
+  <div class="section-divider">
+    <span>What's Moving</span>
+  </div>
+
+  <!-- ── FEED — TIGHT LIST ── -->
+  <section class="feed">
+    <div class="feed-toolbar">
+      <span class="feed-tag">Personalized · Virginia · Healthcare, Housing, Veterans</span>
+      <button class="feed-edit">Edit topics</button>
+    </div>
+
+    <a class="feed-row">
+      <span class="feed-rank">01</span>
+      <div class="feed-body">
+        <div class="feed-line">
+          <span class="feed-id">H.R. 4838</span>
+          <span class="feed-sep">·</span>
+          <span class="feed-title">Medicaid Eligibility Streamlining Act</span>
+        </div>
+        <div class="feed-sub">
+          <span class="feed-reason">Why: your topic — Healthcare · Action today</span>
+        </div>
+      </div>
+      <span class="feed-status status-passed">Passed House</span>
+    </a>
+
+    <a class="feed-row">
+      <span class="feed-rank">02</span>
+      <div class="feed-body">
+        <div class="feed-line">
+          <span class="feed-id">S. 1402</span>
+          <span class="feed-sep">·</span>
+          <span class="feed-title">Interstate Pharmacy Practice Act</span>
+        </div>
+        <div class="feed-sub">
+          <span class="feed-reason">Why: your senator (Warner) is the lead sponsor</span>
+        </div>
+      </div>
+      <span class="feed-status status-active">In Committee</span>
+    </a>
+
+    <a class="feed-row">
+      <span class="feed-rank">03</span>
+      <div class="feed-body">
+        <div class="feed-line">
+          <span class="feed-id">H.R. 992</span>
+          <span class="feed-sep">·</span>
+          <span class="feed-title">Insulin Affordability Act of 2026</span>
+        </div>
+        <div class="feed-sub">
+          <span class="feed-reason">Why: your topic — Healthcare</span>
+        </div>
+      </div>
+      <span class="feed-status status-introduced">Introduced</span>
+    </a>
+
+    <a class="feed-row">
+      <span class="feed-rank">04</span>
+      <div class="feed-body">
+        <div class="feed-line">
+          <span class="feed-id">H.R. 217</span>
+          <span class="feed-sep">·</span>
+          <span class="feed-title">Veteran Disability Backlog Reduction</span>
+        </div>
+        <div class="feed-sub">
+          <span class="feed-reason">Why: your topic — Veterans · Now public law</span>
+        </div>
+      </div>
+      <span class="feed-status status-enacted">P.L. 119-61</span>
+    </a>
+
+    <a class="feed-row">
+      <span class="feed-rank">05</span>
+      <div class="feed-body">
+        <div class="feed-line">
+          <span class="feed-id">HJRES 27</span>
+          <span class="feed-sep">·</span>
+          <span class="feed-title">CRA Resolution on HUD Rental Assistance Rule</span>
+        </div>
+        <div class="feed-sub">
+          <span class="feed-reason">Why: your topic — Housing</span>
+        </div>
+      </div>
+      <span class="feed-status status-active">House Vote Scheduled</span>
+    </a>
+
+    <button class="feed-more">Show more →</button>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer class="footer">
+    <div class="footer-rule"></div>
+    <div class="footer-grid">
+      <div>
+        <div class="footer-label">NosPopuli</div>
+        <p class="footer-text">A reading room for federal law. Every bill in plain English, every vote traceable, every representative accountable.</p>
+      </div>
+      <div>
+        <div class="footer-label">Sources</div>
+        <p class="footer-text">GovInfo · Congress.gov API · Google Civic · OpenStates</p>
+      </div>
+      <div>
+        <div class="footer-label">Today</div>
+        <p class="footer-text">Vol. CXVIII · No. 168 · Free for the People</p>
+      </div>
+    </div>
+  </footer>
+
+</main>
+
+<script>
+  document.getElementById('dateline-date').textContent = new Date().toLocaleDateString('en-US', {
+    weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+  });
+</script>
+
+</body>
+</html>

@@ -69,6 +69,11 @@ from state_member_search_agent import (
 )
 
 from correspondence.router import router as correspondence_router
+from correspondence.db import (
+    list_known_elections as db_list_known_elections,
+    add_known_election as db_add_known_election,
+    delete_known_election as db_delete_known_election,
+)
 from elections_agent import fetch_elections, fetch_election_detail, fetch_election_polling
 
 app = FastAPI(title="NosPopuli API")
@@ -192,6 +197,15 @@ class StateSearchRequest(BaseModel):
 class StateMemberSearchRequest(BaseModel):
     name: str
     state_code: str
+
+
+class KnownElectionRequest(BaseModel):
+    state_code: str
+    name: str
+    date: str
+    type: Optional[str] = None
+    source_url: Optional[str] = None
+    notes: Optional[str] = None
 
 
 class SearchFlagRequest(BaseModel):
@@ -1416,6 +1430,11 @@ async def root():
     return FileResponse("frontend/index.html")
 
 
+@app.get("/test")
+async def test_home():
+    return FileResponse("frontend/test.html")
+
+
 @app.post("/flag/search")
 async def flag_search(request: SearchFlagRequest):
     try:
@@ -1488,6 +1507,42 @@ async def unsubscribe_link(email: str, bill_id: str):
         "<p><a href='/' style='color:#8b1a1a'>Return to NosPopuli</a></p>"
         "</body></html>"
     )
+
+
+@app.get("/admin/elections")
+async def admin_list_elections(request: Request, state: Optional[str] = None):
+    _require_monitor_auth(request)
+    return {"elections": db_list_known_elections(state)}
+
+
+@app.post("/admin/elections")
+async def admin_add_election(request: Request, body: KnownElectionRequest):
+    _require_monitor_auth(request)
+    try:
+        new_id = db_add_known_election(
+            state_code=body.state_code,
+            name=body.name,
+            date=body.date,
+            election_type=body.type,
+            source_url=body.source_url,
+            notes=body.notes,
+        )
+        return {"id": new_id, "status": "ok"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.delete("/admin/elections/{election_id}")
+async def admin_delete_election(request: Request, election_id: int):
+    _require_monitor_auth(request)
+    db_delete_known_election(election_id)
+    return {"status": "deleted"}
+
+
+@app.get("/admin/elections/ui", response_class=HTMLResponse)
+async def admin_elections_ui(request: Request):
+    _require_monitor_auth(request)
+    return FileResponse("frontend/admin_elections.html")
 
 
 @app.get("/monitor", response_class=HTMLResponse)
