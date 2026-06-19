@@ -408,6 +408,74 @@ The dedicated election detail page (and the redesigned mockup in `test.html`) go
 
 ---
 
+## Realizing the Election Mockup
+
+The election detail mockup in `test.html` is the design target. Most sections are placeholder data today. Cheapest-path plan for each, mapped to actual data sources:
+
+```
+SECTION                         REAL SOURCE                                 STATUS
+─────────────────────────────── ─────────────────────────────────────────── ─────────
+Candidates list                 Google Civic (federal) + Ballotpedia        partial
+                                scrape + curated overrides table
+
+Polling snapshot + trend        Wikipedia per-race polling tables           planned
+                                (surprisingly current, surprisingly         (need
+                                structured) → weekly LLM normalization      scraper +
+                                pass to standardize columns                 normalizer)
+
+                                Pollster grades: hard-coded table seeded
+                                from FiveThirtyEight's archived ratings
+                                (GitHub, last published 2024)
+
+                                Aggregate "leader avg" = simple weighted
+                                mean over polls in last 30 days
+
+Money & momentum (FEC)          api.open.fec.gov — receipts, disbursements, planned
+                                cash on hand, donor geography. All federal  (free API,
+                                candidates covered, fully free, stable.     no auth)
+
+                                Ad spend: FCC public files are the source
+                                of truth but unstructured. Skip for v1.
+                                Use FEC "media expenditures" line items
+                                as a proxy.
+
+Where they stand                Incumbents: ProPublica Congress API for     planned
+(issue stances)                 vote history (free, deprecated but mirror
+                                exists). Challengers: LLM extraction over
+                                campaign sites + 2024-cycle questionnaires
+                                from LCV, AFL-CIO, Planned Parenthood, NRA,
+                                with citation links.
+
+Endorsements                    No API exists. Ballotpedia per-race pages   planned
+                                are the cleanest source. Combine with LLM   (scrape +
+                                extraction over campaign sites. Manual      curate)
+                                review for high-profile races.
+
+Voter sentiment / top issues    Pew, Gallup, AP-NORC publish state-level    planned
+                                topline PDFs ~monthly. PDF→text via         (cron +
+                                pypdf, then LLM extraction to JSON.         LLM)
+                                Refresh quarterly per state.
+
+News & debate timeline          GDELT (gdeltproject.org) — free real-time   planned
+                                news index, filter by candidate name +      (GDELT
+                                state. Debate schedules: scrape Ballotpedia (free) +
+                                race pages.                                 scraper)
+```
+
+**Order of build** (each unblocks the next):
+
+1. **FEC** — easiest win, free API, immediate value. Powers the Money & Momentum card and the in-state-donor % figure. ~1 day.
+2. **Wikipedia polls scraper + LLM normalizer** — second highest signal-to-effort. Powers both the poll table and the trend chart. ~3 days.
+3. **GDELT news** — free, real-time, near-zero infra. ~1 day.
+4. **Ballotpedia endorsements + candidate basics** — scrape, cache, LLM-extract. ~3 days.
+5. **ProPublica votes + LLM stance extraction** — last because it's the most curation-heavy. ~1 week with manual review for the first few high-profile races.
+
+Pollster grades, voter sentiment, and debate schedules are best treated as small curated tables seeded once and refreshed quarterly — not worth a live pipeline.
+
+**Minimum viable election detail page**: FEC + Wikipedia polls + GDELT news. That covers ~70% of what the mockup shows, all free, all stable APIs. Endorsements and stances are the expensive remainder.
+
+---
+
 ## Search Cache
 
 Search latency is dominated by three LLM calls (router, expander, validator) and ~4 HTTP fetches. The two-tier cache cuts that to near-zero on repeat queries:
