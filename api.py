@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, Request, Header
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.exceptions import RequestValidationError
 from fastapi import Response
@@ -102,6 +103,7 @@ async def global_exception_handler(request: Request, exc: Exception):
     )
 
 
+app.add_middleware(GZipMiddleware, minimum_size=512)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
