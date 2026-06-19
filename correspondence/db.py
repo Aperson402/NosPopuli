@@ -425,6 +425,20 @@ def set_disk_cache(key, value):
     conn.close()
 
 
+def clear_disk_cache(prefix=None):
+    """Delete cache entries. With prefix, only entries whose key starts with it.
+    Returns number of rows deleted."""
+    conn = get_conn()
+    if prefix:
+        cur = conn.execute("DELETE FROM disk_cache WHERE key LIKE ?", (prefix + "%",))
+    else:
+        cur = conn.execute("DELETE FROM disk_cache")
+    n = cur.rowcount
+    conn.commit()
+    conn.close()
+    return n
+
+
 def get_replies(corr_id):
     conn = get_conn()
     rows = conn.execute("""

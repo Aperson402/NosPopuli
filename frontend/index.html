@@ -5,54 +5,73 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>NosPopuli — Law for the People</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/css/index.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/index.css?v=2">
 </head>
 <body>
 
 <div class="vote-tooltip" id="tooltip"></div>
 
-<header>
-  <div class="masthead">Nos<span>Populi</span></div>
-  <div class="tagline">Law for the People &nbsp;·&nbsp; Federal Legislation in Plain English</div>
+<!-- ── DATELINE STRIP ── -->
+<div class="dateline-strip">
+  <span class="dateline-vol">Vol. CXVIII · No. 168</span>
+  <span class="dateline-date" id="dateline-date"></span>
+  <span class="dateline-price">Free for the People</span>
+</div>
+
+<!-- ── MASTHEAD ── -->
+<header class="masthead-wrap">
+  <div class="masthead-rule top"></div>
+  <h1 class="masthead" onclick="goHome()">Nos<span>Populi</span></h1>
+  <div class="tagline">Law for the People · Federal Legislation in Plain English</div>
+  <div class="masthead-rule bottom"></div>
 </header>
+
+<!-- ── NAV ── -->
 <nav class="top-nav">
-  <a class="top-nav-btn" href="#" onclick="goHome();return false">Home</a>
-  <a class="top-nav-btn" href="#" onclick="showPage('page-elections');loadElections();return false">Elections</a>
-  <a class="top-nav-btn" href="#" onclick="showPage('page-correspondence');loadCorrespondencePage();return false">My Letters</a>
-  <a class="top-nav-btn" href="#" onclick="showPage('page-notifications');loadNotificationsPage();return false">My Notifications</a>
+  <a class="nav-link top-nav-btn" href="#" onclick="goHome();return false">Front Page</a>
+  <a class="nav-link top-nav-btn" href="#" onclick="showPage('page-elections');loadElections();return false">Elections</a>
+  <a class="nav-link top-nav-btn" href="#" onclick="showPage('page-correspondence');loadCorrespondencePage();return false">My Letters</a>
+  <a class="nav-link top-nav-btn" href="#" onclick="showPage('page-notifications');loadNotificationsPage();return false">My Notifications</a>
 </nav>
 
-<div class="app-layout"><div class="main-col">
-
-<!-- Auth bar — visible only when signed in -->
+<!-- ── AUTH BAR ── -->
 <div id="auth-bar" class="auth-bar" style="display:none"></div>
 
-<!-- ── PERSISTENT SEARCH BAR (always visible) ── -->
-<div class="search-bar-wrap" id="search-bar-wrap">
-  <div style="display:flex;align-items:center;gap:1rem;margin-bottom:0.75rem">
-    <label class="search-label" style="margin-bottom:0">Jurisdiction</label>
-    <div id="jurisdiction-toggle" style="display:flex;gap:0.5rem">
-      <button class="jurisdiction-btn active" data-jurisdiction="federal"
-              onclick="setJurisdiction('federal', this)">Federal</button>
-      <button class="jurisdiction-btn" data-jurisdiction="state"
-              onclick="setJurisdiction('state', this)"
-              id="state-toggle-btn" style="display:none">Virginia</button>
+<!-- ── COMMAND BAR (sticky) ── -->
+<div class="command-bar" id="search-bar-wrap">
+  <div class="command-inner">
+    <span class="command-label">Ask the Record</span>
+    <div class="command-row">
+      <input class="command-input" id="search-input" type="text"
+        placeholder="Healthcare bills, Ted Kennedy, Senate Judiciary Committee..."
+        autocomplete="off"/>
+      <div id="jurisdiction-toggle" style="display:flex">
+        <button class="command-jurisdiction jurisdiction-btn active" data-jurisdiction="federal"
+                onclick="setJurisdiction('federal', this)">Federal</button>
+        <div class="command-state jurisdiction-btn" data-jurisdiction="state"
+             id="state-picker" tabindex="0">
+          <span class="state-cur" id="state-cur">VA</span>
+          <div class="state-pop" id="state-pop" role="listbox" aria-label="Choose state">
+            <button class="state-pop-arrow" id="state-up" aria-label="Scroll up">▲</button>
+            <div class="state-pop-cells">
+              <div class="state-cell state-prev" data-rel="-1"></div>
+              <div class="state-cell state-cur-cell" data-rel="0"></div>
+              <div class="state-cell state-next" data-rel="1"></div>
+            </div>
+            <button class="state-pop-arrow" id="state-down" aria-label="Scroll down">▼</button>
+          </div>
+        </div>
+      </div>
+      <button class="command-go" id="search-btn" onclick="runSearch()">Search →</button>
     </div>
-  </div>
-  <label class="search-label" for="search-input">Search legislation, members of Congress, or committees</label>
-  <div class="search-row">
-    <input id="search-input" type="text"
-      placeholder="Healthcare bills, Ted Kennedy, Senate Judiciary Committee..."
-      autocomplete="off"/>
-    <button class="search-btn" id="search-btn" onclick="runSearch()">Search</button>
-  </div>
-  <div class="example-queries">
-    <span>Try:</span>
-    <button class="example-pill" onclick="setQuery('Show me a bill about housing affordability')">Housing</button>
-    <button class="example-pill" onclick="setQuery('Ted Kennedy')">Ted Kennedy</button>
-    <button class="example-pill" onclick="setQuery('Give me a law that has been passed')">A passed law</button>
-    <button class="example-pill" onclick="setQuery('Bernie Sanders')">Bernie Sanders</button>
+    <div class="command-pills">
+      <span class="pills-label">Try</span>
+      <button class="pill" onclick="setQuery('Show me a bill about housing affordability')">Housing affordability</button>
+      <button class="pill" onclick="setQuery('Give me a law that has been passed')">A passed law</button>
+      <button class="pill" onclick="setQuery('Ted Kennedy')">Ted Kennedy</button>
+      <button class="pill" onclick="setQuery('Bernie Sanders')">Bernie Sanders</button>
+    </div>
   </div>
 </div>
 
@@ -60,210 +79,201 @@
   <div class="status-inner" id="status-inner"></div>
 </div>
 
-<!-- ── HOME PAGE ── -->
+<!-- ══════════════════════════════════════════════ -->
+<!-- ── HOME PAGE                                ── -->
+<!-- ══════════════════════════════════════════════ -->
 <div class="page active" id="page-home">
-  <div class="home-content">
-
-    <!-- Search results appear here -->
-    <div class="results-section" id="results-section" style="margin-top:2rem"></div>
-
-    <!-- Feed section -->
-    <div id="feed-section"></div>
-
-  </div>
+  <div id="results-section"></div>
+  <div id="feed-section"></div>
 </div>
 
-<!-- ── ONBOARDING PAGE ── -->
+<!-- ══════════════════════════════════════════════ -->
+<!-- ── ONBOARDING PAGE                          ── -->
+<!-- ══════════════════════════════════════════════ -->
 <div class="page" id="page-onboarding">
-  <div class="onboarding-page">
-    <button class="onboarding-back" onclick="goHome()">← Back</button>
+  <div class="onboard-shell">
+    <a class="back-link" href="#" onclick="goHome();return false">← Back to Front Page</a>
 
     <!-- Step 1: Zip code -->
     <div class="onboarding-step active" id="step-1">
-      <div class="step-header">
-        <div class="step-number">Step 1 of 2</div>
-        <div class="step-title">Where do you live?</div>
-        <div class="step-subtitle">We'll find your senators and representative. Your zip code is never stored on our servers.</div>
-      </div>
+      <div class="onboard-step-tag">Step 1 of 2 · Where you live</div>
+      <h2 class="onboard-title">Set your delegation</h2>
+      <p class="onboard-deck">
+        A zip code is all we need to find your senators and house representative.
+        Nothing is stored on our servers — preferences live in your browser only.
+      </p>
 
-      <div class="zip-input-wrap">
-        <input class="zip-input" id="zip-input" type="text"
+      <div class="onboard-zip-row">
+        <input class="onboard-zip-input" id="zip-input" type="text"
           placeholder="Enter your zip code" maxlength="5"
           oninput="handleZipInput(this.value)"
           onkeydown="if(event.key==='Enter') lookupZip()"/>
+        <button class="btn-primary" onclick="lookupZip()">Look up →</button>
       </div>
 
-      <div class="zip-result" id="zip-result">
-        <div class="zip-result-label">Your Representatives</div>
+      <div id="zip-result" class="onboard-preview">
+        <div class="onboard-preview-label">Your Representatives</div>
         <div id="zip-reps"></div>
       </div>
 
-      <br/>
-      <button class="step-btn" id="step1-btn" onclick="goToStep2()" disabled>
+      <button class="btn-primary" id="step1-btn" onclick="goToStep2()" disabled
+              style="width:100%;margin-top:1.5rem">
         Continue →
       </button>
     </div>
 
     <!-- Step 2: Interests -->
     <div class="onboarding-step" id="step-2">
-      <div class="step-header">
-        <div class="step-number">Step 2 of 2</div>
-        <div class="step-title">What issues matter to you?</div>
-        <div class="step-subtitle">Select all that apply. You can change this anytime.</div>
-      </div>
+      <hr class="onboard-rule"/>
+      <div class="onboard-step-tag">Step 2 of 2 · Issues that matter</div>
+      <h2 class="onboard-title">Build your feed</h2>
+      <p class="onboard-deck">
+        Pick the topics that matter to you. We'll surface legislation that touches them.
+      </p>
 
       <div class="interests-grid">
-        <div class="interest-pill" data-interest="healthcare" onclick="toggleInterest(this)">
-          <span class="interest-icon">⚕</span>Healthcare
-        </div>
-        <div class="interest-pill" data-interest="climate" onclick="toggleInterest(this)">
-          <span class="interest-icon">🌱</span>Climate
-        </div>
-        <div class="interest-pill" data-interest="housing" onclick="toggleInterest(this)">
-          <span class="interest-icon">🏠</span>Housing
-        </div>
-        <div class="interest-pill" data-interest="education" onclick="toggleInterest(this)">
-          <span class="interest-icon">📚</span>Education
-        </div>
-        <div class="interest-pill" data-interest="veterans" onclick="toggleInterest(this)">
-          <span class="interest-icon">🎖</span>Veterans
-        </div>
-        <div class="interest-pill" data-interest="economy" onclick="toggleInterest(this)">
-          <span class="interest-icon">📈</span>Economy
-        </div>
-        <div class="interest-pill" data-interest="immigration" onclick="toggleInterest(this)">
-          <span class="interest-icon">🗽</span>Immigration
-        </div>
-        <div class="interest-pill" data-interest="gun_policy" onclick="toggleInterest(this)">
-          <span class="interest-icon">⚖</span>Gun Policy
-        </div>
-        <div class="interest-pill" data-interest="foreign_policy" onclick="toggleInterest(this)">
-          <span class="interest-icon">🌐</span>Foreign Policy
-        </div>
-        <div class="interest-pill" data-interest="criminal_justice" onclick="toggleInterest(this)">
-          <span class="interest-icon">⚖</span>Criminal Justice
-        </div>
-        <div class="interest-pill" data-interest="small_business" onclick="toggleInterest(this)">
-          <span class="interest-icon">🏪</span>Small Business
-        </div>
-        <div class="interest-pill" data-interest="agriculture" onclick="toggleInterest(this)">
-          <span class="interest-icon">🌾</span>Agriculture
-        </div>
+        <button class="interest-pill" data-interest="healthcare" onclick="toggleInterest(this)"><span class="interest-rule"></span>Healthcare</button>
+        <button class="interest-pill" data-interest="climate" onclick="toggleInterest(this)"><span class="interest-rule"></span>Climate</button>
+        <button class="interest-pill" data-interest="housing" onclick="toggleInterest(this)"><span class="interest-rule"></span>Housing</button>
+        <button class="interest-pill" data-interest="education" onclick="toggleInterest(this)"><span class="interest-rule"></span>Education</button>
+        <button class="interest-pill" data-interest="veterans" onclick="toggleInterest(this)"><span class="interest-rule"></span>Veterans</button>
+        <button class="interest-pill" data-interest="economy" onclick="toggleInterest(this)"><span class="interest-rule"></span>Economy</button>
+        <button class="interest-pill" data-interest="immigration" onclick="toggleInterest(this)"><span class="interest-rule"></span>Immigration</button>
+        <button class="interest-pill" data-interest="gun_policy" onclick="toggleInterest(this)"><span class="interest-rule"></span>Gun Policy</button>
+        <button class="interest-pill" data-interest="foreign_policy" onclick="toggleInterest(this)"><span class="interest-rule"></span>Foreign Policy</button>
+        <button class="interest-pill" data-interest="criminal_justice" onclick="toggleInterest(this)"><span class="interest-rule"></span>Criminal Justice</button>
+        <button class="interest-pill" data-interest="small_business" onclick="toggleInterest(this)"><span class="interest-rule"></span>Small Business</button>
+        <button class="interest-pill" data-interest="agriculture" onclick="toggleInterest(this)"><span class="interest-rule"></span>Agriculture</button>
       </div>
 
-      <button class="step-btn" id="step2-btn" onclick="finishOnboarding()" disabled>
+      <button class="btn-primary" id="step2-btn" onclick="finishOnboarding()" disabled
+              style="width:100%">
         Build My Feed →
       </button>
     </div>
-
   </div>
 </div>
 
-<!-- ── BILL DETAIL PAGE ── -->
+<!-- ══════════════════════════════════════════════ -->
+<!-- ── BILL DETAIL PAGE                         ── -->
+<!-- ══════════════════════════════════════════════ -->
 <div class="page" id="page-detail">
-  <div class="detail-page">
-    <button class="detail-back" onclick="goBack()">← Back</button>
-    <div class="detail-header">
-      <div class="detail-bill-id" id="detail-bill-id"></div>
-      <div class="detail-bill-title" id="detail-bill-title"></div>
+  <a class="back-link" href="#" onclick="goBack();return false">← Back</a>
+
+  <header class="bill-header">
+    <div class="bill-id-row">
+      <span class="bill-id" id="detail-bill-id"></span>
     </div>
-    <div class="detail-loading" id="detail-loading">
-      <div class="loading-spinner">Analyzing legislation...</div>
-      <div class="loading-steps">
-        <div class="loading-step" id="lstep-1">› Fetching bill data</div>
-        <div class="loading-step" id="lstep-2">› Translating to plain English</div>
-        <div class="loading-step" id="lstep-3">› Building legislative timeline</div>
-        <div class="loading-step" id="lstep-4">› Retrieving vote records</div>
+    <h1 class="bill-title" id="detail-bill-title"></h1>
+  </header>
+
+  <div class="detail-loading" id="detail-loading">
+    <div class="loading-spinner">Analyzing legislation...</div>
+    <div class="loading-steps">
+      <div class="loading-step" id="lstep-1">› Fetching bill data</div>
+      <div class="loading-step" id="lstep-2">› Translating to plain English</div>
+      <div class="loading-step" id="lstep-3">› Building legislative timeline</div>
+      <div class="loading-step" id="lstep-4">› Retrieving vote records</div>
+    </div>
+  </div>
+
+  <div id="detail-content" style="display:none">
+
+    <div class="bill-section" id="full-text-section" style="display:none">
+      <button class="full-text-toggle" id="full-text-toggle" onclick="toggleFullText()">
+        <span class="bill-section-label" style="margin:0;border:none;padding:0;flex:1">Full Text</span>
+        <span class="chevron" id="full-text-chevron">▾</span>
+      </button>
+      <div id="full-text-body" style="display:none">
+        <pre id="full-text-content" class="full-text-content"></pre>
       </div>
     </div>
-    <div id="detail-content" style="display:none">
-      <div class="detail-section" id="full-text-section" style="display:none">
-        <button class="full-text-toggle" id="full-text-toggle" onclick="toggleFullText()">
-          <span class="section-label" style="margin:0;flex:1">Full Text</span>
-          <span class="full-text-chevron" id="full-text-chevron">▼</span>
+
+    <div class="bill-section">
+      <div class="bill-section-label">Plain English Explanation</div>
+      <div class="detail-explanation" id="detail-explanation"></div>
+      <div class="lede-actions" style="margin-top:1rem">
+        <button class="btn-primary write-reps-btn" id="write-reps-btn"
+            style="display:none" onclick="openWritePanel()">
+          ✉ Write to Your Reps
         </button>
-        <div id="full-text-body" style="display:none">
-          <pre id="full-text-content" class="full-text-content"></pre>
-        </div>
+        <button class="btn-ghost notify-btn" id="notify-btn"
+            style="display:none" onclick="toggleSubscribe()">
+          Notify me when this moves
+        </button>
+        <button class="feed-settings-btn" id="flag-translation-btn"
+            onclick="showBillFlag('translation')">
+          Flag inaccuracy
+        </button>
       </div>
-      <div class="detail-section">
-        <div class="section-label">Plain English Explanation</div>
-        <div class="detail-explanation" id="detail-explanation"></div>
-        <div style="margin-top:0.75rem;display:flex;justify-content:space-between;align-items:center;gap:0.75rem;flex-wrap:wrap">
-          <button class="write-reps-btn" id="write-reps-btn"
-              style="display:none" onclick="openWritePanel()">
-            ✉ Write to Your Reps
-          </button>
-          <button class="notify-btn" id="notify-btn"
-              style="display:none" onclick="toggleSubscribe()">
-            Notify me when this moves
-          </button>
-          <button class="feed-settings-btn" id="flag-translation-btn"
-              onclick="showBillFlag('translation')">
-            Flag inaccuracy
-          </button>
-        </div>
-        <div id="notify-email-capture" style="display:none">
-          <div class="notify-email-row">
-            <input type="email" id="notify-email-input"
-              class="notify-email-input" placeholder="your@email.com" />
-            <button class="notify-email-submit" onclick="submitSubscribeEmail()">Subscribe</button>
-          </div>
-        </div>
-      </div>
-      <div class="detail-section" id="sponsors-section" style="display:none">
-        <div class="section-label">Sponsors</div>
-        <div id="sponsors-body"></div>
-      </div>
-      <div class="detail-section">
-        <div class="section-label">Legislative Timeline</div>
-        <div id="detail-timeline"></div>
-        <div style="margin-top:0.75rem;text-align:right">
-          <button class="feed-settings-btn" id="flag-timeline-btn"
-              onclick="showBillFlag('timeline')">
-            Flag inaccuracy
-          </button>
-        </div>
-      </div>
-      <div class="detail-section" id="connections-section" style="display:none">
-        <div class="section-label">Connections</div>
-        <div id="connections-amends" class="conn-category" style="display:none">
-          <div class="conn-category-label"></div>
-          <div class="conn-category-body"></div>
-        </div>
-        <div id="connections-identical" class="conn-category" style="display:none">
-          <div class="conn-category-label">Identical Bill</div>
-          <div class="conn-category-body"></div>
-        </div>
-        <div id="connections-amended-by" class="conn-category" style="display:none">
-          <div class="conn-category-label">Amended By</div>
-          <div class="conn-category-body"></div>
-          <button class="conn-show-all" id="conn-amended-show-all" style="display:none" onclick="connectionsShowAll('amended-by')">Show all</button>
-        </div>
-        <div id="connections-related" class="conn-category" style="display:none">
-          <div class="conn-category-label">Related Legislation</div>
-          <div class="conn-category-body"></div>
-        </div>
-        <div id="connections-superseded" class="conn-category" style="display:none">
-          <div class="conn-category-label">Superseded By</div>
-          <div class="conn-category-body"></div>
-        </div>
-      </div>
-      <div class="detail-section" id="votes-section" style="display:none">
-        <div class="section-label">Recorded Votes</div>
-        <div class="chambers-grid" id="chambers-grid"></div>
-        <div class="vote-legend">
-          <div class="legend-item"><div class="legend-dot" style="background:var(--vote-yea)"></div>Yea</div>
-          <div class="legend-item"><div class="legend-dot" style="background:var(--vote-nay)"></div>Nay</div>
-          <div class="legend-item"><div class="legend-dot" style="background:var(--vote-present)"></div>Present</div>
-          <div class="legend-item"><div class="legend-dot" style="background:var(--vote-absent)"></div>Not Voting</div>
+      <div id="notify-email-capture" style="display:none">
+        <div class="notify-email-row">
+          <input type="email" id="notify-email-input"
+            class="notify-email-input" placeholder="your@email.com"/>
+          <button class="notify-email-submit" onclick="submitSubscribeEmail()">Subscribe</button>
         </div>
       </div>
     </div>
+
+    <div class="bill-section" id="sponsors-section" style="display:none">
+      <div class="bill-section-label">Sponsors</div>
+      <div id="sponsors-body"></div>
+    </div>
+
+    <div class="bill-section">
+      <div class="bill-section-label">Legislative Timeline</div>
+      <div id="detail-timeline"></div>
+      <div style="margin-top:0.75rem;text-align:right">
+        <button class="feed-settings-btn" id="flag-timeline-btn"
+            onclick="showBillFlag('timeline')">
+          Flag inaccuracy
+        </button>
+      </div>
+    </div>
+
+    <div class="bill-section" id="connections-section" style="display:none">
+      <div class="bill-section-label">Connections</div>
+      <div id="connections-amends" class="conn-category" style="display:none">
+        <div class="conn-category-label"></div>
+        <div class="conn-category-body"></div>
+      </div>
+      <div id="connections-identical" class="conn-category" style="display:none">
+        <div class="conn-category-label">Identical Bill</div>
+        <div class="conn-category-body"></div>
+      </div>
+      <div id="connections-amended-by" class="conn-category" style="display:none">
+        <div class="conn-category-label">Amended By</div>
+        <div class="conn-category-body"></div>
+        <button class="conn-show-all" id="conn-amended-show-all" style="display:none"
+            onclick="connectionsShowAll('amended-by')">Show all</button>
+      </div>
+      <div id="connections-related" class="conn-category" style="display:none">
+        <div class="conn-category-label">Related Legislation</div>
+        <div class="conn-category-body"></div>
+      </div>
+      <div id="connections-superseded" class="conn-category" style="display:none">
+        <div class="conn-category-label">Superseded By</div>
+        <div class="conn-category-body"></div>
+      </div>
+    </div>
+
+    <div class="bill-section" id="votes-section" style="display:none">
+      <div class="bill-section-label">Recorded Votes</div>
+      <div class="chambers-grid" id="chambers-grid"></div>
+      <div class="vote-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--vote-yea)"></div>Yea</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--vote-nay)"></div>Nay</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--vote-present)"></div>Present</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--vote-absent)"></div>Not Voting</div>
+      </div>
+    </div>
+
   </div>
 </div>
 
-<!-- ── MEMBER PAGE ── -->
+<!-- ══════════════════════════════════════════════ -->
+<!-- ── MEMBER PAGE                              ── -->
+<!-- ══════════════════════════════════════════════ -->
 <div class="page" id="page-member">
   <div class="detail-loading" id="member-loading" style="display:none">
     <div class="loading-spinner">Looking up member...</div>
@@ -273,33 +283,37 @@
       <div class="loading-step" id="mstep-3">› Loading sponsored legislation</div>
     </div>
   </div>
-  <div class="member-page" id="member-page-content">
-    <button class="detail-back" onclick="goBack()">← Back to search</button>
-    <div class="member-header">
-      <div class="member-photo-wrap">
-        <img id="member-photo" alt="" onerror="this.style.display='none'"/>
+
+  <div id="member-page-content">
+    <a class="back-link detail-back" href="#" onclick="goBack();return false">← Back to search</a>
+
+    <div class="member-hero">
+      <div class="member-portrait">
+        <img id="member-photo" alt="" class="portrait-img" onerror="this.style.display='none'"/>
       </div>
-      <div class="member-header-info">
+      <div class="member-id">
         <div class="member-party-tag" id="member-party-tag"></div>
-        <div class="member-name" id="member-name"></div>
-        <div class="member-meta-line" id="member-meta-line"></div>
+        <h1 class="member-name" id="member-name"></h1>
+        <div class="member-meta" id="member-meta-line"></div>
         <div class="member-status" id="member-status"></div>
       </div>
     </div>
-    <div class="member-stats-grid" id="member-stats-grid"></div>
-    <div class="detail-section">
-      <div class="section-label">Legislation by Topic</div>
+
+    <div class="member-stats" id="member-stats-grid"></div>
+
+    <div class="bill-section">
+      <div class="bill-section-label">Legislation by Topic</div>
       <div id="policy-chart"></div>
     </div>
-    <div class="detail-section">
-      <div class="section-label">Recent Sponsored Bills</div>
+
+    <div class="bill-section">
+      <div class="bill-section-label">Recent Sponsored Bills</div>
       <div id="member-bills"></div>
     </div>
   </div>
 </div>
 
-
-<!-- Flag modal -->
+<!-- ── FLAG MODAL ── -->
 <div id="flag-modal" style="
     display:none;position:fixed;top:0;left:0;right:0;bottom:0;
     background:rgba(0,0,0,0.5);z-index:200;
@@ -316,15 +330,12 @@
                 font-weight:700;margin-bottom:1.5rem" id="flag-modal-title">
         What's wrong?
     </div>
-
     <div id="flag-reasons" style="margin-bottom:1rem"></div>
-
     <textarea id="flag-notes" placeholder="Additional notes (optional)"
         style="width:100%;padding:0.75rem;font-family:'Source Serif 4',serif;
                font-size:0.9rem;border:1px solid var(--rule);
                background:white;resize:vertical;min-height:80px;
                margin-bottom:1rem;outline:none"></textarea>
-
     <div style="display:flex;gap:0.75rem">
         <button onclick="submitFlag()" style="
             flex:1;font-family:'IBM Plex Mono',monospace;
@@ -341,7 +352,6 @@
             Cancel
         </button>
     </div>
-
     <div id="flag-success" style="display:none;margin-top:1rem;
         font-family:'IBM Plex Mono',monospace;font-size:0.7rem;
         color:var(--vote-yea);text-align:center">
@@ -350,72 +360,92 @@
   </div>
 </div>
 
-<!-- ── CORRESPONDENCE PAGE ── -->
+<!-- ══════════════════════════════════════════════ -->
+<!-- ── CORRESPONDENCE PAGE                      ── -->
+<!-- ══════════════════════════════════════════════ -->
 <div class="page" id="page-correspondence">
-  <div class="detail-page">
-    <button class="detail-back" onclick="goBack()">← Back</button>
-    <div class="detail-header">
-      <div class="detail-bill-id">Civic Correspondence</div>
-      <div class="detail-bill-title">Your letters to representatives</div>
-    </div>
-    <div id="corr-list"></div>
-  </div>
+  <a class="back-link" href="#" onclick="goBack();return false">← Back</a>
+  <header class="page-header">
+    <div class="page-kicker">My Letters</div>
+    <h1 class="page-title">Civic Correspondence</h1>
+    <p class="page-deck">Every letter you've sent to representatives, and their replies.</p>
+  </header>
+  <div id="corr-list"></div>
 </div>
 
+<!-- ══════════════════════════════════════════════ -->
+<!-- ── ELECTIONS PAGE                           ── -->
+<!-- ══════════════════════════════════════════════ -->
 <div class="page" id="page-elections">
-  <div class="detail-page">
-    <button class="detail-back" onclick="goBack()">← Back</button>
-    <div class="detail-header">
-      <div class="detail-bill-id">Elections</div>
-      <div class="detail-bill-title" id="elections-subtitle"></div>
+  <a class="back-link" href="#" onclick="goBack();return false">← Back</a>
+  <header class="page-header">
+    <div class="page-kicker">Elections</div>
+    <h1 class="page-title" id="elections-subtitle">Upcoming Elections</h1>
+    <p class="page-deck">Federal, state, and local. Registration deadlines, voter info, and ballot details.</p>
+  </header>
+  <div id="elections-no-zip-banner" class="elections-no-zip" style="display:none">
+    <p>Set your zip code to see which elections affect you.</p>
+    <button class="btn-primary" onclick="showPage('page-onboarding');showStep(1)">Set zip code →</button>
+  </div>
+  <div id="elections-loading" class="elections-loading">
+    <div class="loading-spinner">Loading elections…</div>
+  </div>
+  <div id="elections-error" class="elections-error" style="display:none"></div>
+  <div id="elections-content" style="display:none">
+    <div id="elections-tracked-section" style="display:none">
+      <div class="elections-section-label">TRACKING</div>
+      <div id="elections-tracked-list"></div>
     </div>
-    <div id="elections-no-zip-banner" class="elections-no-zip" style="display:none">
-      <p>Set your zip code to see which elections affect you.</p>
-      <button class="elections-set-zip-btn" onclick="showPage('page-onboarding');showStep(1)">Set zip code →</button>
+    <div id="elections-yours-section" style="display:none">
+      <div class="elections-section-label">YOUR ELECTIONS</div>
+      <div id="elections-yours-list"></div>
     </div>
-    <div id="elections-loading" class="elections-loading">
-      <div class="loading-spinner">Loading elections…</div>
+    <div id="elections-other-section" style="display:none">
+      <div class="elections-section-label">OTHER ELECTIONS</div>
+      <div id="elections-other-list"></div>
     </div>
-    <div id="elections-error" class="elections-error" style="display:none"></div>
-    <div id="elections-content" style="display:none">
-      <div id="elections-tracked-section" style="display:none">
-        <div class="elections-section-label">TRACKING</div>
-        <div id="elections-tracked-list"></div>
-      </div>
-      <div id="elections-yours-section" style="display:none">
-        <div class="elections-section-label">YOUR ELECTIONS</div>
-        <div id="elections-yours-list"></div>
-      </div>
-      <div id="elections-other-section" style="display:none">
-        <div class="elections-section-label">OTHER ELECTIONS</div>
-        <div id="elections-other-list"></div>
-      </div>
-      <div id="elections-recent-section" style="display:none">
-        <div class="elections-section-label">RECENT RESULTS</div>
-        <div id="elections-recent-list"></div>
-      </div>
+    <div id="elections-recent-section" style="display:none">
+      <div class="elections-section-label">RECENT RESULTS</div>
+      <div id="elections-recent-list"></div>
     </div>
   </div>
 </div>
 
+<!-- ══════════════════════════════════════════════ -->
+<!-- ── NOTIFICATIONS PAGE                       ── -->
+<!-- ══════════════════════════════════════════════ -->
 <div class="page" id="page-notifications">
-  <div class="detail-page">
-    <button class="detail-back" onclick="goBack()">← Back</button>
-    <div class="detail-header">
-      <div class="detail-bill-id">My Notifications</div>
-      <div class="detail-bill-title">Bills you're watching for updates</div>
-    </div>
-    <div id="notifications-list"></div>
-  </div>
+  <a class="back-link" href="#" onclick="goBack();return false">← Back</a>
+  <header class="page-header">
+    <div class="page-kicker">My Notifications</div>
+    <h1 class="page-title">Watchlist</h1>
+    <p class="page-deck">Bills you're tracking. We'll email you when they advance, get voted on, or become law.</p>
+  </header>
+  <div id="notifications-list"></div>
 </div>
 
-</div><!-- /main-col -->
-<aside class="sidebar" id="sidebar"></aside>
-</div><!-- /app-layout -->
-
-<footer>
-  NosPopuli &nbsp;·&nbsp; Data via Congress.gov &amp; GovInfo &amp; Senate.gov &nbsp;·&nbsp; Not legal advice &nbsp;·&nbsp;
-  <span style="cursor:pointer;text-decoration:underline" onclick="showPage('page-onboarding');showStep(1)">Personalize my feed</span>
+<!-- ── FOOTER ── -->
+<footer class="footer">
+  <div class="footer-rule"></div>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-label">NosPopuli</div>
+      <p class="footer-text">A reading room for federal law. Every bill in plain English, every vote traceable, every representative accountable.</p>
+    </div>
+    <div>
+      <div class="footer-label">Sources</div>
+      <p class="footer-text">GovInfo · Congress.gov API · Google Civic · OpenStates</p>
+    </div>
+    <div>
+      <div class="footer-label">Personalize</div>
+      <p class="footer-text">
+        <span style="cursor:pointer;text-decoration:underline"
+              onclick="showPage('page-onboarding');showStep(1)">
+          Set zip code &amp; interests →
+        </span>
+      </p>
+    </div>
+  </div>
 </footer>
 
 <!-- ── WRITE-TO-REPS PANEL ── -->
@@ -425,7 +455,6 @@
     <button class="wp-close" onclick="closeWritePanel()">✕</button>
   </div>
 
-  <!-- Not signed in -->
   <div class="wp-state" id="wp-auth" style="display:none">
     <div class="wp-section-label">Sign in to send letters</div>
     <p class="wp-body-text">
@@ -439,7 +468,6 @@
     </p>
   </div>
 
-  <!-- Email flagged -->
   <div class="wp-state" id="wp-flagged" style="display:none">
     <div class="wp-section-label">Email address not suitable</div>
     <p class="wp-body-text">
@@ -449,14 +477,12 @@
     <a href="/auth/google" class="wp-google-btn">Use a different account</a>
   </div>
 
-  <!-- Daily limit hit -->
   <div class="wp-state" id="wp-limit" style="display:none">
     <div class="wp-section-label">Daily limit reached</div>
     <p class="wp-body-text">You've reached today's limit of 5 sent letters. Come back tomorrow.</p>
     <button class="wp-secondary-btn" onclick="closeWritePanel()">Close</button>
   </div>
 
-  <!-- Pick rep -->
   <div class="wp-state" id="wp-pick" style="display:none">
     <div class="wp-section-label">Who would you like to write to?</div>
     <div id="wp-reps-list"></div>
@@ -465,7 +491,6 @@
     </button>
   </div>
 
-  <!-- Impact statement -->
   <div class="wp-state" id="wp-impact" style="display:none">
     <div class="wp-section-label" id="wp-impact-heading">How does this bill affect you?</div>
     <p class="wp-body-text">Write 2–4 sentences in your own words. This makes your letter authentic — we won't embellish or change your meaning.</p>
@@ -478,14 +503,12 @@
     <button class="wp-secondary-btn" onclick="_showPanelState('wp-pick')">← Back</button>
   </div>
 
-  <!-- Generating -->
   <div class="wp-state" id="wp-drafting" style="display:none">
     <div class="wp-section-label">Drafting your letter…</div>
     <div class="wp-spinner"></div>
     <p class="wp-body-text">Claude is writing a draft based on your words. This takes a few seconds.</p>
   </div>
 
-  <!-- Review draft -->
   <div class="wp-state" id="wp-draft" style="display:none">
     <div class="wp-section-label">Review and edit your letter</div>
     <div class="wp-subject-row">
@@ -502,7 +525,6 @@
     <p class="wp-fine-print">The footer above will be appended automatically and cannot be removed. It identifies NosPopuli to the legislator's office.</p>
   </div>
 
-  <!-- Sent confirmation -->
   <div class="wp-state" id="wp-sent" style="display:none">
     <div class="wp-sent-check">✓</div>
     <div class="wp-section-label">Letter sent to <span id="wp-sent-name"></span></div>
@@ -523,7 +545,12 @@
 <!-- Panel backdrop -->
 <div id="write-panel-backdrop" class="write-panel-backdrop" onclick="closeWritePanel()"></div>
 
-<script src="/static/js/index.js"></script>
-<script src="/static/js/correspondence.js"></script>
+<script>
+  document.getElementById('dateline-date').textContent = new Date().toLocaleDateString('en-US', {
+    weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+  });
+</script>
+<script defer src="/static/js/index.js?v=2"></script>
+<script defer src="/static/js/correspondence.js?v=2"></script>
 </body>
 </html>

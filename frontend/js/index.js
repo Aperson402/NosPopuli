@@ -6,8 +6,19 @@ let previousPage = 'page-home';
 let currentJurisdiction = 'federal';
 let currentStateCode = null;
 let _feedItems = [];
+let _feedExpanded = false;
+const FEED_COLLAPSED_COUNT = 5;
 let _trackedElections = new Set(JSON.parse(localStorage.getItem('np_tracked_elections') || '[]'));
 const tooltip = document.getElementById('tooltip');
+
+// ── HTML escape (use for any user-influenced string injected via innerHTML) ──
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+window.escapeHtml = escapeHtml;
 
 // ── localStorage keys ──
 const PREFS_KEY = 'np_preferences';
@@ -179,11 +190,11 @@ function showTooltip(e, seat) {
   if (seat.source === 'state') {
     const voteStr = seat.vote ? seat.vote.charAt(0).toUpperCase() + seat.vote.slice(1) : 'Unknown';
     label = seat.name
-      ? `${seat.name} · ${voteStr} — click to view profile`
+      ? `${escapeHtml(seat.name)} · ${voteStr} — click to view profile`
       : voteStr;
   } else {
     const partyLabel = seat.party === 'D' ? 'Democrat' : seat.party === 'R' ? 'Republican' : 'Independent';
-    label = `${seat.name} · ${seat.state} · ${partyLabel} · ${seat.vote} — click to view profile`;
+    label = `${escapeHtml(seat.name)} · ${seat.state} · ${partyLabel} · ${seat.vote} — click to view profile`;
   }
   tooltip.textContent = label;
   tooltip.classList.add('visible');
@@ -231,7 +242,7 @@ async function openStateMemberFromVote(seat) {
     } else {
       loadingEl.style.display = 'none';
       contentEl.style.display = 'block';
-      setStatus(`No profile found for ${seat.name}`);
+      setStatus(`No profile found for ${escapeHtml(seat.name)}`);
       setTimeout(clearStatus, 2500);
     }
   } catch {
@@ -279,7 +290,7 @@ async function openMemberFromVote(seat) {
     } else {
       loadingEl.style.display = 'none';
       contentEl.style.display = 'block';
-      setStatus(`No profile found for ${seat.name}`);
+      setStatus(`No profile found for ${escapeHtml(seat.name)}`);
       setTimeout(clearStatus, 2500);
     }
   } catch {
@@ -385,11 +396,11 @@ function renderChamber(title, data, defaultSvgW, defaultSvgH, repNames = { full:
 const _connAmendedByFull = { items: [], shown: 5 };
 
 function _billRow(b) {
-  const billId = `${(b.type || '').toUpperCase()} ${b.number}`;
+  const billId = formatBillId(b.type, b.number);
   const title = (b.title || billId).slice(0, 100) + ((b.title || '').length > 100 ? '…' : '');
   return `<div class="member-bill-row" onclick='openDetail(${JSON.stringify(b).replace(/'/g, "&#39;")})'>
     <div class="member-bill-id">${billId} · ${b.congress}th Congress</div>
-    <div class="member-bill-title">${title}</div>
+    <div class="member-bill-title">${escapeHtml(title)}</div>
     <div class="member-bill-date">${b.latest_action_date || ''}</div>
   </div>`;
 }
@@ -413,7 +424,7 @@ function _amendmentRow(a) {
   const url = _amendmentCongUrl(a);
   return `<div class="member-bill-row" onclick="window.open('${url}','_blank')" title="View on Congress.gov">
     <div class="member-bill-id">${aId} · ${a.congress}th Congress ↗</div>
-    <div class="member-bill-title">${title}</div>
+    <div class="member-bill-title">${escapeHtml(title)}</div>
     <div class="member-bill-date">${a.latest_action_date || ''}</div>
   </div>`;
 }
@@ -715,7 +726,7 @@ async function openDetail(bill) {
       <div class="empty-state">
         <p>This couldn't be loaded right now.</p>
         <p style="margin-top:0.5rem">The data may be temporarily unavailable.</p>
-        <button class="example-pill"
+        <button class="pill"
           style="margin-top:1rem"
           onclick="openDetail(${JSON.stringify(bill).replace(/"/g, '&quot;')})">
           Try again
@@ -816,8 +827,8 @@ function renderMemberPage(data) {
   if (isState) {
     billsEl.innerHTML = sponsoredBills.map(b => `
       <div class="member-bill-row" onclick='openStateBill(${JSON.stringify(b).replace(/'/g, "&#39;")})'>
-        <div class="member-bill-id">${b.identifier || ''}</div>
-        <div class="member-bill-title">${(b.title || '').slice(0, 100)}${(b.title || '').length > 100 ? '…' : ''}</div>
+        <div class="member-bill-id">${escapeHtml(b.identifier || '')}</div>
+        <div class="member-bill-title">${escapeHtml((b.title || '').slice(0, 100))}${(b.title || '').length > 100 ? '…' : ''}</div>
         <div class="member-bill-date">${b.date || ''}</div>
       </div>
     `).join('') || '<p style="font-family:\'IBM Plex Mono\',monospace;font-size:0.7rem;color:var(--muted)">No recent bills found</p>';
@@ -825,8 +836,8 @@ function renderMemberPage(data) {
     const validBills = (leg.sponsored || []).filter(b => b.title && b.number);
     billsEl.innerHTML = validBills.map(b => `
       <div class="member-bill-row" onclick='openDetailFromBill(${JSON.stringify(b)})'>
-        <div class="member-bill-id">${(b.type || '').toUpperCase()} ${b.number}</div>
-        <div class="member-bill-title">${(b.title || '').slice(0, 100)}${(b.title || '').length > 100 ? '…' : ''}</div>
+        <div class="member-bill-id">${formatBillId(b.type, b.number)}</div>
+        <div class="member-bill-title">${escapeHtml((b.title || '').slice(0, 100))}${(b.title || '').length > 100 ? '…' : ''}</div>
         <div class="member-bill-date">${b.date || ''}</div>
       </div>
     `).join('') || '<p style="font-family:\'IBM Plex Mono\',monospace;font-size:0.7rem;color:var(--muted)">No recent bills found</p>';
@@ -840,26 +851,51 @@ function billKey(item) {
   return item.is_state_bill ? (item.ocd_id || '') : `${item.type || ''}${item.number || ''}`;
 }
 
-function getStatusLabel(action) {
-  if (!action) return 'ACTIVE';
+// Format a bill ID with newspaper dots: HR → H.R., S → S., HJRES stays HJRES.
+function formatBillId(type, number) {
+  const t = (type || '').toUpperCase();
+  if (!t) return String(number || '');
+  if (t === 'HR') return `H.R. ${number || ''}`.trim();
+  if (t === 'S')  return `S. ${number || ''}`.trim();
+  return `${t} ${number || ''}`.trim();
+}
+
+function getStatusLabel(action, item) {
+  // Public Law shorthand wins if we know it
+  if (item && item.is_law && item.law_number && item.congress) {
+    return `P.L. ${item.congress}-${item.law_number}`;
+  }
+  if (!action) return 'Active';
   const a = action.toLowerCase();
-  if (a.includes('became public law') || a.includes('signed by president') || a.includes('enacted') || a.includes('became law')) return 'ENACTED';
-  if (a.includes('signed by governor') || a.includes('chaptered') || a.includes('signed into law')) return 'SIGNED';
-  if (a.includes('passed house') || a.includes('passed senate') || a.includes('agreed to in') || a.includes('concurred in')) return 'PASSED';
-  if (a.includes('committee') || a.includes('reported by') || a.includes('ordered to be reported')) return 'COMMITTEE';
-  if (a.includes('referred')) return 'REFERRED';
-  if (a.includes('introduced')) return 'INTRODUCED';
-  return 'ACTIVE';
+  if (a.includes('became public law') || a.includes('enacted') || a.includes('became law')) return 'Public Law';
+  if (a.includes('signed by president') || a.includes('signed into law')) return 'Signed into Law';
+  if (a.includes('signed by governor') || a.includes('chaptered'))       return 'Signed';
+  if (a.includes('passed house') || a.includes('agreed to in house'))    return 'Passed House';
+  if (a.includes('passed senate') || a.includes('agreed to in senate'))  return 'Passed Senate';
+  if (a.includes('passed') || a.includes('agreed to') || a.includes('concurred in')) return 'Passed';
+  if (a.includes('vote scheduled') || a.includes('scheduled for'))       return 'Vote Scheduled';
+  if (a.includes('reported by') || a.includes('ordered to be reported')) return 'Reported';
+  if (a.includes('committee'))   return 'In Committee';
+  if (a.includes('referred'))    return 'Referred';
+  if (a.includes('introduced'))  return 'Introduced';
+  return 'Active';
 }
 
 function getStatusClass(label) {
-  if (label === 'ENACTED' || label === 'SIGNED') return 'status-enacted';
-  if (label === 'PASSED') return 'status-passed';
+  if (!label) return 'status-muted';
+  if (label.startsWith('P.L.') || label === 'Public Law' || label.startsWith('Signed')) return 'status-enacted';
+  if (label.startsWith('Passed')) return 'status-passed';
+  if (label === 'Reported' || label === 'In Committee' || label === 'Vote Scheduled') return 'status-active';
   return 'status-muted';
 }
 
 function getStatusRank(label) {
-  return { ENACTED: 5, SIGNED: 4, PASSED: 3, COMMITTEE: 2, REFERRED: 1, INTRODUCED: 0, ACTIVE: 0 }[label] || 0;
+  if (!label) return 0;
+  if (label.startsWith('P.L.') || label === 'Public Law' || label.startsWith('Signed')) return 5;
+  if (label.startsWith('Passed')) return 3;
+  if (label === 'Reported' || label === 'Vote Scheduled') return 2;
+  if (label === 'In Committee' || label === 'Referred') return 1;
+  return 0;
 }
 
 function formatDeck(action) {
@@ -875,34 +911,34 @@ function formatDeck(action) {
 }
 
 function _leadCardHtml(item, idx) {
-  const status = getStatusLabel(item.latest_action);
+  const status = getStatusLabel(item.latest_action, item);
   const billId = item.is_state_bill
     ? `${item.identifier || ''} · ${item.state || ''}`
-    : `${(item.type || '').toUpperCase()} ${item.number || ''}`;
+    : formatBillId(item.type, item.number);
   const deck = formatDeck(item.latest_action);
   return `<div class="story-lead" data-fi="${idx}">
     <div class="lead-eyebrow">
       <span class="lead-bill-id">${billId}</span>
       <span class="story-status ${getStatusClass(status)}">${status}</span>
     </div>
-    <div class="lead-headline">${item.title || billId}</div>
+    <div class="lead-headline">${escapeHtml(item.title || billId)}</div>
     ${deck ? `<div class="lead-deck">${deck}</div>` : ''}
     <div class="lead-dateline">${item.date || ''}</div>
   </div>`;
 }
 
 function _storyCardHtml(item, idx) {
-  const status = getStatusLabel(item.latest_action);
+  const status = getStatusLabel(item.latest_action, item);
   const billId = item.is_state_bill
     ? (item.identifier || '')
-    : `${(item.type || '').toUpperCase()} ${item.number || ''}`;
+    : formatBillId(item.type, item.number);
   const title = item.title || billId;
   const dual = item._matchesBoth ? '<span class="dual-match-tag">· your rep</span>' : '';
   return `<div class="story-card" data-fi="${idx}">
     <div class="story-card-top">
       <div class="story-card-body">
         <div class="story-bill-id">${billId}${dual}</div>
-        <div class="story-title">${title.length > 90 ? title.slice(0, 87) + '…' : title}</div>
+        <div class="story-title">${escapeHtml(title.length > 90 ? title.slice(0, 87) + '…' : title)}</div>
       </div>
       <div class="story-status ${getStatusClass(status)}">${status}</div>
     </div>
@@ -919,7 +955,7 @@ function _feedFollowingHtml() {
   const rows = active.map(([billId, sub]) => `
     <div class="feed-following-row" onclick="reopenBillFromNotif(${JSON.stringify(billId)}, ${JSON.stringify(sub)})">
       <div class="feed-following-id">${billId}</div>
-      ${sub.title ? `<div class="feed-following-title">${sub.title}</div>` : ''}
+      ${sub.title ? `<div class="feed-following-title">${escapeHtml(sub.title)}</div>` : ''}
     </div>`).join('');
 
   return `
@@ -942,7 +978,7 @@ function _feedElectionsHtml(elections) {
       <div class="feed-election-card" onclick="showPage('page-elections');loadElections()"  style="cursor:pointer">
         <span class="feed-election-countdown ${cls}">${days !== null ? days + 'd' : '?'}</span>
         <div class="feed-election-info">
-          <div class="feed-election-name">${e.name}</div>
+          <div class="feed-election-name">${escapeHtml(e.name)}</div>
           <div class="feed-election-date">${date}</div>
         </div>
       </div>`;
@@ -953,14 +989,176 @@ function _feedElectionsHtml(elections) {
     <a class="feed-elections-more" href="#" onclick="showPage('page-elections');loadElections();return false">All elections →</a>`;
 }
 
+// ── Helpers for newspaper home layout ──
+function _initials(name) {
+  return (name || '').split(/\s+/).map(p => p[0]).filter(Boolean).slice(0, 2).join('').toUpperCase();
+}
+function _sectionTag(item) {
+  if (item.is_law) return 'Federal · Enacted';
+  const t = (item.type || '').toUpperCase();
+  if (t === 'HJRES' || t === 'SJRES') return 'Federal · Joint Resolution';
+  if (t === 'HCONRES' || t === 'SCONRES') return 'Federal · Concurrent Resolution';
+  if (t === 'HRES' || t === 'SRES') return 'Federal · Resolution';
+  if (t.startsWith('S')) return 'Federal · Senate';
+  if (t.startsWith('H')) return 'Federal · House';
+  return 'Federal · Bill';
+}
+function _sponsorLastName(bioguide, prefs) {
+  if (!bioguide) return '';
+  const pool = [...(prefs.senators || []), prefs.representative].filter(Boolean);
+  const hit = pool.find(p => p && p.bioguide_id === bioguide);
+  if (!hit || !hit.name) return '';
+  return hit.name.split(',')[0].split(' ').pop();
+}
+function _whySuffix(item) {
+  const status = getStatusLabel(item.latest_action, item);
+  if (status && (status.startsWith('P.L.') || status === 'Public Law' || status.startsWith('Signed'))) {
+    return 'Now public law';
+  }
+  if (status && status.startsWith('Passed')) return status;
+  if (status === 'Vote Scheduled') return 'Vote scheduled';
+  const d = item.latest_action_date || item.date;
+  if (!d) return '';
+  try {
+    const days = Math.floor((Date.now() - new Date(d + 'T12:00:00').getTime()) / 86400000);
+    if (days <= 0) return 'Action today';
+    if (days === 1) return 'Action yesterday';
+    if (days < 7)  return 'Action this week';
+  } catch {}
+  return '';
+}
+function _repActivity(rep, items) {
+  if (!rep || !rep.bioguide_id || !items || !items.length) return '';
+  const hit = items.find(it => it && it.sponsor_bioguide === rep.bioguide_id);
+  if (!hit) return 'No floor activity this week';
+  const id = formatBillId(hit.type, hit.number);
+  const title = (hit.title || '').replace(/\s*\(.*?\)\s*$/, '');
+  const short = title.length > 38 ? title.slice(0, 35) + '…' : title;
+  const status = getStatusLabel(hit.latest_action, hit);
+  const verb = status && status.startsWith('Passed') ? 'Last vote: Yea on' : 'Last sponsored:';
+  return `${verb} ${id}${short ? ` (${short})` : ''}`;
+}
+function _whyText(item, prefs) {
+  let base;
+  if (item.feed_reason === 'your_rep') {
+    const last = _sponsorLastName(item.sponsor_bioguide, prefs);
+    const isSen = (prefs.senators || []).some(s => s && s.bioguide_id === item.sponsor_bioguide);
+    const role = isSen ? 'senator' : 'representative';
+    base = last
+      ? `Why: your ${role} (${last}) is the lead sponsor`
+      : `Why: your ${role} is a sponsor`;
+  } else if (item.feed_reason === 'state_legislature') {
+    base = `Why: ${prefs.stateName || prefs.state || 'your state'} legislature`;
+  } else if (item.feed_reason) {
+    base = `Why: your topic — ${capitalize(item.feed_reason.replace(/_/g, ' '))}`;
+  } else {
+    return '';
+  }
+  const suffix = _whySuffix(item);
+  return suffix ? `${base} · ${suffix}` : base;
+}
+function _electionLevels(e) {
+  const contests = e.contests || [];
+  if (!contests.length) {
+    const n = (e.name || '').toLowerCase();
+    if (n.includes('president')) return 'National';
+    return '';
+  }
+  const FED = /\b(president|u\.?s\.? senate|u\.?s\.? house|congress)\b/i;
+  const STATE = /\b(governor|lieutenant governor|attorney general|secretary of state|state senate|state house|state assembly|delegate|comptroller|treasurer)\b/i;
+  const LOCAL = /\b(mayor|county|sheriff|city council|school board|alderm|borough|township)\b/i;
+  const BALLOT = /\b(amendment|proposition|referend|measure|question)\b/i;
+  const seen = new Set();
+  for (const c of contests) {
+    const o = (c.office || c.type || c.referendumTitle || '').toLowerCase();
+    if (FED.test(o)) seen.add('Federal');
+    else if (STATE.test(o)) seen.add('State');
+    else if (LOCAL.test(o)) seen.add('Local');
+    if (BALLOT.test(o)) seen.add('Ballot measures');
+  }
+  return [...seen].join(', ');
+}
+function _electionSubLine(e, days) {
+  const parts = [];
+  if (e.registration_deadline) {
+    const m = String(e.registration_deadline).match(/([A-Za-z]+)\s+(\d{1,2})/);
+    parts.push(m ? `Register by ${m[1].slice(0,3)} ${m[2]}` : `Register by ${e.registration_deadline}`);
+  }
+  const n = (e.contests || []).length;
+  if (n) {
+    parts.push(`${n} contest${n === 1 ? '' : 's'} on ballot`);
+  } else if (days !== null && days > 180) {
+    const months = Math.round(days / 30);
+    parts.push(`Polls open ~${months} months`);
+  }
+  return parts.join(' · ');
+}
+function _relativeDate(dateStr) {
+  if (!dateStr) return '';
+  try {
+    const d = new Date(dateStr + 'T12:00:00');
+    const days = Math.floor((Date.now() - d.getTime()) / 86400000);
+    if (days === 0) return 'Today';
+    if (days === 1) return 'Yesterday';
+    if (days < 7)  return `${days} days ago`;
+    if (days < 30) return `${Math.floor(days/7)} week${Math.floor(days/7) > 1 ? 's' : ''} ago`;
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  } catch { return dateStr; }
+}
+
+// Lede action button handler — opens the bill then triggers the requested action.
+function ledeAction(idx, action) {
+  const item = _feedItems[idx];
+  if (!item) return;
+  const opener = () => {
+    if (item.is_state_bill) {
+      openStateBill(item);
+    } else {
+      openDetail({
+        congress: parseInt(item.congress),
+        type: item.type,
+        number: parseInt(item.number),
+        title: item.title,
+        is_law: item.is_law || false,
+        law_number: item.law_number ? parseInt(item.law_number) : null
+      });
+    }
+  };
+  opener();
+  if (action === 'notify') {
+    // Notify button on bill detail appears after the bill loads.
+    const tryClick = (attempts = 0) => {
+      const btn = document.getElementById('notify-btn');
+      if (btn && btn.style.display !== 'none') btn.click();
+      else if (attempts < 20) setTimeout(() => tryClick(attempts + 1), 250);
+    };
+    tryClick();
+  } else if (action === 'write') {
+    const tryOpen = (attempts = 0) => {
+      if (typeof openWritePanel === 'function' && document.getElementById('write-reps-btn')?.style.display !== 'none') {
+        openWritePanel();
+      } else if (attempts < 20) setTimeout(() => tryOpen(attempts + 1), 250);
+    };
+    tryOpen();
+  }
+}
+window.ledeAction = ledeAction;
+
+function _toggleFeedExpanded() {
+  _feedExpanded = !_feedExpanded;
+  const prefs = getPrefs() || {};
+  renderFeedSection(_feedItems, prefs, window._lastUpcomingElections || []);
+}
+window._toggleFeedExpanded = _toggleFeedExpanded;
+
 function renderFeedSection(items, prefs, upcomingElections = []) {
   const feedSection = document.getElementById('feed-section');
 
   if (!items || !items.length) {
     feedSection.innerHTML = `
       <div class="feed-toolbar">
-        <span class="feed-location-tag">${prefs.stateName || prefs.state || ''}</span>
-        <button class="feed-settings-btn" onclick="showPage('page-onboarding');showStep(1)">Edit preferences</button>
+        <span class="feed-tag">${escapeHtml(prefs.stateName || prefs.state || '')}</span>
+        <button class="feed-edit" onclick="showPage('page-onboarding');showStep(1)">Edit preferences</button>
       </div>
       <div class="empty-state">
         <p>No recent legislation found for your interests.</p>
@@ -971,74 +1169,199 @@ function renderFeedSection(items, prefs, upcomingElections = []) {
 
   _feedItems = items;
 
-  // Separate by type, preserving original index for click handlers
-  const indexed = items.map((item, i) => ({ item, i }));
-  const repItems   = indexed.filter(({ item }) => item.feed_reason === 'your_rep');
-  const stateItems = indexed.filter(({ item }) => item.feed_reason === 'state_legislature');
-  const topicItems = indexed.filter(({ item }) => item.feed_reason !== 'your_rep' && item.feed_reason !== 'state_legislature');
-
-  // Build rep key set for cross-reference
-  const repKeys = new Set(repItems.map(({ item }) => billKey(item)));
-
-  // Group topics, flag crossover bills, sort: crossover first then by status
-  const byTopic = {};
-  for (const { item, i } of topicItems) {
-    const topic = item.feed_reason || 'Other';
-    if (!byTopic[topic]) byTopic[topic] = [];
-    item._matchesBoth = repKeys.has(billKey(item));
-    byTopic[topic].push({ item, i });
-  }
-  for (const topic of Object.keys(byTopic)) {
-    byTopic[topic].sort((a, b) =>
-      (b.item._matchesBoth - a.item._matchesBoth) ||
-      (getStatusRank(getStatusLabel(b.item.latest_action)) - getStatusRank(getStatusLabel(a.item.latest_action)))
+  // Sort all items by status rank for "top stories" selection
+  const sortedAll = items
+    .map((item, i) => ({ item, i }))
+    .sort((a, b) =>
+      getStatusRank(getStatusLabel(b.item.latest_action, b.item)) -
+      getStatusRank(getStatusLabel(a.item.latest_action, a.item))
     );
-  }
 
-  // Pick lead rep bill by status priority
-  const sortedReps = [...repItems].sort((a, b) =>
-    getStatusRank(getStatusLabel(b.item.latest_action)) - getStatusRank(getStatusLabel(a.item.latest_action))
-  );
-  const lead     = sortedReps[0];
-  const restReps = sortedReps.slice(1);
+  // Lede (top 1), 3-up (next 3), then ranked feed (rest)
+  const lede   = sortedAll[0] || null;
+  const top3   = sortedAll.slice(1, 4);
+  const rest   = sortedAll.slice(4);
 
-  // ── Left column: representatives + following
-  const leftHtml = `
-    <div class="section-rule"><span>Your Representatives</span></div>
-    ${lead ? _leadCardHtml(lead.item, lead.i) : ''}
-    ${restReps.map(({ item, i }) => _storyCardHtml(item, i)).join('')}
-    ${repItems.length === 0 ? '<div class="feed-empty-col">No recent activity from your representatives.</div>' : ''}
-    ${_feedFollowingHtml()}
-    ${_feedElectionsHtml(upcomingElections)}
-  `;
+  // ── Lede (placeholder slot — uses the top feed item) ──
+  const ledeHtml = lede ? (() => {
+    const item = lede.item;
+    const status = getStatusLabel(item.latest_action, item);
+    const billId = item.is_state_bill
+      ? (item.identifier || '')
+      : formatBillId(item.type, item.number);
+    const congressLabel = item.congress ? `${item.congress}th Congress` : '';
+    const title = item.title || billId;
+    const deck  = formatDeck(item.latest_action) || '';
+    const when  = _relativeDate(item.date) || 'just now';
+    const sponsor = item.sponsor_name || item.sponsor || '';
+    return `
+      <section class="lede" data-fi="${lede.i}">
+        <div class="lede-kicker">
+          <span class="kicker-tag">Front Page</span>
+          <span class="kicker-update">Updated ${escapeHtml(when.toLowerCase())}</span>
+        </div>
+        <h2 class="lede-title">${escapeHtml(title)}</h2>
+        ${deck ? `<p class="lede-deck">${escapeHtml(deck)}</p>` : ''}
+        <div class="lede-meta">
+          <span class="lede-stage ${getStatusClass(status)}">${status}</span>
+          <span class="lede-meta-sep">·</span>
+          <span>${escapeHtml([congressLabel, billId].filter(Boolean).join(' · '))}</span>
+          ${sponsor ? `
+            <span class="lede-meta-sep">·</span>
+            <span>Sponsored by ${escapeHtml(sponsor)}</span>
+          ` : ''}
+        </div>
+        <div class="lede-actions">
+          <button class="btn-primary" onclick="event.stopPropagation();ledeAction(${lede.i}, 'read')">Read the explanation →</button>
+          <button class="btn-ghost"  onclick="event.stopPropagation();ledeAction(${lede.i}, 'notify')">Notify me when this moves</button>
+          <button class="btn-ghost"  onclick="event.stopPropagation();ledeAction(${lede.i}, 'write')">Write to my reps</button>
+        </div>
+      </section>`;
+  })() : '';
 
-  // ── Right column: state + topics
-  const stateSection = stateItems.length > 0 ? `
-    <div class="section-rule"><span>${prefs.stateName || 'State'} Legislature</span></div>
-    <div class="topic-grid">
-      ${stateItems.map(({ item, i }) => _storyCardHtml(item, i)).join('')}
-    </div>
-  ` : '';
+  // ── 3-up story grid ──
+  const stories = top3.map(({ item, i }) => {
+    const status = getStatusLabel(item.latest_action, item);
+    const tag    = _sectionTag(item);
+    const title  = item.title || '';
+    const deck   = formatDeck(item.latest_action) || '';
+    const when   = _relativeDate(item.date);
+    return `
+      <article class="story" data-fi="${i}">
+        <div class="story-section-tag">${tag}</div>
+        <h3 class="story-title">${escapeHtml(title.length > 100 ? title.slice(0, 97) + '…' : title)}</h3>
+        ${deck ? `<p class="story-deck">${escapeHtml(deck)}</p>` : ''}
+        <div class="story-meta">
+          <span class="story-status ${getStatusClass(status)}">${status}</span>
+          ${when ? `<span>·</span><span>${when}</span>` : ''}
+        </div>
+      </article>`;
+  }).join('');
 
-  const topicSections = Object.entries(byTopic).map(([topic, entries]) => `
-    <div class="section-rule"><span>${capitalize(topic.replace(/_/g, ' '))}</span></div>
-    <div class="topic-grid">
-      ${entries.map(({ item, i }) => _storyCardHtml(item, i)).join('')}
-    </div>
-  `).join('');
+  // ── Your Delegation (reps) ──
+  const senators = (prefs.senators || []).map(r => ({ ...r, _isSen: true }));
+  const rep = prefs.representative ? { ...prefs.representative, _isSen: false } : null;
+  const reps = [...senators, rep].filter(Boolean);
+  const repsHtml = reps.length ? reps.map(r => {
+    const init = _initials(r.name);
+    const loc  = r.district ? `${r.state}-${r.district}` : (r.state || '');
+    const role = r._isSen ? 'U.S. Senate' : 'U.S. House';
+    const partyFull = r.party || '';
+    const termLine = (r.term_start && r.term_end)
+      ? `Party: ${partyFull || '—'} · Term: ${r.term_start}–${r.term_end}`
+      : partyFull;
+    const activity = _repActivity(r, items);
+    return `
+      <div class="rep-card" onclick="openMemberFromVote(${JSON.stringify({ name: r.name })})">
+        <div class="rep-portrait">${init || '??'}</div>
+        <div class="rep-body">
+          <div class="rep-name">${escapeHtml(r.name || '')}</div>
+          <div class="rep-role">${role} · ${loc}</div>
+          <div class="rep-line">${escapeHtml(termLine)}</div>
+          ${activity ? `<div class="rep-activity">${escapeHtml(activity)}</div>` : ''}
+        </div>
+      </div>`;
+  }).join('') : '<div class="feed-empty-col">Set your zip to see your representatives.</div>';
 
-  const rightHtml = stateSection + topicSections
-    || '<div class="feed-empty-col">Select topics in preferences to see more legislation.</div>';
+  // ── Upcoming Elections (right col) ──
+  const electionsHtml = (upcomingElections || []).slice(0, 3).map(e => {
+    const days = e.countdown_days ?? null;
+    const cls  = days !== null && days <= 30 ? 'urgent' : days !== null && days <= 90 ? 'near' : 'far';
+    let date;
+    try { date = new Date(e.date + 'T12:00:00').toLocaleDateString('en-US',
+      { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }); }
+    catch { date = e.date; }
+    const tags = _electionLevels(e);
+    const dateLine = tags ? `${date} · ${tags}` : date;
+    const sub = _electionSubLine(e, days);
+    return `
+      <div class="election-row ${cls}" onclick="showPage('page-elections');loadElections()">
+        <div class="election-countdown">
+          <div class="count-num">${days ?? '?'}</div>
+          <div class="count-unit">days</div>
+        </div>
+        <div class="election-body">
+          <div class="election-name">${escapeHtml(e.name || '')}</div>
+          <div class="election-date">${escapeHtml(dateLine)}</div>
+          ${sub ? `<div class="election-line">${escapeHtml(sub)}</div>` : ''}
+        </div>
+      </div>`;
+  }).join('') || '<div class="feed-empty-col">No upcoming elections.</div>';
 
+  // ── Ranked feed (the rest) ──
+  const visibleRest = _feedExpanded ? rest : rest.slice(0, FEED_COLLAPSED_COUNT);
+  const hiddenCount = rest.length - visibleRest.length;
+  const showMoreHtml = hiddenCount > 0
+    ? `<a class="feed-show-more" href="#" onclick="_toggleFeedExpanded();return false">Show more →</a>`
+    : (_feedExpanded && rest.length > FEED_COLLAPSED_COUNT
+        ? `<a class="feed-show-more" href="#" onclick="_toggleFeedExpanded();return false">Show less ↑</a>`
+        : '');
+  const feedRows = visibleRest.map(({ item, i }, idx) => {
+    const status = getStatusLabel(item.latest_action, item);
+    const billId = item.is_state_bill
+      ? (item.identifier || '')
+      : formatBillId(item.type, item.number);
+    const title = item.title || billId;
+    const rank  = String(idx + 1).padStart(2, '0');
+    const why   = _whyText(item, prefs);
+    return `
+      <a class="feed-row" data-fi="${i}">
+        <span class="feed-rank">${rank}</span>
+        <div class="feed-body">
+          <div class="feed-line">
+            <span class="feed-id">${billId}</span>
+            <span class="feed-sep">·</span>
+            <span class="feed-title">${escapeHtml(title.length > 100 ? title.slice(0, 97) + '…' : title)}</span>
+          </div>
+          ${why ? `<div class="feed-sub"><span class="feed-reason">${why}</span></div>` : ''}
+        </div>
+        <span class="feed-status ${getStatusClass(status)}">${status}</span>
+      </a>`;
+  }).join('');
+
+  // ── Toolbar tag ──
+  const interestsLabel = (prefs.interests || []).map(t =>
+    capitalize(String(t).replace(/_/g, ' '))
+  ).join(', ');
+  const toolbarTag = ['Personalized', prefs.state || prefs.stateName, interestsLabel]
+    .filter(Boolean).join(' · ');
+
+  // ── Compose ──
   feedSection.innerHTML = `
-    <div class="feed-toolbar">
-      <span class="feed-location-tag">${prefs.stateName || prefs.state || ''}</span>
-      <button class="feed-settings-btn" onclick="showPage('page-onboarding');showStep(1)">Edit preferences</button>
-    </div>
-    <div class="feed-columns">
-      <div class="feed-col-left">${leftHtml}</div>
-      <div class="feed-col-right">${rightHtml}</div>
-    </div>
+    ${ledeHtml}
+
+    <section class="grid-3up">${stories}</section>
+
+    <div class="section-divider"><span>The Briefing</span></div>
+
+    <section class="two-col">
+      <div class="col-reps">
+        <div class="col-head">
+          <span class="col-label">Your Delegation</span>
+          <a class="col-action" onclick="showPage('page-onboarding');showStep(1)">Change zip →</a>
+        </div>
+        ${repsHtml}
+      </div>
+      <div class="col-elections">
+        <div class="col-head">
+          <span class="col-label">Upcoming Elections</span>
+          <a class="col-action" onclick="showPage('page-elections');loadElections()">All elections →</a>
+        </div>
+        ${electionsHtml}
+      </div>
+    </section>
+
+    <div class="section-divider"><span>What's Moving</span></div>
+
+    <section class="feed">
+      <div class="feed-toolbar">
+        <span class="feed-tag">${escapeHtml(toolbarTag)}</span>
+        <button class="feed-edit" onclick="showPage('page-onboarding');showStep(1)">Edit topics</button>
+      </div>
+      ${feedRows}
+      ${showMoreHtml}
+      ${_feedFollowingHtml()}
+    </section>
   `;
 
   // Attach click handlers after DOM is set
@@ -1105,7 +1428,9 @@ async function loadFeed() {
     const data = await feedResp.json();
     const electionsData = electionsResp ? await electionsResp.json().catch(() => null) : null;
 
-    renderFeedSection(data.items, prefs, ((electionsData && electionsData.upcoming) || []).slice(0, 3));
+    window._lastUpcomingElections = ((electionsData && electionsData.upcoming) || []).slice(0, 3);
+    _feedExpanded = false;
+    renderFeedSection(data.items, prefs, window._lastUpcomingElections);
 
     // Pre-populate the elections page so clicking the tab is instant
     if (electionsData) _renderElectionsPage(electionsData, prefs?.zip);
@@ -1151,7 +1476,7 @@ function renderCommitteePage(data) {
           <div class="result-card-inner">
               <div class="result-card-left">
                   <div class="result-bill-id">${billId}</div>
-                  <div class="result-bill-title">${bill.title || billId}</div>
+                  <div class="result-bill-title">${escapeHtml(bill.title || billId)}</div>
               </div>
               <div class="result-card-arrow">Read more →</div>
           </div>
@@ -1187,7 +1512,7 @@ function _makeResultCard(bill, animIndex) {
     <div class="result-card-inner">
       <div class="result-card-left">
         <div class="result-bill-id">${billId}</div>
-        <div class="result-bill-title">${bill.title || billId}</div>
+        <div class="result-bill-title">${escapeHtml(bill.title || billId)}</div>
       </div>
       <div class="result-card-arrow">Read more →</div>
     </div>
@@ -1218,7 +1543,7 @@ function _makeCompactResultCard(bill, animIndex) {
   const congress = bill.congress ? `${formatCongress(bill.congress)} Congress` : '';
   card.innerHTML = `
     <div class="result-bill-id">${billId}</div>
-    <div class="result-bill-title">${bill.title || billId}</div>
+    <div class="result-bill-title">${escapeHtml(bill.title || billId)}</div>
     <div class="compact-year">${congress}${year ? ' · ' + year : ''}</div>`;
   return card;
 }
@@ -1387,11 +1712,11 @@ function showClarificationBar(confidence, reason, question) {
           ${reason}
       </div>
       <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
-          <button class="example-pill"
+          <button class="pill"
               onclick="setQuery('${question} legislation');runSearch()">
               Search as legislation
           </button>
-          <button class="example-pill"
+          <button class="pill"
               onclick="setQuery('${question} senator');runSearch()">
               Search as person
           </button>
@@ -1407,12 +1732,93 @@ function setJurisdiction(j, el) {
   el.classList.add('active');
 }
 
+const STATE_CODES = ['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY'];
+let _stateIdx = STATE_CODES.indexOf('VA');
+
+function _renderStatePicker() {
+  const cur   = document.getElementById('state-cur');
+  const cells = document.querySelectorAll('#state-picker .state-cell');
+  const up    = document.getElementById('state-up');
+  const down  = document.getElementById('state-down');
+  if (!cur) return;
+  cur.textContent = STATE_CODES[_stateIdx];
+  cells.forEach(c => {
+    const rel = parseInt(c.dataset.rel);
+    const i = _stateIdx + rel;
+    if (i < 0 || i >= STATE_CODES.length) {
+      c.textContent = '';
+      c.classList.add('empty');
+      c.dataset.idx = '';
+    } else {
+      c.textContent = STATE_CODES[i];
+      c.classList.remove('empty');
+      c.dataset.idx = String(i);
+    }
+  });
+  up   && up.classList.toggle('disabled', _stateIdx <= 0);
+  down && down.classList.toggle('disabled', _stateIdx >= STATE_CODES.length - 1);
+}
+
+function _shiftState(delta) {
+  const next = Math.max(0, Math.min(STATE_CODES.length - 1, _stateIdx + delta));
+  if (next === _stateIdx) return;
+  _stateIdx = next;
+  currentStateCode = STATE_CODES[_stateIdx];
+  _renderStatePicker();
+  const picker = document.getElementById('state-picker');
+  setJurisdiction('state', picker);
+}
+
+function _initStatePicker() {
+  const picker = document.getElementById('state-picker');
+  if (!picker || picker._wired) return;
+  picker._wired = true;
+  const up    = document.getElementById('state-up');
+  const down  = document.getElementById('state-down');
+  const cur   = document.getElementById('state-cur');
+  const cells = picker.querySelectorAll('.state-cell');
+  up.addEventListener('click',   e => { e.stopPropagation(); _shiftState(-1); });
+  down.addEventListener('click', e => { e.stopPropagation(); _shiftState(1); });
+  cur.addEventListener('click',  e => { e.stopPropagation(); setJurisdiction('state', picker); });
+  picker.addEventListener('wheel', e => {
+    if (!picker.matches(':hover, :focus-within')) return;
+    e.preventDefault();
+    _shiftState(e.deltaY > 0 ? 1 : -1);
+  }, { passive: false });
+  cells.forEach(c => c.addEventListener('click', e => {
+    e.stopPropagation();
+    if (!c.dataset.idx) return;
+    _stateIdx = parseInt(c.dataset.idx);
+    currentStateCode = STATE_CODES[_stateIdx];
+    _renderStatePicker();
+    setJurisdiction('state', picker);
+  }));
+  picker.addEventListener('keydown', e => {
+    if (e.key === 'ArrowUp')   { e.preventDefault(); _shiftState(-1); return; }
+    if (e.key === 'ArrowDown') { e.preventDefault(); _shiftState(1);  return; }
+    if (!/^[a-zA-Z]$/.test(e.key)) return;
+    const letter = e.key.toUpperCase();
+    const start = (_stateIdx + 1) % STATE_CODES.length;
+    const order = [...STATE_CODES.slice(start), ...STATE_CODES.slice(0, start)];
+    const hit = order.findIndex(s => s.startsWith(letter));
+    if (hit < 0) return;
+    _stateIdx = STATE_CODES.indexOf(order[hit]);
+    currentStateCode = STATE_CODES[_stateIdx];
+    _renderStatePicker();
+    setJurisdiction('state', picker);
+  });
+  _renderStatePicker();
+}
+
 function updateJurisdictionToggle(prefs) {
-  const stateBtn = document.getElementById('state-toggle-btn');
-  if (!prefs || !prefs.state) { stateBtn.style.display = 'none'; return; }
-  currentStateCode = prefs.state;
-  stateBtn.textContent = prefs.stateName || prefs.state;
-  stateBtn.style.display = 'block';
+  _initStatePicker();
+  if (prefs && prefs.state && STATE_CODES.includes(prefs.state)) {
+    _stateIdx = STATE_CODES.indexOf(prefs.state);
+    currentStateCode = prefs.state;
+  } else {
+    currentStateCode = STATE_CODES[_stateIdx];
+  }
+  _renderStatePicker();
 }
 
 // ── State search ──
@@ -1471,8 +1877,8 @@ function _makeStateCard(bill, animIndex) {
   card.innerHTML = `
     <div class="result-card-inner">
       <div class="result-card-left">
-        <div class="result-bill-id">${bill.identifier} · ${stateName} · ${chamberLabel}</div>
-        <div class="result-bill-title">${bill.title}</div>
+        <div class="result-bill-id">${escapeHtml(bill.identifier)} · ${escapeHtml(stateName)} · ${chamberLabel}</div>
+        <div class="result-bill-title">${escapeHtml(bill.title)}</div>
         ${abstractSnippet ? `<div class="result-bill-abstract">${abstractSnippet}</div>` : ''}
       </div>
       <div class="result-card-arrow">Read more →</div>
@@ -1499,7 +1905,7 @@ function renderStateResults(data) {
   if (!currentResults.length) {
     resultsSection.innerHTML = `
       <div class="empty-state">
-        <p>No ${getPrefs()?.stateName || 'state'} bills found.</p>
+        <p>No ${escapeHtml(getPrefs()?.stateName || 'state')} bills found.</p>
         <p style="margin-top:0.5rem">Try different keywords.</p>
       </div>`;
     return;
@@ -1508,7 +1914,7 @@ function renderStateResults(data) {
   const header = document.createElement('div');
   header.className = 'results-header';
   header.innerHTML = `
-    <h2>${getPrefs()?.stateName || currentStateCode || 'State'} Results</h2>
+    <h2>${escapeHtml(getPrefs()?.stateName || currentStateCode || 'State')} Results</h2>
     <span class="results-count">${currentResults.length} result${currentResults.length !== 1 ? 's' : ''} found</span>`;
   resultsSection.appendChild(header);
 
@@ -2001,7 +2407,7 @@ function _makeElectionCard(election, isPast) {
         <span class="election-countdown-label">${cd.label}</span>
       </div>
       <div class="election-card-main">
-        <div class="election-name">${election.name}</div>
+        <div class="election-name">${escapeHtml(election.name)}</div>
         <div class="election-date">${_formatElectionDate(election.date)}</div>
         ${racesText ? `<div class="election-races">${racesText}</div>` : ''}
         ${badges.length ? `<div class="election-badges">${badges.join('')}</div>` : ''}
@@ -2123,7 +2529,7 @@ function _renderSidebar() {
     return `<div class="sidebar-rep" onclick="openMemberFromVote(${JSON.stringify({ name: r.name })})">
       <span class="party-dot ${cls}" style="margin-top:0.3rem;flex-shrink:0"></span>
       <div class="sidebar-rep-info">
-        <div class="sidebar-rep-name">${title} ${r.name}</div>
+        <div class="sidebar-rep-name">${title} ${escapeHtml(r.name)}</div>
         <div class="sidebar-rep-meta">${party}${loc ? ' · ' + loc : ''}</div>
       </div>
     </div>`;
@@ -2273,7 +2679,7 @@ function loadNotificationsPage() {
         <div class="notif-item-info notif-item-link"
           data-bill-id="${escaped}" onclick="reopenBillFromNotif(this.dataset.billId)">
           <div class="notif-bill-id">${billId}</div>
-          ${sub.title ? `<div class="notif-bill-title">${sub.title}</div>` : ''}
+          ${sub.title ? `<div class="notif-bill-title">${escapeHtml(sub.title)}</div>` : ''}
         </div>
         <button class="feed-settings-btn notif-stop-btn"
           data-bill-id="${escaped}" onclick="stopNotifying(this.dataset.billId)">

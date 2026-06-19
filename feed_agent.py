@@ -2,6 +2,7 @@ import requests
 import os
 import json
 import hashlib
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from documentor_agent import log_action
@@ -108,7 +109,7 @@ def _feed_cache_key(interests, senator_bioguides, rep_bioguide, state_code):
         "r": rep_bioguide or "",
         "st": state_code or "",
     }, sort_keys=True)
-    return "feed:" + hashlib.sha1(payload.encode()).hexdigest()
+    return "feed:v3:" + hashlib.sha1(payload.encode()).hexdigest()
 
 
 def fetch_feed(interests, senator_bioguides, rep_bioguide, days_back=30, max_per_interest=3, state_code=None):
@@ -134,25 +135,30 @@ def fetch_feed(interests, senator_bioguides, rep_bioguide, days_back=30, max_per
         days_back=90
     )
     
+    rep_pool = []
     for bill in rep_bills:
         key = f"{bill.get('type','')}{bill.get('number','')}"
         if key not in seen_bills:
             seen_bills.add(key)
             bill["feed_reason"] = "your_rep"
-            feed_items.append(bill)
+            rep_pool.append(bill)
+    _enrich_latest_actions(rep_pool)
+    feed_items.extend(rep_pool)
     
     # ── Section 2: Bills matching user interests ──
+    interest_pool = []
     for interest in interests:
         terms = INTEREST_TERMS.get(interest, [interest])
-        interest_bills = _search_interest_bills(terms, max_per_interest)
-        
-        for bill in interest_bills:
+        for bill in _search_interest_bills(terms, max_per_interest):
             key = f"{bill.get('type','')}{bill.get('number','')}"
             if key not in seen_bills:
                 seen_bills.add(key)
                 bill["feed_reason"] = interest
                 bill["feed_interest"] = interest
-                feed_items.append(bill)
+                interest_pool.append(bill)
+
+    _enrich_latest_actions(interest_pool)
+    feed_items.extend(interest_pool)
     
     # ── Section 3: State bills if state is enabled ──
     if state_code and state_code.upper() in ENABLED_STATES:
@@ -180,6 +186,51 @@ def fetch_feed(interests, senator_bioguides, rep_bioguide, days_back=30, max_per
         set_disk_cache(db_key, feed_items)
 
     return feed_items
+
+def _fetch_bill_detail(congress, bill_type, number):
+    url = f"https://api.congress.gov/v3/bill/{congress}/{bill_type}/{number}"
+    try:
+        r = requests.get(url, params={"api_key": CONGRESS_API_KEY, "format": "json"}, timeout=8)
+        if r.status_code != 200:
+            return None
+        return r.json().get("bill") or {}
+    except Exception:
+        return None
+
+
+def _enrich_latest_actions(bills):
+    """Populate latest_action, latest_action_date, is_law, law_number in parallel."""
+    if not bills:
+        return
+    with ThreadPoolExecutor(max_workers=8) as ex:
+        futures = {
+            ex.submit(_fetch_bill_detail, b.get("congress"), b.get("type"), b.get("number")): b
+            for b in bills
+        }
+        for fut in as_completed(futures):
+            bill = futures[fut]
+            detail = fut.result()
+            if not detail:
+                continue
+            la = detail.get("latestAction") or {}
+            bill["latest_action"] = la.get("text", "") or bill.get("latest_action", "")
+            bill["latest_action_date"] = la.get("actionDate", "") or bill.get("latest_action_date", "")
+            laws = detail.get("laws") or []
+            if laws:
+                bill["is_law"] = True
+                law_num = (laws[0].get("number") or "").split("-")[-1]
+                if law_num:
+                    bill["law_number"] = law_num
+            sponsors = detail.get("sponsors") or []
+            if sponsors and not bill.get("sponsor_name"):
+                s = sponsors[0]
+                name = s.get("fullName") or s.get("directOrderName") or ""
+                party = s.get("party") or ""
+                state = s.get("state") or ""
+                tag = f" ({party}-{state})" if party and state else ""
+                bill["sponsor_name"] = f"{name}{tag}".strip()
+                bill["sponsor_bioguide"] = s.get("bioguideId") or bill.get("sponsor_bioguide")
+
 
 def _fetch_rep_bills(bioguide_ids, days_back=180):
     bills = []

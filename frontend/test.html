@@ -41,8 +41,67 @@
     <div class="command-row">
       <input class="command-input" type="text"
         placeholder="Try: 'housing affordability bills', 'Ted Kennedy', 'what passed this week?'" />
-      <button class="command-jurisdiction">Federal</button>
-      <button class="command-go">Search →</button>
+      <button class="command-jurisdiction active" id="jur-federal">Federal</button>
+      <div class="command-state" id="state-picker" tabindex="0">
+        <span class="state-cur" id="state-cur">VA</span>
+        <div class="state-pop" id="state-pop" role="listbox" aria-label="Choose state">
+          <button class="state-pop-arrow" id="state-up" aria-label="Scroll up">▲</button>
+          <div class="state-pop-cells">
+            <div class="state-cell state-prev" data-rel="-1"></div>
+            <div class="state-cell state-cur-cell" data-rel="0"></div>
+            <div class="state-cell state-next" data-rel="1"></div>
+          </div>
+          <button class="state-pop-arrow" id="state-down" aria-label="Scroll down">▼</button>
+        </div>
+      </div>
+      <button class="command-go" id="search-go">Search →</button>
+    </div>
+    <div class="search-dropdown" id="search-dropdown" hidden>
+      <div class="search-drop-head">
+        <span class="search-drop-title">Results</span>
+        <span class="search-drop-meta" id="search-drop-meta">12 bills · sorted by stage · 119th Congress</span>
+        <button class="search-drop-close" id="search-drop-close" aria-label="Close">✕</button>
+      </div>
+      <a class="search-drop-row" onclick="nav('bill')">
+        <span class="sd-id">H.R. 4838</span>
+        <span class="sd-title">Medicaid Eligibility Streamlining Act</span>
+        <span class="sd-meta">Sponsored by Rep. Spanberger · 38 cosponsors</span>
+        <span class="feed-status status-passed">Passed House</span>
+      </a>
+      <a class="search-drop-row" onclick="nav('bill')">
+        <span class="sd-id">S. 1402</span>
+        <span class="sd-title">Interstate Pharmacy Practice Act</span>
+        <span class="sd-meta">Sponsored by Sen. Warner (D-VA) · 12 cosponsors</span>
+        <span class="feed-status status-active">In Committee</span>
+      </a>
+      <a class="search-drop-row" onclick="nav('bill')">
+        <span class="sd-id">H.R. 217</span>
+        <span class="sd-title">Veteran Disability Backlog Reduction</span>
+        <span class="sd-meta">Now Public Law 119-61 · Signed June 13, 2026</span>
+        <span class="feed-status status-enacted">P.L. 119-61</span>
+      </a>
+      <a class="search-drop-row" onclick="nav('bill')">
+        <span class="sd-id">H.R. 992</span>
+        <span class="sd-title">Insulin Affordability Act of 2026</span>
+        <span class="sd-meta">Sponsored by Rep. DeLauro (D-CT) · Energy &amp; Commerce</span>
+        <span class="feed-status status-muted">Introduced</span>
+      </a>
+      <a class="search-drop-row" onclick="nav('bill')">
+        <span class="sd-id">HJRES 27</span>
+        <span class="sd-title">CRA Resolution on HUD Rental Assistance Rule</span>
+        <span class="sd-meta">House Rules Committee · Vote expected Thursday</span>
+        <span class="feed-status status-active">Vote Scheduled</span>
+      </a>
+      <a class="search-drop-row" onclick="nav('bill')">
+        <span class="sd-id">S. 2208</span>
+        <span class="sd-title">Rural Hospital Stabilization Act</span>
+        <span class="sd-meta">Sponsored by Sen. Tester (D-MT) · Reported by Finance</span>
+        <span class="feed-status status-active">Reported</span>
+      </a>
+      <div class="search-drop-foot">
+        <a class="search-drop-more" onclick="nav('bill')">View all 12 results →</a>
+        <span class="search-drop-tip">Tip: refine with quoted phrases, e.g. <em>"public housing"</em></span>
+      </div>
     </div>
     <div class="command-pills">
       <span class="pills-label">Suggestions</span>
@@ -836,16 +895,218 @@
     <div class="bill-section-label">Polling Snapshot · U.S. Senate (D)</div>
     <div class="poll-card">
       <div class="poll-leader">
-        <span class="poll-label">Leader</span>
+        <span class="poll-label">Aggregate leader</span>
         <span class="poll-leader-name">Mark Warner</span>
         <span class="poll-margin">+11.4</span>
+        <span class="poll-leader-sub">avg. of 6 polls · last 30 days</span>
       </div>
       <div class="poll-rows">
         <div class="poll-row"><span class="poll-cand">Warner (i)</span><div class="poll-bar"><div class="poll-fill party-d" style="width:48%"></div></div><span class="poll-pct">48.2%</span></div>
         <div class="poll-row"><span class="poll-cand">Connolly</span><div class="poll-bar"><div class="poll-fill party-d" style="width:36%"></div></div><span class="poll-pct">36.8%</span></div>
         <div class="poll-row"><span class="poll-cand">Undecided</span><div class="poll-bar"><div class="poll-fill" style="width:15%;background:var(--rule)"></div></div><span class="poll-pct">15.0%</span></div>
       </div>
-      <p class="poll-summary">Mark Warner leads by 11 points in the most recent RCP average; race remains competitive in NoVA suburbs.</p>
+      <p class="poll-summary">Warner leads by 11 points in the rolling aggregate. Connolly has narrowed the gap by 3 points over the last 14 days; race remains competitive in NoVA suburbs.</p>
+    </div>
+
+    <div class="poll-sources-head">
+      <span class="poll-sources-title">Recent polls · 6 sources</span>
+      <span class="poll-sources-note">±MoE shown where reported · methodology varies</span>
+    </div>
+    <div class="poll-table">
+      <div class="poll-thead">
+        <span>Pollster</span><span>Released</span><span>Sample</span><span>Method</span><span>Warner</span><span>Connolly</span><span>Margin</span>
+      </div>
+      <div class="poll-trow">
+        <span class="poll-source"><span class="poll-grade grade-a">A</span>NYT / Siena</span>
+        <span>Jun 14</span><span>812 LV · ±3.4</span><span>Live phone</span>
+        <span class="poll-num">49</span><span class="poll-num">37</span><span class="poll-mar party-d">D +12</span>
+      </div>
+      <div class="poll-trow">
+        <span class="poll-source"><span class="poll-grade grade-a">A−</span>Marist</span>
+        <span>Jun 11</span><span>914 RV · ±3.2</span><span>Live phone</span>
+        <span class="poll-num">48</span><span class="poll-num">38</span><span class="poll-mar party-d">D +10</span>
+      </div>
+      <div class="poll-trow">
+        <span class="poll-source"><span class="poll-grade grade-b">B+</span>Emerson</span>
+        <span>Jun 9</span><span>650 LV · ±3.8</span><span>IVR + online</span>
+        <span class="poll-num">47</span><span class="poll-num">36</span><span class="poll-mar party-d">D +11</span>
+      </div>
+      <div class="poll-trow">
+        <span class="poll-source"><span class="poll-grade grade-b">B</span>Roanoke College</span>
+        <span>Jun 6</span><span>721 LV · ±3.6</span><span>Live phone</span>
+        <span class="poll-num">48</span><span class="poll-num">35</span><span class="poll-mar party-d">D +13</span>
+      </div>
+      <div class="poll-trow">
+        <span class="poll-source"><span class="poll-grade grade-b">B</span>Public Policy Polling</span>
+        <span>Jun 2</span><span>698 RV · ±3.7</span><span>IVR</span>
+        <span class="poll-num">46</span><span class="poll-num">38</span><span class="poll-mar party-d">D +8</span>
+      </div>
+      <div class="poll-trow">
+        <span class="poll-source"><span class="poll-grade grade-c">C+</span>Trafalgar Group</span>
+        <span>May 30</span><span>1,022 LV · ±2.9</span><span>Mixed mode</span>
+        <span class="poll-num">45</span><span class="poll-num">39</span><span class="poll-mar party-d">D +6</span>
+      </div>
+    </div>
+
+    <div class="poll-trend">
+      <div class="poll-trend-head">
+        <span class="poll-trend-title">Margin trend · last 90 days</span>
+        <span class="poll-trend-key"><span class="trend-dot party-d"></span> Warner lead (pts)</span>
+      </div>
+      <div class="poll-trend-chart">
+        <div class="trend-col"><div class="trend-bar" style="height:62%"></div><div class="trend-x">Mar</div></div>
+        <div class="trend-col"><div class="trend-bar" style="height:70%"></div><div class="trend-x">·</div></div>
+        <div class="trend-col"><div class="trend-bar" style="height:74%"></div><div class="trend-x">Apr</div></div>
+        <div class="trend-col"><div class="trend-bar" style="height:78%"></div><div class="trend-x">·</div></div>
+        <div class="trend-col"><div class="trend-bar" style="height:82%"></div><div class="trend-x">May</div></div>
+        <div class="trend-col"><div class="trend-bar" style="height:76%"></div><div class="trend-x">·</div></div>
+        <div class="trend-col"><div class="trend-bar" style="height:68%"></div><div class="trend-x">·</div></div>
+        <div class="trend-col"><div class="trend-bar" style="height:60%"></div><div class="trend-x">Jun</div></div>
+        <div class="trend-col"><div class="trend-bar" style="height:57%;background:var(--accent)"></div><div class="trend-x">Now</div></div>
+      </div>
+      <p class="poll-trend-note">Warner peaked at +16 in mid-May after the Roanoke debate. Connolly's post-Memorial Day ad buy in DMA-511 has closed the margin to single digits in two of the last three surveys.</p>
+    </div>
+  </section>
+
+  <section class="bill-section">
+    <div class="bill-section-label">Money &amp; Momentum · Q2 FEC filings</div>
+    <div class="money-grid">
+      <div class="money-card party-d">
+        <div class="money-name">Mark Warner</div>
+        <div class="money-stats">
+          <div><span class="money-num">$8.4M</span><span class="money-label">Raised this cycle</span></div>
+          <div><span class="money-num">$5.1M</span><span class="money-label">Cash on hand</span></div>
+          <div><span class="money-num">$2.9M</span><span class="money-label">Ad spend (90d)</span></div>
+          <div><span class="money-num">62%</span><span class="money-label">In-state donors</span></div>
+        </div>
+      </div>
+      <div class="money-card party-d">
+        <div class="money-name">Gerald Connolly</div>
+        <div class="money-stats">
+          <div><span class="money-num">$3.7M</span><span class="money-label">Raised this cycle</span></div>
+          <div><span class="money-num">$1.8M</span><span class="money-label">Cash on hand</span></div>
+          <div><span class="money-num">$1.4M</span><span class="money-label">Ad spend (90d)</span></div>
+          <div><span class="money-num">48%</span><span class="money-label">In-state donors</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="poll-summary">Outside spending: $2.1M in pro-Warner ads from SMP-affiliated PACs; $640K in anti-Warner ads from Working Families–aligned group "Virginians for Bold Change."</p>
+  </section>
+
+  <section class="bill-section">
+    <div class="bill-section-label">Where They Stand · Senate (D) primary</div>
+    <div class="stance-table">
+      <div class="stance-head">
+        <span>Issue</span><span>Warner</span><span>Connolly</span>
+      </div>
+      <div class="stance-row">
+        <span class="stance-issue">Medicare expansion to age 60</span>
+        <span class="stance-cell stance-mixed">Studying</span>
+        <span class="stance-cell stance-for">Supports</span>
+      </div>
+      <div class="stance-row">
+        <span class="stance-issue">Federal codification of <em>Roe</em></span>
+        <span class="stance-cell stance-for">Supports</span>
+        <span class="stance-cell stance-for">Supports</span>
+      </div>
+      <div class="stance-row">
+        <span class="stance-issue">Ban on congressional stock trading</span>
+        <span class="stance-cell stance-against">Opposes</span>
+        <span class="stance-cell stance-for">Supports</span>
+      </div>
+      <div class="stance-row">
+        <span class="stance-issue">Filibuster reform (talking filibuster)</span>
+        <span class="stance-cell stance-mixed">Open</span>
+        <span class="stance-cell stance-for">Supports</span>
+      </div>
+      <div class="stance-row">
+        <span class="stance-issue">$15 federal minimum wage</span>
+        <span class="stance-cell stance-for">Supports</span>
+        <span class="stance-cell stance-for">Supports</span>
+      </div>
+      <div class="stance-row">
+        <span class="stance-issue">Continued Ukraine aid package</span>
+        <span class="stance-cell stance-for">Supports</span>
+        <span class="stance-cell stance-mixed">Conditional</span>
+      </div>
+    </div>
+    <p class="poll-summary">Sources: candidates' public statements, ProPublica vote history (Warner), and 2025 candidate questionnaires from VA League of Conservation Voters &amp; AFSCME Local 3001.</p>
+  </section>
+
+  <section class="bill-section">
+    <div class="bill-section-label">Endorsements</div>
+    <div class="endorse-grid">
+      <div class="endorse-card party-d">
+        <div class="endorse-name">Mark Warner</div>
+        <div class="endorse-count">47 endorsements</div>
+        <ul class="endorse-list">
+          <li>Gov. Ralph Northam (former)</li>
+          <li>Sen. Tim Kaine</li>
+          <li>VA AFL-CIO</li>
+          <li>Planned Parenthood Virginia</li>
+          <li>Brady Campaign</li>
+          <li class="endorse-more">+ 42 more</li>
+        </ul>
+      </div>
+      <div class="endorse-card party-d">
+        <div class="endorse-name">Gerald Connolly</div>
+        <div class="endorse-count">19 endorsements</div>
+        <ul class="endorse-list">
+          <li>Rep. Don Beyer</li>
+          <li>SEIU Local 512</li>
+          <li>Working Families Party — VA</li>
+          <li>Sunrise Movement Virginia</li>
+          <li>Sierra Club VA Chapter</li>
+          <li class="endorse-more">+ 14 more</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="bill-section">
+    <div class="bill-section-label">Voter Sentiment · Top issues, VA Democrats</div>
+    <div class="issue-bars">
+      <div class="issue-row"><span class="issue-name">Cost of living &amp; inflation</span><div class="issue-bar"><div class="issue-fill" style="width:72%"></div></div><span class="issue-pct">72%</span></div>
+      <div class="issue-row"><span class="issue-name">Healthcare access</span><div class="issue-bar"><div class="issue-fill" style="width:61%"></div></div><span class="issue-pct">61%</span></div>
+      <div class="issue-row"><span class="issue-name">Abortion rights</span><div class="issue-bar"><div class="issue-fill" style="width:58%"></div></div><span class="issue-pct">58%</span></div>
+      <div class="issue-row"><span class="issue-name">Public schools &amp; education</span><div class="issue-bar"><div class="issue-fill" style="width:44%"></div></div><span class="issue-pct">44%</span></div>
+      <div class="issue-row"><span class="issue-name">Gun violence</span><div class="issue-bar"><div class="issue-fill" style="width:39%"></div></div><span class="issue-pct">39%</span></div>
+      <div class="issue-row"><span class="issue-name">Climate &amp; energy</span><div class="issue-bar"><div class="issue-fill" style="width:31%"></div></div><span class="issue-pct">31%</span></div>
+    </div>
+    <p class="poll-summary">Wason Center / CNU Judy Ford Wason Center for Public Policy, May 22–28, 2026 (n=1,104 likely D primary voters). Respondents picked up to 3.</p>
+  </section>
+
+  <section class="bill-section">
+    <div class="bill-section-label">Recent Events &amp; News</div>
+    <div class="news-feed">
+      <div class="news-row">
+        <div class="news-date">Jun 15</div>
+        <div class="news-body">
+          <div class="news-headline">Connolly outraises Warner in 48 hours after Roanoke debate clip goes viral</div>
+          <div class="news-src">Virginia Mercury · 2 days ago</div>
+        </div>
+      </div>
+      <div class="news-row">
+        <div class="news-date">Jun 13</div>
+        <div class="news-body">
+          <div class="news-headline">Roanoke College debate: candidates clash on Medicare expansion, congressional stock ban</div>
+          <div class="news-src">WSLS-10 · 4 days ago</div>
+        </div>
+      </div>
+      <div class="news-row">
+        <div class="news-date">Jun 9</div>
+        <div class="news-body">
+          <div class="news-headline">Brady Campaign endorses Warner, citing 2024 background-check bill cosponsorship</div>
+          <div class="news-src">AP · 8 days ago</div>
+        </div>
+      </div>
+      <div class="news-row upcoming">
+        <div class="news-date">Jun 22</div>
+        <div class="news-body">
+          <div class="news-headline upcoming-tag">Upcoming · Norfolk debate (WHRO, 7:00 PM)</div>
+          <div class="news-src">Final scheduled debate before the August primary</div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -1093,6 +1354,98 @@
     });
   }
   makeDots(document.getElementById('vote-house'), 434, 218, 209, 7);
+
+  // ── State picker ──────────────────────────────────────────────
+  const STATES = ['ALL','AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY'];
+  const $fed = document.getElementById('jur-federal');
+  function setJurisdiction(which) {
+    $fed.classList.toggle('active', which === 'federal');
+    document.getElementById('state-picker').classList.toggle('active', which === 'state');
+  }
+  $fed.addEventListener('click', () => setJurisdiction('federal'));
+
+  // ── Search dropdown ──
+  const $go    = document.getElementById('search-go');
+  const $drop  = document.getElementById('search-dropdown');
+  const $close = document.getElementById('search-drop-close');
+  const $meta  = document.getElementById('search-drop-meta');
+  function openSearchDrop() {
+    const jur = $fed.classList.contains('active')
+      ? 'Federal · 119th Congress'
+      : `${STATES[stateIdx]} legislature`;
+    $meta.textContent = `12 bills · sorted by stage · ${jur}`;
+    $drop.hidden = false;
+    $drop.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+  function closeSearchDrop() { $drop.hidden = true; }
+  $go.addEventListener('click',    e => { e.preventDefault(); openSearchDrop(); });
+  $close.addEventListener('click', e => { e.preventDefault(); closeSearchDrop(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSearchDrop(); });
+  let stateIdx = STATES.indexOf('VA');
+  const $picker = document.getElementById('state-picker');
+  const $cur    = document.getElementById('state-cur');
+  const $up     = document.getElementById('state-up');
+  const $down   = document.getElementById('state-down');
+  const $cells  = $picker.querySelectorAll('.state-cell');
+
+  function renderPicker() {
+    $cur.textContent = STATES[stateIdx];
+    $cells.forEach(c => {
+      const rel = parseInt(c.dataset.rel);
+      const i = stateIdx + rel;
+      if (i < 0 || i >= STATES.length) {
+        c.textContent = '';
+        c.classList.add('empty');
+        c.dataset.idx = '';
+      } else {
+        c.textContent = STATES[i];
+        c.classList.remove('empty');
+        c.dataset.idx = String(i);
+      }
+    });
+    $up.classList.toggle('disabled', stateIdx <= 0);
+    $down.classList.toggle('disabled', stateIdx >= STATES.length - 1);
+  }
+  renderPicker();
+
+  function shift(delta) {
+    const next = Math.max(0, Math.min(STATES.length - 1, stateIdx + delta));
+    if (next === stateIdx) return;
+    stateIdx = next;
+    renderPicker();
+    setJurisdiction('state');
+  }
+  $cur.addEventListener('click', () => setJurisdiction('state'));
+
+  $up.addEventListener('click',   e => { e.stopPropagation(); shift(-1); });
+  $down.addEventListener('click', e => { e.stopPropagation(); shift(1); });
+
+  $picker.addEventListener('wheel', e => {
+    if (!$picker.matches(':hover, :focus-within')) return;
+    e.preventDefault();
+    shift(e.deltaY > 0 ? 1 : -1);
+  }, { passive: false });
+
+  $cells.forEach(c => c.addEventListener('click', e => {
+    e.stopPropagation();
+    if (!c.dataset.idx) return;
+    stateIdx = parseInt(c.dataset.idx);
+    renderPicker();
+    setJurisdiction('state');
+  }));
+
+  $picker.addEventListener('keydown', e => {
+    if (e.key === 'ArrowUp')   { e.preventDefault(); shift(-1); return; }
+    if (e.key === 'ArrowDown') { e.preventDefault(); shift(1);  return; }
+    if (!/^[a-zA-Z]$/.test(e.key)) return;
+    const letter = e.key.toUpperCase();
+    const start = (stateIdx + 1) % STATES.length;
+    const order = [...STATES.slice(start), ...STATES.slice(0, start)];
+    const hit = order.findIndex(s => s !== 'ALL' && s.startsWith(letter));
+    if (hit < 0) return;
+    stateIdx = STATES.indexOf(order[hit]);
+    renderPicker();
+  });
 </script>
 
 </body>

@@ -28,6 +28,7 @@ from analyst_agent import analyze
 from flag_logger import log_search_flag, log_bill_flag, get_flags
 from feed_agent import fetch_feed
 from civic_resolver import resolve_zip
+import search_cache
 import httpx
 import asyncio
 import anthropic
@@ -109,7 +110,15 @@ app.add_middleware(
 )
 
 app.include_router(correspondence_router)
-app.mount("/static", StaticFiles(directory="frontend"), name="static")
+
+class CachedStaticFiles(StaticFiles):
+    async def get_response(self, path, scope):
+        response = await super().get_response(path, scope)
+        if response.status_code == 200:
+            response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+        return response
+
+app.mount("/static", CachedStaticFiles(directory="frontend"), name="static")
 
 client = None
 
@@ -152,6 +161,7 @@ class SearchRequest(BaseModel):
     full_history: bool = False
     state_code: Optional[str] = None
     before_congress: Optional[int] = None  # history starts before this congress number
+    fresh: bool = False  # debug: bypass search cache for this request
 
 
 class BillRequest(BaseModel):
@@ -412,6 +422,33 @@ async def handle_specific_bill(structured, question):
 async def handle_named_entity_search(structured, question, loop):
     named_entity = structured.get("named_entity") or question
 
+    sc_key = None
+    if not (structured.get("_bypass_search_cache") or search_cache.is_freshness_query(structured, question)):
+        sc_key = search_cache.cache_key(
+            {**structured, "keywords": [named_entity]},
+            question,
+            structured.get("result_count", 5),
+        )
+        cached = search_cache.get(sc_key)
+        if cached:
+            results = await loop.run_in_executor(None, search_cache.rehydrate, cached)
+            log_search(
+                query=question,
+                query_type="named_entity",
+                expanded_terms=[],
+                results_count=len(results),
+                result_ids=[f"{r.get('type', '')}{r.get('number', '')}" for r in results],
+                confidence=structured.get("confidence", 1.0),
+            )
+            return {
+                "query_type": "legislation",
+                "confidence": structured.get("confidence", 1.0),
+                "ambiguity_reason": structured.get("ambiguity_reason"),
+                "query": structured,
+                "results": results,
+                "cached": True,
+            }
+
     title_results = await loop.run_in_executor(None, search_by_title, named_entity, 3)
 
     if len(title_results) < 2:
@@ -460,16 +497,54 @@ async def handle_named_entity_search(structured, question, loop):
         confidence=confidence,
     )
 
+    if sc_key and final:
+        await loop.run_in_executor(None, search_cache.store, sc_key, final)
+
     return {
         "query_type": "legislation",
         "confidence": confidence,
         "ambiguity_reason": ambiguity_reason,
         "query": structured,
         "results": final,
+        "cached": False,
     }
 
 
 async def handle_legislation_search(structured, question, loop):
+    full_history = structured.get("full_history", False)
+    max_results_override = structured.get("max_results_override")
+
+    # Tier-1 cache: skip the expander + fetch + validator if we've seen this
+    # query recently and it's not freshness-sensitive.
+    cache_target = structured.get("result_count", 5)
+    bypass = (
+        full_history
+        or structured.get("_bypass_search_cache")
+        or search_cache.is_freshness_query(structured, question)
+    )
+    sc_key = None
+    if not bypass:
+        sc_key = search_cache.cache_key(structured, question, cache_target)
+        cached = search_cache.get(sc_key)
+        if cached:
+            results = await loop.run_in_executor(None, search_cache.rehydrate, cached)
+            log_search(
+                query=question,
+                query_type="legislation",
+                expanded_terms=[],
+                results_count=len(results),
+                result_ids=[f"{r.get('type', '')}{r.get('number', '')}" for r in results],
+                confidence=structured.get("confidence", 1.0),
+            )
+            return {
+                "query_type": "legislation",
+                "confidence": structured.get("confidence", 1.0),
+                "ambiguity_reason": structured.get("ambiguity_reason"),
+                "query": structured,
+                "results": results,
+                "cached": True,
+            }
+
     expanded = await loop.run_in_executor(
         None,
         expand_query,
@@ -479,9 +554,6 @@ async def handle_legislation_search(structured, question, loop):
     )
     structured["expanded_terms"] = expanded or []
     structured["original_question"] = question
-
-    full_history = structured.get("full_history", False)
-    max_results_override = structured.get("max_results_override")
 
     if full_history:
         max_results = max_results_override or 50
@@ -576,12 +648,16 @@ async def handle_legislation_search(structured, question, loop):
         output_data={"results_count": len(raw_results)},
     )
 
+    if sc_key and raw_results:
+        await loop.run_in_executor(None, search_cache.store, sc_key, raw_results)
+
     return {
         "query_type": "legislation",
         "confidence": structured.get("confidence", 1.0),
         "ambiguity_reason": structured.get("ambiguity_reason"),
         "query": structured,
         "results": raw_results,
+        "cached": False,
     }
 
 
@@ -862,6 +938,7 @@ async def search(request: Request, body: SearchRequest):
         )
         structured["full_history"] = body.full_history
         structured["max_results_override"] = body.max_results if body.full_history else None
+        structured["_bypass_search_cache"] = bool(body.fresh)
         if body.full_history and body.before_congress:
             structured["before_congress"] = body.before_congress
         loop = asyncio.get_event_loop()
@@ -1430,6 +1507,11 @@ async def root():
     return FileResponse("frontend/index.html")
 
 
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    return Response(status_code=204)
+
+
 @app.get("/test")
 async def test_home():
     return FileResponse("frontend/test.html")
@@ -1568,6 +1650,13 @@ async def clear_search_log(request: Request):
     with open("search_log.json", "w") as f:
         json.dump([], f)
     return {"status": "cleared"}
+
+
+@app.post("/monitor/clear-search-cache")
+async def clear_search_cache_endpoint(request: Request):
+    _require_monitor_auth(request)
+    n = search_cache.clear()
+    return {"status": "cleared", "entries_removed": n}
 
 
 @app.get("/monitor/analysis")

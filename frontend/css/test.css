@@ -1913,3 +1913,623 @@ footer.footer {
   line-height: 1.5;
   color: var(--muted);
 }
+
+/* ── Election detail — additions ────────────────────────────────── */
+.poll-leader-sub {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-left: auto;
+}
+
+.poll-sources-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 1.6rem 0 0.6rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--rule);
+}
+.poll-sources-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink);
+  font-weight: 600;
+}
+.poll-sources-note {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--muted);
+}
+
+.poll-table {
+  display: grid;
+  grid-template-columns: 1.8fr 0.9fr 1.4fr 1.2fr 0.7fr 0.7fr 0.8fr;
+  border-top: 2px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.78rem;
+}
+.poll-thead {
+  display: contents;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.poll-thead > span {
+  padding: 0.55rem 0.6rem;
+  border-bottom: 1px solid var(--rule);
+  background: rgba(0,0,0,0.02);
+  font-weight: 500;
+}
+.poll-trow {
+  display: contents;
+}
+.poll-trow > span {
+  padding: 0.7rem 0.6rem;
+  border-bottom: 1px solid var(--rule);
+  display: flex;
+  align-items: center;
+}
+.poll-trow:last-child > span { border-bottom: none; }
+.poll-source {
+  font-weight: 500;
+  color: var(--ink);
+  gap: 0.5rem;
+}
+.poll-grade {
+  display: inline-block;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 0.15rem 0.32rem;
+  border: 1px solid var(--ink);
+  color: var(--ink);
+  min-width: 1.6rem;
+  text-align: center;
+}
+.poll-grade.grade-a { background: #d8e6d3; }
+.poll-grade.grade-b { background: #f0eacb; }
+.poll-grade.grade-c { background: #ead4c8; }
+.poll-num {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.poll-mar {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.poll-mar.party-d { color: #1a4fa0; }
+.poll-mar.party-r { color: var(--accent); }
+@media (max-width: 780px) {
+  .poll-table { grid-template-columns: 1.6fr 0.9fr 0.6fr 0.6fr 0.7fr; }
+  .poll-thead > span:nth-child(3),
+  .poll-thead > span:nth-child(4),
+  .poll-trow > span:nth-child(3),
+  .poll-trow > span:nth-child(4) { display: none; }
+}
+
+.poll-trend {
+  margin-top: 1.6rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--rule);
+}
+.poll-trend-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+}
+.poll-trend-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ink);
+}
+.poll-trend-key {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.trend-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  display: inline-block;
+}
+.trend-dot.party-d { background: #1a4fa0; }
+.poll-trend-chart {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 0.45rem;
+  height: 160px;
+  align-items: end;
+  border-bottom: 1px solid var(--ink);
+  padding: 0 0.2rem;
+}
+.trend-col {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  height: 100%;
+  justify-content: flex-end;
+}
+.trend-bar {
+  background: #1a4fa0;
+  width: 100%;
+  min-height: 4px;
+}
+.trend-x {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 0.4rem;
+}
+.poll-trend-note {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 0.9rem;
+}
+
+/* Money */
+.money-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 0.6rem;
+}
+@media (max-width: 720px) { .money-grid { grid-template-columns: 1fr; } }
+.money-card {
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--rule);
+  padding: 1rem 1.1rem;
+  background: rgba(255,255,255,0.35);
+}
+.money-card.party-d { border-left-color: #1a4fa0; }
+.money-card.party-r { border-left-color: var(--accent); }
+.money-name {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 0.7rem;
+}
+.money-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem 1rem;
+}
+.money-stats > div { display: flex; flex-direction: column; }
+.money-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.money-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 0.15rem;
+}
+
+/* Stance comparison */
+.stance-table {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  border-top: 2px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+  margin-bottom: 0.6rem;
+}
+.stance-head {
+  display: contents;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.stance-head > span {
+  padding: 0.55rem 0.7rem;
+  border-bottom: 1px solid var(--rule);
+  background: rgba(0,0,0,0.02);
+  font-weight: 500;
+}
+.stance-row { display: contents; }
+.stance-row > span {
+  padding: 0.75rem 0.7rem;
+  border-bottom: 1px solid var(--rule);
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 0.92rem;
+}
+.stance-row:last-child > span { border-bottom: none; }
+.stance-issue { color: var(--ink); }
+.stance-cell {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.stance-for { color: #1a4fa0; }
+.stance-against { color: var(--accent); }
+.stance-mixed { color: var(--muted); }
+
+/* Endorsements */
+.endorse-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+@media (max-width: 720px) { .endorse-grid { grid-template-columns: 1fr; } }
+.endorse-card {
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--rule);
+  padding: 1rem 1.1rem;
+}
+.endorse-card.party-d { border-left-color: #1a4fa0; }
+.endorse-card.party-r { border-left-color: var(--accent); }
+.endorse-name {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.endorse-count {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.7rem;
+}
+.endorse-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.endorse-list li {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 0.88rem;
+  padding: 0.32rem 0;
+  border-bottom: 1px dotted var(--rule);
+  color: var(--ink);
+}
+.endorse-list li:last-child { border-bottom: none; }
+.endorse-more {
+  font-style: italic;
+  color: var(--muted) !important;
+}
+
+/* Voter sentiment bars */
+.issue-bars {
+  display: grid;
+  gap: 0.6rem;
+  margin-bottom: 0.6rem;
+}
+.issue-row {
+  display: grid;
+  grid-template-columns: 12rem 1fr 3.2rem;
+  align-items: center;
+  gap: 0.8rem;
+}
+@media (max-width: 720px) {
+  .issue-row { grid-template-columns: 1fr 2.5rem; }
+  .issue-row .issue-bar { grid-column: 1 / -1; order: 3; }
+}
+.issue-name {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+.issue-bar {
+  height: 0.6rem;
+  background: var(--rule);
+  position: relative;
+}
+.issue-fill {
+  height: 100%;
+  background: var(--ink);
+}
+.issue-pct {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--ink);
+  text-align: right;
+}
+
+/* News feed */
+.news-feed {
+  border-top: 1px solid var(--rule);
+}
+.news-row {
+  display: grid;
+  grid-template-columns: 4rem 1fr;
+  gap: 1rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+.news-date {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding-top: 0.15rem;
+}
+.news-headline {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 0.98rem;
+  line-height: 1.4;
+  color: var(--ink);
+}
+.news-src {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 0.25rem;
+}
+.news-row.upcoming { background: rgba(139,26,26,0.04); }
+.upcoming-tag::before {
+  content: 'UPCOMING · ';
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ── State picker on the command bar ─────────────────────────── */
+.command-state {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  border-left: 1px solid var(--rule);
+  background: white;
+  cursor: pointer;
+  outline: none;
+}
+.command-state:hover,
+.command-state:focus-within { background: var(--aged); }
+.state-cur {
+  padding: 0 1rem;
+  display: flex;
+  align-items: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  font-weight: 600;
+  color: var(--ink);
+  text-transform: uppercase;
+  min-width: 3.4rem;
+  justify-content: center;
+}
+.state-cur::after {
+  content: '▾';
+  margin-left: 0.4rem;
+  font-size: 0.6rem;
+  color: var(--muted);
+  letter-spacing: 0;
+}
+
+.state-pop {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5.4rem;
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  box-shadow: 2px 4px 0 rgba(0,0,0,0.12);
+  display: none;
+  flex-direction: column;
+  z-index: 50;
+  padding: 0.25rem 0;
+}
+.command-state:hover .state-pop,
+.command-state:focus-within .state-pop,
+.state-pop:hover { display: flex; }
+
+.state-pop-arrow {
+  background: transparent;
+  border: none;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0.2rem 0;
+  letter-spacing: 0;
+  transition: color 0.15s;
+}
+.state-pop-arrow:hover { color: var(--ink); }
+.state-pop-arrow.disabled { opacity: 0.25; cursor: default; pointer-events: none; }
+
+.state-pop-cells {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+.state-cell {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.82rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 0.5rem 0;
+  color: var(--muted);
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.12s, color 0.12s;
+}
+.state-cell.empty { visibility: hidden; }
+.state-cell:hover { background: var(--aged); color: var(--ink); }
+.state-cur-cell {
+  background: var(--ink);
+  color: var(--paper) !important;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+.state-cur-cell:hover { background: var(--ink); color: var(--paper) !important; }
+
+/* Active jurisdiction toggle (Federal ↔ State) */
+.command-jurisdiction.active {
+  background: var(--ink);
+  color: var(--paper);
+}
+.command-state.active {
+  background: var(--ink);
+}
+.command-state.active .state-cur {
+  color: var(--paper);
+}
+.command-state.active .state-cur::after {
+  color: var(--paper);
+}
+.command-jurisdiction,
+.command-state .state-cur {
+  transition: background 0.15s, color 0.15s;
+}
+
+/* ── Search results dropdown ─────────────────────────────────── */
+.search-dropdown {
+  margin-top: 0.8rem;
+  border: 1.5px solid var(--ink);
+  background: var(--paper);
+  box-shadow: 3px 5px 0 rgba(0,0,0,0.12);
+}
+.search-dropdown[hidden] { display: none; }
+.search-drop-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.8rem;
+  padding: 0.6rem 1rem;
+  border-bottom: 2px solid var(--ink);
+  background: rgba(0,0,0,0.03);
+}
+.search-drop-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--ink);
+}
+.search-drop-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  flex: 1;
+}
+.search-drop-close {
+  background: none;
+  border: none;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.9rem;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0 0.2rem;
+  line-height: 1;
+}
+.search-drop-close:hover { color: var(--ink); }
+
+.search-drop-row {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr auto;
+  grid-template-rows: auto auto;
+  gap: 0.2rem 1rem;
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid var(--rule);
+  cursor: pointer;
+  transition: background 0.12s;
+  text-decoration: none;
+  color: inherit;
+}
+.search-drop-row:hover { background: var(--aged); }
+.sd-id {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+  grid-row: 1 / 2;
+}
+.sd-title {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 1rem;
+  color: var(--ink);
+  grid-row: 1 / 2;
+  grid-column: 2 / 3;
+  line-height: 1.3;
+}
+.sd-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  grid-row: 2 / 3;
+  grid-column: 2 / 3;
+}
+.search-drop-row .feed-status {
+  grid-row: 1 / 3;
+  grid-column: 3 / 4;
+  align-self: center;
+}
+
+.search-drop-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(0,0,0,0.03);
+  border-top: 1px solid var(--rule);
+}
+.search-drop-more {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+  cursor: pointer;
+}
+.search-drop-more:hover { text-decoration: underline; }
+.search-drop-tip {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-style: italic;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+@media (max-width: 720px) {
+  .search-drop-row { grid-template-columns: 1fr auto; }
+  .sd-id { grid-column: 1 / 2; }
+  .sd-title { grid-column: 1 / 2; grid-row: 2 / 3; }
+  .sd-meta { grid-column: 1 / 2; grid-row: 3 / 4; }
+  .search-drop-row .feed-status { grid-row: 1 / 4; }
+}

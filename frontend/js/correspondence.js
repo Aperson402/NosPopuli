@@ -130,9 +130,9 @@ function _renderRepPicker() {
 
   container.innerHTML = reps.map((r, i) => `
     <div class="wp-rep-row" onclick="selectRep(${i})" id="wp-rep-${i}">
-      <div class="wp-rep-label">${r.label}</div>
-      <div class="wp-rep-name">${r.name}</div>
-      <div class="wp-rep-party">${r.party || ''}</div>
+      <div class="wp-rep-label">${escapeHtml(r.label)}</div>
+      <div class="wp-rep-name">${escapeHtml(r.name)}</div>
+      <div class="wp-rep-party">${escapeHtml(r.party || '')}</div>
       ${r.contact_form
         ? '<div class="wp-rep-contact">✓ Contact form available</div>'
         : '<div class="wp-rep-contact wp-rep-noform">Contact form only</div>'}
@@ -321,13 +321,13 @@ function _renderCorrList(items) {
       <div class="corr-item" id="corr-${item.id}">
         <div class="corr-item-top">
           <div class="corr-item-meta">
-            <span class="corr-bill-id">${item.bill_id}</span>
+            <span class="corr-bill-id">${escapeHtml(item.bill_id)}</span>
             <span class="corr-sep">→</span>
-            <span class="corr-rep">${item.legislator_name}</span>
+            <span class="corr-rep">${escapeHtml(item.legislator_name)}</span>
           </div>
           <span class="corr-status ${statusClass}">${statusLabel}</span>
         </div>
-        <div class="corr-bill-title">${item.bill_title || ''}</div>
+        <div class="corr-bill-title">${escapeHtml(item.bill_title || '')}</div>
         <div class="corr-date">${date}</div>
         <div class="corr-body-preview">${(item.body || '').slice(0, 120)}…</div>
         ${item.delivery_method === 'form' ? '<div class="corr-form-note">Sent via contact form</div>' : ''}
@@ -356,7 +356,7 @@ async function checkReplies(corrId) {
 
     el.innerHTML = replies.map(r => `
       <div class="corr-reply">
-        <div class="corr-reply-from">${r.preview_text || '(No preview available)'}</div>
+        <div class="corr-reply-from">${escapeHtml(r.preview_text || '(No preview available)')}</div>
         <div class="corr-reply-date">${(r.received_at || '').slice(0, 10)}</div>
       </div>`).join('');
 

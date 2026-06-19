@@ -54,6 +54,8 @@ def resolve_zip(zip_code):
         bioguide = member['id'].get('bioguide', '')
         party = last_term.get("party", "")
         
+        start_year = (last_term.get("start") or "")[:4]
+        end_year = (last_term.get("end") or "")[:4]
         person = {
             "name": name,
             "bioguide_id": bioguide,
@@ -62,6 +64,8 @@ def resolve_zip(zip_code):
             "chamber": "Senate" if member_type == "sen" else "House",
             "contact_form": last_term.get("contact_form", ""),
             "url": last_term.get("url", ""),
+            "term_start": start_year,
+            "term_end": end_year,
         }
         
         if member_type == "sen":
