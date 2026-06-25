@@ -1145,6 +1145,169 @@ async def get_feed(request: Request, body: FeedRequest):
         )
 
 
+# ── Search dispatcher helpers ──
+#
+# These are step-by-step transformations of a SearchRequest into a structured
+# query, then a handler call. Each function does one thing so the /search
+# endpoint can read top-to-bottom in 20 lines.
+
+_PRESIDENTS = ("trump", "biden", "obama", "bush", "clinton", "reagan")
+_PRESIDENTIAL_SIGNALS = ("signed", "passed", "under", "era", "administration", "presidency", "white house")
+_CONGRESSIONAL_SIGNALS = ("voted", "sponsored", "senator", "representative", "voting record", "cosponsored")
+
+
+def _resolve_routing(body: "SearchRequest") -> dict:
+    """Pick the cheapest router that answers: state fast-path → federal fast-path → LLM."""
+    structured = None
+    if body.state_code and body.state_code.upper() in ENABLED_STATES:
+        structured = fast_route_state(body.question, body.state_code)
+    if structured is None:
+        structured = fast_route(body.question)
+    if structured is None:
+        structured = route_query(body.question, get_client(), full_history=body.full_history)
+    else:
+        print(f"[ROUTER] fast-path hit: {structured.get('_fast_path')}")
+    return structured
+
+
+def _apply_request_flags(structured: dict, body: "SearchRequest") -> None:
+    """Merge SearchRequest knobs (fresh, full_history, before_congress) into structured."""
+    structured["full_history"] = body.full_history
+    structured["max_results_override"] = body.max_results if body.full_history else None
+    structured["_bypass_search_cache"] = bool(body.fresh)
+    if body.full_history and body.before_congress:
+        structured["before_congress"] = body.before_congress
+
+
+def _apply_presidential_term_filter(structured: dict, question: str) -> None:
+    """When the question references a president by era, restrict to their Congress numbers."""
+    congresses = extract_president_congress(question)
+    if congresses:
+        structured["congress_numbers"] = congresses
+        structured["time_range"] = "presidential term"
+
+
+def _disambiguate_president_query(structured: dict, question: str) -> None:
+    """Ex-presidents have both member records and signed legislation. When the
+    user means the *legislation* (e.g. "trump signed border bills"), reclassify
+    the member query as legislation. Trump defaults to legislation when
+    ambiguous — historically he's queried more about laws than service."""
+    if structured.get("query_type") != "member":
+        return
+    entity = (structured.get("entity_name") or "").lower()
+    if not any(p in entity for p in _PRESIDENTS):
+        return
+    q = question.lower()
+    has_pres = any(s in q for s in _PRESIDENTIAL_SIGNALS)
+    has_cong = any(s in q for s in _CONGRESSIONAL_SIGNALS)
+    if (has_pres and not has_cong) or (not has_cong and "trump" in entity):
+        structured["query_type"] = "legislation"
+        structured["entity_name"] = None
+
+
+def _route_jurisdiction(structured: dict, body: "SearchRequest") -> str | None:
+    """Force state jurisdiction when state_code is set on the request, and report
+    whether the router originally thought this was a federal query (so the UI
+    can offer a 'Switch to Federal?' nudge)."""
+    if not body.state_code:
+        return None
+    router_thought_federal = (
+        structured.get("jurisdiction") == "federal"
+        and not structured.get("_fast_path")
+        and structured.get("query_type") != "off_topic"
+        and (structured.get("named_entity") or len(structured.get("keywords", [])) > 0)
+    )
+    structured["jurisdiction"] = "state"
+    structured["state_code"] = body.state_code.upper()
+    return "federal" if router_thought_federal else None
+
+
+def _off_topic_response(structured: dict, question: str) -> dict:
+    log_search(
+        query=question,
+        query_type="off_topic",
+        expanded_terms=[],
+        results_count=0,
+        result_ids=[],
+        confidence=structured.get("confidence", 1.0),
+    )
+    return {
+        "query_type": "off_topic",
+        "confidence": structured.get("confidence", 1.0),
+        "ambiguity_reason": (
+            "This doesn't look like a question about legislation, members of Congress, "
+            "or civic policy. Try a topic, bill ID (e.g. \"HR 4838\"), or a name."
+        ),
+        "query": structured,
+        "results": [],
+        "cached": False,
+    }
+
+
+async def _dispatch_legislation_subtype(structured: dict, question: str, loop) -> dict:
+    """Route the *legislation* family by subtype. Caller has already handled
+    member, committee, specific_bill, off_topic, and state-jurisdiction."""
+    subtype = structured.get("query_subtype", "concept")
+    log_action(
+        agent_name="dispatcher",
+        action=subtype,
+        input_data={"question": question, "congress": structured.get("congress_numbers")},
+        output_data={},
+    )
+    if structured.get("full_history"):
+        return await handle_legislation_search(structured, question, loop)
+    if subtype == "named_entity":
+        return await handle_named_entity_search(structured, question, loop)
+    if subtype == "named_entity_with_date":
+        return await handle_named_entity_with_date(structured, question, loop)
+    if subtype == "concept_with_date":
+        return await handle_concept_with_date(structured, question, loop)
+    if subtype == "enacted" or structured.get("status") == "enacted":
+        return await handle_law_search(structured, question, loop)
+    if subtype == "browse":
+        return await handle_browse(structured, question, loop)
+    return await handle_legislation_search(structured, question, loop)
+
+
+async def _dispatch(structured: dict, body: "SearchRequest", question: str, loop) -> dict:
+    """Route a fully-prepared structured query to the right handler. Caller is
+    responsible for all transformations on `structured` first."""
+    suggested_jurisdiction = _route_jurisdiction(structured, body)
+
+    # State queries take precedence over all other dispatch — once we're in a
+    # state context we never route back to federal handlers.
+    if structured.get("jurisdiction") == "state" and structured.get("state_code"):
+        state_code = structured["state_code"]
+        if state_code in ENABLED_STATES:
+            result = await handle_state_search(structured, question, loop)
+            if suggested_jurisdiction and isinstance(result, dict):
+                result["suggested_jurisdiction"] = suggested_jurisdiction
+            return result
+        return {
+            "query_type": "legislation",
+            "confidence": 1.0,
+            "ambiguity_reason": f"{state_code} state legislation is not yet available.",
+            "query": structured,
+            "results": [],
+        }
+
+    query_type = structured.get("query_type", "legislation")
+
+    if query_type == "member" and structured.get("entity_name"):
+        return await handle_member_search(structured, question, loop)
+    if query_type == "committee" and structured.get("entity_name"):
+        return await handle_committee_search(structured, question, loop)
+
+    specific = structured.get("specific_bill")
+    if specific and specific.get("number") and specific.get("type"):
+        return await handle_specific_bill(structured, question)
+
+    if query_type == "off_topic":
+        return _off_topic_response(structured, question)
+
+    return await _dispatch_legislation_subtype(structured, question, loop)
+
+
 @app.post("/search")
 @limiter.limit("20/minute")
 async def search(request: Request, body: SearchRequest):
@@ -1152,171 +1315,16 @@ async def search(request: Request, body: SearchRequest):
         raise HTTPException(status_code=400, detail="Question cannot be empty")
 
     try:
-        # State-aware fast-path: when the caller supplied a state_code, try the
-        # state bill-ID regex first so we never burn an LLM call on "HB 1234".
-        structured = None
-        if body.state_code and body.state_code.upper() in ENABLED_STATES:
-            structured = fast_route_state(body.question, body.state_code)
-        if structured is None:
-            structured = fast_route(body.question)
-        if structured is None:
-            structured = route_query(
-                body.question, get_client(), full_history=body.full_history
-            )
-        else:
-            print(f"[ROUTER] fast-path hit: {structured.get('_fast_path')}")
-        structured["full_history"] = body.full_history
-        structured["max_results_override"] = body.max_results if body.full_history else None
-        structured["_bypass_search_cache"] = bool(body.fresh)
-        if body.full_history and body.before_congress:
-            structured["before_congress"] = body.before_congress
         loop = asyncio.get_event_loop()
-        question = body.question
-
-        # ── Presidential override ──
-        president_congresses = extract_president_congress(question)
-        if president_congresses:
-            structured["congress_numbers"] = president_congresses
-            structured["time_range"] = "presidential term"
-
-        # ── Dispatcher ──
-        query_type = structured.get("query_type", "legislation")
-
-        PRESIDENTS = ["trump", "biden", "obama", "bush", "clinton", "reagan"]
-        entity = (structured.get("entity_name") or "").lower()
-        question_lower = question.lower()
-
-        presidential_signals = [
-            "signed",
-            "passed",
-            "under",
-            "era",
-            "administration",
-            "presidency",
-            "white house",
-        ]
-        congressional_signals = [
-            "voted",
-            "sponsored",
-            "senator",
-            "representative",
-            "voting record",
-            "cosponsored",
-        ]
-
-        if query_type == "member" and any(p in entity for p in PRESIDENTS):
-            has_presidential = any(s in question_lower for s in presidential_signals)
-            has_congressional = any(s in question_lower for s in congressional_signals)
-            if has_presidential and not has_congressional:
-                query_type = "legislation"
-                structured["query_type"] = "legislation"
-                structured["entity_name"] = None
-            elif not has_congressional and "trump" in entity:
-                query_type = "legislation"
-                structured["query_type"] = "legislation"
-                structured["entity_name"] = None
-
-        # ── State jurisdiction short-circuit ──
-        suggested_jurisdiction = None
-        if body.state_code:
-            # Capture what the router thought before we force state — that's
-            # what powers the "Switch to Federal?" nudge in the UI.
-            router_thought_federal = (
-                structured.get("jurisdiction") == "federal"
-                and not structured.get("_fast_path")
-                and structured.get("query_type") != "off_topic"
-                and (structured.get("named_entity") or len(structured.get("keywords", [])) > 0)
-            )
-            if router_thought_federal:
-                suggested_jurisdiction = "federal"
-            structured["jurisdiction"] = "state"
-            structured["state_code"] = body.state_code.upper()
-        if structured.get("jurisdiction") == "state" and structured.get("state_code"):
-            state_code = structured["state_code"]
-            if state_code in ENABLED_STATES:
-                result = await handle_state_search(structured, question, loop)
-                if suggested_jurisdiction and isinstance(result, dict):
-                    result["suggested_jurisdiction"] = suggested_jurisdiction
-                return result
-            else:
-                return {
-                    "query_type": "legislation",
-                    "confidence": 1.0,
-                    "ambiguity_reason": f"{state_code} state legislation is not yet available.",
-                    "query": structured,
-                    "results": [],
-                }
-
-        # ── Route ──
-        if query_type == "member" and structured.get("entity_name"):
-            return await handle_member_search(structured, question, loop)
-
-        if query_type == "committee" and structured.get("entity_name"):
-            return await handle_committee_search(structured, question, loop)
-
-        specific = structured.get("specific_bill")
-        if specific and specific.get("number") and specific.get("type"):
-            return await handle_specific_bill(structured, question)
-
-        if structured.get("query_type") == "off_topic":
-            log_search(
-                query=question,
-                query_type="off_topic",
-                expanded_terms=[],
-                results_count=0,
-                result_ids=[],
-                confidence=structured.get("confidence", 1.0),
-            )
-            return {
-                "query_type": "off_topic",
-                "confidence": structured.get("confidence", 1.0),
-                "ambiguity_reason": (
-                    "This doesn't look like a question about legislation, members of Congress, "
-                    "or civic policy. Try a topic, bill ID (e.g. \"HR 4838\"), or a name."
-                ),
-                "query": structured,
-                "results": [],
-                "cached": False,
-            }
-
-        # ── Legislation subtypes ──
-        subtype = structured.get("query_subtype", "concept")
-        log_action(
-            agent_name="dispatcher",
-            action=subtype,
-            input_data={
-                "question": question,
-                "congress": structured.get("congress_numbers"),
-            },
-            output_data={},
-        )
-
-        # Full-history show-more bypasses specialized handlers — they don't support it
-        if structured.get("full_history"):
-            return await handle_legislation_search(structured, question, loop)
-
-        if subtype == "named_entity":
-            return await handle_named_entity_search(structured, question, loop)
-
-        if subtype == "named_entity_with_date":
-            return await handle_named_entity_with_date(structured, question, loop)
-
-        if subtype == "concept_with_date":
-            return await handle_concept_with_date(structured, question, loop)
-
-        if subtype == "enacted" or structured.get("status") == "enacted":
-            return await handle_law_search(structured, question, loop)
-
-        if subtype == "browse":
-            return await handle_browse(structured, question, loop)
-
-        return await handle_legislation_search(structured, question, loop)
-
+        structured = _resolve_routing(body)
+        _apply_request_flags(structured, body)
+        _apply_presidential_term_filter(structured, body.question)
+        _disambiguate_president_query(structured, body.question)
+        return await _dispatch(structured, body, body.question, loop)
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         import traceback
-
         print(f"[API] Full error: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail="Search failed. Please try again.")
 

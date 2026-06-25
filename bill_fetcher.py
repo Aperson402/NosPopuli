@@ -271,8 +271,8 @@ def fetch_amendments(congress, bill_type, bill_number, max_results=50):
 
 
 _AMENDS_PATTERNS = [
-    re.compile(r"[Tt]o\s+amend\s+(?:the\s+)?(.+?)\s+(?:of\s+\d{4})?(?:,|\.|to\b)", re.IGNORECASE),
-    re.compile(r"[Tt]o\s+reauthorize\s+(?:the\s+)?(.+?)\s+(?:of\s+\d{4})?(?:,|\.|to\b)", re.IGNORECASE),
+    re.compile(r"[Tt]o\s+amend\s+(?:the\s+)?(.+?)\s*(?:of\s+\d{4})?(?:,|\.|\sto\b)", re.IGNORECASE),
+    re.compile(r"[Tt]o\s+reauthorize\s+(?:the\s+)?(.+?)\s*(?:of\s+\d{4})?(?:,|\.|\sto\b)", re.IGNORECASE),
 ]
 _REAUTH_PATTERN = re.compile(r"reauthorize", re.IGNORECASE)
 

@@ -21,6 +21,21 @@ _web_search_cache = TTLCache(maxsize=60, ttl=172800)  # 48hr per state — Claud
 _polling_cache = TTLCache(maxsize=100, ttl=21600)     # 6hr per election — polling data
 _cache_lock = RLock()
 
+# In-flight request dedup. When multiple users land on the home page at the
+# same time, we want one (cache_key) → one upstream fetch — not N concurrent
+# fetches all racing to populate the same cache slot.
+_inflight_locks: dict = {}
+_inflight_locks_guard = RLock()
+
+
+def _get_inflight_lock(key) -> asyncio.Lock:
+    with _inflight_locks_guard:
+        lock = _inflight_locks.get(key)
+        if lock is None:
+            lock = asyncio.Lock()
+            _inflight_locks[key] = lock
+        return lock
+
 PARTY_NORMALIZE = {
     "democratic": "Democratic",
     "democrat": "Democratic",
@@ -265,11 +280,41 @@ async def fetch_elections(zip_code, state_code=None):
             _elections_cache[cache_key] = disk_result
         return disk_result
 
-    print(f"[ELECTIONS] Cache miss for {cache_key} — fetching fresh")
+    # In-flight dedup — if another request is already fetching this key, wait
+    # for it instead of starting a parallel fetch. The first one in does the
+    # work; everyone else picks up the cached result on the second pass.
+    lock = _get_inflight_lock(cache_key)
+    async with lock:
+        # Re-check both caches now that we hold the lock — the previous holder
+        # may have just populated them.
+        with _cache_lock:
+            if cache_key in _elections_cache:
+                return _elections_cache[cache_key]
+        disk_result = get_disk_cache(db_key, max_age_seconds=21600)
+        if disk_result is not None:
+            with _cache_lock:
+                _elections_cache[cache_key] = disk_result
+            return disk_result
 
-    if not CIVIC_API_KEY:
-        result = {"upcoming": [], "recent": [], "error": "Elections data not configured."}
+        print(f"[ELECTIONS] Cache miss for {cache_key} — fetching fresh")
+
+        result = await _compute_elections(zip_code, state_code)
+
+        # Cache write happens inside the lock so the next waiter sees it on
+        # their re-check. Even error/empty results get cached briefly to
+        # prevent thundering herds during outages.
+        with _cache_lock:
+            _elections_cache[cache_key] = result
+        if result and not result.get("error"):
+            set_disk_cache(db_key, result)
         return result
+
+
+async def _compute_elections(zip_code, state_code):
+    """The actual upstream-fetch path, separated so the cache wrapper above
+    stays readable. Returns the same shape as fetch_elections."""
+    if not CIVIC_API_KEY:
+        return {"upcoming": [], "recent": [], "error": "Elections data not configured."}
 
     address = f"{zip_code} USA" if zip_code else "Washington DC USA"
     today = datetime.date.today()
@@ -423,10 +468,6 @@ async def fetch_elections(zip_code, state_code=None):
         output_data={"upcoming": len(upcoming), "recent": len(recent)},
     )
 
-    with _cache_lock:
-        _elections_cache[cache_key] = result
-
-    set_disk_cache(db_key, result)
     return result
 
 

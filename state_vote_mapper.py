@@ -157,6 +157,16 @@ def map_state_votes(bill_votes, state_code, chamber_class):
     candidates = [v for v in bill_votes if _floor_vote_score(v)[0] != -1]
     if candidates:
         target = max(candidates, key=_floor_vote_score)
+        # If the winner has neither an explicit motion-classification nor a
+        # floor-marker text match, fall back to the same participation guard
+        # as the no-candidate path. Without this, a single weak-signal vote
+        # (e.g. "Motion to recommit" with sub-chamber participation) gets
+        # promoted to "the chamber's verdict."
+        score = _floor_vote_score(target)
+        no_explicit_floor_markers = score[0] == 0
+        total = sum(c.get("value", 0) for c in target.get("counts", []))
+        if no_explicit_floor_markers and chamber_seats and total < chamber_seats * 0.5:
+            return None
     else:
         # No clean floor vote. Only fall back when there's a non-committee
         # vote with substantial participation (>= 50% of the chamber, if known).

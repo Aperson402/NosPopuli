@@ -15,16 +15,26 @@ As soon as more than one person works on this, that constraint stops being free.
 
 ## Section 1: The philosophy
 
-### 1.1 Simple data structures, always
+### 1.1 The right data structure for the job
 
-A plain dict is the first thing you reach for. A class is a smell when a dict would do. A list of tuples is the right answer when you need ordered priority matching. A `set` is the right answer for dedup with O(1) membership. An LRU cache is the right answer for transient API data.
+A plain dict is the first thing you reach for *for config and lookup tables*. A list of tuples is the right answer when you need ordered priority matching. A `set` is the right answer for dedup with O(1) membership. An LRU cache is the right answer for transient API data.
 
-If you're about to write `class FooManager`, stop and ask: could this be a module-level function with a module-level cache? Almost always yes.
+**Use a class when it actually earns its keep.** Specifically:
+- **Non-trivial invariants over state that lives across multiple operations.** A `VoteCandidate` with `is_committee_vote`, `participation_score`, `score()` is more grep-able than nested helpers when the logic crosses three or more methods.
+- **A real interface with multiple implementations.** Once we have three bill-text sources (Congress.gov, GovInfo, future state legislatures), a `BillTextSource` abstract base earns its existence.
+- **Lifecycle that needs coordination.** Anything with `__enter__`/`__exit__`, async cleanup, or coordinated init/retry/destroy.
+- **Modeling a real-world entity with behavior.** A `User` class once auth lands; a `Bill` class would be premature until bills have meaningful operations on them beyond "fetch and render."
 
-**Examples from the codebase:**
-- `POPULAR_NAMES` in `title_search_agent.py` — flat dict, not a class hierarchy.
-- `STATE_VALIDATOR_FLOOR` — declarative dict, change values to tune.
-- Circuit breaker state — one float (`_tripped_until`), not a state machine class.
+What we're pushing back on is the **reflexive** reach for OOP — `class BillFetcherManager` wrapping a single function, `class TimelineRenderer` for code that runs once per render, `class CacheService` instead of a module-level TTLCache. That's ceremonial bureaucracy: indirection without clarity.
+
+**Rule of thumb:** if your class has only `__init__` and one other method, it's probably a function. If your class has only static methods, it's definitely a module. If your class's state is "the same data the caller already had", you didn't need the class.
+
+**Examples from the codebase that got this right:**
+- `POPULAR_NAMES` is a flat dict because it's pure config — no behavior.
+- Circuit breaker state is a float because the "state machine" has two states and one transition condition.
+- The translator's Supabase client wraps state + behavior + a coordinated lifecycle — that one is a class for good reason.
+
+When in doubt, write the function first. Promote to a class when you've added the third method, not before.
 
 ### 1.2 No abstractions beyond what the task needs
 
@@ -364,7 +374,7 @@ If you remember nothing else from this document, remember these. They are the co
 
 | Temptation | Why it feels right | What to do instead |
 |---|---|---|
-| "I'll just add a class for this" | OOP feels professional | Plain function + module dict |
+| "I'll just add a class for this" | OOP feels professional | Plain function until the class has 3+ methods or genuine invariants — then promote |
 | "Let me make this configurable" | Future flexibility | Hardcode it; make it configurable on the 2nd use |
 | "I'll wrap this in try/except to be safe" | Defensive coding | Let the global handler catch it unless you can recover |
 | "I'll add a comment explaining the loop" | Documentation | Rename the loop variable; delete the comment |

@@ -686,6 +686,34 @@ COLLECTIVE ACTION (V2 CORE)
   Note: this is not ideology — it is infrastructure. A conservative and a
         progressive both benefit from a government that responds to constituents.
 
+CODE HEALTH (REFACTORS)
+  Internal cleanup, no user-visible change. These are the structural
+  weaknesses identified in a codebase review — fix them before the team
+  scales past 2 people, because each one compounds with size.
+
+→ Extract /search dispatcher into _dispatch(structured, question, body, loop).
+  The endpoint currently does 200+ lines of presidential overrides, state
+  redirects, off-topic gating, and member disambiguation before delegating
+  to a handler. Pure mechanical refactor, no behavior change.
+→ Stop mutating the `structured` dict as scratchpad. handle_legislation_search
+  adds expanded_terms, original_question, _bypass_search_cache to a dict the
+  router produced — inputs should be immutable, intermediate state needs its
+  own variable.
+→ Split frontend/js/index.js. At ~2500 lines it's the source of every
+  state-leak bug we've hit (federal sponsors leaking into state bill detail,
+  stale stateName from prefs). Use native ES modules — multiple <script
+  type="module"> tags, no bundler required. Suggested split: search.js,
+  detail.js, state.js, feed.js, helpers.js.
+→ Extract shared frontend helpers into helpers.js: escapeHtml, stateNameFromCode,
+  _compactBillTitle, runSearch. These are effectively globals today.
+→ Standardize search-style endpoint response envelope. Every search-type
+  response should return {query_type, confidence, ambiguity_reason, results,
+  cached, suggested_jurisdiction?}. Member and committee responses keep their
+  own shape but share the same five-field meta header.
+→ Move handle_committee_search into its own module (committee_search_agent.py).
+  It's the only handler that doesn't follow the agent-per-module pattern; it
+  even re-imports `requests` and `re` inline because it was clearly copy-pasted.
+
 SELF-IMPROVEMENT PIPELINE
 → Prompt versioning + performance monitoring
 → Prompt improver agent (Opus)

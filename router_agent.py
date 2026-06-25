@@ -280,7 +280,7 @@ _STATE_BILL_ID_RE = re.compile(
         (?P<session_anchor>
             (?P<year>19|20)\d{2}
           | (?P<ord>\d{1,3})(?:st|nd|rd|th)\s+(?:session|legislature|general\s+assembly)
-          | (?:session\s+of\s+)?\d{4}
+          | session\s+of\s+(?:19|20)\d{2}
         )
     )?
     \s*$

@@ -5,7 +5,7 @@ __pycache__/
 .DS_Store
 search_log.json
 flags.json
-test_*.py
+/test_*.py
 .discovery_cache_*.json
 .claude/
 .pytest_cache/
