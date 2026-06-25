@@ -18,6 +18,7 @@ from vote_parser_agent import parse_vote_references
 from vote_fetcher_agent import fetch_house_votes, fetch_senate_votes
 from vote_mapper_agent import map_house_votes, map_senate_votes
 from bill_fetcher import fetch_bill, fetch_law, fetch_bill_text, fetch_related_bills, fetch_amendments, parse_amends_from_title, fetch_cosponsors
+from committee_reports_fetcher import fetch_committee_reports_for_bill
 from member_search_agent import (
     search_member,
     fetch_member_profile,
@@ -38,7 +39,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from router_agent import route_query, extract_president_congress
+from router_agent import route_query, extract_president_congress, fast_route, fast_route_state
 from search_agent import search_bills, search_summaries
 from title_search_agent import search_by_title
 from bill_fetcher import fetch_bill
@@ -57,6 +58,7 @@ from state_search_agent import (
     ENABLED_STATES,
     fetch_state_bill_by_identifier,
     filter_enacted,
+    get_state_validator_floor,
 )
 from state_bill_fetcher import (
     fetch_state_bill,
@@ -77,6 +79,15 @@ from correspondence.db import (
     delete_known_election as db_delete_known_election,
 )
 from elections_agent import fetch_elections, fetch_election_detail, fetch_election_polling
+
+# Quiet uvicorn access logs for the high-frequency SSE monitor stream — it
+# fires on every event and otherwise drowns out actually-useful request lines.
+import logging as _logging
+class _QuietMonitorStream(_logging.Filter):
+    def filter(self, record):
+        msg = record.getMessage()
+        return "/monitor/stream" not in msg
+_logging.getLogger("uvicorn.access").addFilter(_QuietMonitorStream())
 
 app = FastAPI(title="NosPopuli API")
 
@@ -146,14 +157,15 @@ def _require_monitor_auth(request: Request):
         raise HTTPException(status_code=403, detail="Forbidden")
 
 
-def _build_connections(related: dict, amendments: list, bill_title: str, translation: str) -> dict:
+def _build_connections(related: dict, amendments: list, bill_title: str, translation: str, committee_reports: list | None = None) -> dict:
     amends = parse_amends_from_title(bill_title, translation or "")
     return {
-        "amends":     amends,
-        "identical":  related.get("identical", []),
-        "amended_by": amendments,
-        "related":    related.get("related", []),
-        "superseded": related.get("superseded", []),
+        "amends":            amends,
+        "committee_reports": committee_reports or [],
+        "identical":         related.get("identical", []),
+        "amended_by":        amendments,
+        "related":           related.get("related", []),
+        "superseded":        related.get("superseded", []),
     }
 
 
@@ -204,6 +216,7 @@ class StateSearchRequest(BaseModel):
     question: str
     state_code: str
     max_results: int = 5
+    fresh: bool = False  # debug: bypass state search cache for this request
 
 
 class StateMemberSearchRequest(BaseModel):
@@ -466,10 +479,24 @@ async def handle_named_entity_search(structured, question, loop):
                 if len(title_results) >= 4:
                     break
 
+    # If the title search pinned an authoritative hit (hardcoded popular-names
+    # table or scraped popular-names cache), the user typed a known short name —
+    # surface that result first and let the validator only re-rank the rest.
+    pinned = None
+    pinned_sources = {"popular_names_hardcoded", "popular_names_cache"}
+    if title_results and title_results[0].get("source") in pinned_sources:
+        pinned = title_results[0]
+
     validated = await loop.run_in_executor(
         None, validate_results, question, title_results, get_client()
     )
     final = validated if validated else title_results
+    if pinned:
+        final = [pinned] + [r for r in final if not (
+            r.get("congress") == pinned.get("congress")
+            and r.get("type") == pinned.get("type")
+            and r.get("number") == pinned.get("number")
+        )]
 
     # Common-name disambiguation: when the same act name exists across 3+ different
     # congresses, surface the ambiguity rather than silently leading with the most recent.
@@ -795,6 +822,28 @@ async def handle_browse(structured, question, loop):
 async def handle_state_search(structured, question, loop):
     state_code = structured["state_code"]
 
+    # ── Off-topic — same polite empty as federal ──
+    if structured.get("query_type") == "off_topic":
+        log_search(
+            query=question,
+            query_type="off_topic",
+            expanded_terms=[],
+            results_count=0,
+            result_ids=[],
+            confidence=structured.get("confidence", 1.0),
+        )
+        return {
+            "query_type": "off_topic",
+            "state_code": state_code,
+            "confidence": structured.get("confidence", 1.0),
+            "ambiguity_reason": (
+                "This doesn't look like a question about state legislation, "
+                "legislators, or civic policy. Try a topic, bill ID (e.g. \"HB 1557\"), or a name."
+            ),
+            "query": structured,
+            "results": [],
+        }
+
     # ── Member query: route to legislator search instead of bill search ──
     if structured.get("query_type") == "member" and structured.get("entity_name"):
         member = await loop.run_in_executor(
@@ -815,7 +864,81 @@ async def handle_state_search(structured, question, loop):
             "sponsored_bills": bills,
         }
 
-    # ── Bill-number direct lookup (e.g. "HB 1234", "SB 45") ──
+    # ── Fast-path bill-ID (from fast_route_state) — session-aware ──
+    fast_path = structured.get("_fast_path")
+    specific_bill = structured.get("specific_bill") or {}
+    if fast_path == "state_bill_id" and specific_bill.get("identifier"):
+        identifier = specific_bill["identifier"]
+        requested_session = structured.get("requested_session")
+        ambiguity_note = None
+
+        # Try requested session first when given, else current session
+        if requested_session:
+            direct = await loop.run_in_executor(
+                None, fetch_state_bill_by_identifier, identifier, state_code, requested_session
+            )
+        else:
+            direct = await loop.run_in_executor(
+                None, fetch_state_bill_by_identifier, identifier, state_code
+            )
+
+        # Fall back to current session when explicit session lookup misses
+        if not direct and requested_session:
+            direct = await loop.run_in_executor(
+                None, fetch_state_bill_by_identifier, identifier, state_code
+            )
+            if direct:
+                ambiguity_note = (
+                    f"No {identifier} found in the {requested_session} session — "
+                    f"showing the current-session bill instead."
+                )
+
+        # No session given and current returned nothing — search across all sessions.
+        # State legislatures reset numbering each session, so the user is likely
+        # asking about a historical bill (e.g. FL HB 1557 from 2022).
+        if not direct and not requested_session:
+            any_session = await loop.run_in_executor(
+                None, fetch_state_bill_by_identifier, identifier, state_code, "any"
+            )
+            if any_session:
+                direct = any_session
+                first = any_session[0] if any_session else {}
+                sess = first.get("session") or "an earlier session"
+                ambiguity_note = (
+                    f"No {identifier} in the current session — showing {identifier} from {sess}. "
+                    f"Add a year to your search (e.g. \"{identifier} from 2024\") to pin a specific version."
+                )
+
+        # Still nothing — likely a numbering-convention mismatch (e.g. Arkansas
+        # House bills start at HB 1001, not HB 1). Fall through to a keyword
+        # search using the identifier as the query, and tell the user.
+        if not direct:
+            fallback = await loop.run_in_executor(
+                None, search_state_bills, identifier, state_code, None, 5
+            )
+            if fallback:
+                ambiguity_note = (
+                    f"No exact match for {identifier} in {state_code}. "
+                    f"Showing the closest matches — your state may use a different numbering convention "
+                    f"(e.g. Arkansas House bills start at HB 1001)."
+                )
+                direct = fallback
+            else:
+                ambiguity_note = (
+                    f"No bill matching {identifier} found in {state_code}. "
+                    f"Check the bill number — states use different numbering conventions."
+                )
+
+        return {
+            "query_type": "state_legislation",
+            "state_code": state_code,
+            "confidence": 1.0,
+            "ambiguity_reason": ambiguity_note,
+            "query": structured,
+            "results": direct or [],
+        }
+
+    # ── Legacy bill-ID fallback (when router didn't fast-path) ──
     bill_id_match = re.search(r"\b([HS][BJCR]?\s*\d+)\b", question, re.IGNORECASE)
     if bill_id_match:
         identifier = re.sub(r"\s+", " ", bill_id_match.group(1).upper().strip())
@@ -833,42 +956,135 @@ async def handle_state_search(structured, question, loop):
             }
         # fall through to text search if identifier not found
 
-    keywords = structured.get("keywords", [])
+    target_count = max(structured.get("result_count", 5), 10)
+
+    # ── Browse: "show me anything recent" / "latest bills" — bypass keyword
+    # search and validator (there's no topic to score against). Goes straight
+    # to the most-recently-updated state bills.
+    if structured.get("query_subtype") == "browse":
+        results = await loop.run_in_executor(
+            None, get_recent_state_bills, state_code, target_count
+        )
+        if structured.get("status") == "enacted":
+            enacted = filter_enacted(results or [])
+            if enacted:
+                results = enacted
+        log_search(
+            query=question, query_type="state_legislation", expanded_terms=[],
+            results_count=len(results or []),
+            result_ids=[r.get("identifier", "") for r in (results or [])],
+            confidence=structured.get("confidence", 1.0),
+        )
+        return {
+            "query_type": "state_legislation",
+            "state_code": state_code,
+            "confidence": structured.get("confidence", 1.0),
+            "ambiguity_reason": None,
+            "query": structured,
+            "results": results or [],
+        }
+
+    # ── Search cache (per-state namespace, 30-min TTL) ──
+    sc_key = None
+    if not (structured.get("_bypass_search_cache") or search_cache.is_freshness_query(structured, question)):
+        sc_key = search_cache.cache_key(
+            structured, question, target_count,
+            jurisdiction=f"state:{state_code.upper()}",
+        )
+        cached = search_cache.get(sc_key)
+        if cached:
+            results = await loop.run_in_executor(None, search_cache.rehydrate, cached)
+            log_search(
+                query=question, query_type="state_legislation", expanded_terms=[],
+                results_count=len(results),
+                result_ids=[r.get("identifier", "") for r in results],
+                confidence=structured.get("confidence", 1.0),
+            )
+            return {
+                "query_type": "state_legislation",
+                "state_code": state_code,
+                "confidence": structured.get("confidence", 1.0),
+                "ambiguity_reason": None,
+                "query": structured,
+                "results": results,
+                "cached": True,
+            }
+
+    # ── Search OpenStates with structured router output ──
+    # Prefer named_entity (router's best guess at an act name); otherwise
+    # synthesise a phrase from the keywords. Two-word topic phrases like
+    # "housing affordability" often perform worse in OpenStates' index than
+    # their canonical form ("affordable housing") — when the expander surfaces
+    # a known synonym we'll let it ride at the front of the queue.
+    named_entity = (structured.get("named_entity") or "").strip()
+    keywords = structured.get("keywords", []) or []
+    primary_term = named_entity or " ".join(keywords) or question
+
     expanded = await loop.run_in_executor(
         None, expand_query, keywords, structured.get("topic", ""), get_client()
     )
 
-    # Build search terms from clean keywords, not the full conversational question.
-    # OpenStates does full-text search on bill titles so conversational phrasing hurts recall.
-    primary_term = " ".join(keywords) if keywords else question
+    # If the primary is just a keyword join (no named entity) and the expander
+    # produced a synonym, use the synonym as the primary — they're often
+    # canonical phrasings indexed more reliably.
+    if not named_entity and expanded:
+        primary_term = expanded[0]
+        expanded = expanded[1:]
+
     seen = set()
     results = []
-    search_terms = [primary_term] + (expanded[:2] if expanded else [])
-    target_count = max(structured.get("result_count", 5), 10)
 
-    for term in search_terms:
-        term_results = await loop.run_in_executor(
-            None, search_state_bills, term, state_code, None, 20
+    # Primary term — retried once on timeout (transient OpenStates slowness
+    # is common on first-touch phrase queries).
+    primary_results = await loop.run_in_executor(
+        None, search_state_bills, primary_term, state_code, None, 20
+    )
+    if not primary_results:
+        primary_results = await loop.run_in_executor(
+            None, search_state_bills, primary_term, state_code, None, 20
         )
-        for r in term_results:
-            key = r.get("ocd_id")
-            if key not in seen:
-                seen.add(key)
-                results.append(r)
-        if len(results) >= target_count:
-            break
+    for r in primary_results:
+        key = r.get("ocd_id")
+        if key and key not in seen:
+            seen.add(key)
+            results.append(r)
+
+    # Enrichment from expanded synonyms is opportunistic. Skip entirely when
+    # the primary already gave us a useful set (3+ hits), and stop on first
+    # failure so one slow OpenStates response can't ruin the whole search.
+    if len(results) < 3 and expanded:
+        for term in expanded[:2]:
+            try:
+                term_results = await loop.run_in_executor(
+                    None, search_state_bills, term, state_code, None, 20
+                )
+            except Exception:
+                break
+            if not term_results:
+                continue
+            for r in term_results:
+                key = r.get("ocd_id")
+                if key and key not in seen:
+                    seen.add(key)
+                    results.append(r)
+            if len(results) >= target_count:
+                break
 
     results = results[:target_count]
 
-    # ── Enacted filter ──
     if structured.get("status") == "enacted":
         enacted = filter_enacted(results)
         if enacted:
             results = enacted
 
+    # Per-state validator floor (parametrised in state_search_agent.STATE_VALIDATOR_FLOOR)
+    floor = get_state_validator_floor(state_code)
     results = await loop.run_in_executor(
-        None, validate_results, question, results, get_client(), 7, False
+        None, validate_results, question, results, get_client(), floor, True
     )
+
+    if sc_key and results:
+        await loop.run_in_executor(None, search_cache.store, sc_key, results)
 
     log_search(
         query=question,
@@ -886,6 +1102,7 @@ async def handle_state_search(structured, question, loop):
         "ambiguity_reason": None,
         "query": structured,
         "results": results,
+        "cached": False,
     }
 
 
@@ -935,9 +1152,19 @@ async def search(request: Request, body: SearchRequest):
         raise HTTPException(status_code=400, detail="Question cannot be empty")
 
     try:
-        structured = route_query(
-            body.question, get_client(), full_history=body.full_history
-        )
+        # State-aware fast-path: when the caller supplied a state_code, try the
+        # state bill-ID regex first so we never burn an LLM call on "HB 1234".
+        structured = None
+        if body.state_code and body.state_code.upper() in ENABLED_STATES:
+            structured = fast_route_state(body.question, body.state_code)
+        if structured is None:
+            structured = fast_route(body.question)
+        if structured is None:
+            structured = route_query(
+                body.question, get_client(), full_history=body.full_history
+            )
+        else:
+            print(f"[ROUTER] fast-path hit: {structured.get('_fast_path')}")
         structured["full_history"] = body.full_history
         structured["max_results_override"] = body.max_results if body.full_history else None
         structured["_bypass_search_cache"] = bool(body.fresh)
@@ -990,13 +1217,27 @@ async def search(request: Request, body: SearchRequest):
                 structured["entity_name"] = None
 
         # ── State jurisdiction short-circuit ──
+        suggested_jurisdiction = None
         if body.state_code:
+            # Capture what the router thought before we force state — that's
+            # what powers the "Switch to Federal?" nudge in the UI.
+            router_thought_federal = (
+                structured.get("jurisdiction") == "federal"
+                and not structured.get("_fast_path")
+                and structured.get("query_type") != "off_topic"
+                and (structured.get("named_entity") or len(structured.get("keywords", [])) > 0)
+            )
+            if router_thought_federal:
+                suggested_jurisdiction = "federal"
             structured["jurisdiction"] = "state"
             structured["state_code"] = body.state_code.upper()
         if structured.get("jurisdiction") == "state" and structured.get("state_code"):
             state_code = structured["state_code"]
             if state_code in ENABLED_STATES:
-                return await handle_state_search(structured, question, loop)
+                result = await handle_state_search(structured, question, loop)
+                if suggested_jurisdiction and isinstance(result, dict):
+                    result["suggested_jurisdiction"] = suggested_jurisdiction
+                return result
             else:
                 return {
                     "query_type": "legislation",
@@ -1016,6 +1257,27 @@ async def search(request: Request, body: SearchRequest):
         specific = structured.get("specific_bill")
         if specific and specific.get("number") and specific.get("type"):
             return await handle_specific_bill(structured, question)
+
+        if structured.get("query_type") == "off_topic":
+            log_search(
+                query=question,
+                query_type="off_topic",
+                expanded_terms=[],
+                results_count=0,
+                result_ids=[],
+                confidence=structured.get("confidence", 1.0),
+            )
+            return {
+                "query_type": "off_topic",
+                "confidence": structured.get("confidence", 1.0),
+                "ambiguity_reason": (
+                    "This doesn't look like a question about legislation, members of Congress, "
+                    "or civic policy. Try a topic, bill ID (e.g. \"HR 4838\"), or a name."
+                ),
+                "query": structured,
+                "results": [],
+                "cached": False,
+            }
 
         # ── Legislation subtypes ──
         subtype = structured.get("query_subtype", "concept")
@@ -1074,11 +1336,12 @@ async def get_bill(request: Request, body: BillRequest):
                 status_code=404, detail="Bill not found or unavailable."
             )
 
-        bill_text, related, amendments, cosponsors = await asyncio.gather(
+        bill_text, related, amendments, cosponsors, committee_reports = await asyncio.gather(
             loop.run_in_executor(None, fetch_bill_text, body.congress, body.bill_type, body.number),
             loop.run_in_executor(None, fetch_related_bills, body.congress, body.bill_type, body.number),
             loop.run_in_executor(None, fetch_amendments, body.congress, body.bill_type, body.number),
             loop.run_in_executor(None, fetch_cosponsors, body.congress, body.bill_type, body.number),
+            loop.run_in_executor(None, fetch_committee_reports_for_bill, bill_data.get("bill") or {}),
         )
 
         translation, actions = await asyncio.gather(
@@ -1115,7 +1378,7 @@ async def get_bill(request: Request, body: BillRequest):
         senate_mapped = map_senate_votes(senate_raw)
 
         bill_title = bill_data.get("bill", {}).get("title", "")
-        connections = _build_connections(related or {}, amendments or [], bill_title, translation)
+        connections = _build_connections(related or {}, amendments or [], bill_title, translation, committee_reports or [])
 
         log_action(
             agent_name="api",
@@ -1199,10 +1462,11 @@ async def get_law(request: Request, body: LawRequest):
         bill_type = bill.get("type", "").lower()
         bill_number = int(bill.get("number", 0))
 
-        bill_text, related, amendments = await asyncio.gather(
+        bill_text, related, amendments, committee_reports = await asyncio.gather(
             loop.run_in_executor(None, fetch_bill_text, bill_congress, bill_type, bill_number),
             loop.run_in_executor(None, fetch_related_bills, bill_congress, bill_type, bill_number),
             loop.run_in_executor(None, fetch_amendments, bill_congress, bill_type, bill_number),
+            loop.run_in_executor(None, fetch_committee_reports_for_bill, bill),
         )
 
         translation, actions = await asyncio.gather(
@@ -1239,7 +1503,7 @@ async def get_law(request: Request, body: LawRequest):
         senate_mapped = map_senate_votes(senate_raw)
 
         bill_title = bill_data.get("bill", {}).get("title", "")
-        connections = _build_connections(related or {}, amendments or [], bill_title, translation)
+        connections = _build_connections(related or {}, amendments or [], bill_title, translation, committee_reports or [])
 
         log_action(
             agent_name="api",
@@ -1271,37 +1535,46 @@ async def get_law(request: Request, body: LawRequest):
 @app.post("/state/search")
 @limiter.limit("20/minute")
 async def state_search(request: Request, body: StateSearchRequest):
-    if body.state_code.upper() not in ENABLED_STATES:
+    state_code = body.state_code.upper()
+    if state_code not in ENABLED_STATES:
         raise HTTPException(
             status_code=400,
             detail=f"{body.state_code} is not yet available. Check back soon.",
         )
     try:
         loop = asyncio.get_event_loop()
-        # Strip natural language filler — OpenStates needs keywords not a sentence
-        FILLER = {"show", "me", "a", "an", "the", "bill", "bills", "about",
-                  "related", "to", "regarding", "find", "give", "some", "legislation",
-                  "laws", "law", "any", "that", "which", "have", "has", "been"}
-        keywords = [w for w in body.question.lower().split() if w not in FILLER and len(w) > 2]
-        search_query = " ".join(keywords) if keywords else body.question
-        print(f"[STATE SEARCH] Cleaned query: '{body.question}' → '{search_query}'")
-        results = await loop.run_in_executor(
-            None,
-            search_state_bills,
-            search_query,
-            body.state_code,
-            None,
-            body.max_results,
-        )
-        if results:
-            results = await loop.run_in_executor(
-                None, validate_results, body.question, results, get_client(), 3, True
+
+        # 1. Fast-path: regex match a state bill ID with optional session anchor.
+        structured = fast_route_state(body.question, state_code)
+
+        # 2. LLM router for everything else. We force jurisdiction=state since
+        #    the caller already picked the state context.
+        if structured is None:
+            structured = await loop.run_in_executor(
+                None, route_query, body.question, get_client()
             )
-        return {
-            "query_type": "state_legislation",
-            "state_code": body.state_code,
-            "results": results,
-        }
+            structured["jurisdiction"] = "state"
+            structured["state_code"] = state_code
+
+        # 3. If the router thinks the user actually meant a federal query while
+        #    sitting on a state context, surface that as a hint rather than a
+        #    forced state interpretation. The frontend renders this as a nudge.
+        suggested_jurisdiction = None
+        if (
+            structured.get("jurisdiction") == "federal"
+            and not structured.get("_fast_path")
+            and (structured.get("named_entity") or len(structured.get("keywords", [])) > 0)
+        ):
+            suggested_jurisdiction = "federal"
+
+        structured["state_code"] = state_code
+        structured["_bypass_search_cache"] = bool(getattr(body, "fresh", False))
+
+        result = await handle_state_search(structured, body.question, loop)
+        if suggested_jurisdiction:
+            result["suggested_jurisdiction"] = suggested_jurisdiction
+        return result
+
     except Exception as e:
         print(f"[API] State search error: {e}")
         raise HTTPException(status_code=500, detail="State search failed.")
@@ -1354,6 +1627,16 @@ async def get_state_bill(request: Request, body: StateBillRequest):
             output_data={"status": "complete"},
         )
 
+        # Surface OpenStates' source links so the frontend can deep-link to the
+        # state's own bill page (where the authoritative text lives) instead of
+        # forcing the user through openstates.org first.
+        raw_sources = bill_data.get("sources") or []
+        sources = [
+            {"url": s.get("url"), "note": s.get("note") or ""}
+            for s in raw_sources
+            if s.get("url")
+        ]
+
         return {
             "ocd_id": body.ocd_id,
             "state_code": body.state_code,
@@ -1365,6 +1648,8 @@ async def get_state_bill(request: Request, body: StateBillRequest):
             "votes": {"house": house_vote, "senate": senate_vote},
             "is_state_bill": True,
             "bill_text": bill_text or None,
+            "openstates_url": bill_data.get("openstates_url") or None,
+            "sources": sources,
         }
 
     except HTTPException:

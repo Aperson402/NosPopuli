@@ -125,50 +125,61 @@ function renderTimeline(events, fallbackMarkdown) {
     return;
   }
 
-  let html = '<div class="tl-entries"><div class="tl-spine"></div>';
+  // Pick the latest non-future event by ACTUAL date so the array order
+  // (which may be newest-first from Congress.gov, oldest-first from OpenStates)
+  // doesn't matter. Future/pending events stay as hollow rings.
+  let lastDoneIdx = -1;
+  let lastDoneDate = '';
+  events.forEach((ev, i) => {
+    if (ev.event_type === 'future' || ev.event_type === 'pending') return;
+    const d = ev.date || '';
+    if (d > lastDoneDate) {
+      lastDoneDate = d;
+      lastDoneIdx = i;
+    }
+  });
 
-  events.forEach(event => {
+  let html = '<ol class="timeline">';
+
+  events.forEach((event, i) => {
     const { day, year } = formatTimelineDate(event.date);
-    const isSigned = event.event_type === 'signed';
-    const isVetoed = event.event_type === 'vetoed';
-    const isPassed = event.event_type === 'passed';
-    const isCommittee = event.event_type === 'committee';
+    const isFuture  = event.event_type === 'future' || event.event_type === 'pending';
+    const isCurrent = i === lastDoneIdx;
+    const stateClass = isFuture ? 'tl-future' : isCurrent ? 'tl-current' : 'tl-done';
 
-    const dotClass = isSigned ? 'tl-dot tl-dot-law'
-                   : isVetoed ? 'tl-dot tl-dot-vetoed'
-                   : isPassed || isCommittee ? 'tl-dot tl-dot-filled'
-                   : 'tl-dot';
+    const dateText = isFuture
+      ? (event.date ? `${day} ${year}` : 'Pending')
+      : `${day}, ${year}${isCurrent ? ' · Latest' : ''}`;
 
-    const cardClass = isSigned ? 'tl-card tl-card-signed'
-                    : isVetoed ? 'tl-card tl-card-vetoed'
-                    : 'tl-card';
+    const chamber = chamberLabel(event);
+    const chamberHtml = chamber
+      ? `<span class="tl-chamber-inline">${escapeHtml(chamber)}</span>`
+      : '';
 
-    const voteHtml = (event.yea !== null && event.nay !== null) ? `
+    const detailRaw = (event.detail && event.detail !== event.text) ? event.detail : '';
+    const detail = detailRaw.length > 200 ? detailRaw.slice(0, 197) + '…' : detailRaw;
+
+    const voteHtml = (event.yea != null && event.nay != null) ? `
       <div class="tl-vote-row">
         <span class="tl-vote-pill tl-vote-yea">Yea ${event.yea}</span>
         <span class="tl-vote-pill tl-vote-nay">Nay ${event.nay}</span>
       </div>` : '';
 
     html += `
-      <div class="tl-entry">
-        <div class="tl-date">
-          <span>${day}</span>
-          <span class="tl-date-year">${year}</span>
-        </div>
-        <div class="${dotClass}"></div>
-        <div class="${cardClass}">
-          <div class="tl-chamber-tag">${chamberLabel(event)}</div>
-          <div class="tl-event">${event.text}</div>
-          ${event.detail && event.detail !== event.text
-            ? `<div class="tl-detail">${event.detail.slice(0, 200)}${event.detail.length > 200 ? '…' : ''}</div>`
-            : ''}
+      <li class="tl-event ${stateClass}">
+        <div class="tl-date">${escapeHtml(dateText)} ${chamberHtml}</div>
+        <div class="tl-body">
+          <div class="tl-title">${escapeHtml(event.text || '')}</div>
+          ${detail ? `<div class="tl-detail">${escapeHtml(detail)}</div>` : ''}
           ${voteHtml}
         </div>
-      </div>`;
+      </li>`;
   });
 
-  html += '</div>';
-  html += '<div class="tl-note">Data sourced from Congress.gov legislative actions.</div>';
+  html += '</ol>';
+  const isStateBill = !!(_currentBill && (_currentBill.is_state_bill || _currentBill.state || _currentBill.ocd_id));
+  const sourceLabel = isStateBill ? 'OpenStates' : 'Congress.gov';
+  html += `<div class="tl-note">Data sourced from ${sourceLabel} legislative actions.</div>`;
 
   el.innerHTML = html;
 }
@@ -445,11 +456,35 @@ function connectionsShowAll(cat) {
   }
 }
 
+function _reportCard(r) {
+  const citation = escapeHtml(r.citation || '');
+  const title    = escapeHtml(r.title || '');
+  const subParts = [
+    r.committee,
+    r.chamber,
+    r.issue_date ? new Date(r.issue_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : null,
+    r.part && r.part > 1 ? `Part ${r.part}` : null,
+  ].filter(Boolean).map(escapeHtml).join(' · ');
+  const confTag = r.is_conference_report
+    ? `<span class="report-conf-tag">Conference report</span>`
+    : '';
+  const link = r.full_url
+    ? `<a href="${escapeHtml(r.full_url)}" target="_blank" rel="noopener" class="report-link">Read full report →</a>`
+    : '';
+  return `
+    <div class="report-card">
+      <div class="report-citation">${citation}${confTag}</div>
+      ${subParts ? `<div class="report-subline">${subParts}</div>` : ''}
+      ${title ? `<div class="report-title">${title}</div>` : ''}
+      ${link}
+    </div>`;
+}
+
 function renderConnections(conn) {
   const section = document.getElementById('connections-section');
 
   // Reset all categories
-  ['connections-amends','connections-identical','connections-amended-by',
+  ['connections-amends','connections-committee-reports','connections-identical','connections-amended-by',
    'connections-related','connections-superseded'].forEach(id => {
     const el = document.getElementById(id);
     if (el) { el.style.display = 'none'; el.querySelector('.conn-category-body').innerHTML = ''; }
@@ -465,8 +500,14 @@ function renderConnections(conn) {
     const el = document.getElementById('connections-amends');
     el.querySelector('.conn-category-label').textContent = conn.amends.label;
     el.querySelector('.conn-category-body').innerHTML =
-      `<div class="conn-amends-row">${conn.amends.act_name}</div>`;
+      `<div class="conn-amends-row"><a href="#" class="conn-amends-link" onclick="event.preventDefault();searchForAct(${JSON.stringify(conn.amends.act_name).replace(/"/g, '&quot;')})">${escapeHtml(conn.amends.act_name)}</a></div>`;
     el.style.display = 'block';
+    anyVisible = true;
+  }
+
+  // Committee Reports — positioned between Amends and Identical per spec
+  if (conn.committee_reports && conn.committee_reports.length) {
+    _showCategory('connections-committee-reports', conn.committee_reports.map(_reportCard).join(''));
     anyVisible = true;
   }
 
@@ -529,21 +570,96 @@ function renderExplanation(markdown, becameLaw) {
     el.classList.add('explanation-collapsed');
     const btn = document.createElement('button');
     btn.className = 'explanation-expand-btn';
-    btn.textContent = 'Read full text ↓';
+    btn.textContent = 'Show full summary ↓';
     btn.onclick = () => { el.classList.remove('explanation-collapsed'); btn.remove(); };
     el.insertAdjacentElement('afterend', btn);
   }
 }
 
+let _currentBill = null;
+
 function renderFullText(text) {
   const section = document.getElementById('full-text-section');
   const content = document.getElementById('full-text-content');
-  if (!text || text.trim().length < 100) {
-    section.style.display = 'none';
+  const cta     = document.getElementById('read-bill-text-btn');
+  const body    = document.getElementById('full-text-body');
+  const chevron = document.getElementById('full-text-chevron');
+
+  if (text && text.trim().length >= 100) {
+    content.textContent = text;
+    content.classList.remove('full-text-empty');
+    section.style.display = 'block';
+    if (cta) {
+      cta.style.display = 'inline-flex';
+      cta.textContent = 'Read bill text →';
+      cta.disabled = false;
+    }
     return;
   }
-  content.textContent = text;
+
+  // No text available — show an explicit empty state instead of hiding silently.
+  // Branch on jurisdiction: federal bills come from Congress.gov/GovInfo; state
+  // bills come from OpenStates and their primary text source is each state's
+  // own legislature website.
+  content.textContent = '';
+  content.classList.add('full-text-empty');
+
+  const isStateBill = !!(_currentBill && _currentBill.is_state_bill);
+  let messageHtml;
+
+  if (isStateBill) {
+    const stateName = stateNameFromCode(_currentBill.state) || _currentBill.state || 'the state legislature';
+    // Prefer the state's own primary source (where the published text actually
+    // lives). Fall back to OpenStates' page, then to a generic message.
+    const sources = Array.isArray(_currentBill.sources) ? _currentBill.sources : [];
+    const primarySource = sources[0];
+    let linkUrl = null;
+    let linkLabel = null;
+    if (primarySource && primarySource.url) {
+      linkUrl = primarySource.url;
+      linkLabel = `View on ${stateName} legislature site →`;
+    } else if (_currentBill.openstates_url) {
+      linkUrl = _currentBill.openstates_url;
+      linkLabel = 'View on OpenStates →';
+    }
+    const linkHtml = linkUrl
+      ? `<p><a href="${escapeHtml(linkUrl)}" target="_blank" rel="noopener" class="conn-amends-link">${escapeHtml(linkLabel)}</a></p>`
+      : '';
+    messageHtml =
+      `<p>The formal text for this bill isn’t available through OpenStates. State legislatures publish bill text on their own websites — OpenStates ingests it on a delay, and some legislatures publish only after a bill advances past committee.</p>` +
+      linkHtml;
+  } else {
+    let congressUrl = '#';
+    if (_currentBill && _currentBill.congress && _currentBill.type && _currentBill.number) {
+      const t = String(_currentBill.type).toLowerCase();
+      congressUrl = `https://www.congress.gov/bill/${_currentBill.congress}th-congress/${t === 'hr' ? 'house-bill' : t === 's' ? 'senate-bill' : t}/${_currentBill.number}/text`;
+    }
+    messageHtml =
+      `<p>The formal text for this bill isn’t available from either Congress.gov or GovInfo. This usually means the bill was filed very recently and hasn’t propagated to either system yet — try again in a day or two.</p>` +
+      `<p><a href="${congressUrl}" target="_blank" rel="noopener" class="conn-amends-link">Check Congress.gov →</a></p>`;
+  }
+
+  content.innerHTML = messageHtml;
   section.style.display = 'block';
+  if (body)    body.style.display = 'block';
+  if (chevron) chevron.classList.add('open');
+  if (cta) {
+    cta.style.display = 'inline-flex';
+    cta.textContent = 'Bill text not yet published';
+    cta.disabled = true;
+  }
+}
+
+function openBillText() {
+  const section = document.getElementById('full-text-section');
+  const body    = document.getElementById('full-text-body');
+  const chevron = document.getElementById('full-text-chevron');
+  if (!section || section.style.display === 'none') return;
+  if (body.style.display === 'none') {
+    body.style.display = 'block';
+    chevron.classList.add('open');
+  }
+  section.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function toggleFullText() {
@@ -571,7 +687,8 @@ function renderSponsors(sponsors, cosponsors) {
     const partyClass = person.party === 'D' ? 'party-d' : person.party === 'R' ? 'party-r' : 'party-i';
     const label = [person.name || person.last_name, person.state].filter(Boolean).join(', ');
     const byRequest = role === 'sponsor' && person.is_by_request ? ' <span class="sponsor-by-request">(by request)</span>' : '';
-    return `<button class="sponsor-chip ${partyClass}" onclick="openMemberFromVote(${JSON.stringify({ name: person.name })})">
+    const payload = JSON.stringify({ name: person.name }).replace(/"/g, '&quot;');
+    return `<button class="sponsor-chip ${partyClass}" onclick="openMemberFromVote(${payload})">
       ${party ? `<span class="sponsor-party">${party}</span>` : ''}
       <span class="sponsor-name">${label}</span>${byRequest}
     </button>`;
@@ -662,6 +779,7 @@ async function openDetail(bill) {
     number: parseInt(bill.number) || bill.number,
     law_number: bill.law_number ? parseInt(bill.law_number) : null
   };
+  _currentBill = bill;
   const activePage = document.querySelector('.page.active').id;
   if (activePage !== 'page-detail') previousPage = activePage;
   const billId = bill.is_law
@@ -898,6 +1016,32 @@ function getStatusRank(label) {
   return 0;
 }
 
+// Strip the bureaucratic preface and tail from federal bill titles so the
+// lede card reads like a headline. "A bill to require the Secretary of State
+// to develop a strategy for supporting free and fair elections in Venezuela…
+// and for other purposes." → "Require the Secretary of State to develop a
+// strategy for supporting free and fair elections in Venezuela".
+const _LEDE_TITLE_MAX = 140;
+function _compactBillTitle(raw) {
+  if (!raw) return '';
+  let t = String(raw).trim();
+  // Strip "A bill to ", "To ", "An Act to " prefix (case-insensitive)
+  t = t.replace(/^(a bill to|an act to|to)\s+/i, '');
+  // Strip ", and for other purposes." / "for other purposes." tail
+  t = t.replace(/[,;]?\s*(and\s+)?for\s+other\s+purposes\.?\s*$/i, '');
+  // Final cleanup: trim trailing punctuation/spaces, capitalize first letter
+  t = t.replace(/[\s.,;:]+$/, '').trim();
+  if (t.length > 0) t = t.charAt(0).toUpperCase() + t.slice(1);
+  // Cap length at a word boundary
+  if (t.length > _LEDE_TITLE_MAX) {
+    t = t.slice(0, _LEDE_TITLE_MAX);
+    const lastSpace = t.lastIndexOf(' ');
+    if (lastSpace > _LEDE_TITLE_MAX - 30) t = t.slice(0, lastSpace);
+    t = t.replace(/[\s.,;:]+$/, '') + '…';
+  }
+  return t;
+}
+
 function formatDeck(action) {
   if (!action) return '';
   let t = action
@@ -921,7 +1065,7 @@ function _leadCardHtml(item, idx) {
       <span class="lead-bill-id">${billId}</span>
       <span class="story-status ${getStatusClass(status)}">${status}</span>
     </div>
-    <div class="lead-headline">${escapeHtml(item.title || billId)}</div>
+    <div class="lead-headline">${escapeHtml(_compactBillTitle(item.title) || billId)}</div>
     ${deck ? `<div class="lead-deck">${deck}</div>` : ''}
     <div class="lead-dateline">${item.date || ''}</div>
   </div>`;
@@ -932,13 +1076,13 @@ function _storyCardHtml(item, idx) {
   const billId = item.is_state_bill
     ? (item.identifier || '')
     : formatBillId(item.type, item.number);
-  const title = item.title || billId;
+  const title = _compactBillTitle(item.title) || billId;
   const dual = item._matchesBoth ? '<span class="dual-match-tag">· your rep</span>' : '';
   return `<div class="story-card" data-fi="${idx}">
     <div class="story-card-top">
       <div class="story-card-body">
         <div class="story-bill-id">${billId}${dual}</div>
-        <div class="story-title">${escapeHtml(title.length > 90 ? title.slice(0, 87) + '…' : title)}</div>
+        <div class="story-title">${escapeHtml(title)}</div>
       </div>
       <div class="story-status ${getStatusClass(status)}">${status}</div>
     </div>
@@ -1177,10 +1321,22 @@ function renderFeedSection(items, prefs, upcomingElections = []) {
       getStatusRank(getStatusLabel(a.item.latest_action, a.item))
     );
 
-  // Lede (top 1), 3-up (next 3), then ranked feed (rest)
-  const lede   = sortedAll[0] || null;
-  const top3   = sortedAll.slice(1, 4);
-  const rest   = sortedAll.slice(4);
+  // Appropriations bills can show in the ranked list but never as the
+  // lede or in the 3-up grid — their titles are noise for a front page.
+  const headlineEligible = sortedAll.filter(({ item }) => !item.is_appropriations);
+  const ineligibleIdx = new Set(
+    sortedAll
+      .filter(({ item }) => item.is_appropriations)
+      .map(({ i }) => i)
+  );
+
+  // Lede (top 1), 3-up (next 3), then ranked feed (everything else)
+  const lede     = headlineEligible[0] || null;
+  const top3     = headlineEligible.slice(1, 4);
+  const usedIdx  = new Set([lede, ...top3].filter(Boolean).map(s => s.i));
+  const rest     = sortedAll.filter(({ i }) => !usedIdx.has(i));
+  // (appropriations remain in `rest` via ineligibleIdx; usedIdx never includes them)
+  void ineligibleIdx;
 
   // ── Lede (placeholder slot — uses the top feed item) ──
   const ledeHtml = lede ? (() => {
@@ -1190,7 +1346,7 @@ function renderFeedSection(items, prefs, upcomingElections = []) {
       ? (item.identifier || '')
       : formatBillId(item.type, item.number);
     const congressLabel = item.congress ? `${item.congress}th Congress` : '';
-    const title = item.title || billId;
+    const title = _compactBillTitle(item.title) || billId;
     const deck  = formatDeck(item.latest_action) || '';
     const when  = _relativeDate(item.date) || 'just now';
     const sponsor = item.sponsor_name || item.sponsor || '';
@@ -1208,7 +1364,7 @@ function renderFeedSection(items, prefs, upcomingElections = []) {
           <span>${escapeHtml([congressLabel, billId].filter(Boolean).join(' · '))}</span>
           ${sponsor ? `
             <span class="lede-meta-sep">·</span>
-            <span>Sponsored by ${escapeHtml(sponsor)}</span>
+            <span>Sponsored by <a class="lede-sponsor-link" href="#" onclick="event.preventDefault();event.stopPropagation();openMemberFromVote(${JSON.stringify({ name: sponsor }).replace(/"/g, '&quot;')})">${escapeHtml(sponsor)}</a></span>
           ` : ''}
         </div>
         <div class="lede-actions">
@@ -1223,13 +1379,13 @@ function renderFeedSection(items, prefs, upcomingElections = []) {
   const stories = top3.map(({ item, i }) => {
     const status = getStatusLabel(item.latest_action, item);
     const tag    = _sectionTag(item);
-    const title  = item.title || '';
+    const title  = _compactBillTitle(item.title) || '';
     const deck   = formatDeck(item.latest_action) || '';
     const when   = _relativeDate(item.date);
     return `
       <article class="story" data-fi="${i}">
         <div class="story-section-tag">${tag}</div>
-        <h3 class="story-title">${escapeHtml(title.length > 100 ? title.slice(0, 97) + '…' : title)}</h3>
+        <h3 class="story-title">${escapeHtml(title)}</h3>
         ${deck ? `<p class="story-deck">${escapeHtml(deck)}</p>` : ''}
         <div class="story-meta">
           <span class="story-status ${getStatusClass(status)}">${status}</span>
@@ -1252,7 +1408,7 @@ function renderFeedSection(items, prefs, upcomingElections = []) {
       : partyFull;
     const activity = _repActivity(r, items);
     return `
-      <div class="rep-card" onclick="openMemberFromVote(${JSON.stringify({ name: r.name })})">
+      <div class="rep-card" onclick="openMemberFromVote(${JSON.stringify({ name: r.name }).replace(/"/g, '&quot;')})">
         <div class="rep-portrait">${init || '??'}</div>
         <div class="rep-body">
           <div class="rep-name">${escapeHtml(r.name || '')}</div>
@@ -1301,7 +1457,7 @@ function renderFeedSection(items, prefs, upcomingElections = []) {
     const billId = item.is_state_bill
       ? (item.identifier || '')
       : formatBillId(item.type, item.number);
-    const title = item.title || billId;
+    const title = _compactBillTitle(item.title) || billId;
     const rank  = String(idx + 1).padStart(2, '0');
     const why   = _whyText(item, prefs);
     return `
@@ -1733,6 +1889,21 @@ function setJurisdiction(j, el) {
 }
 
 const STATE_CODES = ['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY'];
+const STATE_NAMES_BY_CODE = {
+  AL:"Alabama",AK:"Alaska",AZ:"Arizona",AR:"Arkansas",CA:"California",
+  CO:"Colorado",CT:"Connecticut",DE:"Delaware",FL:"Florida",GA:"Georgia",
+  HI:"Hawaii",ID:"Idaho",IL:"Illinois",IN:"Indiana",IA:"Iowa",KS:"Kansas",
+  KY:"Kentucky",LA:"Louisiana",ME:"Maine",MD:"Maryland",MA:"Massachusetts",
+  MI:"Michigan",MN:"Minnesota",MS:"Mississippi",MO:"Missouri",MT:"Montana",
+  NE:"Nebraska",NV:"Nevada",NH:"New Hampshire",NJ:"New Jersey",NM:"New Mexico",
+  NY:"New York",NC:"North Carolina",ND:"North Dakota",OH:"Ohio",OK:"Oklahoma",
+  OR:"Oregon",PA:"Pennsylvania",RI:"Rhode Island",SC:"South Carolina",
+  SD:"South Dakota",TN:"Tennessee",TX:"Texas",UT:"Utah",VT:"Vermont",
+  VA:"Virginia",WA:"Washington",WV:"West Virginia",WI:"Wisconsin",WY:"Wyoming"
+};
+function stateNameFromCode(code) {
+  return STATE_NAMES_BY_CODE[(code || '').toUpperCase()] || code || '';
+}
 let _stateIdx = STATE_CODES.indexOf('VA');
 
 function _renderStatePicker() {
@@ -1827,7 +1998,7 @@ async function runStateSearch(question, stateCode) {
   resultsSection.innerHTML = '';
   clearStatus();
   showPage('page-home');
-  const stateName = getPrefs()?.stateName || currentStateCode || 'State';
+  const stateName = stateNameFromCode(stateCode) || stateCode || 'State';
   setStatus(`Searching ${stateName}...`);
 
   try {
@@ -1870,7 +2041,7 @@ function _makeStateCard(bill, animIndex) {
   card.onclick = () => openStateBill(bill);
 
   const chamberLabel = bill.chamber === 'lower' ? 'House' : bill.chamber === 'upper' ? 'Senate' : (bill.chamber || '');
-  const stateName = getPrefs()?.stateName || bill.state || '';
+  const stateName = stateNameFromCode(bill.state) || bill.state || '';
   const abstractSnippet = bill.abstract ? bill.abstract.slice(0, 140) + (bill.abstract.length > 140 ? '…' : '') : '';
   const sponsorLine = bill.sponsor ? `<div class="meta-item">Sponsor: ${bill.sponsor}</div>` : '';
 
@@ -1902,19 +2073,52 @@ function renderStateResults(data) {
   _searchState.stateCode   = currentStateCode;
   _searchState.fullHistory = false;
 
-  if (!currentResults.length) {
+  // Authoritative state for this result set comes from the backend response,
+  // not from getPrefs() which can be stale after the user changes states.
+  const responseStateCode = (data.state_code || currentStateCode || '').toUpperCase();
+  const stateName = stateNameFromCode(responseStateCode) || responseStateCode || 'State';
+
+  // Off-topic — show the polite empty state with the router's reason text.
+  if (data.query_type === 'off_topic') {
     resultsSection.innerHTML = `
       <div class="empty-state">
-        <p>No ${escapeHtml(getPrefs()?.stateName || 'state')} bills found.</p>
-        <p style="margin-top:0.5rem">Try different keywords.</p>
+        <p>${escapeHtml(data.ambiguity_reason || `That doesn't look like a question about ${stateName} legislation.`)}</p>
       </div>`;
+    return;
+  }
+
+  // Jurisdiction nudge — router thinks the user meant a federal query.
+  if (data.suggested_jurisdiction === 'federal') {
+    const nudge = document.createElement('div');
+    nudge.className = 'jurisdiction-nudge';
+    nudge.innerHTML =
+      `Searching ${escapeHtml(stateName)}. ` +
+      `<a href="#" onclick="event.preventDefault();_switchToFederalAndSearch()">Switch to Federal? →</a>`;
+    resultsSection.appendChild(nudge);
+  }
+
+  // Ambiguity / cross-session note (e.g. "showing HB 1557 from 2024 — add a year…")
+  if (data.ambiguity_reason && data.query_type !== 'off_topic') {
+    const note = document.createElement('div');
+    note.className = 'result-ambiguity-note';
+    note.textContent = data.ambiguity_reason;
+    resultsSection.appendChild(note);
+  }
+
+  if (!currentResults.length) {
+    const empty = document.createElement('div');
+    empty.className = 'empty-state';
+    empty.innerHTML =
+      `<p>No ${escapeHtml(stateName)} bills found.</p>` +
+      `<p style="margin-top:0.5rem">Try different keywords, or check the bill ID and session year.</p>`;
+    resultsSection.appendChild(empty);
     return;
   }
 
   const header = document.createElement('div');
   header.className = 'results-header';
   header.innerHTML = `
-    <h2>${escapeHtml(getPrefs()?.stateName || currentStateCode || 'State')} Results</h2>
+    <h2>${escapeHtml(stateName)} Results</h2>
     <span class="results-count">${currentResults.length} result${currentResults.length !== 1 ? 's' : ''} found</span>`;
   resultsSection.appendChild(header);
 
@@ -1923,13 +2127,24 @@ function renderStateResults(data) {
   _appendShowMoreFooter();
 }
 
+function _switchToFederalAndSearch() {
+  if (typeof setJurisdiction === 'function') setJurisdiction('federal');
+  runSearch();
+}
+
 async function openStateBill(bill) {
   previousPage = document.querySelector('.page.active').id;
+  _currentBill = { ...bill, is_state_bill: true };
 
-  document.getElementById('detail-bill-id').textContent = `${bill.identifier} · ${getPrefs()?.stateName || bill.state || ''}`;
+  const _stateLabel = stateNameFromCode(bill.state) || bill.state || '';
+  document.getElementById('detail-bill-id').textContent = `${bill.identifier}${_stateLabel ? ` · ${_stateLabel}` : ''}`;
   document.getElementById('detail-bill-title').textContent = bill.title || bill.identifier;
   document.getElementById('detail-loading').style.display = 'block';
   document.getElementById('detail-content').style.display = 'none';
+  // Hide federal-only sections — OpenStates doesn't carry the same shape of
+  // sponsor/cosponsor data and the federal panel must NOT leak from a prior
+  // bill detail view.
+  renderSponsors([], []);
 
   const steps = ['lstep-1', 'lstep-2', 'lstep-3', 'lstep-4'];
   steps.forEach((id, i) => {
@@ -1945,7 +2160,7 @@ async function openStateBill(bill) {
     const response = await fetch('/state/bill', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ocd_id: bill.ocd_id, state_code: bill.state || 'VA' })
+      body: JSON.stringify({ ocd_id: bill.ocd_id, state_code: bill.state })
     });
     if (!response.ok) throw new Error(`Error: ${response.status}`);
     const data = await response.json();
@@ -1957,6 +2172,13 @@ async function openStateBill(bill) {
 
     setTimeout(() => {
       document.getElementById('detail-loading').style.display = 'none';
+      // Enrich _currentBill with detail-response data so renderFullText can
+      // deep-link to the state's own bill page when no text is available.
+      _currentBill = {
+        ..._currentBill,
+        openstates_url: data.openstates_url || _currentBill.openstates_url,
+        sources: data.sources || [],
+      };
       renderExplanation(data.translation || '');
       renderTimeline(data.timeline_events, data.timeline);
       renderVotes(data.votes, true);
@@ -1984,6 +2206,13 @@ async function openStateBill(bill) {
 }
 
 // ── Main search ──
+function searchForAct(actName) {
+  if (!actName) return;
+  if (currentJurisdiction !== 'federal') setJurisdiction('federal');
+  input.value = actName;
+  runSearch();
+}
+
 async function runSearch() {
   const question = input.value.trim();
   if (!question) return;
@@ -1999,8 +2228,9 @@ async function runSearch() {
 
   setStatus('Understanding your question...');
 
+  let searchStatusTimer = null;
   try {
-    setTimeout(() => setStatus('Searching federal legislation...'), 500);
+    searchStatusTimer = setTimeout(() => setStatus('Searching federal legislation...'), 500);
 
     const response = await fetch('/search', {
       method: 'POST',
@@ -2010,6 +2240,7 @@ async function runSearch() {
 
     if (!response.ok) throw new Error(`Server error: ${response.status}`);
     const data = await response.json();
+    clearTimeout(searchStatusTimer);
     clearStatus();
 
     if (data.confidence < 0.7 && data.ambiguity_reason) {
@@ -2042,6 +2273,7 @@ async function runSearch() {
     }
 
   } catch (err) {
+    clearTimeout(searchStatusTimer);
     clearStatus();
     resultsSection.innerHTML = `
       <div class="empty-state">
@@ -2526,7 +2758,7 @@ function _renderSidebar() {
               : party.toLowerCase().includes('rep') ? 'rep' : 'ind';
     const title = r._isSen ? 'Sen.' : 'Rep.';
     const loc = r.district ? `${r.state}-${r.district}` : (r.state || '');
-    return `<div class="sidebar-rep" onclick="openMemberFromVote(${JSON.stringify({ name: r.name })})">
+    return `<div class="sidebar-rep" onclick="openMemberFromVote(${JSON.stringify({ name: r.name }).replace(/"/g, '&quot;')})">
       <span class="party-dot ${cls}" style="margin-top:0.3rem;flex-shrink:0"></span>
       <div class="sidebar-rep-info">
         <div class="sidebar-rep-name">${title} ${escapeHtml(r.name)}</div>

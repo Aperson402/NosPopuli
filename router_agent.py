@@ -1,5 +1,6 @@
 import anthropic
 import os
+import re
 import json
 from dotenv import load_dotenv
 from documentor_agent import log_action
@@ -159,6 +160,230 @@ def extract_president_congress(question):
             return congresses
     
     return None
+_BILL_ID_RE = re.compile(
+    r"""
+    ^\s*
+    (?:show\ me\ |find\ |tell\ me\ about\ |what\ is\ |what's\ |open\ |bring\ up\ )?  # optional intro
+    (?:the\ )?
+    (?P<type>
+        h\.?\s*r\.?                       # H.R. / HR / H. R.
+      | s\.?                              # S. / S
+      | h\.?\s*j\.?\s*res\.?              # H.J.Res / HJRES
+      | s\.?\s*j\.?\s*res\.?              # S.J.Res / SJRES
+      | h\.?\s*con\.?\s*res\.?            # HConRes
+      | s\.?\s*con\.?\s*res\.?            # SConRes
+      | h\.?\s*res\.?                     # HRes
+      | s\.?\s*res\.?                     # SRes
+    )
+    \s*\.?\s*
+    (?P<num>\d{1,5})
+    \s*\.?\s*$
+    """,
+    re.IGNORECASE | re.VERBOSE,
+)
+
+_BILL_TYPE_NORMALIZE = [
+    (re.compile(r"^h\.?\s*r\.?$",          re.I), "hr"),
+    (re.compile(r"^s\.?$",                 re.I), "s"),
+    (re.compile(r"^h\.?\s*j\.?\s*res\.?$", re.I), "hjres"),
+    (re.compile(r"^s\.?\s*j\.?\s*res\.?$", re.I), "sjres"),
+    (re.compile(r"^h\.?\s*con\.?\s*res\.?$", re.I), "hconres"),
+    (re.compile(r"^s\.?\s*con\.?\s*res\.?$", re.I), "sconres"),
+    (re.compile(r"^h\.?\s*res\.?$",        re.I), "hres"),
+    (re.compile(r"^s\.?\s*res\.?$",        re.I), "sres"),
+]
+
+
+def _normalize_bill_type(raw):
+    cleaned = re.sub(r"\s+", "", raw)  # collapse whitespace for matching
+    raw_with_spaces = raw.strip()
+    for pat, code in _BILL_TYPE_NORMALIZE:
+        if pat.match(cleaned) or pat.match(raw_with_spaces):
+            return code
+    return None
+
+
+def fast_route(user_question):
+    """Regex fast-path for unambiguous queries. Returns a fully-formed
+    structured dict on a confident match, else None — in which case the
+    caller falls through to the LLM router. Only matches bill IDs that
+    occupy the entire meaningful query, to avoid false positives like
+    'what did Ted Kennedy do about S. 2208'."""
+    if not user_question:
+        return None
+    m = _BILL_ID_RE.match(user_question)
+    if not m:
+        return None
+    bill_type = _normalize_bill_type(m.group("type"))
+    if not bill_type:
+        return None
+    try:
+        number = int(m.group("num"))
+    except ValueError:
+        return None
+    if number < 1 or number > 99999:
+        return None
+    return {
+        "query_type": "legislation",
+        "query_subtype": "specific_bill",
+        "jurisdiction": "federal",
+        "state_code": None,
+        "specific_bill": {
+            "congress": 119,
+            "type": bill_type,
+            "number": number,
+        },
+        "congress_numbers": [119],
+        "keywords": [],
+        "expanded_terms": [],
+        "topic": "",
+        "named_entity": None,
+        "entity_name": None,
+        "time_filter": False,
+        "time_range": None,
+        "status": "any",
+        "result_count": 1,
+        "confidence": 1.0,
+        "ambiguity_reason": None,
+        "full_history": False,
+        "_fast_path": "bill_id",
+    }
+
+
+# State bill-ID fast-path. Each state has its own numbering convention; most
+# fit one of HB/SB, HR/SR, AB/SB (NY/CA), LB (Nebraska unicameral), LD (Maine).
+_STATE_BILL_ID_RE = re.compile(
+    r"""
+    ^\s*
+    (?:show\ me\ |find\ |tell\ me\ about\ |what\ is\ |what's\ |open\ |bring\ up\ )?
+    (?:the\ )?
+    (?P<type>
+        h\.?\s*b\.?               # HB / H.B.
+      | s\.?\s*b\.?               # SB / S.B.
+      | h\.?\s*r\.?               # HR / H.R. (some New England)
+      | s\.?\s*r\.?               # SR / S.R.
+      | a\.?\s*b\.?               # AB / A.B. (CA, NY)
+      | a\.?                      # A (NY assembly)
+      | s\.?                      # S
+      | l\.?\s*b\.?               # LB (Nebraska)
+      | l\.?\s*d\.?               # LD (Maine)
+      | h\.?\s*f\.?               # HF (MN, IA)
+      | s\.?\s*f\.?               # SF (MN, IA)
+    )
+    \s*\.?\s*
+    (?P<num>\d{1,5})
+    \s*\.?\s*
+    # Optional trailing session anchor — captured for downstream resolution
+    (?:
+        (?:\s+from\s+|\s+in\s+|\s*,\s*)?
+        (?:the\s+)?
+        (?P<session_anchor>
+            (?P<year>19|20)\d{2}
+          | (?P<ord>\d{1,3})(?:st|nd|rd|th)\s+(?:session|legislature|general\s+assembly)
+          | (?:session\s+of\s+)?\d{4}
+        )
+    )?
+    \s*$
+    """,
+    re.IGNORECASE | re.VERBOSE,
+)
+
+
+def _extract_state_session(question: str) -> str | None:
+    """
+    Pull out an explicit session anchor from a state-bill query — a 4-digit
+    year, an ordinal session ("88th session"), or "from {year}" / "in {year}".
+    Returns the session identifier as a string, or None when the query has no
+    anchor and we should default to current session.
+    """
+    if not question:
+        return None
+    q = question.strip()
+    # 4-digit year anywhere in the query
+    year_match = re.search(r"\b(19\d{2}|20\d{2})\b", q)
+    if year_match:
+        return year_match.group(1)
+    # Ordinal session like "88th session"
+    ord_match = re.search(r"\b(\d{1,3})(?:st|nd|rd|th)\s+(?:session|legislature|general\s+assembly)\b", q, re.I)
+    if ord_match:
+        return ord_match.group(1)
+    return None
+
+
+_STATE_BILL_TYPE_NORMALIZE = [
+    (re.compile(r"^h\.?\s*b\.?$",  re.I), "HB"),
+    (re.compile(r"^s\.?\s*b\.?$",  re.I), "SB"),
+    (re.compile(r"^h\.?\s*r\.?$",  re.I), "HR"),
+    (re.compile(r"^s\.?\s*r\.?$",  re.I), "SR"),
+    (re.compile(r"^a\.?\s*b\.?$",  re.I), "AB"),
+    (re.compile(r"^a\.?$",         re.I), "A"),
+    (re.compile(r"^s\.?$",         re.I), "S"),
+    (re.compile(r"^l\.?\s*b\.?$",  re.I), "LB"),
+    (re.compile(r"^l\.?\s*d\.?$",  re.I), "LD"),
+    (re.compile(r"^h\.?\s*f\.?$",  re.I), "HF"),
+    (re.compile(r"^s\.?\s*f\.?$",  re.I), "SF"),
+]
+
+
+def _normalize_state_bill_type(raw: str) -> str | None:
+    cleaned = re.sub(r"\s+", "", raw or "")
+    for pat, code in _STATE_BILL_TYPE_NORMALIZE:
+        if pat.match(cleaned):
+            return code
+    return None
+
+
+def fast_route_state(user_question: str, state_code: str | None = None):
+    """
+    Regex fast-path for state bill IDs. Returns a structured dict on a confident
+    match (with `requested_session` set when the query had an explicit year or
+    ordinal anchor), else None. Defaults to the current session when no anchor
+    is given; the caller resolves that via OpenStates.
+    """
+    if not user_question:
+        return None
+    m = _STATE_BILL_ID_RE.match(user_question)
+    if not m:
+        return None
+    bill_type = _normalize_state_bill_type(m.group("type"))
+    if not bill_type:
+        return None
+    try:
+        number = int(m.group("num"))
+    except (ValueError, TypeError):
+        return None
+    if number < 1 or number > 99999:
+        return None
+
+    requested_session = _extract_state_session(user_question)
+    identifier = f"{bill_type} {number}"
+
+    return {
+        "query_type": "legislation",
+        "query_subtype": "specific_bill",
+        "jurisdiction": "state",
+        "state_code": (state_code or "").upper() or None,
+        "specific_bill": {
+            "type": bill_type,
+            "number": number,
+            "identifier": identifier,
+        },
+        "requested_session": requested_session,
+        "keywords": [],
+        "expanded_terms": [],
+        "topic": "",
+        "named_entity": None,
+        "entity_name": None,
+        "time_filter": bool(requested_session),
+        "time_range": None,
+        "status": "any",
+        "result_count": 1,
+        "confidence": 1.0,
+        "ambiguity_reason": None,
+        "_fast_path": "state_bill_id",
+    }
+
+
 def route_query(user_question, client, full_history=False):
     """
     Takes a plain English question and returns a structured search query.
@@ -182,7 +407,8 @@ User question: {user_question}
 Rules for query_type:
 - A person's name, "Senator X", "Representative X", "what did X do", "X's record", "X's votes", "who is X" → "member"
 - "X Committee", "committee on X", "House/Senate committee" → "committee"
-- Everything else → "legislation"
+- Queries that have NOTHING to do with US legislation, members of Congress, government policy, public law, or civic topics — e.g. "weather forecast tomorrow", "best pizza near me", "stock price of AAPL", "who won the game last night" → "off_topic"
+- Everything else (any plausible civic / policy / legislative / governmental topic, even if broad like "marijuana" or "abortion") → "legislation"
 
 Rules for jurisdiction:
 - "Virginia bill", "Virginia legislature", "Richmond", "General Assembly", "Virginia delegate", "Virginia senator" → jurisdiction: "state", state_code: "VA"
@@ -207,6 +433,11 @@ Rules for named_entity:
 - "obamacare" → "Affordable Care Act"
 - "chips act" → "CHIPS and Science Act"
 - "save act" → "Safeguard American Voter Eligibility (SAVE) Act"
+- "pact act" → "Honoring our PACT Act of 2022" (veterans toxic exposure, by far the most-discussed PACT Act today; cigarette trafficking PACT Act 2010 is rarely meant)
+- "farm bill" → "Agriculture Improvement Act of 2018" (most recent enacted farm bill)
+- "dodd frank" or "dodd-frank" → "Dodd-Frank Wall Street Reform and Consumer Protection Act"
+- "patriot act" or "usa patriot act" → "USA PATRIOT Act" (the original 2001 statute — extensions and amendments are rarely what users mean)
+- "freedom act" or "usa freedom act" → "USA FREEDOM Act of 2015"
 - Otherwise: null
 
 Rules for confidence (0.0 to 1.0):

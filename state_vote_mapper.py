@@ -97,27 +97,82 @@ def map_state_votes(bill_votes, state_code, chamber_class):
     if not bill_votes:
         return None
 
-    # Pick the most recent passage vote for this chamber
-    target = None
-    for v in sorted(bill_votes, key=lambda x: x.get("date", ""), reverse=True):
+    # Pick the right vote for this chamber.
+    #
+    # OpenStates tags both committee and floor votes with the same chamber
+    # classification ("lower"/"upper") and often leaves motion_classification
+    # empty. So we can't trust those alone — committee tallies (e.g. 22-0) get
+    # mistaken for chamber passage (e.g. 98-0). We rank candidates by:
+    #
+    #   1. motion_classification of "passage" or "reading-3" (when present)
+    #   2. motion_text matching floor-vote markers ("VOTE:", "Passage",
+    #      "Third Reading", "Final Passage")
+    #   3. Total participants — chamber-wide floor votes are near full chamber
+    #      seat count; committee tallies are far smaller
+    #
+    # Anything with explicit committee-vote text ("Reported from",
+    # "Subcommittee", "Substitute agreed") is explicitly excluded.
+    state_data = STATE_CHAMBERS.get(state_code.upper(), {})
+    chamber_seats = state_data.get(chamber_class, 0)
+
+    def _is_committee_vote(motion_text: str) -> bool:
+        mt = (motion_text or "").lower()
+        direct_markers = (
+            "reported from", "subcommittee", "substitute agreed",
+            "amendment agreed", "committee recommend",
+            "from committee", "placed on suspense",
+        )
+        if any(m in mt for m in direct_markers):
+            return True
+        # "Do pass" by itself is sometimes a floor motion in plain language, but
+        # in committee contexts it always co-occurs with re-referral, committee
+        # naming, or amendment language. Catch all three.
+        if "do pass" in mt and any(
+            kw in mt for kw in ("re-refer", "re-referred", "committee", "com.", "amend")
+        ):
+            return True
+        return False
+
+    def _floor_vote_score(v: dict) -> tuple:
         org_class = (v.get("organization") or {}).get("classification", "")
         if org_class != chamber_class:
-            continue
+            return (-1,)
+        motion_text = v.get("motion_text") or ""
+        if _is_committee_vote(motion_text):
+            return (-1,)
         classifications = v.get("motion_classification") or []
-        if any(c in classifications for c in ("passage", "reading-3")):
-            target = v
-            break
+        mc_score = 2 if any(c in classifications for c in ("passage", "reading-3")) else 0
+        mt = motion_text.lower()
+        mt_score = 2 if any(p in mt for p in ("vote:", "passage", "third reading", "final passage")) else 0
+        total = sum(c.get("value", 0) for c in v.get("counts", []))
+        # Normalise total against chamber seat count when known: votes close
+        # to full chamber size score highest; tiny committee tallies score low.
+        if chamber_seats and total > 0:
+            participation_score = min(total / chamber_seats, 1.0)
+        else:
+            participation_score = min(total / 40.0, 1.0)
+        date = v.get("start_date") or v.get("date") or ""
+        return (mc_score + mt_score, participation_score, date)
 
-    # Fallback: most recent vote from this chamber, any motion type
-    if not target:
-        for v in sorted(bill_votes, key=lambda x: x.get("date", ""), reverse=True):
-            org_class = (v.get("organization") or {}).get("classification", "")
-            if org_class == chamber_class:
-                target = v
-                break
-
-    if not target:
-        return None
+    candidates = [v for v in bill_votes if _floor_vote_score(v)[0] != -1]
+    if candidates:
+        target = max(candidates, key=_floor_vote_score)
+    else:
+        # No clean floor vote. Only fall back when there's a non-committee
+        # vote with substantial participation (>= 50% of the chamber, if known).
+        # Otherwise return None — better to show "no recorded vote" than to
+        # mislabel a committee tally as the chamber's verdict.
+        non_committee = [
+            v for v in bill_votes
+            if (v.get("organization") or {}).get("classification", "") == chamber_class
+            and not _is_committee_vote(v.get("motion_text") or "")
+        ]
+        if not non_committee:
+            return None
+        target = max(non_committee, key=lambda v: sum(c.get("value", 0) for c in v.get("counts", [])))
+        total = sum(c.get("value", 0) for c in target.get("counts", []))
+        if chamber_seats and total < chamber_seats * 0.5:
+            return None
 
     # Vote counts
     counts = {c["option"]: c["value"] for c in target.get("counts", [])}

@@ -27,7 +27,10 @@ def validate_results(query, results, client, min_score=5, fail_open=True):
     Returns filtered list with obviously wrong results removed.
 
     min_score: keep results scoring >= this (0-10). Use 7 for state bill searches.
-    fail_open: if True, return original results when nothing passes. If False, return [].
+    fail_open: only affects the *exception* path (LLM/JSON error) — if True, return
+    original unscored results so the user sees something. When the LLM scores
+    successfully but no result clears min_score, this returns [] regardless;
+    that's a real "no relevant match" verdict, not a transport failure.
     """
     print(f"[VALIDATOR] Running on {len(results)} results for: {query}")
     if not results:
@@ -95,15 +98,11 @@ Return ONLY this JSON:
             }
         )
 
-        if filtered:
-            return filtered
-        # fail-open: return originals sorted by whatever scores were given
-        if fail_open:
-            all_scored = [(s["index"], s["score"]) for s in scored["scores"]]
-            all_scored.sort(key=lambda x: x[1], reverse=True)
-            return [results[i] for i, _ in all_scored]
-        return []
+        # When the LLM scored successfully but nothing clears the floor,
+        # that's a real "no relevant match" verdict — return empty rather
+        # than poisoning the UI with low-confidence results.
+        return filtered
 
     except Exception as e:
         print(f"[VALIDATOR] Error: {e}")
-        return results  # always fail open on error
+        return results if fail_open else []  # transport failure — fail open by default

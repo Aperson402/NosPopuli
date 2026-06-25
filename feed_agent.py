@@ -2,12 +2,95 @@ import requests
 import os
 import json
 import hashlib
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed, wait, FIRST_COMPLETED
 from datetime import datetime, timedelta
+from threading import RLock
+from cachetools import TTLCache
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 from dotenv import load_dotenv
 from documentor_agent import log_action
 from state_search_agent import get_recent_state_bills, ENABLED_STATES
 from correspondence.db import get_disk_cache, set_disk_cache
+
+# ── Shared HTTP session ──────────────────────────────────────
+# Single Session with HTTP keep-alive + a small connection pool eliminates
+# the cold-TLS handshake on every Congress.gov call. Costs ~200ms per call
+# without it.
+_session = requests.Session()
+_adapter = HTTPAdapter(
+    pool_connections=10,
+    pool_maxsize=20,
+    max_retries=Retry(total=0, backoff_factor=0),
+)
+_session.mount("https://", _adapter)
+_session.mount("http://", _adapter)
+
+# ── Curation patterns ─────────────────────────────────────────
+# Ceremonial / procedural / honorary titles — never relevant to a citizen feed.
+# Applied to rep bills, interest bills, and state bills before they enter the pool.
+_CEREMONIAL_PATTERNS = (
+    "celebrating the", "expressing support for the designation",
+    "recognizing the", "honoring the", "congratulating",
+    "acknowledging the", "commemorating", "proclaiming",
+    "expressing the sense of", "to designate", "to redesignate",
+    "to authorize the president to award", "to award a congressional gold medal",
+    "to grant the congressional gold medal", "to name", "naming",
+    "designating the week", "designating the month", "national day of",
+    "national week of", "national month of",
+)
+
+# Appropriations bills — substantive but not front-page material.
+# Allowed into the ranked list but excluded from the lede + 3-up slots
+# by the frontend.
+import re as _re
+_APPROPRIATIONS_RE = _re.compile(
+    r"(?:^|\s)(?:making\s+)?appropriations(?:\s+for|\s+act)|continuing\s+appropriations"
+    r"|emergency\s+supplemental\s+appropriations|further\s+continuing\s+appropriations",
+    _re.IGNORECASE,
+)
+
+
+def _is_ceremonial(title):
+    t = (title or "").lower()
+    return any(p in t for p in _CEREMONIAL_PATTERNS)
+
+
+def _is_appropriations(title):
+    return bool(_APPROPRIATIONS_RE.search(title or ""))
+
+
+# Use the shared api.congress.gov breaker so a trip from any subsystem
+# (feed, search, bill detail, member search) suspends every other call site.
+from congress_breaker import is_tripped as _breaker_tripped, trip as _trip_breaker, clear as _clear_breaker
+
+
+# Per-rep sponsored-legislation cache.
+#   Fresh tier (in-memory TTLCache, 12h): full hit, no network
+#   Stale tier (in-memory dict, no TTL): fallback when live call fails
+#   Disk tier (correspondence.db disk_cache, 30d): survives server restarts
+# In-flight set prevents concurrent warmers for the same bioguide.
+_REP_FRESH_TTL = 12 * 3600
+_REP_DISK_TTL  = 30 * 86400
+_rep_fresh_cache = TTLCache(maxsize=512, ttl=_REP_FRESH_TTL)
+_rep_stale_cache = {}
+_rep_cache_lock = RLock()
+_rep_inflight = set()
+_rep_inflight_lock = RLock()
+
+
+def _rep_disk_key(bioguide_id):
+    return f"rep_bills:v1:{bioguide_id}"
+
+
+def _load_rep_from_disk(bioguide_id):
+    return get_disk_cache(_rep_disk_key(bioguide_id), max_age_seconds=_REP_DISK_TTL)
+
+
+def _save_rep_to_disk(bioguide_id, bills):
+    if bills:
+        set_disk_cache(_rep_disk_key(bioguide_id), bills)
 
 _FEED_TTL_SECONDS = 3600  # 1 hour
 
@@ -109,7 +192,7 @@ def _feed_cache_key(interests, senator_bioguides, rep_bioguide, state_code):
         "r": rep_bioguide or "",
         "st": state_code or "",
     }, sort_keys=True)
-    return "feed:v3:" + hashlib.sha1(payload.encode()).hexdigest()
+    return "feed:v7:" + hashlib.sha1(payload.encode()).hexdigest()
 
 
 def fetch_feed(interests, senator_bioguides, rep_bioguide, days_back=30, max_per_interest=3, state_code=None):
@@ -128,48 +211,68 @@ def fetch_feed(interests, senator_bioguides, rep_bioguide, days_back=30, max_per
 
     feed_items = []
     seen_bills = set()
-    
-    # ── Section 1: Bills from their representatives ──
-    rep_bills = _fetch_rep_bills(
-        senator_bioguides + ([rep_bioguide] if rep_bioguide else []),
-        days_back=90
-    )
-    
+
+    # ── Run all three top-level fetches concurrently ──
+    all_bioguides = senator_bioguides + ([rep_bioguide] if rep_bioguide else [])
+    state_enabled = bool(state_code and state_code.upper() in ENABLED_STATES)
+
+    with ThreadPoolExecutor(max_workers=8) as ex:
+        rep_future = ex.submit(_fetch_rep_bills_parallel, all_bioguides, 90)
+        interest_futures = [
+            ex.submit(_search_interest_bills, INTEREST_TERMS.get(i, [i]), max_per_interest)
+            for i in interests
+        ]
+        state_future = ex.submit(
+            get_recent_state_bills, state_code.upper(), 5
+        ) if state_enabled else None
+
+        rep_bills = rep_future.result()
+        interest_results = [f.result() for f in interest_futures]
+        state_bills = state_future.result() if state_future else []
+
+    # ── Build pools ──
     rep_pool = []
     for bill in rep_bills:
+        if _is_ceremonial(bill.get("title")):
+            continue
         key = f"{bill.get('type','')}{bill.get('number','')}"
         if key not in seen_bills:
             seen_bills.add(key)
             bill["feed_reason"] = "your_rep"
+            if _is_appropriations(bill.get("title")):
+                bill["is_appropriations"] = True
             rep_pool.append(bill)
-    _enrich_latest_actions(rep_pool)
-    feed_items.extend(rep_pool)
-    
-    # ── Section 2: Bills matching user interests ──
+
     interest_pool = []
-    for interest in interests:
-        terms = INTEREST_TERMS.get(interest, [interest])
-        for bill in _search_interest_bills(terms, max_per_interest):
+    for interest, bills in zip(interests, interest_results):
+        for bill in bills:
+            if _is_ceremonial(bill.get("title")):
+                continue
             key = f"{bill.get('type','')}{bill.get('number','')}"
             if key not in seen_bills:
                 seen_bills.add(key)
                 bill["feed_reason"] = interest
                 bill["feed_interest"] = interest
+                if _is_appropriations(bill.get("title")):
+                    bill["is_appropriations"] = True
                 interest_pool.append(bill)
 
-    _enrich_latest_actions(interest_pool)
+    # ── Single enrichment batch with a wall-clock budget ──
+    _enrich_latest_actions(rep_pool + interest_pool)
+    feed_items.extend(rep_pool)
     feed_items.extend(interest_pool)
-    
-    # ── Section 3: State bills if state is enabled ──
-    if state_code and state_code.upper() in ENABLED_STATES:
-        state_bills = get_recent_state_bills(state_code.upper(), limit=5)
-        for bill in state_bills:
-            key = f"state-{bill.get('identifier', '')}"
-            if key not in seen_bills:
-                seen_bills.add(key)
-                bill["feed_reason"] = "state_legislature"
-                bill["feed_interest"] = "state"
-                feed_items.append(bill)
+
+    for bill in state_bills:
+        if _is_ceremonial(bill.get("title")):
+            continue
+        key = f"state-{bill.get('identifier', '')}"
+        if key not in seen_bills:
+            seen_bills.add(key)
+            bill["feed_reason"] = "state_legislature"
+            bill["feed_interest"] = "state"
+            if _is_appropriations(bill.get("title")):
+                bill["is_appropriations"] = True
+            feed_items.append(bill)
 
     log_action(
         agent_name="feed",
@@ -187,30 +290,61 @@ def fetch_feed(interests, senator_bioguides, rep_bioguide, days_back=30, max_per
 
     return feed_items
 
-def _fetch_bill_detail(congress, bill_type, number):
+def _fetch_bill_detail(congress, bill_type, number, timeout=8):
     url = f"https://api.congress.gov/v3/bill/{congress}/{bill_type}/{number}"
     try:
-        r = requests.get(url, params={"api_key": CONGRESS_API_KEY, "format": "json"}, timeout=8)
-        if r.status_code != 200:
-            return None
-        return r.json().get("bill") or {}
-    except Exception:
-        return None
+        r = requests.get(url, params={"api_key": CONGRESS_API_KEY, "format": "json"}, timeout=timeout)
+        if r.status_code == 200:
+            return r.json().get("bill") or {}
+        return {"_error": r.status_code}
+    except Exception as e:
+        return {"_error": str(e.__class__.__name__)}
+
+
+def _fetch_bill_detail_resilient(congress, bill_type, number):
+    """Two attempts: fast first, equally short retry. A 15s second try rarely
+    succeeds when the first 8s call already failed; it just inflates the tail."""
+    detail = _fetch_bill_detail(congress, bill_type, number, timeout=6)
+    if detail and "_error" not in detail:
+        return detail
+    detail = _fetch_bill_detail(congress, bill_type, number, timeout=6)
+    if detail and "_error" not in detail:
+        return detail
+    return None
+
+
+_ENRICH_BUDGET_SECONDS = 10
 
 
 def _enrich_latest_actions(bills):
-    """Populate latest_action, latest_action_date, is_law, law_number in parallel."""
+    """Populate latest_action, latest_action_date, is_law, law_number in parallel.
+
+    Wall-clock budgeted: any future that hasn't returned by the deadline
+    falls back to "Recently introduced" rather than blocking the whole feed.
+    """
     if not bills:
         return
-    with ThreadPoolExecutor(max_workers=8) as ex:
+    with ThreadPoolExecutor(max_workers=6) as ex:
         futures = {
-            ex.submit(_fetch_bill_detail, b.get("congress"), b.get("type"), b.get("number")): b
+            ex.submit(_fetch_bill_detail_resilient, b.get("congress"), b.get("type"), b.get("number")): b
             for b in bills
         }
-        for fut in as_completed(futures):
+        done, not_done = wait(futures.keys(), timeout=_ENRICH_BUDGET_SECONDS)
+        for fut in not_done:
+            bill = futures[fut]
+            if not bill.get("latest_action"):
+                bill["latest_action"] = "Recently introduced."
+                if not bill.get("latest_action_date") and bill.get("date"):
+                    bill["latest_action_date"] = bill["date"]
+            fut.cancel()
+        for fut in done:
             bill = futures[fut]
             detail = fut.result()
             if not detail:
+                if not bill.get("latest_action"):
+                    bill["latest_action"] = "Recently introduced."
+                    if not bill.get("latest_action_date") and bill.get("date"):
+                        bill["latest_action_date"] = bill["date"]
                 continue
             la = detail.get("latestAction") or {}
             bill["latest_action"] = la.get("text", "") or bill.get("latest_action", "")
@@ -230,46 +364,175 @@ def _enrich_latest_actions(bills):
                 tag = f" ({party}-{state})" if party and state else ""
                 bill["sponsor_name"] = f"{name}{tag}".strip()
                 bill["sponsor_bioguide"] = s.get("bioguideId") or bill.get("sponsor_bioguide")
+            # Defensive: even if we got a 200 with no latestAction (rare), fall back
+            if not bill.get("latest_action"):
+                bill["latest_action"] = "Recently introduced."
+                if not bill.get("latest_action_date") and bill.get("date"):
+                    bill["latest_action_date"] = bill["date"]
+
+
+def _live_fetch_rep(bioguide_id, timeout):
+    """Single live call against Congress.gov. Returns list or raises."""
+    url = f"https://api.congress.gov/v3/member/{bioguide_id}/sponsored-legislation"
+    params = {"api_key": CONGRESS_API_KEY, "format": "json", "limit": 5}
+    r = _session.get(url, params=params, timeout=timeout)
+    if r.status_code != 200:
+        raise RuntimeError(f"status {r.status_code}")
+    out = []
+    for bill in r.json().get("sponsoredLegislation", []):
+        if not (bill.get("title") and bill.get("number") and bill.get("type")):
+            continue
+        date = (bill.get("latestAction") or {}).get("actionDate", "")
+        out.append({
+            "congress": bill.get("congress"),
+            "type": (bill.get("type") or "").lower(),
+            "number": bill.get("number"),
+            "title": bill.get("title", ""),
+            "date": date,
+            "sponsor_bioguide": bioguide_id,
+            "latest_action": (bill.get("latestAction") or {}).get("text", ""),
+        })
+    return out
+
+
+def _store_rep(bioguide_id, bills):
+    with _rep_cache_lock:
+        _rep_fresh_cache[bioguide_id] = bills
+        _rep_stale_cache[bioguide_id] = bills
+    _save_rep_to_disk(bioguide_id, bills)
+
+
+def _live_fetch_rep_no_limit(bioguide_id, timeout):
+    """Fallback live call without limit param — in case the server-side
+    'limit' handling is what's actually slow. Trims to 5 client-side."""
+    url = f"https://api.congress.gov/v3/member/{bioguide_id}/sponsored-legislation"
+    params = {"api_key": CONGRESS_API_KEY}
+    r = _session.get(url, params=params, timeout=timeout)
+    if r.status_code != 200:
+        raise RuntimeError(f"status {r.status_code}")
+    out = []
+    for bill in r.json().get("sponsoredLegislation", [])[:5]:
+        if not (bill.get("title") and bill.get("number") and bill.get("type")):
+            continue
+        date = (bill.get("latestAction") or {}).get("actionDate", "")
+        out.append({
+            "congress": bill.get("congress"),
+            "type": (bill.get("type") or "").lower(),
+            "number": bill.get("number"),
+            "title": bill.get("title", ""),
+            "date": date,
+            "sponsor_bioguide": bioguide_id,
+            "latest_action": (bill.get("latestAction") or {}).get("text", ""),
+        })
+    return out
+
+
+def _warm_rep_in_background(bioguide_id):
+    """One-shot warmer: tries canonical + no-limit variants with short
+    timeouts, trips the breaker on full failure, then exits. No spammy
+    retry loops — the breaker keeps the next feed request from re-dispatching
+    until the cooldown clears. Most outages clear within the 15-min window;
+    if not, the user's next refresh after that dispatches a single fresh try."""
+    if _breaker_tripped():
+        return
+    with _rep_inflight_lock:
+        if bioguide_id in _rep_inflight:
+            return
+        _rep_inflight.add(bioguide_id)
+
+    def attempt(label, fn, timeout):
+        try:
+            bills = fn(bioguide_id, timeout=timeout)
+            _store_rep(bioguide_id, bills)
+            _clear_breaker()
+            print(f"[FEED] Warmer SUCCEEDED for {bioguide_id} via {label} ({len(bills)} bills)")
+            return True
+        except Exception as e:
+            print(f"[FEED] Warmer {label} for {bioguide_id} failed: {type(e).__name__}")
+            return False
+
+    def runner():
+        try:
+            for to in (15, 30):
+                if attempt(f"canonical t={to}s", _live_fetch_rep, to):
+                    return
+                if _breaker_tripped():
+                    return
+            for to in (15, 30):
+                if attempt(f"no-limit t={to}s", _live_fetch_rep_no_limit, to):
+                    return
+                if _breaker_tripped():
+                    return
+            _trip_breaker()
+        finally:
+            with _rep_inflight_lock:
+                _rep_inflight.discard(bioguide_id)
+
+    t = threading.Thread(target=runner, daemon=True, name=f"rep-warm-{bioguide_id}")
+    t.start()
+
+
+def _fetch_one_rep(bioguide_id, cutoff):
+    # Tier 1: in-memory fresh cache
+    with _rep_cache_lock:
+        cached = _rep_fresh_cache.get(bioguide_id)
+    if cached is not None:
+        return [b for b in cached if b.get("date", "") >= cutoff]
+
+    # Tier 2: disk cache (survives restarts)
+    disk_cached = _load_rep_from_disk(bioguide_id)
+    if disk_cached is not None:
+        with _rep_cache_lock:
+            _rep_fresh_cache[bioguide_id] = disk_cached
+            _rep_stale_cache[bioguide_id] = disk_cached
+        # Disk hit — refresh in background so the next call has fresher data
+        _warm_rep_in_background(bioguide_id)
+        return [b for b in disk_cached if b.get("date", "") >= cutoff]
+
+    # Tier 3: breaker check — if Congress.gov is in cooldown, don't try
+    if _breaker_tripped():
+        with _rep_cache_lock:
+            stale = _rep_stale_cache.get(bioguide_id)
+        if stale is not None:
+            return [b for b in stale if b.get("date", "") >= cutoff]
+        return []
+
+    # Tier 4: try a short live call so first-ever loads have a shot
+    try:
+        bills = _live_fetch_rep(bioguide_id, timeout=8)
+        _store_rep(bioguide_id, bills)
+        _clear_breaker()
+        return [b for b in bills if b.get("date", "") >= cutoff]
+    except Exception as e:
+        with _rep_cache_lock:
+            stale = _rep_stale_cache.get(bioguide_id)
+        _warm_rep_in_background(bioguide_id)
+        if stale is not None:
+            print(f"[FEED] Live rep fetch failed for {bioguide_id} ({type(e).__name__}); serving stale ({len(stale)} bills)")
+            return [b for b in stale if b.get("date", "") >= cutoff]
+        print(f"[FEED] Rep cold-load failed for {bioguide_id} ({type(e).__name__}); background warmer dispatched")
+        return []
+
+
+def _fetch_rep_bills_parallel(bioguide_ids, days_back=180):
+    if not bioguide_ids:
+        return []
+    cutoff = (datetime.now() - timedelta(days=days_back)).strftime("%Y-%m-%d")
+    bills = []
+    with ThreadPoolExecutor(max_workers=min(8, len(bioguide_ids))) as ex:
+        futures = [ex.submit(_fetch_one_rep, bg, cutoff) for bg in bioguide_ids]
+        done, not_done = wait(futures, timeout=8)
+        for f in not_done:
+            f.cancel()
+        for f in done:
+            bills.extend(f.result())
+    bills.sort(key=lambda b: b.get("date", ""), reverse=True)
+    return bills[:3]
 
 
 def _fetch_rep_bills(bioguide_ids, days_back=180):
-    bills = []
-    cutoff = (datetime.now() - timedelta(days=days_back)).strftime("%Y-%m-%d")
-
-    for bioguide_id in bioguide_ids:
-        url = f"https://api.congress.gov/v3/member/{bioguide_id}/sponsored-legislation"
-        params = {
-            "api_key": CONGRESS_API_KEY,
-            "format": "json",
-            "limit": 5,
-        }
-
-        try:
-            r = requests.get(url, params=params, timeout=10)
-            if r.status_code != 200:
-                continue
-
-            data = r.json()
-            for bill in data.get("sponsoredLegislation", []):
-                if (bill.get("title")
-                        and bill.get("number")
-                        and bill.get("type")):
-                    date = (bill.get("latestAction") or {}).get("actionDate", "")
-                    if date >= cutoff:
-                        bills.append({
-                            "congress": bill.get("congress"),
-                            "type": (bill.get("type") or "").lower(),
-                            "number": bill.get("number"),
-                            "title": bill.get("title", ""),
-                            "date": date,
-                            "sponsor_bioguide": bioguide_id,
-                            "latest_action": (bill.get("latestAction") or {}).get("text", ""),
-                        })
-        except Exception as e:
-            print(f"[FEED] Error fetching rep bills for {bioguide_id}: {e}")
-
-    bills.sort(key=lambda b: b.get("date", ""), reverse=True)
-    return bills[:3]
+    """Backwards-compatible wrapper for external callers."""
+    return _fetch_rep_bills_parallel(bioguide_ids, days_back)
 
 def _search_interest_bills(terms, max_results):
     """Search GovInfo for recent bills matching interest terms."""
@@ -315,15 +578,7 @@ def _search_interest_bills(terms, max_results):
                         "latest_action": "",
                     })
         
-        SKIP_PATTERNS = [
-            "celebrating the", "expressing support for the designation",
-            "recognizing the", "honoring the", "congratulating",
-            "acknowledging the", "commemorating", "proclaiming"
-        ]
-        results = [r for r in results
-                   if not any(p in r.get("title", "").lower() for p in SKIP_PATTERNS)]
-
-        return results
+        return [r for r in results if not _is_ceremonial(r.get("title"))]
 
     except Exception as e:
         print(f"[FEED] Search error: {e}")

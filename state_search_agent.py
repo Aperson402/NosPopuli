@@ -60,6 +60,23 @@ SKIP_PATTERNS = [
 
 ENABLED_STATES = set(STATE_JURISDICTIONS.keys())
 
+# Per-state validator floor. Default is 5 (matches federal); thin-metadata
+# states drop to 4 so we don't return empty too aggressively. This is the
+# obvious knob to tune as we get real usage signals — change values here, no
+# code change needed elsewhere.
+_DEFAULT_STATE_VALIDATOR_FLOOR = 5
+STATE_VALIDATOR_FLOOR = {
+    # Thin metadata / small legislatures — OpenStates has fewer subjects/policy areas
+    "WY": 4, "SD": 4, "ND": 4, "VT": 4, "NH": 4, "AK": 4, "DE": 4,
+    "MT": 4, "RI": 4, "ME": 4, "ID": 4, "NE": 4, "HI": 4,
+    # Rich metadata — keep at 5
+    # CA, NY, TX, FL, IL, etc. use the default
+}
+
+
+def get_state_validator_floor(state_code: str) -> int:
+    return STATE_VALIDATOR_FLOOR.get((state_code or "").upper(), _DEFAULT_STATE_VALIDATOR_FLOOR)
+
 ENACTED_ACTION_KEYWORDS = [
     "signed by governor", "enacted", "chaptered", "became law",
     "approved by governor", "signed into law",
@@ -118,14 +135,20 @@ def filter_enacted(bills):
 def fetch_state_bill_by_identifier(identifier, state_code, session=None):
     """
     Direct lookup of a state bill by its identifier (e.g. 'HB 1234').
-    Returns a list (same shape as search_state_bills) with 0 or 1 result.
+    Returns a list (same shape as search_state_bills) with 0 or 1 result
+    (or multiple, sorted newest first, when session='any').
     """
     state_code = state_code.upper()
     jurisdiction = get_jurisdiction(state_code)
     if not jurisdiction:
         return []
 
-    session = session or get_session(state_code)
+    # session="any" → search across all sessions (no session filter passed)
+    search_any_session = (session == "any")
+    if search_any_session:
+        session = None
+    else:
+        session = session or get_session(state_code)
 
     params = {
         "jurisdiction": jurisdiction,
@@ -134,6 +157,8 @@ def fetch_state_bill_by_identifier(identifier, state_code, session=None):
     }
     if session:
         params["session"] = session
+    if search_any_session:
+        params["sort"] = "updated_desc"
 
     headers = {"X-API-KEY": OPENSTATES_API_KEY}
 
@@ -142,7 +167,7 @@ def fetch_state_bill_by_identifier(identifier, state_code, session=None):
             f"{OPENSTATES_BASE}/bills",
             params=params,
             headers=headers,
-            timeout=30
+            timeout=10
         )
         if r.status_code != 200:
             print(f"[STATE SEARCH] Identifier lookup error {r.status_code}")
@@ -224,7 +249,7 @@ def search_state_bills(query, state_code, session=None, limit=10):
             f"{OPENSTATES_BASE}/bills",
             params=params,
             headers=headers,
-            timeout=30
+            timeout=10
         )
     except Exception as e:
         print(f"[STATE SEARCH] Request error: {e}")
@@ -321,7 +346,7 @@ def get_recent_state_bills(state_code, limit=10, session=None):
             f"{OPENSTATES_BASE}/bills",
             params=params,
             headers=headers,
-            timeout=30
+            timeout=10
         )
         if r.status_code != 200:
             return []

@@ -40,6 +40,23 @@ POPULAR_NAMES = {
     "equal pay act":           {"congress": 88,  "type": "hr", "number": 6060, "title": "Equal Pay Act of 1963"},
     "ada":                     {"congress": 101, "type": "s",  "number": 933,  "title": "Americans with Disabilities Act of 1990"},
     "americans with disabilities act": {"congress": 101, "type": "s", "number": 933, "title": "Americans with Disabilities Act of 1990"},
+    # Recent acts where short popular names are too generic for relevance search
+    "chips act":               {"congress": 117, "type": "hr", "number": 4346, "title": "CHIPS and Science Act"},
+    "chips and science act":   {"congress": 117, "type": "hr", "number": 4346, "title": "CHIPS and Science Act"},
+    "pact act":                {"congress": 117, "type": "hr", "number": 3967, "title": "Honoring our PACT Act of 2022"},
+    "honoring our pact act":   {"congress": 117, "type": "hr", "number": 3967, "title": "Honoring our PACT Act of 2022"},
+    "farm bill":               {"congress": 115, "type": "hr", "number": 2,    "title": "Agriculture Improvement Act of 2018"},
+    "agriculture improvement act": {"congress": 115, "type": "hr", "number": 2, "title": "Agriculture Improvement Act of 2018"},
+    # Landmark recent statutes
+    "affordable care act":     {"congress": 111, "type": "hr", "number": 3590, "title": "Patient Protection and Affordable Care Act"},
+    "obamacare":               {"congress": 111, "type": "hr", "number": 3590, "title": "Patient Protection and Affordable Care Act"},
+    "dodd-frank":              {"congress": 111, "type": "hr", "number": 4173, "title": "Dodd-Frank Wall Street Reform and Consumer Protection Act"},
+    "dodd frank":              {"congress": 111, "type": "hr", "number": 4173, "title": "Dodd-Frank Wall Street Reform and Consumer Protection Act"},
+    # National security / surveillance landmarks
+    "patriot act":             {"congress": 107, "type": "hr", "number": 3162, "title": "USA PATRIOT Act"},
+    "usa patriot act":         {"congress": 107, "type": "hr", "number": 3162, "title": "USA PATRIOT Act"},
+    "freedom act":             {"congress": 114, "type": "hr", "number": 2048, "title": "USA FREEDOM Act of 2015"},
+    "usa freedom act":         {"congress": 114, "type": "hr", "number": 2048, "title": "USA FREEDOM Act of 2015"},
 }
 
 # ---------------------------------------------------------------------------
@@ -235,9 +252,17 @@ def search_by_title(named_entity, max_recent=3):
 
     original = None
 
-    # Phase 0 — hardcoded table
-    if entity_lower in POPULAR_NAMES:
-        entry = POPULAR_NAMES[entity_lower]
+    # Phase 0 — hardcoded table.
+    # Try the literal key first, then a year-stripped variant ("act of 2022" → "act"),
+    # since the router often appends an official year that the table omits.
+    _lookup_keys = [entity_lower]
+    _year_stripped = re.sub(r"\s+of\s+\d{4}\s*$", "", entity_lower).strip()
+    if _year_stripped and _year_stripped != entity_lower:
+        _lookup_keys.append(_year_stripped)
+
+    _hit_key = next((k for k in _lookup_keys if k in POPULAR_NAMES), None)
+    if _hit_key:
+        entry = POPULAR_NAMES[_hit_key]
         original = {
             "congress": entry["congress"],
             "type": entry["type"].lower(),

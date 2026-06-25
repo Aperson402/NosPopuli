@@ -11,3 +11,4 @@ test_*.py
 .pytest_cache/
 CLAUDE.md
 specs/
+correspondence.db

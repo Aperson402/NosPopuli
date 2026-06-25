@@ -6,7 +6,7 @@
   <title>NosPopuli — Full Redesign Mockup</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/css/test.css">
+  <link rel="stylesheet" href="/static/css/test.css?v=lobbying">
 </head>
 <body>
 
@@ -29,6 +29,7 @@
 <nav class="top-nav">
   <a class="nav-link" href="#" data-route="home"          onclick="nav('home');return false">Front Page</a>
   <a class="nav-link" href="#" data-route="elections"     onclick="nav('elections');return false">Elections</a>
+  <a class="nav-link" href="#" data-route="lobbying"      onclick="nav('lobbying');return false">Lobbying</a>
   <a class="nav-link" href="#" data-route="correspondence" onclick="nav('correspondence');return false">My Letters</a>
   <a class="nav-link" href="#" data-route="notifications" onclick="nav('notifications');return false">My Notifications</a>
   <a class="nav-link" href="#" data-route="onboarding"    onclick="nav('onboarding');return false">Onboarding</a>
@@ -1191,6 +1192,379 @@
         <button class="btn-ghost">Check registration →</button>
       </div>
     </div>
+  </section>
+</main>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- ── LOBBYING DIRECTORY                             ── -->
+<!-- ═══════════════════════════════════════════════════ -->
+<main class="page" id="route-lobbying">
+  <a class="back-link" href="#" onclick="nav('home');return false">← Back to Front Page</a>
+
+  <header class="page-header">
+    <div class="page-kicker">Money in Politics</div>
+    <h1 class="page-title">Lobbying Directory</h1>
+    <p class="page-deck">
+      Every entity registered to lobby Congress under the Lobbying Disclosure Act.
+      Spend, clients, members targeted, and contributions — all the public record,
+      laid side-by-side.
+    </p>
+    <div class="corr-summary">
+      <div class="corr-stat"><strong>14,238</strong> registered entities</div>
+      <div class="corr-stat"><strong>$1.04B</strong> reported · Q2 2026</div>
+      <div class="corr-stat">Source: <strong>LDA filings</strong> · <strong>FEC</strong> · <strong>OpenSecrets</strong></div>
+    </div>
+  </header>
+
+  <section class="bill-section">
+    <div class="lobby-toolbar">
+      <input class="lobby-search" type="text" placeholder="Search 14,238 entities — try 'PhRMA', 'Lockheed', 'AFL-CIO'..." />
+      <div class="lobby-filters">
+        <button class="lobby-pill active">All sectors</button>
+        <button class="lobby-pill">Healthcare</button>
+        <button class="lobby-pill">Defense</button>
+        <button class="lobby-pill">Energy</button>
+        <button class="lobby-pill">Tech</button>
+        <button class="lobby-pill">Finance</button>
+        <button class="lobby-pill">Labor</button>
+        <button class="lobby-pill">Education</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="bill-section">
+    <div class="bill-section-label">Top spenders · Q2 2026</div>
+    <div class="lobby-table">
+      <div class="lobby-thead">
+        <span>Rank</span><span>Entity</span><span>Sector</span><span>Q2 Spend</span><span>Bills lobbied</span><span>Top recipient (PAC + employee)</span>
+      </div>
+      <a class="lobby-trow" onclick="nav('lobby-entity')">
+        <span class="lobby-rank">01</span>
+        <span class="lobby-entity"><strong>U.S. Chamber of Commerce</strong></span>
+        <span class="lobby-sector">Business</span>
+        <span class="lobby-spend">$24.8M</span>
+        <span class="lobby-bills">142</span>
+        <span class="lobby-recipient">Sen. Tim Scott (R-SC) · $84,200</span>
+      </a>
+      <a class="lobby-trow" onclick="nav('lobby-entity')">
+        <span class="lobby-rank">02</span>
+        <span class="lobby-entity"><strong>PhRMA</strong></span>
+        <span class="lobby-sector">Healthcare</span>
+        <span class="lobby-spend">$8.2M</span>
+        <span class="lobby-bills">61</span>
+        <span class="lobby-recipient">Rep. Frank Pallone (D-NJ) · $72,100</span>
+      </a>
+      <a class="lobby-trow" onclick="nav('lobby-entity')">
+        <span class="lobby-rank">03</span>
+        <span class="lobby-entity"><strong>National Association of Realtors</strong></span>
+        <span class="lobby-sector">Real estate</span>
+        <span class="lobby-spend">$7.6M</span>
+        <span class="lobby-bills">38</span>
+        <span class="lobby-recipient">Sen. Bill Cassidy (R-LA) · $58,400</span>
+      </a>
+      <a class="lobby-trow" onclick="nav('lobby-entity')">
+        <span class="lobby-rank">04</span>
+        <span class="lobby-entity"><strong>Blue Cross Blue Shield Association</strong></span>
+        <span class="lobby-sector">Healthcare</span>
+        <span class="lobby-spend">$6.9M</span>
+        <span class="lobby-bills">47</span>
+        <span class="lobby-recipient">Sen. Mark Warner (D-VA) · $51,800</span>
+      </a>
+      <a class="lobby-trow" onclick="nav('lobby-entity')">
+        <span class="lobby-rank">05</span>
+        <span class="lobby-entity"><strong>Lockheed Martin</strong></span>
+        <span class="lobby-sector">Defense</span>
+        <span class="lobby-spend">$6.4M</span>
+        <span class="lobby-bills">22</span>
+        <span class="lobby-recipient">Rep. Mike Rogers (R-AL) · $46,500</span>
+      </a>
+      <a class="lobby-trow" onclick="nav('lobby-entity')">
+        <span class="lobby-rank">06</span>
+        <span class="lobby-entity"><strong>American Medical Association</strong></span>
+        <span class="lobby-sector">Healthcare</span>
+        <span class="lobby-spend">$5.9M</span>
+        <span class="lobby-bills">53</span>
+        <span class="lobby-recipient">Rep. Larry Bucshon (R-IN) · $44,300</span>
+      </a>
+      <a class="lobby-trow" onclick="nav('lobby-entity')">
+        <span class="lobby-rank">07</span>
+        <span class="lobby-entity"><strong>Meta Platforms</strong></span>
+        <span class="lobby-sector">Tech</span>
+        <span class="lobby-spend">$5.4M</span>
+        <span class="lobby-bills">29</span>
+        <span class="lobby-recipient">Sen. Maria Cantwell (D-WA) · $42,100</span>
+      </a>
+      <a class="lobby-trow" onclick="nav('lobby-entity')">
+        <span class="lobby-rank">08</span>
+        <span class="lobby-entity"><strong>AFL-CIO</strong></span>
+        <span class="lobby-sector">Labor</span>
+        <span class="lobby-spend">$4.1M</span>
+        <span class="lobby-bills">73</span>
+        <span class="lobby-recipient">Rep. Bobby Scott (D-VA) · $39,200</span>
+      </a>
+    </div>
+    <a class="search-drop-more" onclick="nav('lobby-entity')">View all 14,238 entities →</a>
+  </section>
+
+  <section class="bill-section">
+    <div class="bill-section-label">Where the money is flowing · Q2 2026</div>
+    <div class="lobby-grid">
+      <div class="lobby-card">
+        <div class="lobby-card-label">By sector</div>
+        <div class="lobby-card-rows">
+          <div class="lobby-card-row"><span>Healthcare</span><div class="lobby-bar"><div class="lobby-fill" style="width:78%"></div></div><span>$184M</span></div>
+          <div class="lobby-card-row"><span>Finance</span><div class="lobby-bar"><div class="lobby-fill" style="width:64%"></div></div><span>$152M</span></div>
+          <div class="lobby-card-row"><span>Tech</span><div class="lobby-bar"><div class="lobby-fill" style="width:51%"></div></div><span>$121M</span></div>
+          <div class="lobby-card-row"><span>Defense</span><div class="lobby-bar"><div class="lobby-fill" style="width:43%"></div></div><span>$102M</span></div>
+          <div class="lobby-card-row"><span>Energy</span><div class="lobby-bar"><div class="lobby-fill" style="width:36%"></div></div><span>$86M</span></div>
+          <div class="lobby-card-row"><span>Real estate</span><div class="lobby-bar"><div class="lobby-fill" style="width:24%"></div></div><span>$58M</span></div>
+        </div>
+      </div>
+      <div class="lobby-card">
+        <div class="lobby-card-label">Most-lobbied bills · this quarter</div>
+        <div class="lobby-card-rows">
+          <a class="lobby-card-row" onclick="nav('bill')"><span>H.R. 4838 <em>· Medicaid Eligibility Streamlining</em></span><span>92 entities</span></a>
+          <a class="lobby-card-row" onclick="nav('bill')"><span>S. 1402 <em>· Interstate Pharmacy Practice</em></span><span>61 entities</span></a>
+          <a class="lobby-card-row" onclick="nav('bill')"><span>HJRES 27 <em>· CRA on HUD Rental Assistance</em></span><span>54 entities</span></a>
+          <a class="lobby-card-row" onclick="nav('bill')"><span>H.R. 9260 <em>· Labor/HHS/Ed Appropriations '27</em></span><span>48 entities</span></a>
+          <a class="lobby-card-row" onclick="nav('bill')"><span>S. 2208 <em>· Rural Hospital Stabilization</em></span><span>33 entities</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <p class="poll-summary" style="margin-top:1rem">
+    Quarterly figures from Senate Office of Public Records LD-2 filings.
+    Contribution totals combine PAC and individual employee donations via OpenSecrets normalization.
+    Sector labels derived from registered entity description; some entities span multiple sectors.
+    Last updated: June 19, 2026.
+  </p>
+</main>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- ── LOBBYING ENTITY DETAIL                         ── -->
+<!-- ═══════════════════════════════════════════════════ -->
+<main class="page" id="route-lobby-entity">
+  <a class="back-link" href="#" onclick="nav('lobbying');return false">← Back to Lobbying Directory</a>
+
+  <header class="bill-header">
+    <div class="bill-id-row">
+      <span class="bill-id">Entity #02</span>
+      <span class="bill-cong">Healthcare · Trade association</span>
+      <span class="lede-stage stage-passed">Active filer</span>
+    </div>
+    <h1 class="bill-title">Pharmaceutical Research and Manufacturers of America (PhRMA)</h1>
+    <p class="bill-deck">
+      Industry trade group representing 33 member companies developing prescription medicines.
+      Registered to lobby Congress since 1958. Eighth-largest single-quarter spender in 2026 to date.
+    </p>
+    <div class="bill-meta-row">
+      <span>Founded: 1958</span><span class="dot">·</span>
+      <span>HQ: Washington, DC</span><span class="dot">·</span>
+      <span>Member companies: 33</span><span class="dot">·</span>
+      <span>Filings since 1998: 1,142</span>
+    </div>
+    <div class="lede-actions">
+      <button class="btn-primary">Track this entity</button>
+      <button class="btn-ghost">View all filings ↗</button>
+      <button class="btn-ghost">LDA disclosure ↗</button>
+    </div>
+  </header>
+
+  <section class="bill-section">
+    <div class="bill-section-label">Spend over time</div>
+    <div class="poll-trend">
+      <div class="poll-trend-head">
+        <span class="poll-trend-title">Quarterly lobbying spend · 8 quarters</span>
+        <span class="poll-trend-key"><span class="trend-dot party-d"></span> $ reported</span>
+      </div>
+      <div class="poll-trend-chart" style="grid-template-columns:repeat(8,1fr)">
+        <div class="trend-col"><div class="trend-bar" style="height:48%"></div><div class="trend-x">Q3 '24</div></div>
+        <div class="trend-col"><div class="trend-bar" style="height:55%"></div><div class="trend-x">Q4 '24</div></div>
+        <div class="trend-col"><div class="trend-bar" style="height:62%"></div><div class="trend-x">Q1 '25</div></div>
+        <div class="trend-col"><div class="trend-bar" style="height:60%"></div><div class="trend-x">Q2 '25</div></div>
+        <div class="trend-col"><div class="trend-bar" style="height:71%"></div><div class="trend-x">Q3 '25</div></div>
+        <div class="trend-col"><div class="trend-bar" style="height:74%"></div><div class="trend-x">Q4 '25</div></div>
+        <div class="trend-col"><div class="trend-bar" style="height:80%"></div><div class="trend-x">Q1 '26</div></div>
+        <div class="trend-col"><div class="trend-bar" style="height:85%;background:var(--accent)"></div><div class="trend-x">Q2 '26</div></div>
+      </div>
+      <p class="poll-trend-note">
+        Spend has trended upward since the introduction of Medicare drug-price-negotiation expansion bills in Q3 '24.
+        Q2 2026 total of $8.2M is PhRMA's largest reported quarter on record.
+      </p>
+    </div>
+  </section>
+
+  <section class="bill-section">
+    <div class="bill-section-label">Lobbyists registered to act</div>
+    <div class="stance-table">
+      <div class="stance-head">
+        <span>Lobbyist</span><span>Prior gov't role</span><span>Reg. since</span>
+      </div>
+      <div class="stance-row">
+        <span class="stance-issue">Stephen J. Ubl</span>
+        <span class="stance-cell stance-mixed">CEO, PhRMA</span>
+        <span class="stance-cell stance-mixed">2015</span>
+      </div>
+      <div class="stance-row">
+        <span class="stance-issue">Anne G. Esposito</span>
+        <span class="stance-cell stance-against">Sen. Finance Committee staff (R)</span>
+        <span class="stance-cell stance-mixed">2019</span>
+      </div>
+      <div class="stance-row">
+        <span class="stance-issue">Marcus Thompson</span>
+        <span class="stance-cell stance-for">HHS, ASPE (Obama admin)</span>
+        <span class="stance-cell stance-mixed">2021</span>
+      </div>
+      <div class="stance-row">
+        <span class="stance-issue">Priya Krishnan</span>
+        <span class="stance-cell stance-against">House E&amp;C Committee staff (R)</span>
+        <span class="stance-cell stance-mixed">2023</span>
+      </div>
+      <div class="stance-row">
+        <span class="stance-issue">+ 14 more registered</span>
+        <span class="stance-cell stance-mixed">—</span>
+        <span class="stance-cell stance-mixed">—</span>
+      </div>
+    </div>
+    <p class="poll-summary">Revolving-door tagging based on OpenSecrets normalization of prior federal employment fields.</p>
+  </section>
+
+  <section class="bill-section">
+    <div class="bill-section-label">Bills lobbied · Q2 2026</div>
+    <div class="lobby-bills-list">
+      <a class="search-drop-row" onclick="nav('bill')">
+        <span class="sd-id">H.R. 4838</span>
+        <span class="sd-title">Medicaid Eligibility Streamlining Act</span>
+        <span class="sd-meta">Position: Oppose · Spend allocation: $1.84M (22%)</span>
+        <span class="feed-status status-passed">Passed House</span>
+      </a>
+      <a class="search-drop-row" onclick="nav('bill')">
+        <span class="sd-id">S. 1402</span>
+        <span class="sd-title">Interstate Pharmacy Practice Act</span>
+        <span class="sd-meta">Position: Support · Spend allocation: $920K (11%)</span>
+        <span class="feed-status status-active">In Committee</span>
+      </a>
+      <a class="search-drop-row" onclick="nav('bill')">
+        <span class="sd-id">S. 2814</span>
+        <span class="sd-title">Patent Reform and Generic Entry Act</span>
+        <span class="sd-meta">Position: Oppose · Spend allocation: $1.21M (15%)</span>
+        <span class="feed-status status-active">In Committee</span>
+      </a>
+      <a class="search-drop-row" onclick="nav('bill')">
+        <span class="sd-id">H.R. 992</span>
+        <span class="sd-title">Insulin Affordability Act of 2026</span>
+        <span class="sd-meta">Position: Oppose · Spend allocation: $640K (8%)</span>
+        <span class="feed-status status-muted">Introduced</span>
+      </a>
+      <div class="search-drop-foot">
+        <a class="search-drop-more">View all 61 bills →</a>
+        <span class="search-drop-tip">Positions inferred from LD-203 filings and lobbyist communications.</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="bill-section">
+    <div class="bill-section-label">Top recipients · combined PAC + employee contributions, current cycle</div>
+    <div class="poll-table" style="grid-template-columns:1.5fr 1fr 0.8fr 0.8fr 1fr">
+      <div class="poll-thead">
+        <span>Member</span><span>Chamber</span><span>Party</span><span>State</span><span>Total received</span>
+      </div>
+      <a class="poll-trow" onclick="nav('member')">
+        <span class="poll-source">Rep. Frank Pallone</span>
+        <span>House E&amp;C Chair</span>
+        <span class="poll-num">D</span>
+        <span class="poll-num">NJ</span>
+        <span class="poll-mar party-d">$72,100</span>
+      </a>
+      <a class="poll-trow" onclick="nav('member')">
+        <span class="poll-source">Sen. Bill Cassidy</span>
+        <span>Sen. HELP Chair</span>
+        <span class="poll-num">R</span>
+        <span class="poll-num">LA</span>
+        <span class="poll-mar party-r">$68,400</span>
+      </a>
+      <a class="poll-trow" onclick="nav('member')">
+        <span class="poll-source">Sen. Bernie Sanders</span>
+        <span>Sen. HELP Member</span>
+        <span class="poll-num">I</span>
+        <span class="poll-num">VT</span>
+        <span class="poll-mar party-d">$54,800</span>
+      </a>
+      <a class="poll-trow" onclick="nav('member')">
+        <span class="poll-source">Rep. Cathy McMorris Rodgers</span>
+        <span>House E&amp;C Member</span>
+        <span class="poll-num">R</span>
+        <span class="poll-num">WA</span>
+        <span class="poll-mar party-r">$51,200</span>
+      </a>
+      <a class="poll-trow" onclick="nav('member')">
+        <span class="poll-source">Sen. Ron Wyden</span>
+        <span>Sen. Finance Chair</span>
+        <span class="poll-num">D</span>
+        <span class="poll-num">OR</span>
+        <span class="poll-mar party-d">$48,600</span>
+      </a>
+      <a class="poll-trow" onclick="nav('member')">
+        <span class="poll-source">Rep. Larry Bucshon</span>
+        <span>House E&amp;C Member · MD</span>
+        <span class="poll-num">R</span>
+        <span class="poll-num">IN</span>
+        <span class="poll-mar party-r">$44,300</span>
+      </a>
+    </div>
+    <p class="poll-summary">
+      Pattern: contributions concentrate on members of committees with jurisdiction over the entity's bills.
+      Causation is not implied — members of these committees receive contributions from many sources.
+      Source: OpenSecrets aggregation of FEC filings, current cycle.
+    </p>
+  </section>
+
+  <section class="bill-section">
+    <div class="bill-section-label">Coalition view · entities lobbying the same bills</div>
+    <p class="page-deck" style="margin-bottom:1rem">
+      Entities whose Q2 filings overlap with PhRMA's on three or more bills.
+      Useful for spotting industry-wide coordination versus issue-specific lobbying.
+    </p>
+    <div class="endorse-grid">
+      <div class="endorse-card party-d">
+        <div class="endorse-name">Aligned with PhRMA</div>
+        <div class="endorse-count">12 entities on 4+ shared bills</div>
+        <ul class="endorse-list">
+          <li>Biotechnology Innovation Organization · 7 shared bills</li>
+          <li>Pfizer · 6 shared bills</li>
+          <li>Merck &amp; Co. · 6 shared bills</li>
+          <li>Eli Lilly · 5 shared bills</li>
+          <li>Johnson &amp; Johnson · 4 shared bills</li>
+          <li class="endorse-more">+ 7 more</li>
+        </ul>
+      </div>
+      <div class="endorse-card party-r">
+        <div class="endorse-name">Opposed positions on shared bills</div>
+        <div class="endorse-count">8 entities on 3+ shared bills</div>
+        <ul class="endorse-list">
+          <li>AARP · 6 shared bills (opposing on 5)</li>
+          <li>Patients For Affordable Drugs Now · 5 shared bills</li>
+          <li>AFSCME · 4 shared bills</li>
+          <li>Public Citizen · 4 shared bills</li>
+          <li>Doctors for America · 3 shared bills</li>
+          <li class="endorse-more">+ 3 more</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="bill-section">
+    <div class="bill-section-label">Sources &amp; methodology</div>
+    <ul class="endorse-list" style="font-family:'Source Serif 4',Georgia,serif;font-size:0.9rem">
+      <li><strong>Filings:</strong> Senate Office of Public Records LD-2 quarterly filings (lda.senate.gov)</li>
+      <li><strong>Contributions:</strong> FEC API, combined PAC + employee individual donations</li>
+      <li><strong>Entity normalization:</strong> OpenSecrets entity-resolution layer</li>
+      <li><strong>Revolving door:</strong> OpenSecrets prior-employment fields, manually verified for top 50 entities</li>
+      <li><strong>Coalition matching:</strong> deterministic bill-ID overlap across same-quarter LD-2 filings</li>
+      <li><strong>Position labels:</strong> derived from LD-203 narrative fields when explicit, otherwise <em>"engaged"</em></li>
+    </ul>
+    <p class="poll-summary">Last refresh: June 19, 2026. Filings appear with up to a 45-day lag from end of quarter.</p>
   </section>
 </main>
 

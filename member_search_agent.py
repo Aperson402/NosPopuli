@@ -2,6 +2,7 @@ import requests
 import os
 from dotenv import load_dotenv
 from documentor_agent import log_action
+from congress_breaker import congress_get, CongressOutageError
 
 load_dotenv()
 
@@ -56,11 +57,15 @@ def search_member(name):
     }
     
     while pages_checked < max_pages:
-        if next_url and pages_checked > 0:
-            response = _session.get(next_url, timeout=10)
-        else:
-            response = _session.get(url, params=params, timeout=10)
-        
+        try:
+            if next_url and pages_checked > 0:
+                response = congress_get(next_url, timeout=10)
+            else:
+                response = congress_get(url, params=params, timeout=10)
+        except CongressOutageError as e:
+            print(f"[MEMBER_SEARCH] Congress.gov unavailable: {e}")
+            return best_match  # may be None — caller handles "not found"
+
         if response.status_code != 200:
             break
         
@@ -138,8 +143,12 @@ def fetch_member_profile(bioguide_id):
     """
     url = f"https://api.congress.gov/v3/member/{bioguide_id}"
     params = {"api_key": CONGRESS_API_KEY, "format": "json"}
-    
-    response = _session.get(url, params=params, timeout=10)
+
+    try:
+        response = congress_get(url, params=params, timeout=10)
+    except CongressOutageError as e:
+        print(f"[MEMBER_PROFILE] Congress.gov unavailable: {e}")
+        return None
     if response.status_code != 200:
         return None
     
@@ -199,11 +208,11 @@ def fetch_member_legislation(bioguide_id, limit=20):
 
     # Fetch 250 bills for accurate policy area distribution
     try:
-        r = _session.get(sponsored_url, params={
+        r = congress_get(sponsored_url, params={
             "api_key": CONGRESS_API_KEY, "format": "json", "limit": 250
         }, timeout=30)
         bills_raw = r.json().get("sponsoredLegislation", []) if r.status_code == 200 else []
-    except Exception:
+    except (CongressOutageError, Exception):
         bills_raw = []
 
     if bills_raw:
@@ -227,19 +236,19 @@ def fetch_member_legislation(bioguide_id, limit=20):
 
     # Total counts
     try:
-        r2 = _session.get(sponsored_url, params={
+        r2 = congress_get(sponsored_url, params={
             "api_key": CONGRESS_API_KEY, "format": "json", "limit": 1
         }, timeout=10)
         sponsored_count = r2.json().get("pagination", {}).get("count", 0) if r2.status_code == 200 else 0
-    except Exception:
+    except (CongressOutageError, Exception):
         sponsored_count = 0
 
     try:
-        r3 = _session.get(cosponsored_url, params={
+        r3 = congress_get(cosponsored_url, params={
             "api_key": CONGRESS_API_KEY, "format": "json", "limit": 1
         }, timeout=10)
         cosponsored_count = r3.json().get("pagination", {}).get("count", 0) if r3.status_code == 200 else 0
-    except Exception:
+    except (CongressOutageError, Exception):
         cosponsored_count = 0
 
     log_action(

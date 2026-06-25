@@ -6,10 +6,12 @@ from dotenv import load_dotenv
 from cachetools import TTLCache, cached
 from threading import RLock
 from documentor_agent import log_action
+from congress_breaker import congress_get, CongressOutageError
 
 load_dotenv()
 
 CONGRESS_API_KEY = os.getenv("CONGRESS_API_KEY")
+GOVINFO_API_KEY  = os.getenv("GovInfo_API_KEY")
 
 _session = requests.Session()
 
@@ -30,15 +32,12 @@ def fetch_bill(congress_number, bill_type, bill_number):
     }
     
     try:
-        response = _session.get(url, params=params, timeout=10)
-    except requests.exceptions.Timeout:
-        print(f"[BILL FETCHER] Timeout fetching {bill_type}{bill_number}")
-        return None
-    except requests.exceptions.ConnectionError:
-        print(f"[BILL FETCHER] Connection error fetching {bill_type}{bill_number}")
+        response = congress_get(url, params=params, timeout=10)
+    except CongressOutageError as e:
+        print(f"[BILL FETCHER] Congress.gov unavailable for {bill_type}{bill_number}: {e}")
         return None
     except Exception as e:
-        print(f"[BILL FETCHER] Unexpected error: {e}")
+        print(f"[BILL FETCHER] Unexpected error: {type(e).__name__}")
         return None
     
     if response.status_code == 429:
@@ -301,10 +300,49 @@ def parse_amends_from_title(title: str, summary: str = "") -> dict | None:
     return None
 
 
+def _strip_html_to_text(html_str: str, max_chars: int) -> str:
+    soup = BeautifulSoup(html_str, "html.parser")
+    text = soup.get_text(separator="\n")
+    text = re.sub(r'\n{3,}', '\n\n', text)
+    text = re.sub(r' {2,}', ' ', text)
+    return text.strip()[:max_chars]
+
+
+# Stage suffixes ranked most-authoritative-first. GovInfo packageId = BILLS-{congress}{type}{number}{stage}.
+_GOVINFO_STAGE_PRIORITY = ["enr", "eas", "eah", "es", "eh", "rs", "rh", "pcs", "pch", "is", "ih"]
+
+
+def _govinfo_text_fallback(congress, bill_type, bill_number, max_chars):
+    """
+    Pull the most recent published version from GovInfo when Congress.gov hasn't
+    synced text yet. Probes each stage suffix in priority order (enr → es/eh →
+    is/ih) directly against the deterministic packageId URL. First hit wins.
+    """
+    btype = bill_type.lower()
+    base = f"BILLS-{congress}{btype}{bill_number}"
+    for stage in _GOVINFO_STAGE_PRIORITY:
+        pkg = base + stage
+        url = f"https://www.govinfo.gov/content/pkg/{pkg}/html/{pkg}.htm"
+        try:
+            r = _session.get(url, timeout=8, allow_redirects=False)
+        except Exception:
+            continue
+        if r.status_code != 200:
+            continue
+        text = _strip_html_to_text(r.text, max_chars)
+        if len(text) < 200:
+            continue
+        print(f"[BILL FETCHER] GovInfo fallback: {len(text)} chars for {bill_type}{bill_number} ({pkg})")
+        return text
+    return None
+
+
 @cached(cache=_text_cache, lock=RLock())
 def fetch_bill_text(congress, bill_type, bill_number, max_chars=8000):
     """
-    Fetch and strip actual bill text from GovInfo via Congress.gov text versions endpoint.
+    Fetch and strip actual bill text. Tries Congress.gov's text-versions endpoint
+    first; falls back to GovInfo's direct package URL when Congress.gov has no
+    versions yet (common for bills < ~2 weeks old).
     Returns cleaned plain text capped at max_chars, or None if unavailable.
     """
     url = f"https://api.congress.gov/v3/bill/{congress}/{bill_type}/{bill_number}/text"
@@ -314,19 +352,19 @@ def fetch_bill_text(congress, bill_type, bill_number, max_chars=8000):
         r = _session.get(url, params=params, timeout=10)
     except Exception as e:
         print(f"[BILL FETCHER] Text versions error: {e}")
-        return None
+        return _govinfo_text_fallback(congress, bill_type, bill_number, max_chars)
 
     if r.status_code != 200:
         print(f"[BILL FETCHER] Text versions: HTTP {r.status_code}")
-        return None
+        return _govinfo_text_fallback(congress, bill_type, bill_number, max_chars)
 
     try:
         versions = r.json().get("textVersions", [])
     except Exception:
-        return None
+        return _govinfo_text_fallback(congress, bill_type, bill_number, max_chars)
 
     if not versions:
-        return None
+        return _govinfo_text_fallback(congress, bill_type, bill_number, max_chars)
 
     # Pick most recent version; prefer Enrolled > Engrossed > Introduced
     FORMAT_PRIORITY = ["Enrolled Bill", "Engrossed in Senate", "Engrossed in House", "Introduced in Senate", "Introduced in House"]
@@ -356,25 +394,20 @@ def fetch_bill_text(congress, bill_type, bill_number, max_chars=8000):
 
     if not selected_url:
         print(f"[BILL FETCHER] No formatted text URL found for {bill_type}{bill_number}")
-        return None
+        return _govinfo_text_fallback(congress, bill_type, bill_number, max_chars)
 
     try:
         r = _session.get(selected_url, timeout=15)
         if r.status_code != 200:
-            return None
+            return _govinfo_text_fallback(congress, bill_type, bill_number, max_chars)
 
-        soup = BeautifulSoup(r.text, "html.parser")
-        text = soup.get_text(separator="\n")
-        text = re.sub(r'\n{3,}', '\n\n', text)
-        text = re.sub(r' {2,}', ' ', text)
-        text = text.strip()
-
+        text = _strip_html_to_text(r.text, max_chars)
         print(f"[BILL FETCHER] Fetched bill text: {len(text)} chars for {bill_type}{bill_number}")
-        return text[:max_chars]
+        return text
 
     except Exception as e:
         print(f"[BILL FETCHER] Text fetch error: {e}")
-        return None
+        return _govinfo_text_fallback(congress, bill_type, bill_number, max_chars)
 
 
 @cached(cache=_cosponsors_cache, lock=RLock())

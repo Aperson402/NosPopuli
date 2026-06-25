@@ -627,6 +627,39 @@ CORRESPONDENCE / NOTIFICATIONS
 → Multi-rep coordinated send (foundation for V2)
 → Reply analyzer agent (classify rep position from response text)
 
+LOBBYING & MONEY-IN-POLITICS
+  Dedicated section of the app — accessible like the Elections tab —
+  surfacing who lobbies Congress, on what, and where the money goes.
+  Lobbying data is public but practically opaque; the friction-collapsing
+  move is putting it next to the legislation it influences.
+
+→ Lobbying directory page: searchable index of every registered entity
+  (client + lobbying firm). Click an entity → its lobbyists, total spend
+  per quarter, bills lobbied, top recipients of donations from its PAC
+  and employees, revolving-door staff who came from Congress.
+→ Lobbyist profile: prior gov't employment, current clients, total
+  filings since registration, members they cluster around.
+→ Per-member view: every lobbying entity that has reported lobbying this
+  member, every PAC/contribution from those entities, total dollars.
+→ Per-bill panel on every bill detail page: "Who's pushing this" —
+  top entities lobbying the bill, total reported spend in current quarter,
+  contributions from those entities to the sponsors and committee members.
+→ Coalition view: bills with overlapping lobbying coalitions
+  (e.g. pharma + insurer + AMA all lobbying same bill).
+
+  Sources:
+  · Senate Office of Public Records LDA filings (https://lda.senate.gov)
+    — structured quarterly XML, free, contains bill references
+  · FEC API for campaign contributions
+  · OpenSecrets API (free up to 200 req/day) for cleaned entity
+    name normalization + revolving-door data
+  · House/Senate financial disclosure forms (PDF → LLM extract) for
+    member asset holdings
+
+  Editorial principle: facts side-by-side, not implication. "$X lobbied,
+  $Y given, this vote happened" without "therefore corruption." Trust the
+  reader to draw their own line.
+
 LOCAL / MUNICIPAL
 → Phase 1: Legistar API — covers 100+ major cities (NYC, Chicago, LA, Seattle, Boston, SF)
            Legistar is the dominant council management platform; unofficial API at webapi.legistar.com

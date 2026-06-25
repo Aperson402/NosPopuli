@@ -3,6 +3,7 @@ import requests
 import os
 from dotenv import load_dotenv
 from documentor_agent import log_action
+from congress_breaker import congress_get, CongressOutageError
 
 load_dotenv()
 
@@ -224,9 +225,12 @@ def search_summaries(query, congress_numbers):
         }
 
         try:
-            r = requests.get(url, params=params, timeout=10)
+            r = congress_get(url, params=params, timeout=10)
+        except CongressOutageError as e:
+            print(f"[SEARCH] summaries skipped (breaker): {e}")
+            return results  # break out — no point trying further congresses
         except Exception as e:
-            print(f"[SEARCH] summaries error: {e}")
+            print(f"[SEARCH] summaries error: {type(e).__name__}")
             continue
 
         if r.status_code != 200:
@@ -279,9 +283,12 @@ def search_laws(keywords, congress_numbers, max_results=5):
         }
 
         try:
-            r = requests.get(url, params=params, timeout=10)
+            r = congress_get(url, params=params, timeout=10)
+        except CongressOutageError as e:
+            print(f"[SEARCH] search_laws skipped (breaker): {e}")
+            return results
         except Exception as e:
-            print(f"[SEARCH] search_laws error for congress {congress}: {e}")
+            print(f"[SEARCH] search_laws error for congress {congress}: {type(e).__name__}")
             continue
 
         if r.status_code != 200:
