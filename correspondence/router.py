@@ -22,7 +22,17 @@ from .gmail import screen_email_username, send_email, check_thread_replies, FOOT
 from .draft import generate_draft, moderate_email, generate_followup
 
 router = APIRouter()
-init_db()
+
+# init_db() needs to be tolerant of startup failures — if the database can't
+# be created for any reason (read-only filesystem, missing parent dir,
+# permission issue), we must NOT crash the whole FastAPI app. Auth/correspondence
+# will return 503 instead, while the rest of the app keeps serving.
+try:
+    init_db()
+    _DB_READY = True
+except Exception as _db_err:
+    print(f"[CORRESPONDENCE] init_db failed at startup: {_db_err}")
+    _DB_READY = False
 
 BASE_URL = os.getenv("BASE_URL", "http://localhost:8000")
 
@@ -49,12 +59,29 @@ def _current_user(request: Request) -> dict:
 
 @router.get("/auth/google")
 async def auth_google():
-    if not os.getenv("GOOGLE_CLIENT_ID"):
+    if not _DB_READY:
+        raise HTTPException(status_code=503, detail="Auth subsystem unavailable")
+    if not os.getenv("GOOGLE_CLIENT_ID") or not os.getenv("GOOGLE_CLIENT_SECRET"):
         raise HTTPException(
             status_code=503,
-            detail="Google OAuth not configured. Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to .env"
+            detail="Google OAuth not configured. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in env."
         )
-    auth_url, _ = get_auth_url()
+    if not os.getenv("BASE_URL", "").startswith(("http://", "https://")):
+        raise HTTPException(
+            status_code=503,
+            detail="BASE_URL not set — OAuth redirect cannot be computed."
+        )
+    try:
+        auth_url, _ = get_auth_url()
+    except Exception as e:
+        # Bad credential format, network issue talking to Google's discovery
+        # endpoint, etc. Return a clean 503 instead of letting the exception
+        # bubble up the stack.
+        print(f"[AUTH] Failed to build auth URL: {e}")
+        raise HTTPException(
+            status_code=503,
+            detail="Could not start Google sign-in. Check server config."
+        )
     return RedirectResponse(auth_url)
 
 

@@ -1,7 +1,9 @@
 import os
 import hashlib
 import secrets
+import time
 from datetime import datetime, timedelta
+from threading import RLock
 
 from google_auth_oauthlib.flow import Flow
 from jose import jwt, JWTError
@@ -28,8 +30,22 @@ SCOPES = [
     "https://www.googleapis.com/auth/gmail.readonly",
 ]
 
-# Store the Flow object per state so PKCE code_verifier is preserved
-_pending_flows: dict[str, object] = {}
+# Store the Flow object per state so PKCE code_verifier is preserved.
+# Entries are tuples of (flow, created_at). Stale entries are evicted on
+# access — abandoned flows (user closes the Google tab, OAuth error page,
+# bad redirect URI) would otherwise accumulate forever and slowly leak memory.
+_PENDING_FLOW_TTL_SECONDS = 600  # 10 minutes is plenty for a real flow
+_pending_flows: dict[str, tuple] = {}
+_pending_flows_lock = RLock()
+
+
+def _evict_stale_flows():
+    """Drop entries older than the TTL. Called on every get/set."""
+    cutoff = time.time() - _PENDING_FLOW_TTL_SECONDS
+    with _pending_flows_lock:
+        stale = [k for k, (_, ts) in _pending_flows.items() if ts < cutoff]
+        for k in stale:
+            _pending_flows.pop(k, None)
 
 
 def _build_flow():
@@ -50,12 +66,14 @@ def _build_flow():
 
 def get_auth_url():
     """Returns (auth_url, state) to redirect the browser to Google."""
+    _evict_stale_flows()
     flow = _build_flow()
     auth_url, state = flow.authorization_url(
         access_type="offline",
         prompt="consent",
     )
-    _pending_flows[state] = flow  # preserve flow so PKCE verifier survives
+    with _pending_flows_lock:
+        _pending_flows[state] = (flow, time.time())
     return auth_url, state
 
 
@@ -64,9 +82,12 @@ def exchange_code(code, state):
     Exchange authorization code → (id_info dict, refresh_token str).
     Raises ValueError on bad state.
     """
-    if state not in _pending_flows:
+    _evict_stale_flows()
+    with _pending_flows_lock:
+        entry = _pending_flows.pop(state, None)
+    if entry is None:
         raise ValueError("Invalid OAuth state — server may have restarted mid-flow")
-    flow = _pending_flows.pop(state)
+    flow, _ = entry
 
     flow.fetch_token(code=code)
 
