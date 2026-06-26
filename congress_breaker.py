@@ -1,10 +1,13 @@
-"""Shared circuit breaker for api.congress.gov.
+"""Shared HTTP session for api.congress.gov.
 
-When the Library of Congress API is unreachable, we trip a process-wide
-breaker for a cooldown window so callers don't waste 10s of wall clock
-on every request. Foreground paths get an instant `CongressOutageError`
-they can convert to a clean user-facing message; background paths just
-skip.
+Originally a circuit breaker — it tripped a process-wide 15-minute cooldown
+on any failure. In practice a single dropped network connection locked
+everyone out long after the network had recovered. Removed.
+
+What remains: a shared `requests.Session` for connection pooling, and a
+CongressOutageError exception type so existing callers don't need changes.
+Each call now fails independently — a transient failure does not poison
+subsequent requests.
 
 Usage:
 
@@ -13,18 +16,15 @@ Usage:
     try:
         r = congress_get(url, params={"api_key": KEY, ...}, timeout=10)
     except CongressOutageError:
-        # Skip cleanly; the breaker handled logging.
         return None
 """
-import time
-from threading import RLock
-
 import requests
 from requests.adapters import HTTPAdapter
 
-_COOLDOWN_SECONDS = 15 * 60
-_breaker_until = 0.0
-_lock = RLock()
+
+class CongressOutageError(Exception):
+    """Raised when an api.congress.gov call fails (network error or 5xx)."""
+
 
 # Shared session so every Congress.gov call enjoys HTTP keep-alive.
 _session = requests.Session()
@@ -33,53 +33,34 @@ _session.mount("https://", _adapter)
 _session.mount("http://", _adapter)
 
 
-class CongressOutageError(Exception):
-    """Raised when api.congress.gov is in cooldown or the live call fails."""
+# Kept for backwards compatibility with any module that still imports these.
+# They're no-ops now — there's no breaker state to manage.
+def is_tripped() -> bool:
+    return False
 
 
-def is_tripped():
-    with _lock:
-        return time.time() < _breaker_until
+def trip() -> None:
+    pass
 
 
-def trip():
-    global _breaker_until
-    with _lock:
-        new_until = time.time() + _COOLDOWN_SECONDS
-        if new_until > _breaker_until:
-            _breaker_until = new_until
-            print(f"[CONGRESS] Breaker tripped — suspending api.congress.gov calls for {_COOLDOWN_SECONDS // 60} min")
+def clear() -> None:
+    pass
 
 
-def clear():
-    global _breaker_until
-    with _lock:
-        if _breaker_until:
-            print("[CONGRESS] Breaker cleared — api.congress.gov responded")
-            _breaker_until = 0.0
-
-
-def cooldown_remaining_seconds():
-    with _lock:
-        return max(0, int(_breaker_until - time.time()))
+def cooldown_remaining_seconds() -> int:
+    return 0
 
 
 def congress_get(url, params=None, timeout=10, **kwargs):
-    """Shared GET against api.congress.gov respecting the breaker.
+    """GET against api.congress.gov using the shared session.
 
-    Raises CongressOutageError if the breaker is tripped (no network call)
-    or if the live call fails (and trips the breaker).
-    Returns the requests.Response on success and clears the breaker.
+    Raises CongressOutageError when the call fails (network error or 5xx).
+    Returns the requests.Response on success.
     """
-    if is_tripped():
-        raise CongressOutageError(f"breaker open ({cooldown_remaining_seconds()}s remaining)")
     try:
         r = _session.get(url, params=params, timeout=timeout, **kwargs)
     except Exception as e:
-        trip()
         raise CongressOutageError(f"live call failed: {type(e).__name__}") from e
     if r.status_code in (500, 502, 503, 504):
-        trip()
         raise CongressOutageError(f"upstream {r.status_code}")
-    clear()
     return r
