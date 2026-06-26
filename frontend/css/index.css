@@ -30,6 +30,40 @@ body {
   );
 }
 
+/* ── OPEN BETA BANNER ── */
+.beta-banner {
+  background: var(--accent);
+  color: var(--paper);
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.55rem 1.25rem;
+  text-align: center;
+  border-bottom: 1px solid rgba(0,0,0,0.15);
+  flex-wrap: wrap;
+}
+.beta-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.55rem;
+  border: 1px solid var(--paper);
+}
+.beta-note {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 0.85rem;
+  font-style: italic;
+  font-weight: 300;
+}
+@media (max-width: 640px) {
+  .beta-banner { padding: 0.5rem 0.85rem; gap: 0.65rem; }
+  .beta-tag { font-size: 0.55rem; letter-spacing: 0.18em; padding: 0.12rem 0.45rem; }
+  .beta-note { font-size: 0.78rem; }
+}
+
 /* ── DATELINE STRIP ── */
 .dateline-strip {
   display: flex;
