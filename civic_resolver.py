@@ -1,9 +1,10 @@
 import json
 import os
-import pgeocode
 from documentor_agent import log_action
 
-_DATA_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "legislators-current.json")
+_HERE = os.path.dirname(os.path.abspath(__file__))
+_DATA_PATH = os.path.join(_HERE, "data", "legislators-current.json")
+_ZIP3_PATH = os.path.join(_HERE, "data", "zip3_to_state.json")
 
 try:
     with open(_DATA_PATH) as f:
@@ -12,21 +13,35 @@ except FileNotFoundError:
     print(f"[CIVIC] WARNING: legislators file not found at {_DATA_PATH}")
     LEGISLATORS = []
 
+try:
+    with open(_ZIP3_PATH) as f:
+        ZIP3_TO_STATE = json.load(f)
+except FileNotFoundError:
+    print(f"[CIVIC] WARNING: zip3_to_state file not found at {_ZIP3_PATH}")
+    ZIP3_TO_STATE = {}
+
+
 def resolve_zip(zip_code):
     """
     Takes a zip code, returns state and current representatives.
-    Uses pgeocode for zip→state, then filters legislators by state.
+    Uses a static 3-digit-prefix → state map shipped with the repo, so we
+    have no runtime dependency on pgeocode (which downloads data on first use
+    and breaks on ephemeral filesystems).
     """
-    
-    # Zip to state
-    nomi = pgeocode.Nominatim('us')
-    result = nomi.query_postal_code(zip_code)
-    
-    if result is None or str(result.get('state_code', '')) == 'nan':
+    if not zip_code:
+        print(f"[CIVIC] Empty zip code")
+        return None
+    zip_code = str(zip_code).strip()
+    # Accept 5 or 9-digit ZIP+4 formats
+    digits = "".join(c for c in zip_code if c.isdigit())[:5]
+    if len(digits) != 5:
+        print(f"[CIVIC] Invalid zip code format: {zip_code}")
+        return None
+
+    state = ZIP3_TO_STATE.get(digits[:3])
+    if not state:
         print(f"[CIVIC] Could not resolve zip: {zip_code}")
         return None
-    
-    state = result['state_code']
     
     # Find senators (type=sen, state matches)
     senators = []
