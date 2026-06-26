@@ -347,16 +347,38 @@ def set_elections_cache(state_code, results):
     conn.close()
 
 
+_KNOWN_ELECTIONS_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    "data", "known_elections.json",
+)
+_KNOWN_ELECTIONS_CACHE = None
+
+
+def _load_known_elections():
+    """Lazily load + cache the shipped known-elections JSON."""
+    global _KNOWN_ELECTIONS_CACHE
+    if _KNOWN_ELECTIONS_CACHE is not None:
+        return _KNOWN_ELECTIONS_CACHE
+    try:
+        with open(_KNOWN_ELECTIONS_PATH) as f:
+            _KNOWN_ELECTIONS_CACHE = json.load(f)
+    except FileNotFoundError:
+        print(f"[DB] WARNING: known_elections file not found at {_KNOWN_ELECTIONS_PATH}")
+        _KNOWN_ELECTIONS_CACHE = {}
+    return _KNOWN_ELECTIONS_CACHE
+
+
 def get_known_elections(state_code):
-    """Return list of known elections for a state in the shape returned by Claude web search."""
-    conn = get_conn()
-    rows = conn.execute("""
-        SELECT name, date, type FROM known_elections
-        WHERE state_code = ? AND date >= date('now', '-60 days')
-        ORDER BY date ASC
-    """, (state_code.upper(),)).fetchall()
-    conn.close()
-    return [dict(r) for r in rows]
+    """
+    Return list of known elections for a state, shape matching Claude web search.
+    Source of truth is data/known_elections.json (shipped in the repo) so the
+    data survives container restarts on ephemeral filesystems. Same filtering
+    as the old SQLite path: dates from 60 days ago onward.
+    """
+    from datetime import date, timedelta
+    cutoff = (date.today() - timedelta(days=60)).isoformat()
+    all_elections = _load_known_elections().get(state_code.upper(), [])
+    return [e for e in all_elections if e.get("date", "") >= cutoff]
 
 
 def list_known_elections(state_code=None):

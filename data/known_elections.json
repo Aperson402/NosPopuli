@@ -1,0 +1,814 @@
+{
+  "AK": [
+    {
+      "date": "2026-08-18",
+      "name": "AK Primary Election",
+      "type": "primary"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "AK Gubernatorial Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "US Senate Election (AK)",
+      "type": "general"
+    }
+  ],
+  "AL": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "AL Gubernatorial Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "US Senate Election (AL)",
+      "type": "general"
+    }
+  ],
+  "AR": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "AR Gubernatorial Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "US Senate Election (AR)",
+      "type": "general"
+    }
+  ],
+  "AZ": [
+    {
+      "date": "2026-08-04",
+      "name": "AZ Primary Election",
+      "type": "primary"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "AZ Gubernatorial Election",
+      "type": "general"
+    }
+  ],
+  "CA": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "CA Gubernatorial Election",
+      "type": "general"
+    }
+  ],
+  "CO": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "CO Gubernatorial Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "US Senate Election (CO)",
+      "type": "general"
+    }
+  ],
+  "CT": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "CT Gubernatorial Election",
+      "type": "general"
+    }
+  ],
+  "DC": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    }
+  ],
+  "DE": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "US Senate Election (DE)",
+      "type": "general"
+    }
+  ],
+  "FL": [
+    {
+      "date": "2026-08-18",
+      "name": "FL Primary Election",
+      "type": "primary"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "FL Gubernatorial Election",
+      "type": "general"
+    }
+  ],
+  "GA": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "GA Gubernatorial Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "US Senate Election (GA)",
+      "type": "general"
+    }
+  ],
+  "HI": [
+    {
+      "date": "2026-08-08",
+      "name": "HI Primary Election",
+      "type": "primary"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "HI Gubernatorial Election",
+      "type": "general"
+    }
+  ],
+  "IA": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "IA Gubernatorial Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "US Senate Election (IA)",
+      "type": "general"
+    }
+  ],
+  "ID": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "ID Gubernatorial Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "US Senate Election (ID)",
+      "type": "general"
+    }
+  ],
+  "IL": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "IL Gubernatorial Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "US Senate Election (IL)",
+      "type": "general"
+    }
+  ],
+  "IN": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    }
+  ],
+  "KS": [
+    {
+      "date": "2026-08-04",
+      "name": "KS Primary Election",
+      "type": "primary"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "KS Gubernatorial Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "US Senate Election (KS)",
+      "type": "general"
+    }
+  ],
+  "KY": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "US Senate Election (KY)",
+      "type": "general"
+    },
+    {
+      "date": "2027-11-02",
+      "name": "KY State Election",
+      "type": "general"
+    }
+  ],
+  "LA": [
+    {
+      "date": "2026-11-03",
+      "name": "LA Primary Election",
+      "type": "primary"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "US Senate Election (LA)",
+      "type": "general"
+    },
+    {
+      "date": "2027-11-02",
+      "name": "LA State Election",
+      "type": "general"
+    }
+  ],
+  "MA": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "MA Gubernatorial Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "US Senate Election (MA)",
+      "type": "general"
+    }
+  ],
+  "MD": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "MD Gubernatorial Election",
+      "type": "general"
+    }
+  ],
+  "ME": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "ME Gubernatorial Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "US Senate Election (ME)",
+      "type": "general"
+    }
+  ],
+  "MI": [
+    {
+      "date": "2026-08-04",
+      "name": "MI Primary Election",
+      "type": "primary"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "MI Gubernatorial Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "US Senate Election (MI)",
+      "type": "general"
+    }
+  ],
+  "MN": [
+    {
+      "date": "2026-08-11",
+      "name": "MN Primary Election",
+      "type": "primary"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "MN Gubernatorial Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "US Senate Election (MN)",
+      "type": "general"
+    }
+  ],
+  "MO": [
+    {
+      "date": "2026-08-04",
+      "name": "MO Primary Election",
+      "type": "primary"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    }
+  ],
+  "MS": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "US Senate Election (MS)",
+      "type": "general"
+    },
+    {
+      "date": "2027-11-02",
+      "name": "MS State Election",
+      "type": "general"
+    }
+  ],
+  "MT": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "US Senate Election (MT)",
+      "type": "general"
+    }
+  ],
+  "NC": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "US Senate Election (NC)",
+      "type": "general"
+    }
+  ],
+  "ND": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    }
+  ],
+  "NE": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "NE Gubernatorial Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "US Senate Election (NE)",
+      "type": "general"
+    }
+  ],
+  "NH": [
+    {
+      "date": "2026-09-08",
+      "name": "NH Primary Election",
+      "type": "primary"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "NH Gubernatorial Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "US Senate Election (NH)",
+      "type": "general"
+    }
+  ],
+  "NJ": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "US Senate Election (NJ)",
+      "type": "general"
+    },
+    {
+      "date": "2027-11-02",
+      "name": "NJ State Election",
+      "type": "general"
+    }
+  ],
+  "NM": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "NM Gubernatorial Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "US Senate Election (NM)",
+      "type": "general"
+    }
+  ],
+  "NV": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "NV Gubernatorial Election",
+      "type": "general"
+    }
+  ],
+  "NY": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "NY Gubernatorial Election",
+      "type": "general"
+    }
+  ],
+  "OH": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "OH Gubernatorial Election",
+      "type": "general"
+    }
+  ],
+  "OK": [
+    {
+      "date": "2026-08-25",
+      "name": "OK Primary Election",
+      "type": "primary"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "OK Gubernatorial Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "US Senate Election (OK)",
+      "type": "general"
+    }
+  ],
+  "OR": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "OR Gubernatorial Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "US Senate Election (OR)",
+      "type": "general"
+    }
+  ],
+  "PA": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "PA Gubernatorial Election",
+      "type": "general"
+    }
+  ],
+  "RI": [
+    {
+      "date": "2026-09-08",
+      "name": "RI Primary Election",
+      "type": "primary"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "RI Gubernatorial Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "US Senate Election (RI)",
+      "type": "general"
+    }
+  ],
+  "SC": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "SC Gubernatorial Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "US Senate Election (SC)",
+      "type": "general"
+    }
+  ],
+  "SD": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "SD Gubernatorial Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "US Senate Election (SD)",
+      "type": "general"
+    }
+  ],
+  "TN": [
+    {
+      "date": "2026-08-06",
+      "name": "TN Primary Election",
+      "type": "primary"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "TN Gubernatorial Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "US Senate Election (TN)",
+      "type": "general"
+    }
+  ],
+  "TX": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "TX Gubernatorial Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "US Senate Election (TX)",
+      "type": "general"
+    }
+  ],
+  "UT": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    }
+  ],
+  "VA": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "US Senate Election (VA)",
+      "type": "general"
+    },
+    {
+      "date": "2027-11-02",
+      "name": "VA State Election",
+      "type": "general"
+    }
+  ],
+  "VT": [
+    {
+      "date": "2026-08-11",
+      "name": "VT Primary Election",
+      "type": "primary"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "VT Gubernatorial Election",
+      "type": "general"
+    }
+  ],
+  "WA": [
+    {
+      "date": "2026-08-04",
+      "name": "WA Primary Election",
+      "type": "primary"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    }
+  ],
+  "WI": [
+    {
+      "date": "2026-08-11",
+      "name": "WI Primary Election",
+      "type": "primary"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "WI Gubernatorial Election",
+      "type": "general"
+    }
+  ],
+  "WV": [
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "US Senate Election (WV)",
+      "type": "general"
+    }
+  ],
+  "WY": [
+    {
+      "date": "2026-08-18",
+      "name": "WY Primary Election",
+      "type": "primary"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "2026 General Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "WY Gubernatorial Election",
+      "type": "general"
+    },
+    {
+      "date": "2026-11-03",
+      "name": "US Senate Election (WY)",
+      "type": "general"
+    }
+  ]
+}
