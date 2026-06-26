@@ -1798,6 +1798,7 @@ async def election_detail_page(election_id: str):
 
 
 @app.get("/")
+@app.head("/")
 async def root():
     return FileResponse("frontend/index.html")
 
@@ -1849,6 +1850,7 @@ async def get_all_flags(request: Request):
 
 
 @app.get("/health")
+@app.head("/health")
 async def health():
     return {"status": "ok"}
 

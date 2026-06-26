@@ -2395,9 +2395,14 @@ async function checkServer() {
   } catch {
     document.getElementById('results-section').innerHTML = `
       <div class="empty-state">
-        <p>Cannot connect to NosPopuli server.</p>
-        <p style="margin-top:0.5rem;font-size:0.6rem">
-          Make sure uvicorn is running: uvicorn api:app --reload
+        <p>NosPopuli is temporarily unavailable.</p>
+        <p style="margin-top:0.5rem">
+          We're working on it. Please try again in a moment.
+        </p>
+        <p style="margin-top:1rem">
+          <button onclick="location.reload()" class="btn-ghost" style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem">
+            Retry
+          </button>
         </p>
       </div>`;
   }
