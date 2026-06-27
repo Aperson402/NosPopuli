@@ -53,7 +53,7 @@ Router agent          Classifies intent: legislation / member / committee / rela
 Dispatcher            Routes to the correct handler based on query_type
       ↓
 ─── search cache ─────────────────────────────────────────────
-Two-tier cache        Tier 1 (SQLite): query → bill ID list, 30-min TTL
+Two-tier cache        Tier 1 (Postgres disk_cache): query → bill ID list, 30-min TTL
                       Tier 2: per-bill latest_action / law status rehydrated
                               from bill_fetcher's in-memory TTLCache on hit
                       Bypassed for freshness-sensitive queries
@@ -139,7 +139,7 @@ Event watcher         Daily job — detects bill state transitions, emails subsc
                       State machine: introduced → in_committee → passed → signed/vetoed
                       Only fires on meaningful upgrades, not redundant actions
 Correspondence        Gmail OAuth — user-authenticated letter drafting + sending
-                      Threaded reply tracking; per-bill subscriptions in SQLite
+                      Threaded reply tracking; per-bill subscriptions in Postgres
                       Draft generator personalizes to user's state + bill stance
 
 ─── All actions logged ───────────────────────────────────────
@@ -170,8 +170,9 @@ Data:         Congress.gov API — bills, members, votes, committees, laws
 Ingest:       VoyageAI voyage-law-2 — legal document embeddings
               Supabase pgvector — vector store for bill chunks
               BeautifulSoup — bill HTML text extraction
-Storage:      SQLite (correspondence.db) — subscriptions, drafts, sent mail,
-              disk_cache table for search/feed/elections (namespaced TTLs)
+Storage:      Postgres on Supabase — subscriptions, drafts, sent mail,
+              disk_cache table for search/feed/elections (namespaced TTLs).
+              Connection via SUPABASE_DB_URL (psycopg3 pool).
 Email:        Gmail OAuth (per-user) for outbound letters
               SMTP fallback for system notification emails (event_watcher)
 Deployment:   Railway (auto-deploys from GitHub)
@@ -196,7 +197,7 @@ Rate limiting: slowapi (20/min search, 30/min bill, 10/min feed)
                               Falls back to Congress.gov title search
   search_agent.py             GovInfo full text search + Congress.gov summaries
   search_cache.py             Two-tier search-result cache (NEW)
-                              Tier 1: SQLite, 30-min TTL on result list
+                              Tier 1: Postgres disk_cache, 30-min TTL on result list
                               Tier 2: in-memory rehydrate of latest_action/law
                               Freshness-query bypass + per-request {"fresh": true}
   clear_search_cache.py       CLI utility — `python clear_search_cache.py [--all]`
@@ -239,7 +240,7 @@ Rate limiting: slowapi (20/min search, 30/min bill, 10/min feed)
 
   /correspondence
     router.py                 FastAPI sub-router mounted at app root
-    db.py                     SQLite helpers: users, drafts, sent mail,
+    db.py                     Postgres (psycopg3) helpers: users, drafts, sent mail,
                               subscriptions, replies, disk_cache (search/feed/
                               elections), known_elections
     auth.py                   Google OAuth — login, token storage, identity
@@ -280,7 +281,7 @@ Rate limiting: slowapi (20/min search, 30/min bill, 10/min feed)
     legislators-current.json  All current US members (1.4MB)
                               Source: unitedstates/congress-legislators
 
-  correspondence.db           SQLite — user subscriptions, drafts, sent mail,
+  (no on-disk DB)             Postgres on Supabase — user subscriptions, drafts, sent mail,
                               disk_cache, known_elections, replies
   STYLEGUIDE.md               Complete design system reference
   Procfile                    Railway: uvicorn api:app --host 0.0.0.0 --port $PORT
@@ -391,7 +392,7 @@ Anonymous by default. No account required for the feed. Stored in browser localS
 
 ## Bill Watchlist & Correspondence
 
-Users can **subscribe** to a bill and receive email updates when it changes state (passes committee, passes a chamber, gets signed/vetoed). Subscriptions live in `correspondence.db`; `event_watcher.py` runs daily, detects meaningful transitions, and emails active subscribers via SMTP.
+Users can **subscribe** to a bill and receive email updates when it changes state (passes committee, passes a chamber, gets signed/vetoed). Subscriptions live in the Supabase `subscriptions` table; `event_watcher.py` runs daily, detects meaningful transitions, and emails active subscribers via SMTP.
 
 Authenticated users (Google OAuth) can also **write to their representatives** directly from a bill page. The draft agent generates a personalized letter using the bill's status, the user's state context, and the user's preferred position. Letters send via the user's own Gmail thread. Replies from reps land back in the user's inbox and are tracked as threaded conversations in the app — followup drafts can be generated against a received reply.
 
@@ -480,7 +481,7 @@ Pollster grades, voter sentiment, and debate schedules are best treated as small
 
 Search latency is dominated by three LLM calls (router, expander, validator) and ~4 HTTP fetches. The two-tier cache cuts that to near-zero on repeat queries:
 
-- **Tier 1** — SQLite-backed disk cache keyed on a SHA1 of `(question, keywords, expanded_terms, topic, congress_numbers, status, max_results, jurisdiction)`. 30-minute TTL. Stores only minimal bill IDs + titles.
+- **Tier 1** — Postgres-backed `disk_cache` keyed on a SHA1 of `(question, keywords, expanded_terms, topic, congress_numbers, status, max_results, jurisdiction)`. 30-minute TTL. Stores only minimal bill IDs + titles.
 - **Tier 2** — On hit, each result's current `latest_action`, `latest_action_date`, `is_law`, `law_number` is re-fetched in parallel via `bill_fetcher.fetch_bill` (which has its own 1-hour in-memory TTLCache). The list is cached; the badges stay live.
 
 **Bypass paths** so debugging stays sane:
@@ -538,6 +539,7 @@ CONGRESS_API_KEY=your_key
 GovInfo_API_KEY=your_key
 OPENSTATES_API_KEY=your_key       # required for state legislation endpoints
 GOOGLE_CIVIC_API_KEY=your_key     # required for elections endpoints
+SUPABASE_DB_URL=postgresql://...  # Supabase Postgres pooler URI (Settings → Database → Connection pooling)
 
 # Optional — only needed for letter writing + replies
 GOOGLE_CLIENT_ID=...
@@ -593,7 +595,7 @@ The search cache and bill-fetcher TTL caches eliminate most repeat-query cost. P
 
 ```
 SEARCH QUALITY
-✓ Search-result cache (SQLite-backed, two-tier with rehydrate)
+✓ Search-result cache (Postgres-backed, two-tier with rehydrate)
 → Relational queries: "How does X relate to Y" (Sonnet)
 → Member search filters (party, chamber, state)
 → RAG over embedded bill corpus (ingest pipeline built, query layer pending)

@@ -3,8 +3,14 @@ import requests
 import os
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
-from cachetools import TTLCache, cached
+from cachetools import TTLCache
 from threading import RLock
+
+_bill_cache_lock       = RLock()
+_related_cache_lock    = RLock()
+_amendments_cache_lock = RLock()
+_text_cache_lock       = RLock()
+_cosponsors_cache_lock = RLock()
 from documentor_agent import log_action
 from congress_breaker import congress_get, CongressOutageError
 
@@ -22,8 +28,15 @@ _related_cache      = TTLCache(maxsize=256, ttl=3600)
 _amendments_cache   = TTLCache(maxsize=256, ttl=3600)
 _cosponsors_cache   = TTLCache(maxsize=256, ttl=3600)
 
-@cached(cache=_bill_cache, lock=RLock())
 def fetch_bill(congress_number, bill_type, bill_number):
+    # Manual cache so transient None returns (network blip, 5xx, rate limit)
+    # don't poison the TTL window. Only successful responses are stored.
+    key = (congress_number, bill_type, bill_number)
+    with _bill_cache_lock:
+        hit = _bill_cache.get(key)
+    if hit is not None:
+        return hit
+
     url = f"https://api.congress.gov/v3/bill/{congress_number}/{bill_type}/{bill_number}"
     
     params = {
@@ -81,8 +94,12 @@ def fetch_bill(congress_number, bill_type, bill_number):
             "status": latest_action
         }
     )
-    
+
+    with _bill_cache_lock:
+        _bill_cache[key] = data
     return data
+
+
 def fetch_law(congress, law_number):
     """
     Fetches bill data by public law number.
@@ -156,12 +173,19 @@ def fetch_law(congress, law_number):
     
     # Fetch full bill data using existing fetch_bill
     return fetch_bill(bill_congress, bill_type, int(bill_number))
-@cached(cache=_related_cache, lock=RLock())
 def fetch_related_bills(congress, bill_type, bill_number, max_results=5):
     """
     Fetch related bills from Congress.gov, grouped by relationship type.
     Returns dict: {identical, related, superseded} — drops 'Procedurally related'.
     """
+    # Manual cache so failure paths (network blip, non-200, bad JSON) don't
+    # poison the TTL window with an empty result.
+    key = (congress, bill_type, bill_number, max_results)
+    with _related_cache_lock:
+        hit = _related_cache.get(key)
+    if hit is not None:
+        return hit
+
     url = f"https://api.congress.gov/v3/bill/{congress}/{bill_type}/{bill_number}/relatedbills"
     params = {"api_key": CONGRESS_API_KEY, "format": "json", "limit": 50}
 
@@ -217,19 +241,28 @@ def fetch_related_bills(congress, bill_type, bill_number, max_results=5):
         identical.sort(key=lambda x: x.get("latest_action_date") or "", reverse=True)
         identical = identical[:1]
 
-    return {
+    result = {
         "identical": identical,
         "related": related[:max_results],
         "superseded": superseded[:1],
     }
+    with _related_cache_lock:
+        _related_cache[key] = result
+    return result
 
 
-@cached(cache=_amendments_cache, lock=RLock())
 def fetch_amendments(congress, bill_type, bill_number, max_results=50):
     """
     Fetch amendments formally filed against this bill from Congress.gov.
     Returns list of amendment entries, capped at max_results.
     """
+    # Manual cache so failure paths don't poison the TTL window.
+    key = (congress, bill_type, bill_number, max_results)
+    with _amendments_cache_lock:
+        hit = _amendments_cache.get(key)
+    if hit is not None:
+        return hit
+
     url = f"https://api.congress.gov/v3/bill/{congress}/{bill_type}/{bill_number}/amendments"
     params = {"api_key": CONGRESS_API_KEY, "format": "json", "limit": max_results}
 
@@ -267,6 +300,8 @@ def fetch_amendments(congress, bill_type, bill_number, max_results=50):
             "latest_action_date": (a.get("latestAction") or {}).get("actionDate", ""),
         })
 
+    with _amendments_cache_lock:
+        _amendments_cache[key] = results
     return results
 
 
@@ -337,7 +372,6 @@ def _govinfo_text_fallback(congress, bill_type, bill_number, max_chars):
     return None
 
 
-@cached(cache=_text_cache, lock=RLock())
 def fetch_bill_text(congress, bill_type, bill_number, max_chars=8000):
     """
     Fetch and strip actual bill text. Tries Congress.gov's text-versions endpoint
@@ -345,6 +379,22 @@ def fetch_bill_text(congress, bill_type, bill_number, max_chars=8000):
     versions yet (common for bills < ~2 weeks old).
     Returns cleaned plain text capped at max_chars, or None if unavailable.
     """
+    # Manual cache so transient None returns don't poison the TTL window.
+    # "Genuinely no text yet" returns None too — we re-fetch those next call,
+    # which is fine because new bills publish text within days.
+    key = (congress, bill_type, bill_number, max_chars)
+    with _text_cache_lock:
+        hit = _text_cache.get(key)
+    if hit is not None:
+        return hit
+    result = _fetch_bill_text_uncached(congress, bill_type, bill_number, max_chars)
+    if result:
+        with _text_cache_lock:
+            _text_cache[key] = result
+    return result
+
+
+def _fetch_bill_text_uncached(congress, bill_type, bill_number, max_chars=8000):
     url = f"https://api.congress.gov/v3/bill/{congress}/{bill_type}/{bill_number}/text"
     params = {"api_key": CONGRESS_API_KEY, "format": "json"}
 
@@ -410,12 +460,18 @@ def fetch_bill_text(congress, bill_type, bill_number, max_chars=8000):
         return _govinfo_text_fallback(congress, bill_type, bill_number, max_chars)
 
 
-@cached(cache=_cosponsors_cache, lock=RLock())
 def fetch_cosponsors(congress, bill_type, bill_number, limit=250):
     """
     Fetches cosponsors for a bill from Congress.gov.
     Returns list of cosponsor dicts with name, party, state, bioguide_id.
     """
+    # Manual cache so failure paths don't poison the TTL window.
+    key = (congress, bill_type, bill_number, limit)
+    with _cosponsors_cache_lock:
+        hit = _cosponsors_cache.get(key)
+    if hit is not None:
+        return hit
+
     url = f"https://api.congress.gov/v3/bill/{congress}/{bill_type}/{bill_number}/cosponsors"
     params = {"api_key": CONGRESS_API_KEY, "format": "json", "limit": limit}
 
@@ -446,6 +502,8 @@ def fetch_cosponsors(congress, bill_type, bill_number, limit=250):
             "sponsorship_date": c.get("sponsorshipDate", ""),
             "is_original": c.get("isOriginalCosponsor", False),
         })
+    with _cosponsors_cache_lock:
+        _cosponsors_cache[key] = result
     return result
 
 

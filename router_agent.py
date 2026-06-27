@@ -407,7 +407,8 @@ User question: {user_question}
 Rules for query_type:
 - A person's name, "Senator X", "Representative X", "what did X do", "X's record", "X's votes", "who is X" → "member"
 - "X Committee", "committee on X", "House/Senate committee" → "committee"
-- Queries that have NOTHING to do with US legislation, members of Congress, government policy, public law, or civic topics — e.g. "weather forecast tomorrow", "best pizza near me", "stock price of AAPL", "who won the game last night" → "off_topic"
+- Queries that CLEARLY have nothing to do with US legislation, government policy, public law, or civic topics — e.g. "weather forecast tomorrow", "best pizza near me", "stock price of AAPL", "who won the game last night" → "off_topic". When in doubt, choose "legislation" — any phrase that could plausibly be the subject of a bill, regulation, or congressional hearing is on-topic.
+- Short, ambiguous-sounding phrases that ARE active policy debates default to "legislation", not "off_topic". Examples that look tech-flavored but are real legislative topics: "age verification", "content moderation", "deepfakes", "facial recognition", "encryption backdoors", "data privacy", "section 230", "right to repair", "noncompetes", "PBMs", "surprise billing", "robocalls", "TikTok ban", "AI safety", "crypto regulation", "stablecoins".
 - Everything else (any plausible civic / policy / legislative / governmental topic, even if broad like "marijuana" or "abortion") → "legislation"
 
 Rules for jurisdiction:

@@ -38,3 +38,5 @@ cachetools
 google-auth-oauthlib
 google-api-python-client
 python-jose[cryptography]
+psycopg[binary]
+psycopg_pool
