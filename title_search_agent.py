@@ -57,9 +57,6 @@ POPULAR_NAMES = {
     "usa patriot act":         {"congress": 107, "type": "hr", "number": 3162, "title": "USA PATRIOT Act"},
     "freedom act":             {"congress": 114, "type": "hr", "number": 2048, "title": "USA FREEDOM Act of 2015"},
     "usa freedom act":         {"congress": 114, "type": "hr", "number": 2048, "title": "USA FREEDOM Act of 2015"},
-    # Foreign policy / human rights
-    "north korean human rights act":         {"congress": 108, "type": "hr", "number": 4011, "title": "North Korean Human Rights Act of 2004"},
-    "north korean human rights act of 2004": {"congress": 108, "type": "hr", "number": 4011, "title": "North Korean Human Rights Act of 2004"},
 }
 
 # ---------------------------------------------------------------------------
@@ -181,10 +178,13 @@ def _load_popular_names_cache():
 # GovInfo phrase search — matches "may be cited as" preamble text
 # ---------------------------------------------------------------------------
 
-def _govinfo_phrase_search(act_name):
+def _govinfo_phrase_search(act_name, limit=5):
+    """Phrase search on the GovInfo BILLS collection. Returns a list of distinct
+    bills (deduped by congress/type/number — GovInfo indexes every print version
+    of a bill separately) ordered by GovInfo's relevance score."""
     payload = {
         "query": f'"{act_name}" collection:BILLS',
-        "pageSize": 5,
+        "pageSize": 25,  # over-fetch so dedup leaves room for `limit` distinct bills
         "offsetMark": "*",
         "sorts": [{"field": "score", "sortOrder": "DESC"}],
     }
@@ -197,17 +197,23 @@ def _govinfo_phrase_search(act_name):
         )
         if response.status_code != 200:
             print(f"[TITLE SEARCH] GovInfo phrase search: HTTP {response.status_code}")
-            return None
-        results = response.json().get("results", [])
-        if not results:
-            return None
+            return []
+        raw = response.json().get("results", [])
+    except Exception as e:
+        print(f"[TITLE SEARCH] GovInfo phrase search error: {e}")
+        return []
 
-        item = results[0]
+    out = []
+    seen = set()
+    for item in raw:
         parsed = parse_package_id(item.get("packageId", ""))
         if not parsed:
-            return None
-
-        return {
+            continue
+        key = (parsed["congress"], parsed["type"], parsed["number"])
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append({
             "congress": parsed["congress"],
             "type": parsed["type"],
             "number": parsed["number"],
@@ -215,13 +221,13 @@ def _govinfo_phrase_search(act_name):
             "date_issued": item.get("dateIssued", ""),
             "latest_action": "",
             "source": "govinfo_phrase",
-            "is_original": True,
+            "is_original": False,
             "is_law": False,
             "law_number": None,
-        }
-    except Exception as e:
-        print(f"[TITLE SEARCH] GovInfo phrase search error: {e}")
-        return None
+        })
+        if len(out) >= limit:
+            break
+    return out
 
 # ---------------------------------------------------------------------------
 # Main entry point
@@ -229,31 +235,19 @@ def _govinfo_phrase_search(act_name):
 
 def search_by_title(named_entity, max_recent=3):
     """
-    Multi-phase title search for named acts.
+    Title search for named acts.
 
     Phase 0: hardcoded POPULAR_NAMES table (historical acts with divergent titles)
     Phase 1: scraped congress.gov popular names cache (auto-refreshed weekly)
-    Phase 2: Congress.gov relevance search
-    Phase 3: GovInfo full-text phrase search ("may be cited as" preamble)
+    Phase 2: GovInfo BILLS phrase search (deduped, multi-result)
+
+    Congress.gov's /v3/bill endpoint does NOT support keyword search — the `query`
+    parameter is silently ignored and the response is a default-sorted list that
+    has nothing to do with the request. That whole phase was injecting garbage
+    into every search that wasn't already in the popular-names tables, so it's
+    gone. GovInfo phrase search is the load-bearing path.
     """
-    url = "https://api.congress.gov/v3/bill"
     entity_lower = named_entity.lower().strip()
-
-    def bill_to_result(bill, is_original=False, source="title_search"):
-        return {
-            "congress": bill.get("congress"),
-            "type": (bill.get("type") or "").lower(),
-            "number": bill.get("number"),
-            "title": bill.get("title", ""),
-            "date_issued": (bill.get("latestAction") or {}).get("actionDate", "") if source == "title_search" else bill.get("date_issued", ""),
-            "latest_action": (bill.get("latestAction") or {}).get("text", "") if source == "title_search" else "",
-            "source": source,
-            "is_original": is_original,
-            "is_law": False,
-            "law_number": None,
-        }
-
-    original = None
 
     # Phase 0 — hardcoded table.
     # Try the literal key first, then a year-stripped variant ("act of 2022" → "act"),
@@ -266,7 +260,7 @@ def search_by_title(named_entity, max_recent=3):
     _hit_key = next((k for k in _lookup_keys if k in POPULAR_NAMES), None)
     if _hit_key:
         entry = POPULAR_NAMES[_hit_key]
-        original = {
+        result = {
             "congress": entry["congress"],
             "type": entry["type"].lower(),
             "number": entry["number"],
@@ -278,135 +272,48 @@ def search_by_title(named_entity, max_recent=3):
             "is_law": False,
             "law_number": None,
         }
+        log_action(
+            agent_name="title_search", action="search_by_title",
+            input_data={"named_entity": named_entity},
+            output_data={"original_found": True, "original_source": result["source"], "recent_count": 0},
+        )
+        return [result]
 
     # Phase 1 — scraped popular names cache
-    if original is None:
-        cache = _load_popular_names_cache()
-        if entity_lower in cache:
-            entry = cache[entity_lower]
-            original = {
-                "congress": entry["congress"],
-                "type": entry["type"],
-                "number": entry["number"],
-                "title": named_entity,
-                "date_issued": "",
-                "latest_action": "",
-                "source": "popular_names_cache",
-                "is_original": True,
-                "is_law": False,
-                "law_number": None,
-            }
-
-    # Phase 2 — Congress.gov relevance search
-    STOP_WORDS = {"act", "the", "of", "and", "for", "to", "a", "an", "in", "on", "with", "law"}
-    query_keywords = {w for w in entity_lower.split() if w not in STOP_WORDS and len(w) > 2}
-
-    # Detect acronym-style queries: any ALL-CAPS word 2+ chars (e.g. "SAVE Act", "CHIPS Act")
-    _acronym_match = re.search(r'\b([A-Z]{2,})\b', named_entity)
-    acronym = _acronym_match.group(1) if _acronym_match else None
-
-    def title_has_parenthetical_acronym(title):
-        """True if the acronym appears in parentheses in the official title, e.g. '(SAVE)'."""
-        return bool(re.search(rf'\({re.escape(acronym)}\)', title, re.IGNORECASE))
-
-    def title_matches_query(title):
-        title_lower = title.lower()
-        return any(kw in title_lower for kw in query_keywords)
-
-    params_original = {
-        "api_key": CONGRESS_API_KEY,
-        "format": "json",
-        "query": named_entity,
-        "limit": 50,
-    }
-
-    if original is None:
-        try:
-            response = requests.get(url, params=params_original, timeout=10)
-        except Exception as e:
-            print(f"[TITLE SEARCH] Congress.gov error: {e}")
-            response = None
-
-        if response is not None and response.status_code == 200:
-            try:
-                bills = response.json().get("bills", [])
-            except Exception:
-                bills = []
-
-            # Pass 1: prefer titles where the acronym appears in parentheses — "Safeguard ... (SAVE) Act"
-            if acronym:
-                for bill in bills:
-                    if title_has_parenthetical_acronym(bill.get("title", "")):
-                        original = bill_to_result(bill, is_original=True)
-                        print(f"[TITLE SEARCH] Parenthetical acronym match for ({acronym}): {bill.get('title', '')[:80]}")
-                        break
-
-            # Pass 2: fall back to keyword match in first 10 results
-            if original is None:
-                for bill in bills[:10]:
-                    if title_matches_query(bill.get("title", "")):
-                        original = bill_to_result(bill, is_original=True)
-                        break
-
-            if original is None:
-                print(f"[TITLE SEARCH] Congress.gov returned no title-matched results — falling through to GovInfo")
-
-    # Phase 3 — GovInfo full-text phrase search
-    if original is None:
-        print(f"[TITLE SEARCH] Falling back to GovInfo phrase search for: {named_entity}")
-        original = _govinfo_phrase_search(named_entity)
-
-    if original is None:
+    cache = _load_popular_names_cache()
+    if entity_lower in cache:
+        entry = cache[entity_lower]
+        result = {
+            "congress": entry["congress"],
+            "type": entry["type"],
+            "number": entry["number"],
+            "title": named_entity,
+            "date_issued": "",
+            "latest_action": "",
+            "source": "popular_names_cache",
+            "is_original": True,
+            "is_law": False,
+            "law_number": None,
+        }
         log_action(
-            agent_name="title_search",
-            action="search_by_title",
+            agent_name="title_search", action="search_by_title",
             input_data={"named_entity": named_entity},
-            output_data={"original_found": False, "recent_count": 0}
+            output_data={"original_found": True, "original_source": result["source"], "recent_count": 0},
         )
-        return []
+        return [result]
 
-    # An authoritative popular-name hit is a one-bill answer. Padding it with
-    # date-sorted Congress.gov keyword results was injecting garbage (e.g.
-    # "Salt Pond Visitor Center" showing up under "North Korean Human Rights
-    # Act") because the recent-bills fetch had no relevance filter.
-    if original.get("source") in {"popular_names_hardcoded", "popular_names_cache"}:
-        results = [original]
-    else:
-        # Fetch recent related bills, excluding original. Filter by the same
-        # query-keyword predicate that Phase 2 uses so the recent list can't
-        # leak unrelated bills past the validator.
-        original_key = f"{original['congress']}{original['type']}{original['number']}"
-        recent_params = {**params_original, "sort": "date+desc"}
-        try:
-            recent_response = requests.get(url, params=recent_params, timeout=10)
-            recent_bills = recent_response.json().get("bills", []) if recent_response.status_code == 200 else []
-        except Exception:
-            recent_bills = []
-
-        recent = []
-        for bill in recent_bills:
-            key = f"{bill.get('congress')}{(bill.get('type') or '').lower()}{bill.get('number')}"
-            if key == original_key:
-                continue
-            if not bill.get("number") or not bill.get("type"):
-                continue
-            if not title_matches_query(bill.get("title", "")):
-                continue
-            recent.append(bill_to_result(bill))
-            if len(recent) >= max_recent:
-                break
-
-        results = [original] + recent
+    # Phase 2 — GovInfo phrase search. Over-fetch so dedup leaves enough distinct
+    # bills to give the caller something to work with even when an act has many
+    # reauthorizations indexed.
+    results = _govinfo_phrase_search(named_entity, limit=max_recent + 1)
 
     log_action(
-        agent_name="title_search",
-        action="search_by_title",
+        agent_name="title_search", action="search_by_title",
         input_data={"named_entity": named_entity},
         output_data={
-            "original_found": True,
-            "original_source": original.get("source"),
-            "recent_count": len(recent),
-        }
+            "original_found": bool(results),
+            "original_source": results[0]["source"] if results else None,
+            "recent_count": max(0, len(results) - 1),
+        },
     )
-
     return results
