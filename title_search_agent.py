@@ -57,6 +57,9 @@ POPULAR_NAMES = {
     "usa patriot act":         {"congress": 107, "type": "hr", "number": 3162, "title": "USA PATRIOT Act"},
     "freedom act":             {"congress": 114, "type": "hr", "number": 2048, "title": "USA FREEDOM Act of 2015"},
     "usa freedom act":         {"congress": 114, "type": "hr", "number": 2048, "title": "USA FREEDOM Act of 2015"},
+    # Foreign policy / human rights
+    "north korean human rights act":         {"congress": 108, "type": "hr", "number": 4011, "title": "North Korean Human Rights Act of 2004"},
+    "north korean human rights act of 2004": {"congress": 108, "type": "hr", "number": 4011, "title": "North Korean Human Rights Act of 2004"},
 }
 
 # ---------------------------------------------------------------------------
@@ -362,27 +365,38 @@ def search_by_title(named_entity, max_recent=3):
         )
         return []
 
-    # Fetch recent related bills, excluding original
-    original_key = f"{original['congress']}{original['type']}{original['number']}"
-    recent_params = {**params_original, "sort": "date+desc"}
-    try:
-        recent_response = requests.get(url, params=recent_params, timeout=10)
-        recent_bills = recent_response.json().get("bills", []) if recent_response.status_code == 200 else []
-    except Exception:
-        recent_bills = []
+    # An authoritative popular-name hit is a one-bill answer. Padding it with
+    # date-sorted Congress.gov keyword results was injecting garbage (e.g.
+    # "Salt Pond Visitor Center" showing up under "North Korean Human Rights
+    # Act") because the recent-bills fetch had no relevance filter.
+    if original.get("source") in {"popular_names_hardcoded", "popular_names_cache"}:
+        results = [original]
+    else:
+        # Fetch recent related bills, excluding original. Filter by the same
+        # query-keyword predicate that Phase 2 uses so the recent list can't
+        # leak unrelated bills past the validator.
+        original_key = f"{original['congress']}{original['type']}{original['number']}"
+        recent_params = {**params_original, "sort": "date+desc"}
+        try:
+            recent_response = requests.get(url, params=recent_params, timeout=10)
+            recent_bills = recent_response.json().get("bills", []) if recent_response.status_code == 200 else []
+        except Exception:
+            recent_bills = []
 
-    recent = []
-    for bill in recent_bills:
-        key = f"{bill.get('congress')}{(bill.get('type') or '').lower()}{bill.get('number')}"
-        if key == original_key:
-            continue
-        if not bill.get("number") or not bill.get("type"):
-            continue
-        recent.append(bill_to_result(bill))
-        if len(recent) >= max_recent:
-            break
+        recent = []
+        for bill in recent_bills:
+            key = f"{bill.get('congress')}{(bill.get('type') or '').lower()}{bill.get('number')}"
+            if key == original_key:
+                continue
+            if not bill.get("number") or not bill.get("type"):
+                continue
+            if not title_matches_query(bill.get("title", "")):
+                continue
+            recent.append(bill_to_result(bill))
+            if len(recent) >= max_recent:
+                break
 
-    results = [original] + recent
+        results = [original] + recent
 
     log_action(
         agent_name="title_search",
