@@ -178,12 +178,19 @@ def _load_popular_names_cache():
 # GovInfo phrase search — matches "may be cited as" preamble text
 # ---------------------------------------------------------------------------
 
-def _govinfo_phrase_search(act_name, limit=5):
+def _govinfo_phrase_search(act_name, limit=5, congress=None):
     """Phrase search on the GovInfo BILLS collection. Returns a list of distinct
     bills (deduped by congress/type/number — GovInfo indexes every print version
-    of a bill separately) ordered by GovInfo's relevance score."""
+    of a bill separately) ordered by GovInfo's relevance score.
+
+    When `congress` is given, restrict to bills from that Congress. Useful when
+    the caller has a year hint and the original act would otherwise be drowned
+    out by later reauthorizations whose preamble repeats the original's title."""
+    q = f'"{act_name}" collection:BILLS'
+    if congress is not None:
+        q += f" congress:{congress}"
     payload = {
-        "query": f'"{act_name}" collection:BILLS',
+        "query": q,
         "pageSize": 25,  # over-fetch so dedup leaves room for `limit` distinct bills
         "offsetMark": "*",
         "sorts": [{"field": "score", "sortOrder": "DESC"}],
@@ -249,6 +256,16 @@ def search_by_title(named_entity, max_recent=3):
     """
     entity_lower = named_entity.lower().strip()
 
+    # If the user pinned a specific year ("of 2004"), narrow Phase 2 to that
+    # Congress. Without this, reauthorizations swamp the original because their
+    # text repeats the original's title many times — higher phrase score wins.
+    _year_match = re.search(r"\bof\s+(\d{4})\b", entity_lower)
+    _year_congress = None
+    if _year_match:
+        _year = int(_year_match.group(1))
+        if 1789 <= _year <= 2100:
+            _year_congress = (_year - 1787) // 2  # Congress N covers years 2N+1787 and 2N+1788
+
     # Phase 0 — hardcoded table.
     # Try the literal key first, then a year-stripped variant ("act of 2022" → "act"),
     # since the router often appends an official year that the table omits.
@@ -305,7 +322,12 @@ def search_by_title(named_entity, max_recent=3):
     # Phase 2 — GovInfo phrase search. Over-fetch so dedup leaves enough distinct
     # bills to give the caller something to work with even when an act has many
     # reauthorizations indexed.
-    results = _govinfo_phrase_search(named_entity, limit=max_recent + 1)
+    results = _govinfo_phrase_search(named_entity, limit=max_recent + 1, congress=_year_congress)
+    # When the year filter returns nothing — e.g. the act's text doesn't repeat
+    # its title literally in that Congress's session — retry without the filter
+    # so the user still gets the closest matches instead of an empty page.
+    if not results and _year_congress is not None:
+        results = _govinfo_phrase_search(named_entity, limit=max_recent + 1)
 
     log_action(
         agent_name="title_search", action="search_by_title",
