@@ -1,9 +1,11 @@
 import anthropic
+import json
 import os
 from supabase import create_client
 from dotenv import load_dotenv
 from documentor_agent import log_action
 from state_search_agent import STATE_JURISDICTIONS
+from reference_resolver import resolve_references, REF_HARD_LIMIT
 
 load_dotenv()
 
@@ -13,7 +15,10 @@ supabase = create_client(
 )
 
 def _cache_key(congress, bill_type, bill_number):
-    return f"BILLS-{congress}{bill_type}{bill_number}"
+    # v2 prefix introduced when the translator started emitting a Background
+    # section for external references the bill itself doesn't define. Bumping
+    # forces re-translation lazily on next view; old v1 rows linger unused.
+    return f"BILLS-v2-{congress}{bill_type}{bill_number}"
 
 def _get_cached(congress, bill_type, bill_number):
     try:
@@ -139,6 +144,38 @@ Explain in these four sections:
     return translation
 
 
+def _parse_translation_json(raw: str):
+    """Parse Haiku's JSON output. Returns (translation_markdown, unknown_refs).
+
+    Fail-open: malformed JSON falls back to using the raw text as the
+    translation and an empty unknown_refs list. The user still gets the
+    explanation; we just skip the Background section."""
+    body = raw
+    if body.startswith("```"):
+        body = body.strip("`").lstrip("json").strip()
+    try:
+        parsed = json.loads(body)
+        translation = (parsed.get("translation") or "").strip()
+        unknown_refs = parsed.get("unknown_refs") or []
+        if not isinstance(unknown_refs, list):
+            unknown_refs = []
+        unknown_refs = [str(t).strip() for t in unknown_refs if str(t).strip()]
+        if not translation:
+            return raw, []
+        return translation, unknown_refs
+    except json.JSONDecodeError:
+        # Treat the whole response as the translation — better than nothing.
+        return raw, []
+
+
+def _format_background(resolutions: dict) -> str:
+    """Render the Background section appended after the four-part explanation."""
+    lines = ["## Background"]
+    for term, body in resolutions.items():
+        lines.append(f"**{term}** — {body}")
+    return "\n\n".join(lines)
+
+
 def translate_bill(bill_data, client, user_context=None, bill_text=None):
     bill = bill_data["bill"]
 
@@ -181,11 +218,25 @@ Current Status: {status}
 Policy Area: {policy_area}
 {text_section}
 
-Explain in these four sections:
+Return ONLY valid JSON, no markdown fences. Shape:
+{{
+  "translation": "<the plain-English explanation as markdown — see structure below>",
+  "unknown_refs": ["<term>", ...]
+}}
+
+The translation field is markdown with these four sections, in order:
 1. What this bill does in one sentence
 2. Who it affects and how (specific groups: taxpayers, agencies, industries, individuals)
 3. Costs, trade-offs, and obligations — what does this cost, who pays, what is required or restricted, and what is given up (e.g. federal spending, new mandates, regulatory burdens, loss of existing rights or programs). If costs or trade-offs are unknown or not specified in the bill, say so briefly.
 4. What its current status means
+
+unknown_refs is a list of proper-noun programs, funds, statutes, offices, or
+doctrines this bill references by name but does NOT itself define, AND that an
+average reader would likely need explained. List at most {REF_HARD_LIMIT} terms;
+omit common civics terms ("Congress", "Department of Justice") and anything you
+yourself can adequately define in the translation body. Return [] when nothing
+qualifies. Do NOT write "the bill does not explain X" in the translation body —
+listed terms will be covered separately in a Background section.
 """
 
     message = client.messages.create(
@@ -194,7 +245,17 @@ Explain in these four sections:
         messages=[{"role": "user", "content": prompt}]
     )
 
-    translation = message.content[0].text
+    raw = message.content[0].text.strip()
+    translation, unknown_refs = _parse_translation_json(raw)
+
+    if unknown_refs:
+        try:
+            resolutions = resolve_references(unknown_refs, client)
+        except Exception as e:
+            print(f"[TRANSLATOR] Reference resolver error: {e}")
+            resolutions = {}
+        if resolutions:
+            translation = translation.rstrip() + "\n\n" + _format_background(resolutions)
 
     # Store in cache
     _store_cached(congress, bill_type, bill_number, translation)
