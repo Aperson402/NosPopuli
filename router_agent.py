@@ -418,6 +418,7 @@ Rules for jurisdiction:
 
 Rules for query_subtype (legislation queries only):
 - Proper noun law name, named act, roman numerals, known acronym → "named_entity"
+- Trailing words like "bill", "legislation", "vote", "law", "act of congress" do NOT change the subtype. "Bipartisan Transparency for American Taxpayers Act bill" is still named_entity — extract "Bipartisan Transparency for American Taxpayers Act" as named_entity and strip the trailing word.
 - Proper noun law name + specific year, president, or era → "named_entity_with_date"
 - General topic + specific year, president, or era → "concept_with_date"
 - "give me a bill", "show me something", "any bill", no specific topic → "browse"

@@ -237,6 +237,82 @@ def _govinfo_phrase_search(act_name, limit=5, congress=None):
     return out
 
 # ---------------------------------------------------------------------------
+# Congress.gov listing scan — last-ditch fallback for very recent bills
+# GovInfo hasn't ingested yet. Bounded by congress × type × date window.
+# ---------------------------------------------------------------------------
+
+_SCAN_STOPWORDS = {
+    "act", "bill", "legislation", "law", "vote",
+    "the", "of", "and", "for", "to", "a", "an", "in", "on", "with",
+}
+
+
+def _congress_gov_title_scan(named_entity, congresses=(119, 118), types=("hr", "s"),
+                              limit=4, days_back=90):
+    """When GovInfo's BILLS collection lags Congress.gov on a freshly introduced
+    bill, scan Congress.gov listings for titles containing every distinctive
+    keyword from the act name. Restricted to a recent date window so a single
+    page per (congress, type) covers it and we don't paginate forever."""
+    keywords = {
+        w for w in named_entity.lower().split()
+        if w not in _SCAN_STOPWORDS and len(w) > 3
+    }
+    if len(keywords) < 2:
+        return []  # too generic — would match noise
+
+    from datetime import datetime, timedelta
+    since = (datetime.utcnow() - timedelta(days=days_back)).strftime("%Y-%m-%dT00:00:00Z")
+
+    out = []
+    seen = set()
+    for congress in congresses:
+        for btype in types:
+            try:
+                r = requests.get(
+                    f"https://api.congress.gov/v3/bill/{congress}/{btype}",
+                    params={
+                        "api_key": CONGRESS_API_KEY,
+                        "format": "json",
+                        "limit": 250,
+                        "fromDateTime": since,
+                    },
+                    timeout=15,
+                )
+            except Exception as e:
+                print(f"[TITLE SEARCH] Listing scan error ({congress} {btype}): {e}")
+                continue
+            if r.status_code != 200:
+                continue
+            try:
+                bills = r.json().get("bills", [])
+            except Exception:
+                continue
+            for b in bills:
+                title_lower = (b.get("title") or "").lower()
+                if not all(kw in title_lower for kw in keywords):
+                    continue
+                key = (congress, btype, b.get("number"))
+                if key in seen or not b.get("number"):
+                    continue
+                seen.add(key)
+                out.append({
+                    "congress": b.get("congress"),
+                    "type": btype,
+                    "number": b.get("number"),
+                    "title": b.get("title", ""),
+                    "date_issued": (b.get("latestAction") or {}).get("actionDate", ""),
+                    "latest_action": (b.get("latestAction") or {}).get("text", ""),
+                    "source": "congress_listing",
+                    "is_original": False,
+                    "is_law": False,
+                    "law_number": None,
+                })
+                if len(out) >= limit:
+                    return out
+    return out
+
+
+# ---------------------------------------------------------------------------
 # Main entry point
 # ---------------------------------------------------------------------------
 
@@ -328,6 +404,13 @@ def search_by_title(named_entity, max_recent=3):
     # so the user still gets the closest matches instead of an empty page.
     if not results and _year_congress is not None:
         results = _govinfo_phrase_search(named_entity, limit=max_recent + 1)
+
+    # Phase 3 — Congress.gov listing scan. GovInfo's BILLS index lags
+    # Congress.gov by days/weeks; freshly introduced bills are missing from
+    # Phase 2 even when they exist. Scan recent bills by title keyword.
+    if not results:
+        print(f"[TITLE SEARCH] GovInfo empty — scanning Congress.gov listings for: {named_entity}")
+        results = _congress_gov_title_scan(named_entity, limit=max_recent + 1)
 
     log_action(
         agent_name="title_search", action="search_by_title",

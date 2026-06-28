@@ -16,7 +16,7 @@ from bill_fetcher import fetch_bill
 from correspondence.db import get_disk_cache, set_disk_cache, clear_disk_cache
 
 SEARCH_CACHE_TTL_SECONDS = 1800  # 30 min
-SEARCH_KEY_PREFIX = "search:v3:"
+SEARCH_KEY_PREFIX = "search:v4:"
 
 
 def clear():
