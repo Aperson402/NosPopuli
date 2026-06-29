@@ -319,40 +319,41 @@ async def fetch_elections(zip_code, state_code=None):
 async def _compute_elections(zip_code, state_code):
     """The actual upstream-fetch path, separated so the cache wrapper above
     stays readable. Returns the same shape as fetch_elections."""
-    if not CIVIC_API_KEY:
-        return {"upcoming": [], "recent": [], "error": "Elections data not configured."}
-
     address = f"{zip_code} USA" if zip_code else "Washington DC USA"
     today = datetime.date.today()
     cutoff_past = today - datetime.timedelta(days=60)
     cutoff_future = today + datetime.timedelta(days=548)  # ~18 months out
 
-    async with httpx.AsyncClient() as client:
-        all_elections = await _fetch_all_elections(client)
+    relevant = []
+    voter_infos = []
+    if CIVIC_API_KEY:
+        async with httpx.AsyncClient() as client:
+            all_elections = await _fetch_all_elections(client)
 
-        # Filter to relevant time window, excluding test/placeholder entries
-        relevant = []
-        for e in all_elections:
-            name = e.get("name", "")
-            if "test" in name.lower() or "vip test" in name.lower():
-                continue
-            date_str = e.get("electionDay", "")
-            if not date_str:
-                continue
-            try:
-                edate = datetime.date.fromisoformat(date_str)
-            except Exception:
-                continue
-            if edate >= cutoff_past and edate <= cutoff_future:
-                relevant.append((e, edate))
+            # Filter to relevant time window, excluding test/placeholder entries
+            for e in all_elections:
+                name = e.get("name", "")
+                if "test" in name.lower() or "vip test" in name.lower():
+                    continue
+                date_str = e.get("electionDay", "")
+                if not date_str:
+                    continue
+                try:
+                    edate = datetime.date.fromisoformat(date_str)
+                except Exception:
+                    continue
+                if edate >= cutoff_past and edate <= cutoff_future:
+                    relevant.append((e, edate))
 
-        # Fetch voter info for all relevant elections concurrently (max 5 at once)
-        semaphore = asyncio.Semaphore(5)
-        voter_info_tasks = [
-            _fetch_voter_info(client, e["id"], address, semaphore)
-            for e, _ in relevant
-        ]
-        voter_infos = await asyncio.gather(*voter_info_tasks)
+            # Fetch voter info for all relevant elections concurrently (max 5 at once)
+            semaphore = asyncio.Semaphore(5)
+            voter_info_tasks = [
+                _fetch_voter_info(client, e["id"], address, semaphore)
+                for e, _ in relevant
+            ]
+            voter_infos = await asyncio.gather(*voter_info_tasks)
+    else:
+        print("[ELECTIONS] CIVIC_API_KEY not set — skipping Google Civic, using curated data only")
 
     upcoming = []
     recent = []
