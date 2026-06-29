@@ -122,6 +122,45 @@ def init_db():
                 UNIQUE(email, bill_id)
             );
         """)
+    _bootstrap_known_elections_from_file()
+
+
+def _bootstrap_known_elections_from_file():
+    """One-shot: if known_elections is empty, populate from the shipped
+    data/known_elections.json. Idempotent — skips when any row already exists,
+    so admin edits via /admin/elections never get overwritten."""
+    path = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "data", "known_elections.json",
+    )
+    try:
+        with _cursor() as cur:
+            cur.execute("SELECT COUNT(*) AS n FROM known_elections")
+            existing = cur.fetchone()["n"]
+        if existing > 0:
+            return
+        with open(path) as f:
+            data = json.load(f)
+        inserted = 0
+        with _cursor() as cur:
+            for state_code, entries in data.items():
+                for e in entries:
+                    name = (e.get("name") or "").strip()
+                    date_str = (e.get("date") or "").strip()
+                    type_str = (e.get("type") or None)
+                    if not name or not date_str:
+                        continue
+                    cur.execute("""
+                        INSERT INTO known_elections (state_code, name, date, type)
+                        VALUES (%s, %s, %s, %s)
+                        ON CONFLICT(state_code, date, name) DO NOTHING
+                    """, (state_code.upper(), name, date_str, type_str))
+                    inserted += 1
+        print(f"[DB] Bootstrapped known_elections with {inserted} entries from JSON")
+    except FileNotFoundError:
+        print(f"[DB] known_elections JSON not found at {path} — skipping bootstrap")
+    except Exception as e:
+        print(f"[DB] Bootstrap error: {e}")
 
 
 def upsert_user(user_id, email, name):
@@ -339,38 +378,32 @@ def set_elections_cache(state_code, results):
         """, (state_code, json.dumps(results), time.time()))
 
 
-_KNOWN_ELECTIONS_PATH = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    "data", "known_elections.json",
-)
-_KNOWN_ELECTIONS_CACHE = None
-
-
-def _load_known_elections():
-    """Lazily load + cache the shipped known-elections JSON."""
-    global _KNOWN_ELECTIONS_CACHE
-    if _KNOWN_ELECTIONS_CACHE is not None:
-        return _KNOWN_ELECTIONS_CACHE
-    try:
-        with open(_KNOWN_ELECTIONS_PATH) as f:
-            _KNOWN_ELECTIONS_CACHE = json.load(f)
-    except FileNotFoundError:
-        print(f"[DB] WARNING: known_elections file not found at {_KNOWN_ELECTIONS_PATH}")
-        _KNOWN_ELECTIONS_CACHE = {}
-    return _KNOWN_ELECTIONS_CACHE
-
-
 def get_known_elections(state_code):
     """
-    Return list of known elections for a state, shape matching Claude web search.
-    Source of truth is data/known_elections.json (shipped in the repo) so the
-    data survives container restarts on ephemeral filesystems. Same filtering
-    as the old SQLite path: dates from 60 days ago onward.
+    Return list of known elections for a state from the Postgres known_elections
+    table, shape matching what Claude web search produces. Dates from 60 days
+    ago onward.
+
+    Source of truth is now Postgres. The table is bootstrapped from the shipped
+    data/known_elections.json on first init when empty; admin edits via
+    /admin/elections persist there and are never overwritten.
     """
     from datetime import date, timedelta
     cutoff = (date.today() - timedelta(days=60)).isoformat()
-    all_elections = _load_known_elections().get(state_code.upper(), [])
-    return [e for e in all_elections if e.get("date", "") >= cutoff]
+    try:
+        with _cursor() as cur:
+            cur.execute("""
+                SELECT name, date, type FROM known_elections
+                WHERE state_code = %s AND date >= %s
+                ORDER BY date ASC
+            """, (state_code.upper(), cutoff))
+            return [
+                {"name": r["name"], "date": r["date"], "type": r["type"]}
+                for r in cur.fetchall()
+            ]
+    except Exception as e:
+        print(f"[DB] get_known_elections error for {state_code}: {e}")
+        return []
 
 
 def list_known_elections(state_code=None):
