@@ -412,10 +412,17 @@ def get_known_elections(state_code):
                 WHERE state_code = %s AND date >= %s
                 ORDER BY date ASC
             """, (state_code.upper(), cutoff))
-            return [
-                {"name": r["name"], "date": r["date"], "type": r["type"]}
-                for r in cur.fetchall()
+            rows = cur.fetchall()
+            result = [
+                {
+                    "name": r["name"],
+                    "date": r["date"].isoformat() if hasattr(r["date"], "isoformat") else r["date"],
+                    "type": r["type"],
+                }
+                for r in rows
             ]
+            print(f"[DB] get_known_elections({state_code!r}) cutoff={cutoff} → {len(result)} rows")
+            return result
     except Exception as e:
         print(f"[DB] get_known_elections error for {state_code}: {e}")
         return []
