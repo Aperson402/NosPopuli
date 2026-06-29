@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from documentor_agent import log_action
 from state_search_agent import STATE_JURISDICTIONS
 from reference_resolver import resolve_references, REF_HARD_LIMIT
+from correspondence.db import get_disk_cache, set_disk_cache
 
 load_dotenv()
 
@@ -20,6 +21,32 @@ def _cache_key(congress, bill_type, bill_number):
     # didn't have an authoritative is_law signal. Lazy invalidation on next
     # view; old v2 rows linger unused.
     return f"BILLS-v3-{congress}{bill_type}{bill_number}"
+
+
+_BG_CACHE_PREFIX = "bg:v1:"
+_BG_CACHE_TTL_SECONDS = 60 * 24 * 3600  # 60 days — Background references are
+                                        # nearly always stable concepts (FHA,
+                                        # HUD, Section 230). The per-term
+                                        # ref:v1: cache catches volatile ones.
+
+
+def _bg_cache_key(congress, bill_type, bill_number):
+    return f"{_BG_CACHE_PREFIX}{congress}{bill_type}{bill_number}"
+
+
+def _get_cached_bg(congress, bill_type, bill_number):
+    try:
+        return get_disk_cache(_bg_cache_key(congress, bill_type, bill_number), _BG_CACHE_TTL_SECONDS)
+    except Exception as e:
+        print(f"[TRANSLATOR] BG cache read error: {e}")
+        return None
+
+
+def _store_cached_bg(congress, bill_type, bill_number, bg_markdown):
+    try:
+        set_disk_cache(_bg_cache_key(congress, bill_type, bill_number), bg_markdown)
+    except Exception as e:
+        print(f"[TRANSLATOR] BG cache write error: {e}")
 
 def _get_cached(congress, bill_type, bill_number):
     try:
@@ -184,18 +211,26 @@ def translate_bill(bill_data, client, user_context=None, bill_text=None):
     bill_type = (bill.get("type") or "").lower()
     bill_number = bill.get("number")
 
-    # Check cache first
-    cached = _get_cached(congress, bill_type, bill_number)
-    if cached:
+    # Two-tier cache. Translation core and the Background section live in
+    # SEPARATE cache rows so bumping one prefix does not force the other to
+    # regenerate. Bumping BILLS-vN re-runs Haiku but never Sonnet. Bumping
+    # bg:vN re-runs the resolver (which still hits per-term cache for most
+    # terms, so Sonnet only fires for genuinely new ones).
+    cached_payload = _get_cached(congress, bill_type, bill_number)
+    cached_translation, cached_refs = _parse_cache_payload(cached_payload)
+    cached_bg = _get_cached_bg(congress, bill_type, bill_number)
+
+    if cached_translation and cached_bg is not None:
         log_action(
             agent_name="translator",
             action="translate_bill_cached",
             input_data={"congress": congress, "type": bill_type, "number": bill_number},
-            output_data={"source": "cache"}
+            output_data={"source": "cache_full"},
         )
-        return cached
+        return _assemble(cached_translation, cached_bg)
 
-    # Not cached — translate
+    # Need to regenerate at least one side. We translate when missing; we
+    # rebuild Background from cached refs when its row is missing.
     title = bill.get("title", "Unknown")
     sponsors = bill.get("sponsors", [{}])
     sponsor = sponsors[0].get("fullName", "Unknown") if sponsors else "Unknown"
@@ -255,26 +290,41 @@ qualifies. Do NOT write "the bill does not explain X" in the translation body �
 listed terms will be covered separately in a Background section.
 """
 
-    message = client.messages.create(
-        model="claude-haiku-4-5-20251001",
-        max_tokens=1500,
-        messages=[{"role": "user", "content": prompt}]
-    )
+    # Decide whether to call Haiku at all. Cached translation + missing BG
+    # is the common case after a bg:vN bump — we already have refs from the
+    # cached payload and can rebuild Background without re-translating.
+    if cached_translation:
+        translation = cached_translation
+        unknown_refs = cached_refs or []
+        translation_source = "cache_translation"
+    else:
+        message = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=1500,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        raw = message.content[0].text.strip()
+        translation, unknown_refs = _parse_translation_json(raw)
+        # Persist translation + refs as JSON so a future bg:vN bump can
+        # regenerate Background without re-running Haiku.
+        _store_cached(
+            congress, bill_type, bill_number,
+            json.dumps({"translation": translation, "unknown_refs": unknown_refs}),
+        )
+        translation_source = "haiku"
 
-    raw = message.content[0].text.strip()
-    translation, unknown_refs = _parse_translation_json(raw)
-
-    if unknown_refs:
-        try:
-            resolutions = resolve_references(unknown_refs, client)
-        except Exception as e:
-            print(f"[TRANSLATOR] Reference resolver error: {e}")
-            resolutions = {}
-        if resolutions:
-            translation = translation.rstrip() + "\n\n" + _format_background(resolutions)
-
-    # Store in cache
-    _store_cached(congress, bill_type, bill_number, translation)
+    bg = cached_bg
+    if bg is None:
+        if unknown_refs:
+            try:
+                resolutions = resolve_references(unknown_refs, client)
+            except Exception as e:
+                print(f"[TRANSLATOR] Reference resolver error: {e}")
+                resolutions = {}
+            bg = _format_background(resolutions) if resolutions else ""
+        else:
+            bg = ""
+        _store_cached_bg(congress, bill_type, bill_number, bg)
 
     log_action(
         agent_name="translator",
@@ -285,7 +335,33 @@ listed terms will be covered separately in a Background section.
             "number": bill_number,
             "title": title,
         },
-        output_data={"translation_preview": translation[:100], "source": "api"}
+        output_data={
+            "translation_preview": translation[:100],
+            "translation_source": translation_source,
+            "bg_source": "cache" if cached_bg is not None else ("resolver" if unknown_refs else "none"),
+        },
     )
 
-    return translation
+    return _assemble(translation, bg)
+
+
+def _assemble(translation: str, bg: str) -> str:
+    if not bg:
+        return translation
+    return translation.rstrip() + "\n\n" + bg
+
+
+def _parse_cache_payload(raw):
+    """Cache rows are now JSON {translation, unknown_refs}. Older rows from
+    before this split were plain markdown — treat those as a translation-only
+    hit with no known refs. Returns (translation_or_None, refs_list)."""
+    if not raw:
+        return None, []
+    s = raw.strip() if isinstance(raw, str) else raw
+    if isinstance(s, str) and s.startswith("{"):
+        try:
+            obj = json.loads(s)
+            return (obj.get("translation") or None, list(obj.get("unknown_refs") or []))
+        except json.JSONDecodeError:
+            pass
+    return s, []
