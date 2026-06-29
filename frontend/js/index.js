@@ -820,6 +820,13 @@ async function openDetail(bill) {
 
     setTimeout(() => {
       document.getElementById('detail-loading').style.display = 'none';
+      // Authoritative title from Congress.gov overrides whatever title the
+      // search result carried. GovInfo indexes vehicle-bill print versions
+      // under different titles than the bill's current canonical name, so
+      // a search hit for "SAVE Act" might land on a bill whose actual
+      // current text is something unrelated — Congress.gov is the truth.
+      const authoritativeTitle = data.title || bill.title || billId;
+      document.getElementById('detail-bill-title').textContent = authoritativeTitle;
       renderExplanation(data.translation || '', data.became_law);
       renderSponsors(data.sponsors || [], data.cosponsors || []);
       renderTimeline(data.timeline_events, data.timeline);
@@ -830,10 +837,10 @@ async function openDetail(bill) {
       if (typeof setCurrentBillContext === 'function') {
         setCurrentBillContext({
           bill_id:      billId,
-          bill_title:   bill.title || billId,
+          bill_title:   authoritativeTitle,
           bill_summary: data.translation || '',
           latest_action: bill.latest_action || '',
-          _reopen: { type: 'federal', congress: bill.congress, billType: bill.type, number: bill.number, title: bill.title },
+          _reopen: { type: 'federal', congress: bill.congress, billType: bill.type, number: bill.number, title: authoritativeTitle },
         });
       }
       _initNotifyBtn(billId, bill.congress, bill.type, bill.number, null);

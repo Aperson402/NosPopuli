@@ -1426,6 +1426,7 @@ async def get_bill(request: Request, body: BillRequest):
             "congress": body.congress,
             "type": body.bill_type,
             "number": body.number,
+            "title": bill_title,
             "translation": translation,
             "timeline": timeline,
             "timeline_events": structure_history(actions),
@@ -1523,6 +1524,7 @@ async def get_law(request: Request, body: LawRequest):
         return {
             "congress": body.congress,
             "law_number": body.law_number,
+            "title": bill_title,
             "translation": translation,
             "timeline": timeline,
             "timeline_events": structure_history(actions),
