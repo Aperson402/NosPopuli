@@ -1277,13 +1277,6 @@ function ledeAction(idx, action) {
       else if (attempts < 20) setTimeout(() => tryClick(attempts + 1), 250);
     };
     tryClick();
-  } else if (action === 'write') {
-    const tryOpen = (attempts = 0) => {
-      if (typeof openWritePanel === 'function' && document.getElementById('write-reps-btn')?.style.display !== 'none') {
-        openWritePanel();
-      } else if (attempts < 20) setTimeout(() => tryOpen(attempts + 1), 250);
-    };
-    tryOpen();
   }
 }
 window.ledeAction = ledeAction;
@@ -1370,7 +1363,6 @@ function renderFeedSection(items, prefs, upcomingElections = []) {
         <div class="lede-actions">
           <button class="btn-primary" onclick="event.stopPropagation();ledeAction(${lede.i}, 'read')">Read the explanation →</button>
           <button class="btn-ghost"  onclick="event.stopPropagation();ledeAction(${lede.i}, 'notify')">Notify me when this moves</button>
-          <button class="btn-ghost"  onclick="event.stopPropagation();ledeAction(${lede.i}, 'write')">Write to my reps</button>
         </div>
       </section>`;
   })() : '';

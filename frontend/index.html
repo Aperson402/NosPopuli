@@ -37,7 +37,6 @@
 <nav class="top-nav">
   <a class="nav-link top-nav-btn" href="#" onclick="goHome();return false">Front Page</a>
   <a class="nav-link top-nav-btn" href="#" onclick="showPage('page-elections');loadElections();return false">Elections</a>
-  <a class="nav-link top-nav-btn" href="#" onclick="showPage('page-correspondence');loadCorrespondencePage();return false">My Letters</a>
   <a class="nav-link top-nav-btn" href="#" onclick="showPage('page-notifications');loadNotificationsPage();return false">My Notifications</a>
 </nav>
 
@@ -199,10 +198,6 @@
       <div class="bill-section-label">Plain English Explanation</div>
       <div class="detail-explanation" id="detail-explanation"></div>
       <div class="lede-actions" style="margin-top:1rem">
-        <button class="btn-primary write-reps-btn" id="write-reps-btn"
-            style="display:none" onclick="openWritePanel()">
-          ✉ Write to Your Reps
-        </button>
         <button class="btn-ghost notify-btn" id="notify-btn"
             style="display:none" onclick="toggleSubscribe()">
           Notify me when this moves
@@ -382,9 +377,17 @@
   <header class="page-header">
     <div class="page-kicker">My Letters</div>
     <h1 class="page-title">Civic Correspondence</h1>
-    <p class="page-deck">Every letter you've sent to representatives, and their replies.</p>
+    <p class="page-deck">Letter writing is paused.</p>
   </header>
-  <div id="corr-list"></div>
+  <div class="empty-state" style="margin-top:2rem;max-width:560px">
+    <p>NosPopuli doesn't yet have a reliable way to look up direct email addresses
+    for U.S. senators and representatives. Most members of Congress don't publish
+    a public inbox — they accept constituent mail through web forms keyed to your
+    address, which we can't automate without a fragile per-rep scraper.</p>
+    <p style="margin-top:0.75rem">Until we have a system we trust, letter writing
+    is disabled. You can still <a href="#" onclick="goHome();return false">read the
+    feed</a>, search for bills, and subscribe to notifications.</p>
+  </div>
 </div>
 
 <!-- ══════════════════════════════════════════════ -->
