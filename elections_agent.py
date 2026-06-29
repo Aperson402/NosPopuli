@@ -268,7 +268,7 @@ async def fetch_elections(zip_code, state_code=None):
     cache_key = (zip_code or "national", state_code or "")
     # v2 prefix introduced after a poisoned empty result wedged the 6hr cache
     # for an entire region. Bumping invalidates v1 rows lazily.
-    db_key = f"elections:v2:{zip_code or 'national'}:{state_code or ''}"
+    db_key = f"elections:v3:{zip_code or 'national'}:{state_code or ''}"
     with _cache_lock:
         if cache_key in _elections_cache:
             print(f"[ELECTIONS] Returning cached result for {cache_key}")
