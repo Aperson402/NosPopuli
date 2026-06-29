@@ -15,10 +15,11 @@ supabase = create_client(
 )
 
 def _cache_key(congress, bill_type, bill_number):
-    # v2 prefix introduced when the translator started emitting a Background
-    # section for external references the bill itself doesn't define. Bumping
-    # forces re-translation lazily on next view; old v1 rows linger unused.
-    return f"BILLS-v2-{congress}{bill_type}{bill_number}"
+    # v3 prefix forces re-translation after the enacted-status fix. Old v2
+    # rows could claim a not-yet-signed bill was law because the prompt
+    # didn't have an authoritative is_law signal. Lazy invalidation on next
+    # view; old v2 rows linger unused.
+    return f"BILLS-v3-{congress}{bill_type}{bill_number}"
 
 def _get_cached(congress, bill_type, bill_number):
     try:
@@ -201,6 +202,20 @@ def translate_bill(bill_data, client, user_context=None, bill_text=None):
     status = bill.get("latestAction", {}).get("text", "Unknown")
     policy_area = bill.get("policyArea", {}).get("name", "")
 
+    # Authoritative enacted-status signal. The Congress.gov bill record only
+    # populates `laws` once a Public Law number is actually assigned (signed
+    # by the President or override of veto). Inferring "enacted" from action
+    # text is unreliable — the model previously read procedural notations
+    # like "Motion to reconsider laid on the table" as evidence of enactment.
+    laws = bill.get("laws") or []
+    is_law = bool(laws)
+    law_number = laws[0].get("number") if laws else None
+
+    status_signal = (
+        f"ENACTED. Became Public Law {law_number}." if is_law
+        else "NOT YET LAW. Use the latest action text below to describe the current stage in plain English (introduced, in committee, passed one chamber, passed both chambers awaiting presentment, sent to the President, etc.) — never state or imply the bill has been signed into law."
+    )
+
     text_section = ""
     if bill_text and len(bill_text) > 200:
         text_section = f"\nActual bill text (excerpt):\n{bill_text[:8000]}"
@@ -214,7 +229,8 @@ Base your explanation on the actual bill text when provided — do not infer or 
 
 Bill Title: {title}
 Sponsor: {sponsor}
-Current Status: {status}
+Latest Action: {status}
+Enacted Status: {status_signal}
 Policy Area: {policy_area}
 {text_section}
 
@@ -228,7 +244,7 @@ The translation field is markdown with these four sections, in order:
 1. What this bill does in one sentence
 2. Who it affects and how (specific groups: taxpayers, agencies, industries, individuals)
 3. Costs, trade-offs, and obligations — what does this cost, who pays, what is required or restricted, and what is given up (e.g. federal spending, new mandates, regulatory burdens, loss of existing rights or programs). If costs or trade-offs are unknown or not specified in the bill, say so briefly.
-4. What its current status means
+4. What its current status means — the Enacted Status line above is authoritative. Procedural notations like "Motion to reconsider laid on the table", "Read twice", "Referred to Committee", or chamber-passage votes do NOT mean the bill is law. Only when Enacted Status begins with "ENACTED" may you describe the bill as law.
 
 unknown_refs is a list of proper-noun programs, funds, statutes, offices, or
 doctrines this bill references by name but does NOT itself define, AND that an
