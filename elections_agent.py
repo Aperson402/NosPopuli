@@ -266,7 +266,9 @@ async def fetch_elections(zip_code, state_code=None):
     Results cached per zip for 6 hours.
     """
     cache_key = (zip_code or "national", state_code or "")
-    db_key = f"elections:{zip_code or 'national'}:{state_code or ''}"
+    # v2 prefix introduced after a poisoned empty result wedged the 6hr cache
+    # for an entire region. Bumping invalidates v1 rows lazily.
+    db_key = f"elections:v2:{zip_code or 'national'}:{state_code or ''}"
     with _cache_lock:
         if cache_key in _elections_cache:
             print(f"[ELECTIONS] Returning cached result for {cache_key}")
@@ -301,11 +303,15 @@ async def fetch_elections(zip_code, state_code=None):
         result = await _compute_elections(zip_code, state_code)
 
         # Cache write happens inside the lock so the next waiter sees it on
-        # their re-check. Even error/empty results get cached briefly to
-        # prevent thundering herds during outages.
+        # their re-check. Only cache results that actually have content —
+        # empty {upcoming: [], recent: []} from a transient upstream blip
+        # used to wedge the 6hr TTL with garbage. A short in-memory dedup
+        # entry is fine for thundering herds; persisting is not.
+        has_content = bool(result and (result.get("upcoming") or result.get("recent")))
         with _cache_lock:
-            _elections_cache[cache_key] = result
-        if result and not result.get("error"):
+            if has_content:
+                _elections_cache[cache_key] = result
+        if has_content and not result.get("error"):
             set_disk_cache(db_key, result)
         return result
 
