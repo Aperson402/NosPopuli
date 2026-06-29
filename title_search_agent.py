@@ -57,6 +57,17 @@ POPULAR_NAMES = {
     "usa patriot act":         {"congress": 107, "type": "hr", "number": 3162, "title": "USA PATRIOT Act"},
     "freedom act":             {"congress": 114, "type": "hr", "number": 2048, "title": "USA FREEDOM Act of 2015"},
     "usa freedom act":         {"congress": 114, "type": "hr", "number": 2048, "title": "USA FREEDOM Act of 2015"},
+    # SAVE Act — "Safeguard American Voter Eligibility Act". Multiple bills use
+    # the SAVE acronym (SMART Save Act, Healthcare Employees Save Act, etc.), so
+    # GovInfo phrase search returns those alongside the voting bill. Pin the
+    # voter-eligibility version explicitly. 119 HR 7296 is the standalone House
+    # bill in the current Congress (S 1383 was a vehicle bill swap, see commit
+    # e8ebb60). Hardcoding the current-Congress version surfaces it for the
+    # plain "SAVE Act" query — readers searching for prior-Congress versions can
+    # use the year-stripped fallback ("Safeguard American Voter Eligibility Act").
+    "save act":                {"congress": 119, "type": "hr", "number": 7296, "title": "SAVE America Act"},
+    "save america act":        {"congress": 119, "type": "hr", "number": 7296, "title": "SAVE America Act"},
+    "safeguard american voter eligibility act": {"congress": 119, "type": "hr", "number": 7296, "title": "SAVE America Act"},
 }
 
 # ---------------------------------------------------------------------------
