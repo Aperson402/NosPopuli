@@ -716,6 +716,11 @@
   ],
   "VA": [
     {
+      "date": "2026-08-04",
+      "name": "VA Primary Election",
+      "type": "primary"
+    },
+    {
       "date": "2026-11-03",
       "name": "2026 General Election",
       "type": "general"
