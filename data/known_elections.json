@@ -23,6 +23,16 @@
   ],
   "AL": [
     {
+      "date": "2026-05-19",
+      "name": "AL Primary Election",
+      "type": "primary"
+    },
+    {
+      "date": "2026-06-16",
+      "name": "AL Primary Runoff",
+      "type": "runoff"
+    },
+    {
       "date": "2026-11-03",
       "name": "2026 General Election",
       "type": "general"
@@ -39,6 +49,16 @@
     }
   ],
   "AR": [
+    {
+      "date": "2026-03-03",
+      "name": "AR Primary Election",
+      "type": "primary"
+    },
+    {
+      "date": "2026-03-31",
+      "name": "AR Primary Runoff",
+      "type": "runoff"
+    },
     {
       "date": "2026-11-03",
       "name": "2026 General Election",
@@ -57,7 +77,7 @@
   ],
   "AZ": [
     {
-      "date": "2026-08-04",
+      "date": "2026-07-21",
       "name": "AZ Primary Election",
       "type": "primary"
     },
@@ -74,6 +94,11 @@
   ],
   "CA": [
     {
+      "date": "2026-06-02",
+      "name": "CA Primary Election",
+      "type": "primary"
+    },
+    {
       "date": "2026-11-03",
       "name": "2026 General Election",
       "type": "general"
@@ -85,6 +110,11 @@
     }
   ],
   "CO": [
+    {
+      "date": "2026-06-30",
+      "name": "CO Primary Election",
+      "type": "primary"
+    },
     {
       "date": "2026-11-03",
       "name": "2026 General Election",
@@ -102,6 +132,11 @@
     }
   ],
   "CT": [
+    {
+      "date": "2026-08-11",
+      "name": "CT Primary Election",
+      "type": "primary"
+    },
     {
       "date": "2026-11-03",
       "name": "2026 General Election",
@@ -121,6 +156,11 @@
     }
   ],
   "DE": [
+    {
+      "date": "2026-09-15",
+      "name": "DE Primary Election",
+      "type": "primary"
+    },
     {
       "date": "2026-11-03",
       "name": "2026 General Election",
@@ -150,6 +190,16 @@
     }
   ],
   "GA": [
+    {
+      "date": "2026-05-19",
+      "name": "GA Primary Election",
+      "type": "primary"
+    },
+    {
+      "date": "2026-06-16",
+      "name": "GA Primary Runoff",
+      "type": "runoff"
+    },
     {
       "date": "2026-11-03",
       "name": "2026 General Election",
@@ -185,6 +235,11 @@
   ],
   "IA": [
     {
+      "date": "2026-06-02",
+      "name": "IA Primary Election",
+      "type": "primary"
+    },
+    {
       "date": "2026-11-03",
       "name": "2026 General Election",
       "type": "general"
@@ -201,6 +256,11 @@
     }
   ],
   "ID": [
+    {
+      "date": "2026-05-19",
+      "name": "ID Primary Election",
+      "type": "primary"
+    },
     {
       "date": "2026-11-03",
       "name": "2026 General Election",
@@ -219,6 +279,11 @@
   ],
   "IL": [
     {
+      "date": "2026-03-17",
+      "name": "IL Primary Election",
+      "type": "primary"
+    },
+    {
       "date": "2026-11-03",
       "name": "2026 General Election",
       "type": "general"
@@ -235,6 +300,11 @@
     }
   ],
   "IN": [
+    {
+      "date": "2026-05-05",
+      "name": "IN Primary Election",
+      "type": "primary"
+    },
     {
       "date": "2026-11-03",
       "name": "2026 General Election",
@@ -265,6 +335,11 @@
   ],
   "KY": [
     {
+      "date": "2026-05-19",
+      "name": "KY Primary Election",
+      "type": "primary"
+    },
+    {
       "date": "2026-11-03",
       "name": "2026 General Election",
       "type": "general"
@@ -282,8 +357,18 @@
   ],
   "LA": [
     {
+      "date": "2026-05-16",
+      "name": "LA Primary Election (US Senate)",
+      "type": "primary"
+    },
+    {
+      "date": "2026-06-27",
+      "name": "LA Primary Runoff (US Senate)",
+      "type": "runoff"
+    },
+    {
       "date": "2026-11-03",
-      "name": "LA Primary Election",
+      "name": "LA Primary Election (US House)",
       "type": "primary"
     },
     {
@@ -297,12 +382,22 @@
       "type": "general"
     },
     {
+      "date": "2026-12-12",
+      "name": "LA Primary Runoff (US House)",
+      "type": "runoff"
+    },
+    {
       "date": "2027-11-02",
       "name": "LA State Election",
       "type": "general"
     }
   ],
   "MA": [
+    {
+      "date": "2026-09-01",
+      "name": "MA Primary Election",
+      "type": "primary"
+    },
     {
       "date": "2026-11-03",
       "name": "2026 General Election",
@@ -321,6 +416,11 @@
   ],
   "MD": [
     {
+      "date": "2026-06-23",
+      "name": "MD Primary Election",
+      "type": "primary"
+    },
+    {
       "date": "2026-11-03",
       "name": "2026 General Election",
       "type": "general"
@@ -332,6 +432,11 @@
     }
   ],
   "ME": [
+    {
+      "date": "2026-06-09",
+      "name": "ME Primary Election",
+      "type": "primary"
+    },
     {
       "date": "2026-11-03",
       "name": "2026 General Election",
@@ -406,6 +511,16 @@
   ],
   "MS": [
     {
+      "date": "2026-03-10",
+      "name": "MS Primary Election",
+      "type": "primary"
+    },
+    {
+      "date": "2026-04-07",
+      "name": "MS Primary Runoff",
+      "type": "runoff"
+    },
+    {
       "date": "2026-11-03",
       "name": "2026 General Election",
       "type": "general"
@@ -423,6 +538,11 @@
   ],
   "MT": [
     {
+      "date": "2026-06-02",
+      "name": "MT Primary Election",
+      "type": "primary"
+    },
+    {
       "date": "2026-11-03",
       "name": "2026 General Election",
       "type": "general"
@@ -434,6 +554,16 @@
     }
   ],
   "NC": [
+    {
+      "date": "2026-03-03",
+      "name": "NC Primary Election",
+      "type": "primary"
+    },
+    {
+      "date": "2026-05-12",
+      "name": "NC Primary Runoff",
+      "type": "runoff"
+    },
     {
       "date": "2026-11-03",
       "name": "2026 General Election",
@@ -447,12 +577,22 @@
   ],
   "ND": [
     {
+      "date": "2026-06-09",
+      "name": "ND Primary Election",
+      "type": "primary"
+    },
+    {
       "date": "2026-11-03",
       "name": "2026 General Election",
       "type": "general"
     }
   ],
   "NE": [
+    {
+      "date": "2026-05-12",
+      "name": "NE Primary Election",
+      "type": "primary"
+    },
     {
       "date": "2026-11-03",
       "name": "2026 General Election",
@@ -493,6 +633,11 @@
   ],
   "NJ": [
     {
+      "date": "2026-06-02",
+      "name": "NJ Primary Election",
+      "type": "primary"
+    },
+    {
       "date": "2026-11-03",
       "name": "2026 General Election",
       "type": "general"
@@ -509,6 +654,11 @@
     }
   ],
   "NM": [
+    {
+      "date": "2026-06-02",
+      "name": "NM Primary Election",
+      "type": "primary"
+    },
     {
       "date": "2026-11-03",
       "name": "2026 General Election",
@@ -527,6 +677,11 @@
   ],
   "NV": [
     {
+      "date": "2026-06-09",
+      "name": "NV Primary Election",
+      "type": "primary"
+    },
+    {
       "date": "2026-11-03",
       "name": "2026 General Election",
       "type": "general"
@@ -538,6 +693,11 @@
     }
   ],
   "NY": [
+    {
+      "date": "2026-06-23",
+      "name": "NY Primary Election",
+      "type": "primary"
+    },
     {
       "date": "2026-11-03",
       "name": "2026 General Election",
@@ -551,6 +711,11 @@
   ],
   "OH": [
     {
+      "date": "2026-05-05",
+      "name": "OH Primary Election",
+      "type": "primary"
+    },
+    {
       "date": "2026-11-03",
       "name": "2026 General Election",
       "type": "general"
@@ -563,9 +728,14 @@
   ],
   "OK": [
     {
-      "date": "2026-08-25",
+      "date": "2026-06-16",
       "name": "OK Primary Election",
       "type": "primary"
+    },
+    {
+      "date": "2026-08-25",
+      "name": "OK Primary Runoff",
+      "type": "runoff"
     },
     {
       "date": "2026-11-03",
@@ -585,6 +755,11 @@
   ],
   "OR": [
     {
+      "date": "2026-05-19",
+      "name": "OR Primary Election",
+      "type": "primary"
+    },
+    {
       "date": "2026-11-03",
       "name": "2026 General Election",
       "type": "general"
@@ -602,6 +777,11 @@
   ],
   "PA": [
     {
+      "date": "2026-05-19",
+      "name": "PA Primary Election",
+      "type": "primary"
+    },
+    {
       "date": "2026-11-03",
       "name": "2026 General Election",
       "type": "general"
@@ -614,7 +794,7 @@
   ],
   "RI": [
     {
-      "date": "2026-09-08",
+      "date": "2026-09-09",
       "name": "RI Primary Election",
       "type": "primary"
     },
@@ -636,6 +816,16 @@
   ],
   "SC": [
     {
+      "date": "2026-06-09",
+      "name": "SC Primary Election",
+      "type": "primary"
+    },
+    {
+      "date": "2026-06-23",
+      "name": "SC Primary Runoff",
+      "type": "runoff"
+    },
+    {
       "date": "2026-11-03",
       "name": "2026 General Election",
       "type": "general"
@@ -652,6 +842,16 @@
     }
   ],
   "SD": [
+    {
+      "date": "2026-06-02",
+      "name": "SD Primary Election",
+      "type": "primary"
+    },
+    {
+      "date": "2026-07-28",
+      "name": "SD Primary Runoff",
+      "type": "runoff"
+    },
     {
       "date": "2026-11-03",
       "name": "2026 General Election",
@@ -692,6 +892,16 @@
   ],
   "TX": [
     {
+      "date": "2026-03-03",
+      "name": "TX Primary Election",
+      "type": "primary"
+    },
+    {
+      "date": "2026-05-26",
+      "name": "TX Primary Runoff",
+      "type": "runoff"
+    },
+    {
       "date": "2026-11-03",
       "name": "2026 General Election",
       "type": "general"
@@ -708,6 +918,11 @@
     }
   ],
   "UT": [
+    {
+      "date": "2026-06-23",
+      "name": "UT Primary Election",
+      "type": "primary"
+    },
     {
       "date": "2026-11-03",
       "name": "2026 General Election",
@@ -783,6 +998,11 @@
     }
   ],
   "WV": [
+    {
+      "date": "2026-05-12",
+      "name": "WV Primary Election",
+      "type": "primary"
+    },
     {
       "date": "2026-11-03",
       "name": "2026 General Election",
